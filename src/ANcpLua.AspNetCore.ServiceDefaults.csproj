@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>true</IsPackable>
+    <PackageId>ANcpLua.AspNetCore.ServiceDefaults</PackageId>
+    <Version>1.0.23</Version>
+    <Authors>ANcpLua</Authors>
+    <Description>Minimal service defaults API for ANcpLua.NET.Sdk tests.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="_packages/ANcpLua.AspNetCore.ServiceDefaults/**/*.cs" />
+  </ItemGroup>
+</Project>

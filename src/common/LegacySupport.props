@@ -1,0 +1,107 @@
+<!--
+  LegacySupport.props - Polyfill injection configuration
+
+  This file defines properties that control which polyfills/extensions
+  are injected into projects based on target framework.
+
+  USAGE: Set any of these properties to 'true' in your project to inject:
+
+  POLYFILLS (BCL types for older TFMs):
+    <InjectTrimAttributesOnLegacy>         - Trimmer/AOT attributes (< net5.0)
+    <InjectNullabilityAttributesOnLegacy>  - Nullable reference type attrs (< netcoreapp3.1)
+    <InjectIsExternalInitOnLegacy>         - Records support (< net5.0)
+    <InjectRequiredMemberOnLegacy>         - required keyword support (< net7.0)
+    <InjectCallerAttributesOnLegacy>       - CallerArgumentExpression (< net6.0)
+    <InjectUnreachableExceptionOnLegacy>   - UnreachableException (< net7.0)
+    <InjectExperimentalAttributeOnLegacy>  - ExperimentalAttribute (< net8.0)
+    <InjectIndexRangeOnLegacy>             - Index/Range structs (< net5.0)
+
+  EXTENSIONS (Utility types):
+    <InjectSharedThrow>                    - Guard clause utilities (all TFMs)
+    <InjectSourceGenHelpers>               - EquatableArray, DiagnosticInfo, LocationInfo
+    <InjectCommonComparers>                - StringOrdinalComparer, TypePairComparer
+
+  BUNDLES (convenience):
+    <InjectAllPolyfillsOnLegacy>           - All polyfills based on TFM
+    <InjectAllExtensions>                  - All extension utilities
+-->
+<Project>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       DEFAULT VALUES
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- Polyfills default to false - opt-in -->
+    <InjectTrimAttributesOnLegacy Condition="'$(InjectTrimAttributesOnLegacy)' == ''">false</InjectTrimAttributesOnLegacy>
+    <InjectNullabilityAttributesOnLegacy Condition="'$(InjectNullabilityAttributesOnLegacy)' == ''">false</InjectNullabilityAttributesOnLegacy>
+    <InjectIsExternalInitOnLegacy Condition="'$(InjectIsExternalInitOnLegacy)' == ''">false</InjectIsExternalInitOnLegacy>
+    <InjectRequiredMemberOnLegacy Condition="'$(InjectRequiredMemberOnLegacy)' == ''">false</InjectRequiredMemberOnLegacy>
+    <InjectCallerAttributesOnLegacy Condition="'$(InjectCallerAttributesOnLegacy)' == ''">false</InjectCallerAttributesOnLegacy>
+    <InjectCompilerFeatureRequiredOnLegacy Condition="'$(InjectCompilerFeatureRequiredOnLegacy)' == ''">false</InjectCompilerFeatureRequiredOnLegacy>
+    <InjectUnreachableExceptionOnLegacy Condition="'$(InjectUnreachableExceptionOnLegacy)' == ''">false</InjectUnreachableExceptionOnLegacy>
+    <InjectExperimentalAttributeOnLegacy Condition="'$(InjectExperimentalAttributeOnLegacy)' == ''">false</InjectExperimentalAttributeOnLegacy>
+    <InjectIndexRangeOnLegacy Condition="'$(InjectIndexRangeOnLegacy)' == ''">false</InjectIndexRangeOnLegacy>
+    <InjectStackTraceHiddenOnLegacy Condition="'$(InjectStackTraceHiddenOnLegacy)' == ''">false</InjectStackTraceHiddenOnLegacy>
+    <InjectParamCollectionOnLegacy Condition="'$(InjectParamCollectionOnLegacy)' == ''">false</InjectParamCollectionOnLegacy>
+
+    <!-- Extensions default to false - opt-in -->
+    <InjectSharedThrow Condition="'$(InjectSharedThrow)' == ''">false</InjectSharedThrow>
+    <InjectSourceGenHelpers Condition="'$(InjectSourceGenHelpers)' == ''">false</InjectSourceGenHelpers>
+    <InjectCommonComparers Condition="'$(InjectCommonComparers)' == ''">false</InjectCommonComparers>
+
+    <!-- Bundles -->
+    <InjectAllPolyfillsOnLegacy Condition="'$(InjectAllPolyfillsOnLegacy)' == ''">false</InjectAllPolyfillsOnLegacy>
+    <InjectAllExtensions Condition="'$(InjectAllExtensions)' == ''">false</InjectAllExtensions>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       BUNDLE EXPANSION
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup Condition="'$(InjectAllPolyfillsOnLegacy)' == 'true'">
+    <InjectTrimAttributesOnLegacy>true</InjectTrimAttributesOnLegacy>
+    <InjectNullabilityAttributesOnLegacy>true</InjectNullabilityAttributesOnLegacy>
+    <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
+    <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
+    <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
+    <InjectCompilerFeatureRequiredOnLegacy>true</InjectCompilerFeatureRequiredOnLegacy>
+    <InjectUnreachableExceptionOnLegacy>true</InjectUnreachableExceptionOnLegacy>
+    <InjectExperimentalAttributeOnLegacy>true</InjectExperimentalAttributeOnLegacy>
+    <InjectIndexRangeOnLegacy>true</InjectIndexRangeOnLegacy>
+    <InjectStackTraceHiddenOnLegacy>true</InjectStackTraceHiddenOnLegacy>
+    <InjectParamCollectionOnLegacy>true</InjectParamCollectionOnLegacy>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectAllExtensions)' == 'true'">
+    <InjectSharedThrow>true</InjectSharedThrow>
+    <InjectSourceGenHelpers>true</InjectSourceGenHelpers>
+    <InjectCommonComparers>true</InjectCommonComparers>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TFM DETECTION HELPERS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- Detect if we need polyfills based on TFM -->
+    <_NeedsNet5Polyfills>false</_NeedsNet5Polyfills>
+    <_NeedsNet5Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))">true</_NeedsNet5Polyfills>
+
+    <_NeedsNet6Polyfills>false</_NeedsNet6Polyfills>
+    <_NeedsNet6Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</_NeedsNet6Polyfills>
+
+    <_NeedsNet7Polyfills>false</_NeedsNet7Polyfills>
+    <_NeedsNet7Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</_NeedsNet7Polyfills>
+
+    <_NeedsNet8Polyfills>false</_NeedsNet8Polyfills>
+    <_NeedsNet8Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</_NeedsNet8Polyfills>
+
+    <_NeedsNet9Polyfills>false</_NeedsNet9Polyfills>
+    <_NeedsNet9Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">true</_NeedsNet9Polyfills>
+
+    <_NeedsNetCoreApp31Polyfills>false</_NeedsNetCoreApp31Polyfills>
+    <_NeedsNetCoreApp31Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.1'))">true</_NeedsNetCoreApp31Polyfills>
+
+    <!-- Shared folder path -->
+    <_SharedSourcePath>$(MSBuildThisFileDirectory)..\shared\</_SharedSourcePath>
+  </PropertyGroup>
+
+</Project>

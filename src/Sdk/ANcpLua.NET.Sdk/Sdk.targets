@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <_ANcpLuaSdkPackageRoot Condition="'$(_ANcpLuaSdkPackageRoot)' == ''">$(MSBuildThisFileDirectory)..\</_ANcpLuaSdkPackageRoot>
+    <_ANcpLuaMustImportMicrosoftNETSdk Condition="'$(_ANcpLuaMustImportMicrosoftNETSdk)' == '' AND '$(UsingMicrosoftNETSdk)' != 'true'">true</_ANcpLuaMustImportMicrosoftNETSdk>
+  </PropertyGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="'$(_ANcpLuaMustImportMicrosoftNETSdk)' == 'true'" />
+  <Import Project="$(_ANcpLuaSdkPackageRoot)common\Common.targets" />
+</Project>

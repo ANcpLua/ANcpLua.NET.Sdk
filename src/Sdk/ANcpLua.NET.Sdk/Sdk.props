@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <ANcpLuaSdkName Condition="'$(ANcpLuaSdkName)' == ''">ANcpLua.NET.Sdk</ANcpLuaSdkName>
+    <_ANcpLuaSdkPackageRoot>$(MSBuildThisFileDirectory)..\</_ANcpLuaSdkPackageRoot>
+    <_ANcpLuaMustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_ANcpLuaMustImportMicrosoftNETSdk>
+  </PropertyGroup>
+
+  <!-- Support both patterns:
+       1) Layering: <Project Sdk="Microsoft.NET.Sdk"> + <Sdk Name="ANcpLua.NET.Sdk" />
+       2) Root SDK: <Project Sdk="ANcpLua.NET.Sdk"> (imports Microsoft.NET.Sdk automatically) -->
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="'$(_ANcpLuaMustImportMicrosoftNETSdk)' == 'true'" />
+  <Import Project="$(_ANcpLuaSdkPackageRoot)common\Common.props" />
+</Project>

@@ -1,0 +1,115 @@
+<Project>
+	<Import Project="$(MSBuildThisFileDirectory)\Tests.targets" Condition="'$(IsTestProject)' == 'true'" />
+	<Import Project="$(MSBuildThisFileDirectory)\Npm.targets" />
+	<Import Project="$(MSBuildThisFileDirectory)\LegacySupport.targets" />
+
+	<PropertyGroup>
+    <GenerateSBOM Condition="'$(GenerateSBOM)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'">true</GenerateSBOM>
+	</PropertyGroup>
+
+  <ItemGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">
+    <PackageReference Include="ANcpLua.AspNetCore.ServiceDefaults" Version="1.0.23" IsImplicitlyDefined="true" />
+    <PackageReference Include="ANcpLua.AspNetCore.ServiceDefaults.AutoRegister" Version="1.0.1" IsImplicitlyDefined="true" Condition="'$(AutoRegisterServiceDefaults)' != 'false'" />
+  </ItemGroup>
+
+	<!-- Ensure application can run with newer frameworks -->
+	<PropertyGroup>
+		<RollForward Condition="'$(RollForward)' == '' AND '$(IsTestProject)' != 'true'">LatestMajor</RollForward>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ANcpLua.Sdk.Name</_Parameter1>
+      <_Parameter2>$(ANcpLuaSdkName)</_Parameter2>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Sbom.Targets" Version="4.1.4" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="ANcpLua.Analyzer" Version="2.0.251" Condition="$(PackageId) != 'ANcpLua.Analyzer'" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+	  <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" IsImplicitlyDefined="true">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+	  </PackageReference>
+  </ItemGroup>
+
+	<ItemGroup>
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)\..\configuration\BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false" />
+		<AdditionalFiles Include="$(MSBuildThisFileDirectory)\..\configuration\BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
+		<Using Include="System.Diagnostics.CodeAnalysis" />
+		<Using Include="System.Globalization" />
+		<Using Include="System.Text" />
+	</ItemGroup>
+
+	<Target Name="EmbedBannedSymbolsInBinLog" AfterTargets="CoreCompile">
+		<ItemGroup>
+			<EmbedInBinlog Include="@(AdditionalFiles)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '^BannedSymbols(\..+)?\.txt$'))" />
+		</ItemGroup>
+	</Target>
+
+	<Target Name="EmbedEditorConfigInBinLog" AfterTargets="CoreCompile">
+		<ItemGroup>
+			<EmbedInBinlog Include="@(EditorConfigFiles)" />
+		</ItemGroup>
+	</Target>
+
+	<!-- Disable packages -->
+	<Target Name="Disable_SponsorLink" BeforeTargets="CoreCompile" Condition="$(Disable_SponsorLink) != 'false'">
+		<ItemGroup>
+			<Analyzer Remove="@(Analyzer)" Condition="'%(FileName)' == 'DevLooped.SponsorLink' " />
+			<Analyzer Remove="@(Analyzer)" Condition="'%(FileName)' == 'Moq.CodeAnalysis' " />
+		</ItemGroup>
+	</Target>
+
+	<!-- NuGet Package -->
+	<Choose>
+		<When Condition="'$(PackageIcon)' == '' AND '$(_IsANcpLuaProject)' == 'true' AND Exists('$(MSBuildThisFileDirectory)\..\icon.png')">
+			<PropertyGroup>
+				<PackageIcon>icon.png</PackageIcon>
+			</PropertyGroup>
+			<ItemGroup>
+				<None Include="$(MSBuildThisFileDirectory)\..\icon.png" Pack="true" PackagePath="" Visible="false" />
+			</ItemGroup>
+		</When>
+	</Choose>
+
+	<PropertyGroup>
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\README.md')">$(MSBuildProjectDirectory)\README.md</_PackageReadmeFilePath>
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\readme.md')">$(MSBuildProjectDirectory)\readme.md</_PackageReadmeFilePath>
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\Readme.md')">$(MSBuildProjectDirectory)\Readme.md</_PackageReadmeFilePath>
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\ReadMe.md')">$(MSBuildProjectDirectory)\ReadMe.md</_PackageReadmeFilePath>
+
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('README.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('README.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('readme.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('Readme.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('Readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
+		<_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('ReadMe.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('ReadMe.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
+
+		<_PackageThirdPartyNoticesPath Condition="Exists('$(MSBuildProjectDirectory)\THIRD-PARTY-NOTICES.TXT')">$(MSBuildProjectDirectory)\THIRD-PARTY-NOTICES.TXT</_PackageThirdPartyNoticesPath>
+
+		<_LicensePath Condition="Exists($([MSBuild]::GetPathOfFileAbove('LICENSE.txt')))">$([MSBuild]::GetPathOfFileAbove('LICENSE.txt'))</_LicensePath>
+
+		<Authors Condition="'$(Authors)' == '' AND '$(_IsANcpLuaProject)' == 'true'">ANcpLua</Authors>
+		<Company Condition="'$(Company)' == '' AND '$(_IsANcpLuaProject)' == 'true'">ANcpLua</Company>
+
+		<PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' AND '$(_IsANcpLuaProject)' == 'true'">MIT</PackageLicenseExpression>
+		<PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' AND '$(_PackageReadmeFilePath)' != ''">README.md</PackageReadmeFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(_PackageReadmeFilePath)" Pack="true" PackagePath="README.md" Condition="$(_PackageReadmeFilePath) != ''" />
+		<None Include="$(_PackageThirdPartyNoticesPath)" Pack="true" PackagePath="" Condition="$(_PackageThirdPartyNoticesPath) != ''" />
+		<None Include="$(_LicensePath)" Pack="true" PackagePath="" Visible="false" Condition="$(_LicensePath) != ''" />
+	</ItemGroup>
+
+</Project>

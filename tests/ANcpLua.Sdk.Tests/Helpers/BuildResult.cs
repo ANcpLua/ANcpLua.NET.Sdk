@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Meziantou.Framework;
+using Microsoft.Build.Logging.StructuredLogger;
+using Xunit;
+
+namespace ANcpLua.Sdk.Tests.Helpers;
+
+internal sealed record BuildResult(int ExitCode, ProcessOutputCollection ProcessOutput, SarifFile SarifFile, byte[] BinaryLogContent, string VSTestDiagnosticFileContent)
+{
+    public bool OutputContains(string value, StringComparison stringComparison = StringComparison.Ordinal) => ProcessOutput.Any(line => line.Text.Contains(value, stringComparison));
+    public bool OutputDoesNotContain(string value, StringComparison stringComparison = StringComparison.Ordinal) => !ProcessOutput.Any(line => line.Text.Contains(value, stringComparison));
+
+    public bool HasError() => SarifFile.AllResults().Any(r => r.Level == "error");
+    public bool HasError(string ruleId) => SarifFile.AllResults().Any(r => r.Level == "error" && r.RuleId == ruleId);
+    public bool HasWarning() => SarifFile.AllResults().Any(r => r.Level == "warning");
+    public bool HasWarning(string ruleId) => SarifFile.AllResults().Any(r => r.Level == "warning" && r.RuleId == ruleId);
+    public bool HasNote(string ruleId) => SarifFile.AllResults().Any(r => r.Level == "note" && r.RuleId == ruleId);
+
+    public IReadOnlyCollection<string> GetBinLogFiles()
+    {
+        using var stream = new MemoryStream(BinaryLogContent);
+        var build = Serialization.ReadBinLog(stream);
+        return [.. build.SourceFiles.Select(file => file.FullPath)];
+    }
+
+    public List<string> GetMSBuildItems(string name)
+    {
+        var result = new List<string>();
+        using var stream = new MemoryStream(BinaryLogContent);
+        var build = Serialization.ReadBinLog(stream);
+        build.VisitAllChildren<Item>(item =>
+        {
+            if (item.Parent is AddItem parent && parent.Name == name)
+            {
+                result.Add(item.Name);
+            }
+        });
+
+        return result;
+    }
+
+    public string GetMSBuildPropertyValue(string name)
+    {
+        using var stream = new MemoryStream(BinaryLogContent);
+        var build = Serialization.ReadBinLog(stream);
+        return build.FindLastDescendant<Property>(e => e.Name == name)?.Value;
+    }
+
+    public void AssertMSBuildPropertyValue(string name, string expectedValue, bool ignoreCase = true)
+    {
+        using var stream = new MemoryStream(BinaryLogContent);
+        var build = Serialization.ReadBinLog(stream);
+        var actual = build.FindLastDescendant<Property>(e => e.Name == name)?.Value;
+
+        Assert.Equal(expectedValue, actual, ignoreCase: ignoreCase);
+    }
+
+    public bool IsMSBuildTargetExecuted(string name)
+    {
+        using var stream = new MemoryStream(BinaryLogContent);
+        var build = Serialization.ReadBinLog(stream);
+        var target = build.FindLastDescendant<Target>(e => e.Name == name);
+        if (target is null)
+            return false;
+
+        if (target.Skipped)
+            return false;
+
+        return true;
+    }
+}

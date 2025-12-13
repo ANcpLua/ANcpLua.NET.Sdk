@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <!-- =========================================================================
+       CLAUDE.md Configuration
+       ========================================================================= -->
+  <PropertyGroup>
+    <ClaudePurpose>OpenTelemetry GenAI semantic conventions (v1.38.0) - attribute constants and extension methods</ClaudePurpose>
+    <ClaudeLayer>core</ClaudeLayer>
+    <ClaudeTestCoverage>90</ClaudeTestCoverage>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ClaudeImport Include="$(RepoRoot)/spec/MASTER.md" />
+    <ClaudeImport Include="$(RepoRoot)/spec/UML.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClaudeCriticalFile Include="GenAiAttributes.cs" Reason="OTel 1.38 constants - all projects depend on these" />
+    <ClaudeCriticalFile Include="QylAttributes.cs" Reason="qyl-specific attributes - breaking change affects SDK" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClaudeAntiPattern Include="gen_ai.system" UseInstead="gen_ai.provider.name" Severity="error" />
+    <ClaudeAntiPattern Include="gen_ai.usage.prompt_tokens" UseInstead="gen_ai.usage.input_tokens" Severity="error" />
+    <ClaudeAntiPattern Include="gen_ai.usage.completion_tokens" UseInstead="gen_ai.usage.output_tokens" Severity="error" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClaudeRequiredPattern Include="const string" Description="All attribute names must be const string for AOT" />
+    <ClaudeRequiredPattern Include="snake_case" Description="Wire format for all OTel attributes" />
+  </ItemGroup>
+
+  <!-- Package References -->
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry.Api" Version="1.11.2" />
+  </ItemGroup>
+
+</Project>

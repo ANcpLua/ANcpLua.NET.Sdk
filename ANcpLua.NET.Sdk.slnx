@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ANcpLua.NET.Sdk.csproj" />
+    <Project Path="src/qyl.collector/qyl.collector.csproj" />
+    <Project Path="src/qyl.telemetry/qyl.telemetry.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/ConfigFilesGenerator/ConfigFilesGenerator.csproj" />
+    <Project Path="tools/SdkGenerator/SdkGenerator.csproj" />
+  </Folder>
+</Solution>
