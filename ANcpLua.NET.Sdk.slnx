@@ -1,14 +1,56 @@
 <Solution>
-  <Folder Name="/src/">
-    <Project Path="src/ANcpLua.NET.Sdk.csproj" />
-    <Project Path="src/qyl.collector/qyl.collector.csproj" />
-    <Project Path="src/qyl.telemetry/qyl.telemetry.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj" />
-  </Folder>
-  <Folder Name="/tools/">
-    <Project Path="tools/ConfigFilesGenerator/ConfigFilesGenerator.csproj" />
-    <Project Path="tools/SdkGenerator/SdkGenerator.csproj" />
-  </Folder>
+    <Folder Name="/src/">
+        <Project Path="src/ANcpLua.NET.Sdk.csproj" />
+        <Project Path="src/ANcpLua.NET.Sdk.Web.csproj" />
+    </Folder>
+    <Folder Name="/eng/">
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults.AutoRegister\ANcpLua.AspNetCore.ServiceDefaults.AutoRegister.csproj" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults.AutoRegister\ANcpLua.AspNetCore.ServiceDefaults.AutoRegister.targets" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults.AutoRegister\InterceptionData.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults.AutoRegister\InterceptionMethodKind.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults.AutoRegister\ServiceDefaultsSourceGenerator.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLua.AspNetCore.ServiceDefaults.csproj" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaAntiForgeryConfiguration.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaForwardedHeadersConfiguration.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaHttpsConfiguration.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaOpenApiConfiguration.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaOpenTelemetryConfiguration.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaServiceDefaults.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaServiceDefaultsOptions.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ANcpLuaStaticAssetsConfiguration.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\bin\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.deps.json" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\bin\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.dll" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\bin\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.pdb" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\ANcpLua.AspNetCore.ServiceDefaults.csproj.nuget.dgspec.json" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\ANcpLua.AspNetCore.ServiceDefaults.csproj.nuget.g.props" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\ANcpLua.AspNetCore.ServiceDefaults.csproj.nuget.g.targets" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\.NETCoreApp,Version=v10.0.AssemblyAttributes.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.AssemblyInfo.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.AssemblyInfoInputs.cache" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.assets.cache" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.csproj.AssemblyReference.cache" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.csproj.CoreCompileInputs.cache" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.csproj.FileListAbsolute.txt" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.dll" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.GeneratedMSBuildEditorConfig.editorconfig" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.GlobalUsings.g.cs" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.pdb" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ANcpLua.AspNetCore.ServiceDefaults.sourcelink.json" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\refint\ANcpLua.AspNetCore.ServiceDefaults.dll" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\Debug\net10.0\ref\ANcpLua.AspNetCore.ServiceDefaults.dll" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\project.assets.json" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\obj\project.nuget.cache" />
+        <File Path="eng\ANcpLua.AspNetCore.ServiceDefaults\ValidationStartupFilter.cs" />
+        <Project Path="eng\ANcpLua.Analyzers\ANcpLua.Analyzers.csproj" />
+    </Folder>
+    <Folder Name="/tests/">
+        <Project Path="tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj" />
+    </Folder>
+    <Folder Name="/tools/">
+        <Project Path="tools/ConfigFilesGenerator/ConfigFilesGenerator.csproj" />
+        <Project Path="tools/SdkGenerator/SdkGenerator.csproj" />
+    </Folder>
+    <Project Path="examples/MicroserviceExample/Utils/Utils.csproj" />
+    <Project Path="examples/MicroserviceExample/WebApi/WebApi.csproj" />
+    <Project Path="examples/MicroserviceExample/WorkerService/WorkerService.csproj" />
 </Solution>

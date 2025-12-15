@@ -19,7 +19,7 @@
   EXTENSIONS (Utility types):
     <InjectSharedThrow>                    - Guard clause utilities (all TFMs)
     <InjectSourceGenHelpers>               - EquatableArray, DiagnosticInfo, LocationInfo
-    <InjectCommonComparers>                - StringOrdinalComparer, TypePairComparer
+    <InjectCommonComparers>                - StringOrdinalComparer
 
   BUNDLES (convenience):
     <InjectAllPolyfillsOnLegacy>           - All polyfills based on TFM
@@ -41,17 +41,77 @@
     <InjectUnreachableExceptionOnLegacy Condition="'$(InjectUnreachableExceptionOnLegacy)' == ''">false</InjectUnreachableExceptionOnLegacy>
     <InjectExperimentalAttributeOnLegacy Condition="'$(InjectExperimentalAttributeOnLegacy)' == ''">false</InjectExperimentalAttributeOnLegacy>
     <InjectIndexRangeOnLegacy Condition="'$(InjectIndexRangeOnLegacy)' == ''">false</InjectIndexRangeOnLegacy>
+    <InjectDiagnosticClassesOnLegacy Condition="'$(InjectDiagnosticClassesOnLegacy)' == ''">false</InjectDiagnosticClassesOnLegacy>
     <InjectStackTraceHiddenOnLegacy Condition="'$(InjectStackTraceHiddenOnLegacy)' == ''">false</InjectStackTraceHiddenOnLegacy>
-    <InjectParamCollectionOnLegacy Condition="'$(InjectParamCollectionOnLegacy)' == ''">false</InjectParamCollectionOnLegacy>
+    <InjectLockPolyfill Condition="'$(InjectLockPolyfill)' == ''">false</InjectLockPolyfill>
+    <InjectTimeProviderPolyfill Condition="'$(InjectTimeProviderPolyfill)' == ''">false</InjectTimeProviderPolyfill>
+
+    <!-- ANcpLua Polyfills - default to false - opt-in -->
+    <InjectANcpLuaDiagnosticsPolyfills Condition="'$(InjectANcpLuaDiagnosticsPolyfills)' == ''">false</InjectANcpLuaDiagnosticsPolyfills>
+    <InjectANcpLuaExceptionPolyfills Condition="'$(InjectANcpLuaExceptionPolyfills)' == ''">false</InjectANcpLuaExceptionPolyfills>
+    <InjectANcpLuaExperimentalPolyfills Condition="'$(InjectANcpLuaExperimentalPolyfills)' == ''">false</InjectANcpLuaExperimentalPolyfills>
+    <InjectANcpLuaIndexRangePolyfills Condition="'$(InjectANcpLuaIndexRangePolyfills)' == ''">false</InjectANcpLuaIndexRangePolyfills>
+    <InjectANcpLuaLanguageFeaturesPolyfills Condition="'$(InjectANcpLuaLanguageFeaturesPolyfills)' == ''">false</InjectANcpLuaLanguageFeaturesPolyfills>
+    <InjectANcpLuaNullabilityPolyfills Condition="'$(InjectANcpLuaNullabilityPolyfills)' == ''">false</InjectANcpLuaNullabilityPolyfills>
+    <InjectANcpLuaRangePolyfill Condition="'$(InjectANcpLuaRangePolyfill)' == ''">false</InjectANcpLuaRangePolyfill>
+    <InjectANcpLuaTimeProviderPolyfill Condition="'$(InjectANcpLuaTimeProviderPolyfill)' == ''">false</InjectANcpLuaTimeProviderPolyfill>
+    <InjectANcpLuaTrimAttributesPolyfills Condition="'$(InjectANcpLuaTrimAttributesPolyfills)' == ''">false</InjectANcpLuaTrimAttributesPolyfills>
 
     <!-- Extensions default to false - opt-in -->
     <InjectSharedThrow Condition="'$(InjectSharedThrow)' == ''">false</InjectSharedThrow>
     <InjectSourceGenHelpers Condition="'$(InjectSourceGenHelpers)' == ''">false</InjectSourceGenHelpers>
     <InjectCommonComparers Condition="'$(InjectCommonComparers)' == ''">false</InjectCommonComparers>
+    <InjectStringOrdinalComparer Condition="'$(InjectStringOrdinalComparer)' == ''">false</InjectStringOrdinalComparer>
+    <InjectFakeLogger Condition="'$(InjectFakeLogger)' == ''">false</InjectFakeLogger>
+
+    <!-- General ANcpLua Extensions/Shared Resources - default to false - opt-in -->
+    <EnableANcpLuaExtensions Condition="'$(EnableANcpLuaExtensions)' == ''">false</EnableANcpLuaExtensions>
+    <EnableANcpLuaSharedResources Condition="'$(EnableANcpLuaSharedResources)' == ''">false</EnableANcpLuaSharedResources>
+    <EnableANcpLuaSharedWorkflows Condition="'$(EnableANcpLuaSharedWorkflows)' == ''">false</EnableANcpLuaSharedWorkflows>
+    <InjectANcpLuaIntegrationTestHelpers Condition="'$(InjectANcpLuaIntegrationTestHelpers)' == ''">false</InjectANcpLuaIntegrationTestHelpers>
 
     <!-- Bundles -->
     <InjectAllPolyfillsOnLegacy Condition="'$(InjectAllPolyfillsOnLegacy)' == ''">false</InjectAllPolyfillsOnLegacy>
     <InjectAllExtensions Condition="'$(InjectAllExtensions)' == ''">false</InjectAllExtensions>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PROPERTY MAPPING (New -> Old)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup Condition="'$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true'">
+    <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
+    <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
+    <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
+    <InjectCompilerFeatureRequiredOnLegacy>true</InjectCompilerFeatureRequiredOnLegacy>
+    <InjectParamCollectionOnLegacy>true</InjectParamCollectionOnLegacy>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectANcpLuaIndexRangePolyfills)' == 'true'">
+    <InjectIndexRangeOnLegacy>true</InjectIndexRangeOnLegacy>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectANcpLuaTimeProviderPolyfill)' == 'true'">
+    <InjectTimeProviderPolyfill>true</InjectTimeProviderPolyfill>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectANcpLuaDiagnosticsPolyfills)' == 'true'">
+    <InjectStackTraceHiddenOnLegacy>true</InjectStackTraceHiddenOnLegacy>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectANcpLuaExceptionPolyfills)' == 'true'">
+    <InjectUnreachableExceptionOnLegacy>true</InjectUnreachableExceptionOnLegacy>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectANcpLuaExperimentalPolyfills)' == 'true'">
+    <InjectExperimentalAttributeOnLegacy>true</InjectExperimentalAttributeOnLegacy>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectANcpLuaNullabilityPolyfills)' == 'true'">
+    <InjectNullabilityAttributesOnLegacy>true</InjectNullabilityAttributesOnLegacy>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(InjectANcpLuaTrimAttributesPolyfills)' == 'true'">
+    <InjectTrimAttributesOnLegacy>true</InjectTrimAttributesOnLegacy>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -68,40 +128,28 @@
     <InjectExperimentalAttributeOnLegacy>true</InjectExperimentalAttributeOnLegacy>
     <InjectIndexRangeOnLegacy>true</InjectIndexRangeOnLegacy>
     <InjectStackTraceHiddenOnLegacy>true</InjectStackTraceHiddenOnLegacy>
-    <InjectParamCollectionOnLegacy>true</InjectParamCollectionOnLegacy>
+    <InjectLockPolyfill>true</InjectLockPolyfill>
+    <InjectTimeProviderPolyfill>true</InjectTimeProviderPolyfill>
+    <InjectANcpLuaDiagnosticsPolyfills>true</InjectANcpLuaDiagnosticsPolyfills>
+    <InjectANcpLuaExceptionPolyfills>true</InjectANcpLuaExceptionPolyfills>
+    <InjectANcpLuaExperimentalPolyfills>true</InjectANcpLuaExperimentalPolyfills>
+    <InjectANcpLuaIndexRangePolyfills>true</InjectANcpLuaIndexRangePolyfills>
+    <InjectANcpLuaLanguageFeaturesPolyfills>true</InjectANcpLuaLanguageFeaturesPolyfills>
+    <InjectANcpLuaNullabilityPolyfills>true</InjectANcpLuaNullabilityPolyfills>
+    <InjectANcpLuaRangePolyfill>true</InjectANcpLuaRangePolyfill>
+    <InjectANcpLuaTimeProviderPolyfill>true</InjectANcpLuaTimeProviderPolyfill>
+    <InjectANcpLuaTrimAttributesPolyfills>true</InjectANcpLuaTrimAttributesPolyfills>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(InjectAllExtensions)' == 'true'">
     <InjectSharedThrow>true</InjectSharedThrow>
     <InjectSourceGenHelpers>true</InjectSourceGenHelpers>
     <InjectCommonComparers>true</InjectCommonComparers>
+    <EnableANcpLuaExtensions>true</EnableANcpLuaExtensions>
+    <EnableANcpLuaSharedResources>true</EnableANcpLuaSharedResources>
+    <EnableANcpLuaSharedWorkflows>true</EnableANcpLuaSharedWorkflows>
+    <InjectANcpLuaIntegrationTestHelpers>true</InjectANcpLuaIntegrationTestHelpers>
   </PropertyGroup>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       TFM DETECTION HELPERS
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup>
-    <!-- Detect if we need polyfills based on TFM -->
-    <_NeedsNet5Polyfills>false</_NeedsNet5Polyfills>
-    <_NeedsNet5Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))">true</_NeedsNet5Polyfills>
-
-    <_NeedsNet6Polyfills>false</_NeedsNet6Polyfills>
-    <_NeedsNet6Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</_NeedsNet6Polyfills>
-
-    <_NeedsNet7Polyfills>false</_NeedsNet7Polyfills>
-    <_NeedsNet7Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</_NeedsNet7Polyfills>
-
-    <_NeedsNet8Polyfills>false</_NeedsNet8Polyfills>
-    <_NeedsNet8Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</_NeedsNet8Polyfills>
-
-    <_NeedsNet9Polyfills>false</_NeedsNet9Polyfills>
-    <_NeedsNet9Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">true</_NeedsNet9Polyfills>
-
-    <_NeedsNetCoreApp31Polyfills>false</_NeedsNetCoreApp31Polyfills>
-    <_NeedsNetCoreApp31Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.1'))">true</_NeedsNetCoreApp31Polyfills>
-
-    <!-- Shared folder path -->
-    <_SharedSourcePath>$(MSBuildThisFileDirectory)..\shared\</_SharedSourcePath>
-  </PropertyGroup>
 
 </Project>

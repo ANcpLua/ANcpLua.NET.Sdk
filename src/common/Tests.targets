@@ -14,12 +14,12 @@
 
   <!-- MTP -->
   <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true' OR ('$(UseMicrosoftTestingPlatform)' == '' AND @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true')">
-    <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="2.0.2" IsImplicitlyDefined="true" />
-    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" IsImplicitlyDefined="true" />
-    <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="2.0.2" IsImplicitlyDefined="true" />
-    <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="2.0.2" IsImplicitlyDefined="true" />
-    <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="2.0.2" IsImplicitlyDefined="true" />
-    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="2.0.2" IsImplicitlyDefined="true" />
+    <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="2.0.2" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="2.0.2" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="2.0.2" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="2.0.2" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="2.0.2" IsImplicitlyDefined="true"/>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
@@ -32,7 +32,7 @@
 
   <!-- VSTest -->
   <ItemGroup Condition="!('$(UseMicrosoftTestingPlatform)' == 'true' OR ('$(UseMicrosoftTestingPlatform)' == '' AND @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'))">
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" IsImplicitlyDefined="true" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" IsImplicitlyDefined="true"/>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
@@ -56,12 +56,12 @@
 
   <!-- Add implicit using for xunit -->
   <ItemGroup Condition="'$(ImplicitUsings)' == 'enable' AND (
-                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit')) == 'true' OR 
+                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit')) == 'true' OR
                             @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3')) == 'true' OR
-                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true' OR 
+                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true' OR
                             @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'
                             )">
-    <Using Include="Xunit" />
+    <Using Include="Xunit"/>
   </ItemGroup>
 
   <!-- VSTest on GitHub -->

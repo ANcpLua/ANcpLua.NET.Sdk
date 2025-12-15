@@ -1,18 +1,10 @@
 <Project>
-  <Import Project="$(MSBuildThisFileDirectory)\ContinuousIntegrationBuild.props" />
-  <Import Project="$(MSBuildThisFileDirectory)\LegacySupport.props" />
+  <Import Project="$(MSBuildThisFileDirectory)\ContinuousIntegrationBuild.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)\LegacySupport.props"/>
 
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <_IsANcpLuaProject>$(MSBuildProjectName.StartsWith('ANcpLua', StringComparison.OrdinalIgnoreCase))</_IsANcpLuaProject>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == ''">net$(NETCoreAppMaximumVersion)</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <IsTestProject Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.Test'">true</IsTestProject>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -29,11 +21,11 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn> <!-- Remove warning for undocumented members -->
 
-	<!--
-      Disabling static graph restore due to a bug related to NuGetAuditSuppress.
-      See: https://github.com/NuGet/Home/issues/14300
-    -->
-	<RestoreUseStaticGraphEvaluation>false</RestoreUseStaticGraphEvaluation>
+    <!--
+        Disabling static graph restore due to a bug related to NuGetAuditSuppress.
+        See: https://github.com/NuGet/Home/issues/14300
+      -->
+    <RestoreUseStaticGraphEvaluation>false</RestoreUseStaticGraphEvaluation>
     <RestoreSerializeGlobalProperties>true</RestoreSerializeGlobalProperties>
 
     <ReportAnalyzer>true</ReportAnalyzer>
@@ -64,7 +56,7 @@
 
   <ItemGroup>
     <!-- Add all editorconfig files -->
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)\..\configuration\*.editorconfig" />
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)\..\configuration\*.editorconfig"/>
   </ItemGroup>
 
 </Project>

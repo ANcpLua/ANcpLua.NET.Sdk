@@ -1,23 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net$(NETCoreAppMaximumVersion)</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Meziantou.Framework" Version="5.0.4" />
-    <PackageReference Include="Meziantou.Framework.TemporaryDirectory" Version="1.0.25" />
-    <PackageReference Include="Meziantou.Framework.Threading" Version="2.0.3" />
-    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="1.0.6" />
-    <PackageReference Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.1" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-    <PackageReference Include="MSBuild.StructuredLogger" Version="2.3.71" />
-    <PackageReference Include="NuGet.Packaging" Version="7.0.0" />
-    <PackageReference Include="xunit.v3" Version="3.2.0" />
+    <PackageReference Include="Meziantou.Framework" Version="5.0.4"/>
+    <PackageReference Include="Meziantou.Framework.TemporaryDirectory" Version="1.0.25"/>
+    <PackageReference Include="Meziantou.Framework.Threading" Version="2.0.3"/>
+    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="1.0.6"/>
+    <PackageReference Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.1"/>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
+    <PackageReference Include="MSBuild.StructuredLogger" Version="2.3.71"/>
+    <PackageReference Include="NuGet.Packaging" Version="7.0.0"/>
+    <PackageReference Include="xunit.v3" Version="3.2.0"/>
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -29,7 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Using Include="Xunit" />
+    <Using Include="Xunit"/>
   </ItemGroup>
 
 </Project>

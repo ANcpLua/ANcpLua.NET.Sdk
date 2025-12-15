@@ -1,14 +1,8 @@
-#nullable enable
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using System.Xml.Linq;
+using ANcpLua.Sdk.Tests.Infrastructure;
 using Meziantou.Framework;
-using Xunit;
 
 namespace ANcpLua.Sdk.Tests.Helpers;
 
@@ -17,25 +11,24 @@ public enum SdkImportStyle
     Default,
     ProjectElement,
     SdkElement,
-    SdkElementDirectoryBuildProps,
+    SdkElementDirectoryBuildProps
 }
 
 internal sealed class ProjectBuilder : IAsyncDisposable
 {
     private const string SarifFileName = "BuildOutput.sarif";
+    private readonly SdkImportStyle _defaultSdkImportStyle;
+    private readonly string _defaultSdkName;
 
     private readonly TemporaryDirectory _directory;
     private readonly PackageFixture _fixture;
-    private readonly ITestOutputHelper _testOutputHelper;
-    private readonly SdkImportStyle _defaultSdkImportStyle;
-    private readonly string _defaultSdkName;
     private readonly FullPath _githubStepSummaryFile;
-    private NetSdkVersion _sdkVersion = NetSdkVersion.Net10_0;
+    private readonly ITestOutputHelper _testOutputHelper;
     private int _buildCount;
+    private NetSdkVersion _sdkVersion = NetSdkVersion.Net100;
 
-    public FullPath RootFolder => _directory.FullPath;
-
-    public ProjectBuilder(PackageFixture fixture, ITestOutputHelper testOutputHelper, SdkImportStyle defaultSdkImportStyle, string defaultSdkName)
+    public ProjectBuilder(PackageFixture fixture, ITestOutputHelper testOutputHelper,
+        SdkImportStyle defaultSdkImportStyle, string defaultSdkName)
     {
         _fixture = fixture;
         _testOutputHelper = testOutputHelper;
@@ -43,33 +36,33 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         _defaultSdkName = defaultSdkName;
         _directory = TemporaryDirectory.Create();
         _directory.CreateTextFile("NuGet.config", $"""
-            <configuration>
-                <config>
-                    <add key="globalPackagesFolder" value="{_fixture.PackageDirectory}/packages" />
-                </config>
-                <packageSources>
-                    <clear />
-                    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-                    <add key="TestSource" value="{_fixture.PackageDirectory}" />
-                </packageSources>
-                <packageSourceMapping>
-                    <packageSource key="nuget.org">
-                        <package pattern="*" />
-                    </packageSource>
-                    <packageSource key="TestSource">
-                        <package pattern="ANcpLua.*" />
-                    </packageSource>
-                </packageSourceMapping>
-            </configuration>
-            """);
+                                                   <configuration>
+                                                       <config>
+                                                           <add key="globalPackagesFolder" value="{_fixture.PackageDirectory}/packages" />
+                                                       </config>
+                                                       <packageSources>
+                                                           <clear />
+                                                           <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+                                                           <add key="TestSource" value="{_fixture.PackageDirectory}" />
+                                                       </packageSources>
+                                                       <packageSourceMapping>
+                                                           <packageSource key="nuget.org">
+                                                               <package pattern="*" />
+                                                           </packageSource>
+                                                           <packageSource key="TestSource">
+                                                               <package pattern="ANcpLua.*" />
+                                                           </packageSource>
+                                                       </packageSourceMapping>
+                                                   </configuration>
+                                                   """);
 
         if (defaultSdkImportStyle is SdkImportStyle.SdkElementDirectoryBuildProps)
-        {
             AddDirectoryBuildPropsFile(string.Empty);
-        }
 
         _githubStepSummaryFile = _directory.CreateEmptyFile("GITHUB_STEP_SUMMARY.txt");
     }
+
+    public FullPath RootFolder => _directory.FullPath;
 
     public IEnumerable<(string Name, string Value)> GitHubEnvironmentVariables
     {
@@ -80,12 +73,20 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         }
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY", GetGitHubStepSummaryContent() ?? "");
+        await _directory.DisposeAsync();
+    }
+
+    public static string WithTargetFramework(string tfm)
+    {
+        return $"<TargetFramework>{tfm}</TargetFramework>";
+    }
+
     public string? GetGitHubStepSummaryContent()
     {
-        if (File.Exists(_githubStepSummaryFile))
-        {
-            return File.ReadAllText(_githubStepSummaryFile);
-        }
+        if (File.Exists(_githubStepSummaryFile)) return File.ReadAllText(_githubStepSummaryFile);
 
         return null;
     }
@@ -98,7 +99,10 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         return path;
     }
 
-    public void SetDotnetSdkVersion(NetSdkVersion dotnetSdkVersion) => _sdkVersion = dotnetSdkVersion;
+    public void SetDotnetSdkVersion(NetSdkVersion dotnetSdkVersion)
+    {
+        _sdkVersion = dotnetSdkVersion;
+    }
 
     private string GetSdkElementContent(string sdkName)
     {
@@ -107,57 +111,57 @@ internal sealed class ProjectBuilder : IAsyncDisposable
 
     public void AddDirectoryBuildPropsFile(string postSdkContent, string preSdkContent = "", string? sdkName = null)
     {
-        var sdk = _defaultSdkImportStyle == SdkImportStyle.SdkElementDirectoryBuildProps ? GetSdkElementContent(sdkName ?? _defaultSdkName) : string.Empty;
+        var sdk = _defaultSdkImportStyle == SdkImportStyle.SdkElementDirectoryBuildProps
+            ? GetSdkElementContent(sdkName ?? _defaultSdkName)
+            : string.Empty;
 
         var fileContent = $"""
-            <Project>
-                {preSdkContent}
-                {sdk}
-                {postSdkContent}
-            </Project>
-            """;
-        var fullPath = _directory.FullPath / "Directory.Build.props";
+                           <Project>
+                               {preSdkContent}
+                               {sdk}
+                               {postSdkContent}
+                           </Project>
+                           """;
+        var fullPath = _directory.FullPath / RepositoryPaths.DirectoryBuildProps;
         fullPath.CreateParentDirectory();
         File.WriteAllText(fullPath, fileContent);
     }
 
-    public ProjectBuilder AddCsprojFile((string Name, string Value)[]? properties = null, NuGetReference[]? nuGetPackages = null, XElement[]? additionalProjectElements = null, string? sdk = null, string? rootSdk = null, string filename = "ANcpLua.TestProject.csproj", SdkImportStyle importStyle = SdkImportStyle.Default)
+    public ProjectBuilder AddCsprojFile((string Name, string Value)[]? properties = null,
+        NuGetReference[]? nuGetPackages = null, XElement[]? additionalProjectElements = null, string? sdk = null,
+        string? rootSdk = null, string filename = "ANcpLua.TestProject.csproj",
+        SdkImportStyle importStyle = SdkImportStyle.Default)
     {
         sdk ??= _defaultSdkName;
         var propertiesElement = new XElement("PropertyGroup");
         if (properties != null)
-        {
             foreach (var prop in properties)
-            {
                 propertiesElement.Add(new XElement(prop.Name, prop.Value));
-            }
-        }
 
         var packagesElement = new XElement("ItemGroup");
         if (nuGetPackages != null)
-        {
             foreach (var package in nuGetPackages)
-            {
-                packagesElement.Add(new XElement("PackageReference", new XAttribute("Include", package.Name), new XAttribute("Version", package.Version)));
-            }
-        }
+                packagesElement.Add(new XElement("PackageReference", new XAttribute("Include", package.Name),
+                    new XAttribute("Version", package.Version)));
 
         importStyle = importStyle == SdkImportStyle.Default ? _defaultSdkImportStyle : importStyle;
-        var rootSdkName = importStyle == SdkImportStyle.ProjectElement ? $"{sdk}/{_fixture.Version}" : (rootSdk ?? "Microsoft.NET.Sdk");
+        var rootSdkName = importStyle == SdkImportStyle.ProjectElement
+            ? $"{sdk}/{_fixture.Version}"
+            : rootSdk ?? "Microsoft.NET.Sdk";
         var innerSdkXmlElement = importStyle == SdkImportStyle.SdkElement ? GetSdkElementContent(sdk) : string.Empty;
 
         var content = $"""
-            <Project Sdk="{rootSdkName}">
-                {innerSdkXmlElement}
-                <PropertyGroup>
-                    <OutputType>exe</OutputType>
-                    <ErrorLog>{SarifFileName},version=2.1</ErrorLog>
-                </PropertyGroup>
-                {propertiesElement}
-                {packagesElement}
-                {string.Join('\n', additionalProjectElements?.Select(e => e.ToString()) ?? [])}
-            </Project>
-            """;
+                       <Project Sdk="{rootSdkName}">
+                           {innerSdkXmlElement}
+                           <PropertyGroup>
+                               <OutputType>exe</OutputType>
+                               <ErrorLog>{SarifFileName},version=2.1</ErrorLog>
+                           </PropertyGroup>
+                           {propertiesElement}
+                           {packagesElement}
+                           {string.Join('\n', additionalProjectElements?.Select(e => e.ToString()) ?? [])}
+                       </Project>
+                       """;
 
         var fullPath = _directory.FullPath / filename;
         fullPath.CreateParentDirectory();
@@ -165,38 +169,45 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         return this;
     }
 
-    public Task<BuildResult> BuildAndGetOutput(string[]? buildArguments = null, (string Name, string Value)[]? environmentVariables = null)
+    public Task<BuildResult> BuildAndGetOutput(string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
     {
         return ExecuteDotnetCommandAndGetOutput("build", buildArguments, environmentVariables);
     }
 
 
-    public Task<BuildResult> RestoreAndGetOutput(string[]? buildArguments = null, (string Name, string Value)[]? environmentVariables = null)
+    public Task<BuildResult> RestoreAndGetOutput(string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
     {
         return ExecuteDotnetCommandAndGetOutput("restore", buildArguments, environmentVariables);
     }
 
-    public Task<BuildResult> CleanAndGetOutput(string[]? buildArguments = null, (string Name, string Value)[]? environmentVariables = null)
+    public Task<BuildResult> CleanAndGetOutput(string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
     {
         return ExecuteDotnetCommandAndGetOutput("clean", buildArguments, environmentVariables);
     }
 
-    public Task<BuildResult> PackAndGetOutput(string[]? buildArguments = null, (string Name, string Value)[]? environmentVariables = null)
+    public Task<BuildResult> PackAndGetOutput(string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
     {
         return ExecuteDotnetCommandAndGetOutput("pack", buildArguments, environmentVariables);
     }
 
-    public Task<BuildResult> RunAndGetOutput(string[]? buildArguments = null, (string Name, string Value)[]? environmentVariables = null)
+    public Task<BuildResult> RunAndGetOutput(string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
     {
         return ExecuteDotnetCommandAndGetOutput("run", ["--", .. buildArguments ?? []], environmentVariables);
     }
 
-    public Task<BuildResult> TestAndGetOutput(string[]? buildArguments = null, (string Name, string Value)[]? environmentVariables = null)
+    public Task<BuildResult> TestAndGetOutput(string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
     {
         return ExecuteDotnetCommandAndGetOutput("test", buildArguments, environmentVariables);
     }
 
-    public async Task<BuildResult> ExecuteDotnetCommandAndGetOutput(string command, string[]? buildArguments = null, (string Name, string Value)[]? environmentVariables = null)
+    public async Task<BuildResult> ExecuteDotnetCommandAndGetOutput(string command, string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
     {
         _buildCount++;
 
@@ -213,28 +224,23 @@ internal sealed class ProjectBuilder : IAsyncDisposable
             WorkingDirectory = _directory.FullPath,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false,
+            UseShellExecute = false
         };
         psi.ArgumentList.Add(command);
         if (buildArguments != null)
-        {
             foreach (var arg in buildArguments)
-            {
                 psi.ArgumentList.Add(arg);
-            }
-        }
 
         psi.ArgumentList.Add("/bl");
 
         // Remove parent environment variables
         psi.Environment.Remove("CI");
         foreach (var kvp in psi.Environment.ToArray())
-        {
-            if (kvp.Key.StartsWith("GITHUB", StringComparison.Ordinal) || kvp.Key.StartsWith("MSBuild", StringComparison.OrdinalIgnoreCase) || kvp.Key.StartsWith("GITHUB_", StringComparison.Ordinal) || kvp.Key.StartsWith("RUNNER_", StringComparison.Ordinal))
-            {
+            if (kvp.Key.StartsWith("GITHUB", StringComparison.Ordinal) ||
+                kvp.Key.StartsWith("MSBuild", StringComparison.OrdinalIgnoreCase) ||
+                kvp.Key.StartsWith("GITHUB_", StringComparison.Ordinal) ||
+                kvp.Key.StartsWith("RUNNER_", StringComparison.Ordinal))
                 psi.Environment.Remove(kvp.Key);
-            }
-        }
 
         psi.Environment["MSBUILDLOGALLENVIRONMENTVARIABLES"] = "true";
         var vstestdiagPath = RootFolder / "vstestdiag.txt";
@@ -248,29 +254,26 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         psi.Environment["NUGET_PLUGINS_CACHE_PATH"] = _fixture.PackageDirectory / "nuget-plugins-cache";
 
         if (environmentVariables != null)
-        {
             foreach (var env in environmentVariables)
-            {
                 psi.Environment[env.Name] = env.Value;
-            }
-        }
 
-        TestContext.Current.TestOutputHelper?.WriteLine("Executing: " + psi.FileName + " " + string.Join(' ', psi.ArgumentList));
+        TestContext.Current.TestOutputHelper?.WriteLine("Executing: " + psi.FileName + " " +
+                                                        string.Join(' ', psi.ArgumentList));
         foreach (var env in psi.Environment.OrderBy(kvp => kvp.Key, StringComparer.Ordinal))
-        {
             TestContext.Current.TestOutputHelper?.WriteLine($"  {env.Key}={env.Value}");
-        }
 
         var result = await psi.RunAsTaskAsync();
 
         // Retry up to 5 times if MSB4236 error occurs (SDK resolution issue)
         const int maxRetries = 5;
-        for (int retry = 0; retry < maxRetries && result.ExitCode != 0; retry++)
-        {
+        for (var retry = 0; retry < maxRetries && result.ExitCode != 0; retry++)
             if (result.Output.Any(line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
-                                           line.Text.Contains("The project file may be invalid or missing targets required for restore", StringComparison.Ordinal)))
+                                          line.Text.Contains(
+                                              "The project file may be invalid or missing targets required for restore",
+                                              StringComparison.Ordinal)))
             {
-                _testOutputHelper.WriteLine($"SDK resolution or restore error detected, retrying ({retry + 1}/{maxRetries})...");
+                _testOutputHelper.WriteLine(
+                    $"SDK resolution or restore error detected, retrying ({retry + 1}/{maxRetries})...");
 
                 // Exponential backoff: 100ms, 200ms, 400ms, 800ms, 1600ms
                 await Task.Delay(100 * (1 << retry));
@@ -278,43 +281,37 @@ internal sealed class ProjectBuilder : IAsyncDisposable
                 result = await psi.RunAsTaskAsync();
             }
             else
-            {
                 break;
-            }
-        }
 
         _testOutputHelper.WriteLine("Process exit code: " + result.ExitCode);
         _testOutputHelper.WriteLine(result.Output.ToString());
 
-        FullPath sarifPath = _directory.FullPath / SarifFileName;
+        var sarifPath = _directory.FullPath / SarifFileName;
         SarifFile? sarif = null;
         if (File.Exists(sarifPath))
         {
-            var bytes = File.ReadAllBytes(sarifPath);
+            var bytes = await File.ReadAllBytesAsync(sarifPath);
             sarif = JsonSerializer.Deserialize<SarifFile>(bytes);
-            _testOutputHelper.WriteLine("Sarif result:\n" + string.Join("\n", sarif!.AllResults().Select(r => r.ToString())));
+            _testOutputHelper.WriteLine("Sarif result:\n" +
+                                        string.Join("\n", sarif!.AllResults().Select(r => r.ToString())));
         }
         else
-        {
             _testOutputHelper.WriteLine("Sarif file not found: " + sarifPath);
-        }
 
-        var binlogContent = File.ReadAllBytes(_directory.FullPath / "msbuild.binlog");
+        var binlogContent = await File.ReadAllBytesAsync(_directory.FullPath / "msbuild.binlog");
         TestContext.Current.AddAttachment($"msbuild{_buildCount}.binlog", binlogContent);
 
         string? vstestDiagContent = null;
         if (File.Exists(vstestdiagPath))
         {
-            vstestDiagContent = File.ReadAllText(vstestdiagPath);
+            vstestDiagContent = await File.ReadAllTextAsync(vstestdiagPath);
             TestContext.Current.AddAttachment(vstestdiagPath.Name, vstestDiagContent);
         }
 
         if (result.Output.Any(line => line.Text.Contains("Could not resolve SDK")))
-        {
             Assert.Fail("The SDK cannot be found, expected version: " + _fixture.Version);
-        }
 
-        return new BuildResult(result.ExitCode, result.Output, sarif, binlogContent, vstestDiagContent);
+        return new BuildResult(result.ExitCode, result.Output, sarif, binlogContent);
     }
 
     public Task ExecuteGitCommand(params string[]? arguments)
@@ -325,7 +322,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
             RedirectStandardInput = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
-            UseShellExecute = false,
+            UseShellExecute = false
         };
 
         ICollection<KeyValuePair<string, string>> gitParameters =
@@ -340,7 +337,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
             KeyValuePair.Create("core.longpaths", "true"),
             KeyValuePair.Create("rebase.autoStash", "true"),
             KeyValuePair.Create("submodule.recurse", "false"),
-            KeyValuePair.Create("init.defaultBranch", "main"),
+            KeyValuePair.Create("init.defaultBranch", "main")
         ];
 
         foreach (var param in gitParameters)
@@ -350,19 +347,9 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         }
 
         if (arguments != null)
-        {
             foreach (var arg in arguments)
-            {
                 psi.ArgumentList.Add(arg);
-            }
-        }
 
         return psi.RunAsTaskAsync();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY", GetGitHubStepSummaryContent() ?? "");
-        await _directory.DisposeAsync();
     }
 }

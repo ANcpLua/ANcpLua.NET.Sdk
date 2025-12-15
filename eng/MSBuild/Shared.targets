@@ -1,0 +1,48 @@
+<Project>
+  <PropertyGroup>
+    <_SharedRoot>$(MSBuildThisFileDirectory)..\Shared\</_SharedRoot>
+    <_PolyfillsRoot>$(MSBuildThisFileDirectory)Polyfills\</_PolyfillsRoot>
+    <_ExtensionsRoot>$(MSBuildThisFileDirectory)..\Extensions\</_ExtensionsRoot>
+  </PropertyGroup>
+
+  <!-- Throw.cs - Always inject when enabled -->
+  <ItemGroup Condition="'$(InjectSharedThrow)' == 'true'">
+    <Compile Include="$(_SharedRoot)Throw\Throw.cs" LinkBase="Shared\Throw" Visible="false" />
+  </ItemGroup>
+
+  <!-- Extensions -->
+  <ItemGroup Condition="'$(InjectStringOrdinalComparer)' == 'true'">
+    <Compile Include="$(_ExtensionsRoot)Comparers\StringOrdinalComparer.cs" LinkBase="Shared\Extensions\Comparers" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(InjectFakeLogger)' == 'true'">
+    <Compile Include="$(_ExtensionsRoot)FakeLogger\FakeLoggerExtensions.cs" LinkBase="Shared\Extensions\FakeLogger" Visible="false" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(InjectSourceGenHelpers)' == 'true'">
+    <DefineConstants>$(DefineConstants);ANCPLUA_SOURCEGEN_HELPERS</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(InjectSourceGenHelpers)' == 'true'">
+    <Compile Include="$(_ExtensionsRoot)SourceGen\*.cs" Link="Extensions\SourceGen\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <!-- netstandard2.0 polyfills -->
+  <ItemGroup Condition="'$(_IsNetStandard20)' == 'true'">
+    <!-- Lock polyfill -->
+    <Compile Include="$(_PolyfillsRoot)Lock.cs" Link="Shared\Polyfills\Lock.cs" Condition="'$(InjectLockPolyfill)' == 'true'" />
+
+    <!-- TimeProvider polyfill -->
+    <Compile Include="$(_PolyfillsRoot)TimeProvider.cs" Link="Shared\Polyfills\TimeProvider.cs" Condition="'$(InjectTimeProviderPolyfill)' == 'true'" />
+
+    <!-- IsExternalInit (enables records) -->
+    <Compile Include="$(_PolyfillsRoot)IsExternalInit.cs" Link="Shared\Polyfills\IsExternalInit.cs" Condition="'$(InjectRecordPolyfill)' == 'true'" />
+
+    <!-- Index/Range -->
+    <Compile Include="$(_PolyfillsRoot)Index.cs" Link="Shared\Polyfills\Index.cs" Condition="'$(InjectIndexRangePolyfill)' == 'true'" />
+    <Compile Include="$(_PolyfillsRoot)Range.cs" Link="Shared\Polyfills\Range.cs" Condition="'$(InjectIndexRangePolyfill)' == 'true'" />
+
+    <!-- CallerArgumentExpression -->
+    <Compile Include="$(_PolyfillsRoot)CallerArgumentExpressionAttribute.cs" Link="Shared\Polyfills\CallerArgumentExpressionAttribute.cs" />
+  </ItemGroup>
+</Project>

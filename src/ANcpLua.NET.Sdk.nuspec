@@ -8,16 +8,25 @@
     <description>ANcpLua SDK for .NET projects</description>
     <readme>README.md</readme>
     <license type="expression">MIT</license>
-    <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$" />
+    <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$"/>
   </metadata>
   <files>
-    <file src="Sdk/ANcpLua.NET.Sdk/Sdk.props" target="Sdk/Sdk.props" />
-    <file src="Sdk/ANcpLua.NET.Sdk/Sdk.targets" target="Sdk/Sdk.targets" />
-    <file src="common/**/*" target="common" />
-    <file src="configuration/**/*" target="configuration" />
-    <file src="shared/**/*" target="shared" />
-    <file src="icon.png" target="" />
-    <file src="../LICENSE.txt" target="" />
-    <file src="../README.md" target="" />
+    <file src="Sdk/ANcpLua.NET.Sdk/Sdk.props" target="Sdk/Sdk.props"/>
+    <file src="Sdk/ANcpLua.NET.Sdk/Sdk.targets" target="Sdk/Sdk.targets"/>
+    <file src="common/**/*" target="common"/>
+    <file src="configuration/**/*" target="configuration"/>
+    <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="analyzers"/>
+    <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers"/>
+
+    <!-- Shared Sources -->
+    <file src="../eng/Extensions/**/*" target="shared/Extensions"/>
+    <file src="../eng/LegacySupport/**/*" target="shared/Polyfills" exclude="**/README.md"/>
+    <file src="../eng/MSBuild/Polyfills/**/*" target="shared/Polyfills" exclude="**/README.md"/>
+    <file src="../eng/Shared/Throw/**/*" target="shared/Throw"/>
+    <file src="../eng/Shared/IntegrationTests/**/*" target="shared/IntegrationTests" exclude="**/README.md"/>
+    <file src="../eng/Shared/Workflows/**/*" target="shared/Workflows" exclude="**/README.md"/>
+
+    <file src="../LICENSE.txt" target=""/>
+    <file src="../README.md" target=""/>
   </files>
 </package>

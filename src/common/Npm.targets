@@ -1,7 +1,7 @@
 <Project>
 
   <ItemGroup>
-    <NpmPackageFile Condition="'$(EnableDefaultNpmPackageFile)' != 'true' AND Exists('$(MSBuildProjectDirectory)\package.json')" Include="$(MSBuildProjectDirectory)\package.json" />
+    <NpmPackageFile Condition="'$(EnableDefaultNpmPackageFile)' != 'true' AND Exists('$(MSBuildProjectDirectory)\package.json')" Include="$(MSBuildProjectDirectory)\package.json"/>
   </ItemGroup>
 
   <!-- Compute additional metadata for the NpmPackageFile items -->
@@ -11,7 +11,7 @@
       <_NpmRestoreCommand Condition="'$(NpmRestoreLockedMode)' != 'true'">install</_NpmRestoreCommand>
       <_NpmRestoreCommand Condition="'$(NpmRestoreLockedMode)' == 'true'">ci</_NpmRestoreCommand>
     </PropertyGroup>
-    
+
     <ItemGroup>
       <NpmPackageFile>
         <StampFile>$([System.IO.Path]::Combine(`%(RootDir)%(Directory)`, 'node_modules', '.npm-install-stamp'))</StampFile>
@@ -27,9 +27,9 @@
 
   <!-- Run npm install for each NpmPackageFile -->
   <Target Name="NpmRestore" DependsOnTargets="ComputeNpmPackageMetadata;NpmRestoreForce" Inputs="@(NpmPackageFile)" Outputs="%(NpmPackageFile.StampFile)" BeforeTargets="Restore;CollectPackageReferences">
-    <Message Importance="high" Text="Installing npm packages for @(NpmPackageFile)" />
-    <Exec Command="@(NpmPackageFile->'%(RestoreCommand)')" WorkingDirectory="%(WorkingDirectory)" />
-    <Touch Files="@(NpmPackageFile->'%(StampFile)')" AlwaysCreate="true" />
+    <Message Importance="high" Text="Installing npm packages for @(NpmPackageFile)"/>
+    <Exec Command="@(NpmPackageFile->'%(RestoreCommand)')" WorkingDirectory="%(WorkingDirectory)"/>
+    <Touch Files="@(NpmPackageFile->'%(StampFile)')" AlwaysCreate="true"/>
   </Target>
 
   <!-- Reinstall npm packages when using dotnet build force -->
@@ -37,17 +37,17 @@
   </Target>
 
   <Target Name="CleanNpmInstallStampFile" DependsOnTargets="ComputeNpmPackageMetadata">
-    <Delete Files="@(NpmPackageFile->'%(StampFile)')" />
+    <Delete Files="@(NpmPackageFile->'%(StampFile)')"/>
   </Target>
 
   <!-- dotnet msbuild /t:NpmInstall -->
   <Target Name="NpmInstall" DependsOnTargets="ComputeNpmPackageMetadata">
-    <Exec Command="@(NpmPackageFile->'%(InstallCommand)')" WorkingDirectory="%(WorkingDirectory)" />
+    <Exec Command="@(NpmPackageFile->'%(InstallCommand)')" WorkingDirectory="%(WorkingDirectory)"/>
   </Target>
 
   <Target Name="EmbedNpmLockFileInBinLog" DependsOnTargets="ComputeNpmPackageMetadata" AfterTargets="CoreCompile">
     <ItemGroup>
-      <EmbedInBinlog Include="@(NpmPackageFile->'%(LockFile)')" />
+      <EmbedInBinlog Include="@(NpmPackageFile->'%(LockFile)')"/>
     </ItemGroup>
   </Target>
 

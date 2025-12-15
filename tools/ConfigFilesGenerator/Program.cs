@@ -1,28 +1,23 @@
-using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.Loader;
+using System.Text;
+using System.Text.RegularExpressions;
+using Basic.Reference.Assemblies;
+using Meziantou.Framework;
+using Meziantou.Framework.DependencyScanning;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using NuGet.Common;
 using NuGet.Configuration;
 using NuGet.Frameworks;
 using NuGet.Packaging.Core;
 using NuGet.Packaging.Signing;
-using NuGet.Protocol.Core.Types;
 using NuGet.Protocol;
+using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
-using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Meziantou.Framework;
-using Meziantou.Framework.DependencyScanning;
-using Microsoft.CodeAnalysis.CSharp;
 
 var rootFolder = GetRootFolderPath();
 
@@ -31,10 +26,7 @@ await GenerateEditorConfigForAnalyzers();
 await GenerateBanSymbolsForNewtonsoftJson();
 
 Console.WriteLine($"{writtenFiles} configuration files written");
-if (writtenFiles > 0)
-{
-    Process.Start("git", "--no-pager diff --color").WaitForExit();
-}
+if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color").WaitForExit();
 
 return writtenFiles;
 
@@ -50,21 +42,20 @@ async Task GenerateEditorConfigForAnalyzers()
 
         var rules = new HashSet<AnalyzerRule>();
         foreach (var assembly in await GetAnalyzerReferences(packageId, packageVersion))
+        foreach (var type in assembly.GetTypes())
         {
-            foreach (var type in assembly.GetTypes())
-            {
-                if (type.IsAbstract || type.IsInterface)
-                    continue;
+            if (type.IsAbstract || type.IsInterface)
+                continue;
 
-                if (!typeof(DiagnosticAnalyzer).IsAssignableFrom(type))
-                    continue;
+            if (!typeof(DiagnosticAnalyzer).IsAssignableFrom(type))
+                continue;
 
-                var analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(type)!;
-                foreach (var diagnostic in analyzer.SupportedDiagnostics)
-                {
-                    rules.Add(new AnalyzerRule(diagnostic.Id, diagnostic.Title.ToString(CultureInfo.InvariantCulture).Trim(), diagnostic.HelpLinkUri, diagnostic.IsEnabledByDefault, diagnostic.DefaultSeverity, diagnostic.IsEnabledByDefault ? diagnostic.DefaultSeverity : null));
-                }
-            }
+            var analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(type)!;
+            foreach (var diagnostic in analyzer.SupportedDiagnostics)
+                rules.Add(new AnalyzerRule(diagnostic.Id,
+                    diagnostic.Title.ToString(CultureInfo.InvariantCulture).Trim(), diagnostic.HelpLinkUri,
+                    diagnostic.IsEnabledByDefault, diagnostic.DefaultSeverity,
+                    diagnostic.IsEnabledByDefault ? diagnostic.DefaultSeverity : null));
         }
 
         if (rules.Count > 0)
@@ -77,37 +68,26 @@ async Task GenerateEditorConfigForAnalyzers()
             var currentConfiguration = GetConfiguration(configurationFilePath);
 
             if (currentConfiguration.Unknowns.Length > 0)
-            {
                 foreach (var unknown in currentConfiguration.Unknowns)
-                {
                     sb.AppendLine(unknown);
-                }
-            }
             else
-            {
                 sb.AppendLine();
-            }
 
             foreach (var rule in rules.OrderBy(rule => rule.Id))
             {
                 var currentRuleConfiguration = currentConfiguration.Rules.FirstOrDefault(r => r.Id == rule.Id);
-                var severity = currentRuleConfiguration != null ? currentRuleConfiguration.Severity : rule.DefaultEffectiveSeverity;
+                var severity = currentRuleConfiguration != null
+                    ? currentRuleConfiguration.Severity
+                    : rule.DefaultEffectiveSeverity;
 
                 sb.AppendLine($"# {rule.Id}: {rule.Title}");
-                if (!string.IsNullOrEmpty(rule.Url))
-                {
-                    sb.AppendLine($"# Help link: {rule.Url}");
-                }
+                if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {rule.Url}");
 
                 sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
                 if (currentRuleConfiguration?.Comments.Length > 0)
-                {
                     foreach (var comment in currentRuleConfiguration.Comments)
-                    {
                         sb.AppendLine(comment);
-                    }
-                }
 
                 sb.AppendLine($"dotnet_diagnostic.{rule.Id}.severity = {GetSeverity(severity)}");
                 sb.AppendLine();
@@ -115,10 +95,8 @@ async Task GenerateEditorConfigForAnalyzers()
 
             var text = sb.ToString().ReplaceLineEndings("\n");
             if (File.Exists(configurationFilePath))
-            {
                 if (File.ReadAllText(configurationFilePath).ReplaceLineEndings("\n") == text)
                     return;
-            }
 
             configurationFilePath.CreateParentDirectory();
             await File.WriteAllTextAsync(configurationFilePath, text, cancellationToken);
@@ -133,7 +111,7 @@ async Task GenerateEditorConfigForAnalyzers()
                     DiagnosticSeverity.Info => "suggestion",
                     DiagnosticSeverity.Warning => "warning",
                     DiagnosticSeverity.Error => "error",
-                    _ => throw new Exception($"Severity '{severity}' is not supported"),
+                    _ => throw new Exception($"Severity '{severity}' is not supported")
                 };
             }
         }
@@ -145,45 +123,38 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
     var bannedSymbolsFilePath = rootFolder / "src" / "configuration" / "BannedSymbols.NewtonsoftJson.txt";
     var bannedSymbols = new HashSet<string>(StringComparer.Ordinal);
 
-    var package = await DownloadNuGetPackage("Newtonsoft.Json", version: null, NullLogger.Instance, CancellationToken.None);
+    var package = await DownloadNuGetPackage("Newtonsoft.Json", null, NullLogger.Instance, CancellationToken.None);
     var libItems = await package.PackageReader.GetLibItemsAsync(CancellationToken.None);
 
-    var compatibleFrameworks = libItems.Where(item => DefaultCompatibilityProvider.Instance.IsCompatible(NuGetFramework.Parse("net10.0"), item.TargetFramework));
+    var compatibleFrameworks = libItems.Where(item =>
+        DefaultCompatibilityProvider.Instance.IsCompatible(NuGetFramework.Parse("net10.0"), item.TargetFramework));
     var items = compatibleFrameworks.SelectMany(item => item.Items).ToArray();
     foreach (var item in items)
     {
         if (!string.Equals(Path.GetExtension(item), ".dll", StringComparison.OrdinalIgnoreCase))
             continue;
 
-        using var stream = package.PackageReader.GetStream(item);
+        await using var stream = package.PackageReader.GetStream(item);
         var metadataRef = MetadataReference.CreateFromStream(stream);
-        var allRefs = Basic.Reference.Assemblies.Net100.References.All.Add(metadataRef);
+        var allRefs = Net100.References.All.Add(metadataRef);
 
-        var compilation = CSharpCompilation.Create("temp", syntaxTrees: [], references: allRefs);
+        var compilation = CSharpCompilation.Create("temp", [], allRefs);
         var asm = compilation.GetTypeByMetadataName("Newtonsoft.Json.JsonConvert")!.ContainingAssembly;
         foreach (var type in GetAllNamespaces(asm))
         {
             var ns = DocumentationCommentId.CreateDeclarationId(type);
-            if (ns is not null && ns.StartsWith("N:Newtonsoft", StringComparison.Ordinal))
-            {
-                bannedSymbols.Add(ns);
-            }
+            if (ns is not null && ns.StartsWith("N:Newtonsoft", StringComparison.Ordinal)) bannedSymbols.Add(ns);
         }
     }
 
     var sb = new StringBuilder();
     sb.AppendLine("# Banned symbols from Newtonsoft.Json");
-    foreach (var symbol in bannedSymbols.OrderBy(s => s, StringComparer.Ordinal))
-    {
-        sb.AppendLine(symbol);
-    }
+    foreach (var symbol in bannedSymbols.OrderBy(s => s, StringComparer.Ordinal)) sb.AppendLine(symbol);
 
     var text = sb.ToString().ReplaceLineEndings("\n");
     if (File.Exists(bannedSymbolsFilePath))
-    {
         if (File.ReadAllText(bannedSymbolsFilePath).ReplaceLineEndings("\n") == text)
             return;
-    }
 
     bannedSymbolsFilePath.CreateParentDirectory();
     await File.WriteAllTextAsync(bannedSymbolsFilePath, text);
@@ -204,74 +175,62 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         var version = package.Version is null ? null : NuGetVersion.Parse(package.Version);
         if (version is null)
         {
-            var metadata = await resource.GetMetadataAsync(package.Id, includePrerelease: true, includeUnlisted: false, cache, NullLogger.Instance, CancellationToken.None);
-            version = metadata.MaxBy(metadata => metadata.Identity.Version)!.Identity.Version;
+            var metadata = await resource.GetMetadataAsync(package.Id, true, false, cache, NullLogger.Instance,
+                CancellationToken.None);
+            version = metadata.MaxBy(packageSearchMetadata => packageSearchMetadata.Identity.Version)!.Identity.Version;
         }
 
         var packageIdentity = new PackageIdentity(package.Id, version);
-        await ListAllPackageDependencies(packageIdentity, [repository], NuGetFramework.AnyFramework, cache, NullLogger.Instance, foundPackages, CancellationToken.None);
+        await ListAllPackageDependencies(packageIdentity, [repository], NuGetFramework.AnyFramework, cache,
+            NullLogger.Instance, foundPackages, CancellationToken.None);
     }
 
     return [.. foundPackages.Select(p => (p.Id, p.Version))];
 
     static async Task ListAllPackageDependencies(
         PackageIdentity package,
-        IEnumerable<SourceRepository> repositories,
+        IReadOnlyList<SourceRepository> repositories,
         NuGetFramework framework,
         SourceCacheContext cache,
         ILogger logger,
         HashSet<SourcePackageDependencyInfo> dependencies,
         CancellationToken cancellationToken)
     {
-        if (dependencies.Contains(package))
-        {
-            return;
-        }
+        if (dependencies.Contains(package)) return;
 
         foreach (var repository in repositories)
         {
             var dependencyInfoResource = await repository.GetResourceAsync<DependencyInfoResource>();
-            var dependencyInfo = await dependencyInfoResource.ResolvePackage(package, framework, cache, logger, cancellationToken);
+            var dependencyInfo =
+                await dependencyInfoResource.ResolvePackage(package, framework, cache, logger, cancellationToken);
 
-            if (dependencyInfo == null)
-            {
-                continue;
-            }
+            if (dependencyInfo == null) continue;
 
-            if (dependencies.Add(dependencyInfo))
-            {
-                foreach (var dependency in dependencyInfo.Dependencies)
-                {
-                    await ListAllPackageDependencies(
-                        new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
-                        repositories,
-                        framework,
-                        cache,
-                        logger,
-                        dependencies,
-                        cancellationToken);
-                }
-            }
+            if (!dependencies.Add(dependencyInfo)) continue;
+            foreach (var dependency in dependencyInfo.Dependencies)
+                await ListAllPackageDependencies(
+                    new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
+                    repositories,
+                    framework,
+                    cache,
+                    logger,
+                    dependencies,
+                    cancellationToken);
         }
     }
 }
 
 async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
 {
-    var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", options: null);
+    var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null);
     foreach (var item in result)
-    {
         if (item.Type is DependencyType.NuGet && item.Name is not null)
-        {
             yield return (item.Name, item.Version);
-        }
-    }
 
     // Add analyzers from the .NET SDK
-    foreach (var package in new[] { "Microsoft.CodeAnalysis.NetAnalyzers", /* "Microsoft.CodeAnalysis.CSharp.CodeStyle" */ })
-    {
+    foreach (var package in new[]
+                 { "Microsoft.CodeAnalysis.NetAnalyzers" /* "Microsoft.CodeAnalysis.CSharp.CodeStyle" */ })
         yield return (package, null);
-    }
 }
 
 static FullPath GetRootFolderPath()
@@ -293,8 +252,8 @@ static FullPath GetRootFolderPath()
 
 static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersion version)
 {
-    ILogger logger = NullLogger.Instance;
-    CancellationToken cancellationToken = CancellationToken.None;
+    var logger = NullLogger.Instance;
+    var cancellationToken = CancellationToken.None;
 
     var package = await DownloadNuGetPackage(packageId, version, logger, cancellationToken);
     var result = new List<Assembly>();
@@ -303,19 +262,20 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
     foreach (var group in filesGroupedByFolder)
     {
         var context = new AssemblyLoadContext(null);
-        context.Resolving += (AssemblyLoadContext _, AssemblyName assemblyName) =>
+        context.Resolving += (_, assemblyName) =>
         {
             var assemblyFileName = assemblyName.Name + ".dll";
 
             foreach (var folder in GetProbeFolders())
             {
-                var files = filesGroupedByFolder.FirstOrDefault(group => string.Equals(group.Key, folder, StringComparison.OrdinalIgnoreCase));
+                var files = filesGroupedByFolder.FirstOrDefault(group =>
+                    string.Equals(group.Key, folder, StringComparison.OrdinalIgnoreCase));
                 if (files is null)
                     continue;
 
-                var assemblyPath = files.FirstOrDefault(f => string.Equals(Path.GetFileName(f), assemblyFileName, StringComparison.OrdinalIgnoreCase));
+                var assemblyPath = files.FirstOrDefault(f =>
+                    string.Equals(Path.GetFileName(f), assemblyFileName, StringComparison.OrdinalIgnoreCase));
                 if (assemblyPath is not null)
-                {
                     try
                     {
                         using var stream = package.PackageReader.GetStream(assemblyPath);
@@ -325,7 +285,6 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
                     {
                         // Ignore
                     }
-                }
             }
 
             return null;
@@ -349,7 +308,7 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
 
             try
             {
-                using var stream = package.PackageReader.GetStream(file);
+                await using var stream = package.PackageReader.GetStream(file);
                 result.Add(context.LoadFromStream(stream));
             }
             catch (Exception ex)
@@ -368,86 +327,67 @@ static (AnalyzerConfiguration[] Rules, string[] Unknowns) GetConfiguration(FullP
     var unknowns = new List<string>();
 
     var currentComment = new List<string>();
-    try
-    {
-        var lines = File.ReadAllLines(editorconfig);
 
-        foreach (var line in lines)
+    var lines = File.ReadAllLines(editorconfig);
+
+    foreach (var line in lines)
+        try
         {
-            try
+            if (line.StartsWith('#'))
             {
-                if (line.StartsWith('#'))
-                {
-                    if (line.StartsWith("# Enabled: ", StringComparison.Ordinal))
-                        continue;
-
-                    if (line.StartsWith("# Default severity: ", StringComparison.Ordinal))
-                        continue;
-
-                    if (line.StartsWith("# Help link: ", StringComparison.Ordinal))
-                        continue;
-
-                    currentComment.Add(line);
-                    continue;
-                }
-
-                if (line.StartsWith("is_global", StringComparison.Ordinal))
+                if (line.StartsWith("# Enabled: ", StringComparison.Ordinal))
                     continue;
 
-                if (line.StartsWith("global_level", StringComparison.Ordinal))
+                if (line.StartsWith("# Default severity: ", StringComparison.Ordinal))
                     continue;
 
-                var match = Regex.Match(line, @"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9]+).severity\s*=\s*(?<Severity>[a-z]+)");
-                if (match.Success)
-                {
-                    DiagnosticSeverity? diagnosticSeverity = null;
-                    var severityValue = match.Groups["Severity"].Value;
-                    if (severityValue == "silent")
-                    {
-                        diagnosticSeverity = DiagnosticSeverity.Hidden;
-                    }
-                    else if (severityValue == "suggestion")
-                    {
-                        diagnosticSeverity = DiagnosticSeverity.Info;
-                    }
-                    else if (Enum.TryParse<DiagnosticSeverity>(severityValue, ignoreCase: true, out var severity))
-                    {
-                        diagnosticSeverity = severity;
-                    }
+                if (line.StartsWith("# Help link: ", StringComparison.Ordinal))
+                    continue;
 
-                    rules.Add(new AnalyzerConfiguration(match.Groups["RuleId"].Value, [.. currentComment.Skip(1)], diagnosticSeverity));
-                }
-                else
-                {
-                    foreach (var comment in currentComment)
-                    {
-                        unknowns.Add(comment);
-                    }
-
-                    if (rules.Count == 0 || !string.IsNullOrEmpty(line))
-                    {
-                        unknowns.Add(line);
-                    }
-                }
-
+                currentComment.Add(line);
+                continue;
             }
-            finally
+
+            if (line.StartsWith("is_global", StringComparison.Ordinal))
+                continue;
+
+            if (line.StartsWith("global_level", StringComparison.Ordinal))
+                continue;
+
+            var match = Regex.Match(line,
+                @"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9]+).severity\s*=\s*(?<Severity>[a-z]+)");
+            if (match.Success)
             {
-                if (!line.StartsWith('#'))
-                {
-                    currentComment.Clear();
-                }
+                DiagnosticSeverity? diagnosticSeverity = null;
+                var severityValue = match.Groups["Severity"].Value;
+                if (severityValue == "silent")
+                    diagnosticSeverity = DiagnosticSeverity.Hidden;
+                else if (severityValue == "suggestion")
+                    diagnosticSeverity = DiagnosticSeverity.Info;
+                else if (Enum.TryParse<DiagnosticSeverity>(severityValue, true, out var severity))
+                    diagnosticSeverity = severity;
+
+                rules.Add(new AnalyzerConfiguration(match.Groups["RuleId"].Value, [.. currentComment.Skip(1)],
+                    diagnosticSeverity));
+            }
+            else
+            {
+                foreach (var comment in currentComment) unknowns.Add(comment);
+
+                if (rules.Count == 0 || !string.IsNullOrEmpty(line)) unknowns.Add(line);
             }
         }
-    }
-    catch
-    {
-    }
+        finally
+        {
+            if (!line.StartsWith('#')) currentComment.Clear();
+        }
+
 
     return (rules.ToArray(), unknowns.ToArray());
 }
 
-static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId, NuGetVersion? version, ILogger logger, CancellationToken cancellationToken)
+static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId, NuGetVersion? version, ILogger logger,
+    CancellationToken cancellationToken)
 {
     var settings = Settings.LoadDefaultSettings(null);
     var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(settings);
@@ -460,7 +400,8 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
     if (version is null)
     {
         var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>();
-        var metadata = await metadataResource.GetMetadataAsync(packageId, includePrerelease: true, includeUnlisted: false, cache, NullLogger.Instance, CancellationToken.None);
+        var metadata = await metadataResource.GetMetadataAsync(packageId, true, false, cache, NullLogger.Instance,
+            CancellationToken.None);
         version = metadata.MaxBy(metadata => metadata.Identity.Version)!.Identity.Version;
     }
 
@@ -485,7 +426,7 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
             new PackageIdentity(packageId, version),
             packageStream,
             globalPackagesFolder,
-            parentId: Guid.Empty,
+            Guid.Empty,
             ClientPolicyContext.GetClientPolicy(settings, logger),
             logger,
             cancellationToken);
@@ -497,23 +438,23 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
 static IEnumerable<INamespaceSymbol> GetAllNamespaces(IAssemblySymbol assembly)
 {
     var result = new List<INamespaceSymbol>();
-    foreach (var module in assembly.Modules)
-    {
-        ProcessNamespace(result, module.GlobalNamespace);
-    }
+    foreach (var module in assembly.Modules) ProcessNamespace(result, module.GlobalNamespace);
 
     return result;
 
     static void ProcessNamespace(List<INamespaceSymbol> result, INamespaceSymbol ns)
     {
         result.Add(ns);
-        foreach (var nestedNs in ns.GetNamespaceMembers())
-        {
-            ProcessNamespace(result, nestedNs);
-        }
+        foreach (var nestedNs in ns.GetNamespaceMembers()) ProcessNamespace(result, nestedNs);
     }
 }
 
-sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
+internal sealed record AnalyzerRule(
+    string Id,
+    string Title,
+    string? Url,
+    bool Enabled,
+    DiagnosticSeverity DefaultSeverity,
+    DiagnosticSeverity? DefaultEffectiveSeverity);
 
-sealed record AnalyzerRule(string Id, string Title, string? Url, bool Enabled, DiagnosticSeverity DefaultSeverity, DiagnosticSeverity? DefaultEffectiveSeverity);
+internal sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);

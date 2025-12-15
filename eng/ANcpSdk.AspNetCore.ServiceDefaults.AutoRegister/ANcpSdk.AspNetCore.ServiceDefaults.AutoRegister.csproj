@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+    <Version>1.0.1</Version>
+    <Description>Auto register services and map routes for ANcpSdk applications</Description>
+
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoPackageAnalysis>true</NoPackageAnalysis>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <!-- Polyfills for netstandard2.0 -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <!-- Language Features -->
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" Link="Polyfills/RequiredMemberAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" Link="Polyfills/CompilerFeatureRequiredAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/IsExternalInit.cs" Link="Polyfills/IsExternalInit.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" Link="Polyfills/CallerArgumentExpressionAttribute.cs" />
+    <!-- Index/Range for slicing -->
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IndexRange/Index.cs" Link="Polyfills/Index.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IndexRange/Range.cs" Link="Polyfills/Range.cs" />
+    <!-- Nullable Attributes -->
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/DiagnosticAttributes/NullableAttributes.cs" Link="Polyfills/NullableAttributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs" Link="Polyfills/MemberNotNullAttributes.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.targets" Pack="true" PackagePath="build/" />
+    <None Include="$(OutputPath)\..\$(Configuration.ToLowerInvariant())_netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
+  </ItemGroup>
+</Project>

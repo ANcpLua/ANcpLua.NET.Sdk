@@ -1,98 +1,49 @@
-using System;
-using System.IO;
 using Meziantou.Framework;
 
 var rootFolder = GetRootFolderPath();
-var sdkRootPath = rootFolder / "src" / "sdk";
+var sdkRootPath = rootFolder / "src" / "Sdk";
 
-var sdks = new (string SdkName, string BaseSdkName)[] {
+var sdks = new (string SdkName, string BaseSdkName)[]
+{
     ("ANcpLua.NET.Sdk", "Microsoft.NET.Sdk"),
-    ("ANcpLua.NET.Sdk.BlazorWebAssembly", "Microsoft.NET.Sdk.BlazorWebAssembly"),
-    ("ANcpLua.NET.Sdk.Razor", "Microsoft.NET.Sdk.Razor"),
-    ("ANcpLua.NET.Sdk.Test", "Microsoft.NET.Sdk"),
     ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web"),
-    ("ANcpLua.NET.Sdk.WindowsDesktop", "Microsoft.NET.Sdk.WindowsDesktop"),
 };
 
 foreach (var (sdkName, baseSdkName) in sdks)
 {
     var propsPath = sdkRootPath / sdkName / "Sdk.props";
     var targetsPath = sdkRootPath / sdkName / "Sdk.targets";
-    var nuspecPath = rootFolder / "src" / $"{sdkName}.nuspec";
-    var csprojPath = rootFolder / "src" / $"{sdkName}.csproj";
 
     propsPath.CreateParentDirectory();
-    targetsPath.CreateParentDirectory();
-    nuspecPath.CreateParentDirectory();
-    csprojPath.CreateParentDirectory();
 
-    File.WriteAllText(csprojPath, $$"""
-        <Project Sdk="Microsoft.NET.Sdk">
-          <PropertyGroup>
-            <NoBuild>true</NoBuild>
-            <IncludeBuildOutput>false</IncludeBuildOutput>
-            <TargetFramework>netstandard2.0</TargetFramework>
-            <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-            <NoWarn>NU5128</NoWarn>
-            <NuSpecFile>{{nuspecPath.Name}}</NuSpecFile>
-            <Version>1.0.0</Version>
-            <NuspecProperties>$(NuspecProperties);version=$(Version)</NuspecProperties>
-            <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_REPOSITORY_URL)</NuspecProperties>
-            <NuspecProperties>$(NuspecProperties);RepositoryUrl=$(GITHUB_REPOSITORY_URL)</NuspecProperties>
-            <NuspecProperties>$(NuspecProperties);RepositoryUrl=$(GITHUB_REPOSITORY_URL)</NuspecProperties>
-          </PropertyGroup>
-        </Project>
-        """);
+    // Sdk.props
+    File.WriteAllText(propsPath.Value, $"""
+                                        <Project>
+                                          <PropertyGroup>
+                                            <ANcpLuaSdkName>{sdkName}</ANcpLuaSdkName>
+                                            <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
 
-    File.WriteAllText(propsPath, $$"""
-        <Project>
-            <PropertyGroup>
-                <ANcpLuaSdkName>{{sdkName}}</ANcpLuaSdkName>
-                <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
+                                            <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../common/Common.props</CustomBeforeDirectoryBuildProps>
+                                            <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)/../common/Common.targets</BeforeMicrosoftNETSdkTargets>
+                                          </PropertyGroup>
 
-                <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../common/Common.props</CustomBeforeDirectoryBuildProps>
-                <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)/../common/Common.targets</BeforeMicrosoftNETSdkTargets>
-            </PropertyGroup>
+                                          <Import Project="Sdk.props" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
+                                          <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'"/>
+                                        </Project>
+                                        """);
 
-            <Import Project="Sdk.props" Sdk="{{baseSdkName}}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'" />
-            <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'" />
-        </Project>
-        """);
-
-    File.WriteAllText(targetsPath, $$"""
-        <Project>
-            <Import Project="Sdk.targets" Sdk="{{baseSdkName}}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'" />
-        </Project>
-        """);
-
-    File.WriteAllText(nuspecPath, $$"""
-        <?xml version="1.0"?>
-        <package>
-          <metadata>
-            <id>{{sdkName}}</id>
-            <version>1.0.0</version>
-            <authors>ANcpLua</authors>
-            <requireLicenseAcceptance>false</requireLicenseAcceptance>
-            <description>ANcpLua SDK for .NET projects</description>
-            <readme>README.md</readme>
-            <license type="expression">MIT</license>
-            <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$" />
-          </metadata>
-          <files>
-            <file src="Sdk/{{sdkName}}/Sdk.props" target="Sdk/Sdk.props" />
-            <file src="Sdk/{{sdkName}}/Sdk.targets" target="Sdk/Sdk.targets" />
-            <file src="common/**/*" target="" />
-            <file src="configuration/**/*" target="" />
-            <file src="icon.png" target="" />
-            <file src="icon.svg" target="" />
-            <file src="../LICENSE.txt" target="" />
-            <file src="../README.md" target="" />
-          </files>
-        </package>
-        """);
+    // Sdk.targets
+    File.WriteAllText(targetsPath.Value, $"""
+                                          <Project>
+                                            <Import Project="Sdk.targets" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
+                                          </Project>
+                                          """);
 
     Console.WriteLine($"Generated {sdkName}");
 }
+
+Console.WriteLine();
+Console.WriteLine("Note: .nuspec and .csproj files are maintained manually in src/");
 
 static FullPath GetRootFolderPath()
 {

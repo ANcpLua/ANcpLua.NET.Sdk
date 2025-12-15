@@ -1,0 +1,43 @@
+<Project>
+  <!-- Legacy TFM polyfills for netstandard2.0 and net472 -->
+
+  <!-- IsExternalInit for init-only setters -->
+  <ItemGroup Condition="'$(InjectIsExternalInitOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\IsExternalInit.cs" Link="Generated\IsExternalInit.cs" />
+  </ItemGroup>
+
+  <!-- RequiredMember attribute -->
+  <ItemGroup Condition="'$(InjectRequiredMemberOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\RequiredMemberAttribute.cs" Link="Generated\RequiredMemberAttribute.cs" />
+  </ItemGroup>
+
+  <!-- CompilerFeatureRequired attribute -->
+  <ItemGroup Condition="'$(InjectCompilerFeatureRequiredOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\CompilerFeatureRequiredAttribute.cs" Link="Generated\CompilerFeatureRequiredAttribute.cs" />
+  </ItemGroup>
+
+  <!-- Trimming attributes -->
+  <ItemGroup Condition="'$(InjectTrimAttributesOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\TrimAttributes.cs" Link="Generated\TrimAttributes.cs" />
+  </ItemGroup>
+
+  <!-- Diagnostic classes -->
+  <ItemGroup Condition="'$(InjectDiagnosticClassesOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\DiagnosticClasses.cs" Link="Generated\DiagnosticClasses.cs" />
+  </ItemGroup>
+
+  <!-- Nullable attributes (AllowNull, NotNull, MaybeNull, etc.) -->
+  <ItemGroup Condition="'$(InjectNullableAttributesOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\NullableAttributes.cs" Link="Generated\NullableAttributes.cs" />
+  </ItemGroup>
+
+  <!-- UnreachableException -->
+  <ItemGroup Condition="'$(InjectUnreachableExceptionOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\UnreachableException.cs" Link="Generated\UnreachableException.cs" />
+  </ItemGroup>
+
+  <!-- ExperimentalAttribute -->
+  <ItemGroup Condition="'$(InjectExperimentalAttributeOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472' OR '$(TargetFramework)' == 'net8.0')">
+    <Compile Include="$(MSBuildThisFileDirectory)Polyfills\ExperimentalAttribute.cs" Link="Generated\ExperimentalAttribute.cs" />
+  </ItemGroup>
+</Project>

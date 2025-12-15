@@ -1,0 +1,40 @@
+<Project>
+  <PropertyGroup>
+    <_SharedRoot>$(MSBuildThisFileDirectory)..\Shared\</_SharedRoot>
+    <_AnalyzersRoot>$(MSBuildThisFileDirectory)</_AnalyzersRoot>
+  </PropertyGroup>
+
+  <!-- Throw.cs - Always inject -->
+  <ItemGroup Condition="'$(InjectSharedThrow)' == 'true'">
+    <Compile Include="$(_SharedRoot)Throw\Throw.cs" Link="Shared\Throw.cs"/>
+  </ItemGroup>
+
+  <!-- netstandard2.0 polyfills -->
+  <ItemGroup Condition="'$(_IsNetStandard20)' == 'true'">
+    <!-- Lock polyfill -->
+    <Compile Include="$(_SharedRoot)Polyfills\Lock.cs" Link="Shared\Polyfills\Lock.cs" Condition="'$(InjectLockPolyfill)' == 'true'"/>
+
+    <!-- TimeProvider polyfill -->
+    <Compile Include="$(_SharedRoot)Polyfills\TimeProvider.cs" Link="Shared\Polyfills\TimeProvider.cs" Condition="'$(InjectTimeProviderPolyfill)' == 'true'"/>
+
+    <!-- IsExternalInit (enables records) -->
+    <Compile Include="$(_SharedRoot)Polyfills\IsExternalInit.cs" Link="Shared\Polyfills\IsExternalInit.cs" Condition="'$(InjectRecordPolyfill)' == 'true'"/>
+
+    <!-- Index/Range -->
+    <Compile Include="$(_SharedRoot)Polyfills\Index.cs" Link="Shared\Polyfills\Index.cs" Condition="'$(InjectIndexRangePolyfill)' == 'true'"/>
+    <Compile Include="$(_SharedRoot)Polyfills\Range.cs" Link="Shared\Polyfills\Range.cs" Condition="'$(InjectIndexRangePolyfill)' == 'true'"/>
+
+    <!-- CallerArgumentExpression -->
+    <Compile Include="$(_SharedRoot)Polyfills\CallerArgumentExpressionAttribute.cs" Link="Shared\Polyfills\CallerArgumentExpressionAttribute.cs"/>
+  </ItemGroup>
+
+  <!-- qyl Analyzers (exclude self) -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'ANcpLua.Analyzers'">
+    <ProjectReference Include="$(_AnalyzersRoot)ANcpLua.Analyzers.csproj"
+                      PrivateAssets="all"
+                      ReferenceOutputAssembly="false"
+                      OutputItemType="Analyzer"
+                      SetTargetFramework="TargetFramework=netstandard2.0"/>
+    <EditorConfigFiles Include="$(_AnalyzersRoot)ANcpLua.Analyzers.editorconfig"/>
+  </ItemGroup>
+</Project>

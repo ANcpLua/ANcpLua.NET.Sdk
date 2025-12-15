@@ -1,16 +1,10 @@
-#nullable enable
-using System;
 using System.Collections.Concurrent;
 using System.Formats.Tar;
-using System.IO;
 using System.IO.Compression;
-using System.Linq;
-using System.Net.Http;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 using Meziantou.Framework;
 using Meziantou.Framework.Threading;
-using Xunit;
+using Microsoft.Deployment.DotNet.Releases;
 
 namespace ANcpLua.Sdk.Tests.Helpers;
 
@@ -32,20 +26,21 @@ public static class DotNetSdkHelpers
 
             var versionString = version switch
             {
-                NetSdkVersion.Net9_0 => "9.0",
-                NetSdkVersion.Net10_0 => "10.0",
-                _ => throw new NotSupportedException(),
+                NetSdkVersion.Net100 => "10.0",
+                _ => throw new NotSupportedException()
             };
 
-            var products = await Microsoft.Deployment.DotNet.Releases.ProductCollection.GetAsync();
+            var products = await ProductCollection.GetAsync();
             var product = products.Single(a => a.ProductName == ".NET" && a.ProductVersion == versionString);
             var releases = await product.GetReleasesAsync();
             var latestRelease = releases.Single(r => r.Version == product.LatestReleaseVersion);
             var latestSdk = latestRelease.Sdks.MaxBy(sdk => sdk.Version);
 
             var runtimeIdentifier = RuntimeInformation.RuntimeIdentifier;
-            var file = latestSdk!.Files.Single(file => file.Rid == runtimeIdentifier && Path.GetExtension(file.Name) is ".zip" or ".gz");
-            var finalFolderPath = FullPath.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) / "ANcpLua" / "dotnet" / latestSdk.Version.ToString();
+            var file = latestSdk!.Files.Single(file =>
+                file.Rid == runtimeIdentifier && Path.GetExtension(file.Name) is ".zip" or ".gz");
+            var finalFolderPath = FullPath.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) / "ANcpLua" /
+                                  "dotnet" / latestSdk.Version.ToString();
             var finalDotnetPath = finalFolderPath / (OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet");
             if (File.Exists(finalDotnetPath))
             {
@@ -60,29 +55,29 @@ public static class DotNetSdkHelpers
             {
                 using var ms = new MemoryStream(bytes);
                 var zip = new ZipArchive(ms);
-                zip.ExtractToDirectory(tempFolder, overwriteFiles: true);
+                await zip.ExtractToDirectoryAsync(tempFolder, true);
             }
             else
             {
-                // .tar.gz
                 using var ms = new MemoryStream(bytes);
-                using var gz = new GZipStream(ms, CompressionMode.Decompress);
-                using var tar = new TarReader(gz);
-                while (tar.GetNextEntry() is { } entry)
+                await using var gz = new GZipStream(ms, CompressionMode.Decompress);
+                await using var tar = new TarReader(gz);
+                while (await tar.GetNextEntryAsync() is { } entry)
                 {
                     var destinationPath = tempFolder / entry.Name;
-                    if (entry.EntryType is TarEntryType.Directory)
+                    switch (entry.EntryType)
                     {
-                        Directory.CreateDirectory(destinationPath);
-                    }
-                    else if (entry.EntryType == TarEntryType.RegularFile)
-                    {
-                        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
-                        var entryStream = entry.DataStream;
-                        using var outputStream = File.Create(destinationPath);
-                        if (entryStream is not null)
+                        case TarEntryType.Directory:
+                            Directory.CreateDirectory(destinationPath);
+                            break;
+                        case TarEntryType.RegularFile:
                         {
-                            await entryStream.CopyToAsync(outputStream);
+                            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+                            var entryStream = entry.DataStream;
+                            await using var outputStream = File.Create(destinationPath);
+                            if (entryStream is not null) await entryStream.CopyToAsync(outputStream);
+
+                            break;
                         }
                     }
                 }
@@ -93,24 +88,22 @@ public static class DotNetSdkHelpers
                 var tempDotnetPath = tempFolder / "dotnet";
 
                 Console.WriteLine("Updating permissions of " + tempDotnetPath);
-                File.SetUnixFileMode(tempDotnetPath, UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+                File.SetUnixFileMode(tempDotnetPath,
+                    UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.GroupRead |
+                    UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
 
                 foreach (var cscPath in Directory.GetFiles(tempFolder, "csc", SearchOption.AllDirectories))
                 {
                     Console.WriteLine("Updating permissions of " + cscPath);
-                    File.SetUnixFileMode(cscPath, UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+                    File.SetUnixFileMode(cscPath,
+                        UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.GroupRead |
+                        UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
                 }
             }
 
-            try
-            {
-                finalFolderPath.CreateParentDirectory();
-                Directory.Move(tempFolder, finalFolderPath);
-            }
-            catch
-            {
-                Directory.Delete(tempFolder, recursive: true);
-            }
+            finalFolderPath.CreateParentDirectory();
+
+            Directory.Move(tempFolder, finalFolderPath);
 
             Assert.True(File.Exists(finalDotnetPath));
             Values[version] = finalDotnetPath;
