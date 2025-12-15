@@ -13,8 +13,8 @@
   <files>
     <file src="Sdk/ANcpLua.NET.Sdk/Sdk.props" target="Sdk/Sdk.props"/>
     <file src="Sdk/ANcpLua.NET.Sdk/Sdk.targets" target="Sdk/Sdk.targets"/>
-    <file src="common/**/*" target="common"/>
-    <file src="configuration/**/*" target="configuration"/>
+    <file src="common/**/*" target="common/"/>
+    <file src="configuration/**/*" target="configuration/"/>
     <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="analyzers"/>
     <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers"/>
 
