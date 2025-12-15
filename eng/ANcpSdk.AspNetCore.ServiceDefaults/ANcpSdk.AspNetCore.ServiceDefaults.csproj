@@ -4,6 +4,15 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    
+    <!-- NuGet Package -->
+    <IsPackable>true</IsPackable>
+    <PackageId>ANcpSdk.AspNetCore.ServiceDefaults</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>ANcpLua</Authors>
+    <Description>Default configuration for ANcpSdk applications - OpenTelemetry, Health Checks, Resilience</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/ANcpLua/ANcpLua.NET.Sdk</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

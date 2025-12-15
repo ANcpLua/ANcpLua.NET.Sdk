@@ -50,7 +50,4 @@
         <Project Path="tools/ConfigFilesGenerator/ConfigFilesGenerator.csproj" />
         <Project Path="tools/SdkGenerator/SdkGenerator.csproj" />
     </Folder>
-    <Project Path="examples/MicroserviceExample/Utils/Utils.csproj" />
-    <Project Path="examples/MicroserviceExample/WebApi/WebApi.csproj" />
-    <Project Path="examples/MicroserviceExample/WorkerService/WorkerService.csproj" />
 </Solution>

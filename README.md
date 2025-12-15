@@ -15,10 +15,10 @@ Replace your SDK reference:
 
 ```xml
 <!-- Libraries / Console / Workers -->
-<Project Sdk="ANcpLua.NET.Sdk/1.1.0">
+<Project Sdk="ANcpLua.NET.Sdk/1.1.2">
 
 <!-- Web APIs / ASP.NET Core -->
-<Project Sdk="ANcpLua.NET.Sdk.Web/1.1.0">
+<Project Sdk="ANcpLua.NET.Sdk.Web/1.1.2">
 ```
 
 Or use `global.json` for centralized version management:
@@ -26,8 +26,8 @@ Or use `global.json` for centralized version management:
 ```json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "1.1.0",
-    "ANcpLua.NET.Sdk.Web": "1.1.0"
+    "ANcpLua.NET.Sdk": "1.1.2",
+    "ANcpLua.NET.Sdk.Web": "1.1.2"
   }
 }
 ```
@@ -64,19 +64,22 @@ Enforces best practices via `BannedSymbols.txt`:
 | QYL0001 | `lock` keyword → Use `Lock.EnterScope()` (.NET 9+)       |
 | QYL0002 | Deprecated OTel GenAI attributes → Use OTel 1.38 names   |
 
+### Extensions (Auto-Enabled by Default)
+
+| Property                       | Description                                                  | Default  |
+|--------------------------------|--------------------------------------------------------------|----------|
+| `GenerateClaudeMd`             | Auto-generates `CLAUDE.md` linking to repo root              | **`true`** |
+| `InjectSharedThrow`            | Injects `Throw.IfNull()` guard clause helper                 | **`true`** |
+| `IncludeDefaultBannedSymbols`  | Include BannedSymbols.txt                                    | **`true`** |
+| `BanNewtonsoftJsonSymbols`     | Ban Newtonsoft.Json direct usage                             | **`true`** |
+
 ### Extensions (Opt-in)
 
 | Property                       | Description                                                  | Default |
 |--------------------------------|--------------------------------------------------------------|---------|
-| `GenerateClaudeMd`             | Auto-generates `CLAUDE.md` linking to repo root              | `false` |
-| `InjectSharedThrow`            | Injects `Throw.IfNull()` guard clause helper                 | `false` |
 | `InjectStringOrdinalComparer`  | Injects internal `StringOrdinalComparer`                     | `false` |
 | `InjectFakeLogger`             | Injects `FakeLoggerExtensions` (requires `FakeLogCollector`) | `false` |
 | `InjectSourceGenHelpers`       | Injects Roslyn symbol extensions                             | `false` |
-| `InjectCommonComparers`        | Injects common comparers                                     | `false` |
-| `EnableANcpLuaExtensions`      | Enables all general extensions                               | `false` |
-| `EnableANcpLuaSharedResources` | Enables shared engineering resources                         | `false` |
-| `EnableANcpLuaSharedWorkflows` | Enables shared workflows                                     | `false` |
 
 ### Polyfills (Opt-in for Legacy TFMs)
 
@@ -116,13 +119,14 @@ ObjectDisposedException.ThrowIf(isDisposed, this);
 
 ## Configuration
 
-| Property                      | Default     | Description                           |
-|-------------------------------|-------------|---------------------------------------|
-| `GenerateClaudeMd`            | `false`     | Generate CLAUDE.md for AI assistants  |
-| `IncludeDefaultBannedSymbols` | `true`      | Include BannedSymbols.txt             |
-| `BannedNewtonsoftJsonSymbols` | `true`      | Ban Newtonsoft.Json                   |
-| `EnableDefaultTestSettings`   | `true`      | Auto-configure test runner            |
-| `EnableCodeCoverage`          | `true` (CI) | Enable coverage                       |
+| Property                      | Default      | Description                           |
+|-------------------------------|--------------|---------------------------------------|
+| `GenerateClaudeMd`            | **`true`**   | Generate CLAUDE.md for AI assistants  |
+| `InjectSharedThrow`           | **`true`**   | Inject Throw.IfNull() guard clauses   |
+| `IncludeDefaultBannedSymbols` | **`true`**   | Include BannedSymbols.txt             |
+| `BanNewtonsoftJsonSymbols`    | **`true`**   | Ban Newtonsoft.Json direct usage      |
+| `EnableDefaultTestSettings`   | `true`       | Auto-configure test runner            |
+| `EnableCodeCoverage`          | `true` (CI)  | Enable coverage                       |
 
 ### Web Service Defaults (Auto-Registered for Web Projects)
 

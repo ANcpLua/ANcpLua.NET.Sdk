@@ -12,9 +12,10 @@
     <GenerateSBOM Condition="'$(GenerateSBOM)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'">true</GenerateSBOM>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">
-    <PackageReference Include="ANcpSdk.AspNetCore.ServiceDefaults" Version="1.0.23" IsImplicitlyDefined="true"/>
-    <PackageReference Include="ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" Version="1.0.1" IsImplicitlyDefined="true" Condition="'$(AutoRegisterServiceDefaults)' != 'false'"/>
+  <!-- ServiceDefaults - auto-added for Web projects -->
+  <ItemGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true' AND '$(DisableServiceDefaults)' != 'true'">
+    <PackageReference Include="ANcpSdk.AspNetCore.ServiceDefaults" Version="1.0.0" IsImplicitlyDefined="true"/>
+    <PackageReference Include="ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" Version="1.0.0" IsImplicitlyDefined="true" Condition="'$(AutoRegisterServiceDefaults)' != 'false'"/>
   </ItemGroup>
 
   <!-- Ensure application can run with newer frameworks -->
@@ -66,6 +67,21 @@
     <ItemGroup>
       <EmbedInBinlog Include="@(EditorConfigFiles)"/>
     </ItemGroup>
+  </Target>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CLAUDE.MD AUTO-GENERATION
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <Target Name="GenerateClaudeMd" BeforeTargets="Build" Condition="'$(GenerateClaudeMd)' == 'true' AND !Exists('$(MSBuildProjectDirectory)\CLAUDE.md')">
+    <PropertyGroup>
+      <_RootClaudeMd>$([MSBuild]::GetPathOfFileAbove('CLAUDE.md', '$(MSBuildProjectDirectory)'))</_RootClaudeMd>
+    </PropertyGroup>
+    <WriteLinesToFile 
+      File="$(MSBuildProjectDirectory)\CLAUDE.md"
+      Lines="---&#10;See [Root CLAUDE.md]($(_RootClaudeMd)) for project context.&#10;---&#10;&#10;# $(MSBuildProjectName)&#10;&#10;Project-specific context goes here."
+      Overwrite="true"
+      Condition="'$(_RootClaudeMd)' != ''"
+    />
   </Target>
 
   <!-- Disable packages -->

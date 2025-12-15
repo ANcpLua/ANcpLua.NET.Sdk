@@ -1,5 +1,7 @@
 using System.Text;
+using Microsoft.Extensions.Logging.Testing;
 
+namespace ANcpLua.Extensions.FakeLogger;
 
 public static class FakeLoggerExtensions
 {

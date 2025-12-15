@@ -64,6 +64,35 @@
     <Using Include="Xunit"/>
   </ItemGroup>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TEST EXTENSIONS (Auto-injected for test projects)
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- FakeLogger for testing - auto-inject -->
+  <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.0.0" IsImplicitlyDefined="true"/>
+    <Using Include="Microsoft.Extensions.Diagnostics.Testing"/>
+  </ItemGroup>
+  <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Extensions\FakeLogger\*.cs" LinkBase="ANcpLua.Generated\FakeLogger" Visible="false"/>
+  </ItemGroup>
+
+  <!-- XunitLogger (ITestOutputHelper → ILogger bridge) -->
+  <ItemGroup Condition="'$(InjectXunitLogger)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\Samples\XunitLogger.cs" LinkBase="ANcpLua.Generated\Testing" Visible="false"/>
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\Samples\TextOutputHelperExtensions.cs" LinkBase="ANcpLua.Generated\Testing" Visible="false"/>
+  </ItemGroup>
+
+  <!-- Compiler helper for source generator tests -->
+  <ItemGroup Condition="'$(InjectCompilerHelper)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\CodeTests\Compiler.cs" LinkBase="ANcpLua.Generated\CodeTests" Visible="false"/>
+  </ItemGroup>
+
+  <!-- Integration test configurations (OpenAI, Anthropic) -->
+  <ItemGroup Condition="'$(InjectIntegrationTestConfigs)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\IntegrationTests\*.cs" LinkBase="ANcpLua.Generated\IntegrationTests" Visible="false"/>
+  </ItemGroup>
+
   <!-- VSTest on GitHub -->
   <Choose>
     <When Condition="'$(_IsGitHubActions)' == 'true'">

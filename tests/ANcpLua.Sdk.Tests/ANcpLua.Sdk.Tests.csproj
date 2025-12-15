@@ -15,6 +15,8 @@
     <PackageReference Include="Meziantou.Framework.Threading" Version="2.0.3"/>
     <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="1.0.6"/>
     <PackageReference Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.1"/>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.0.0"/>
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0"/>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
     <PackageReference Include="MSBuild.StructuredLogger" Version="2.3.71"/>
     <PackageReference Include="NuGet.Packaging" Version="7.0.0"/>
@@ -31,6 +33,10 @@
 
   <ItemGroup>
     <Using Include="Xunit"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)../../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" Link="Extensions/FakeLoggerExtensions.cs" />
   </ItemGroup>
 
 </Project>

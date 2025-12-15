@@ -19,12 +19,11 @@
     <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers"/>
 
     <!-- Shared Sources -->
-    <file src="../eng/Extensions/**/*" target="shared/Extensions"/>
+    <file src="../eng/Extensions/**/*" target="shared/Extensions" exclude="**/README.md"/>
     <file src="../eng/LegacySupport/**/*" target="shared/Polyfills" exclude="**/README.md"/>
     <file src="../eng/MSBuild/Polyfills/**/*" target="shared/Polyfills" exclude="**/README.md"/>
-    <file src="../eng/Shared/Throw/**/*" target="shared/Throw"/>
-    <file src="../eng/Shared/IntegrationTests/**/*" target="shared/IntegrationTests" exclude="**/README.md"/>
-    <file src="../eng/Shared/Workflows/**/*" target="shared/Workflows" exclude="**/README.md"/>
+    <file src="../eng/Shared/Throw/**/*" target="shared/Throw" exclude="**/README.md"/>
+    <file src="../eng/Shared/CodeTests/**/*" target="shared/CodeTests" exclude="**/README.md"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>

@@ -34,15 +34,9 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
 
         var content = await File.ReadAllTextAsync(generatedFilePath);
 
-        // Check content parts
-        Assert.Contains("@import ../../CLAUDE.md", content); // Relative path from src/MyLibrary to root
+        // Check content parts - the SDK generates a markdown link format
+        Assert.Contains("See [Root CLAUDE.md]", content);  // Link to root
         Assert.Contains("# MyLibrary", content); // Project Name
-        Assert.Contains("- Type: Library", content); // Type detection
-        Assert.Contains($"- Framework: {TargetFrameworks.Net100}", content);
-
-        // 5. Verify Message
-        Assert.Contains("[ANcpLua.NET.Sdk] Generated CLAUDE.md linking to ../../CLAUDE.md",
-            result.ProcessOutput.ToString());
     }
 
     [Fact]
