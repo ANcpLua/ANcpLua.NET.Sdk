@@ -37,7 +37,7 @@ Then reference without version:
 
 ```xml
 
-<Project Sdk="ANcpLua.NET.Sdk">
+<Project Sdk="ANcpLua.NET.Sdk"></Project>
 ```
 
 ## Working Features
