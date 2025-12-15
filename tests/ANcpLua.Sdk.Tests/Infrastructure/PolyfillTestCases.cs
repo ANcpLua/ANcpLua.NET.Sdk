@@ -1,16 +1,69 @@
 using ANcpLua.Sdk.Tests.Helpers;
+using Xunit.Sdk;
+
+[assembly: RegisterXunitSerializer(typeof(ANcpLua.Sdk.Tests.Infrastructure.PolyfillCaseSerializer), typeof(ANcpLua.Sdk.Tests.Infrastructure.IPolyfillCase))]
 
 namespace ANcpLua.Sdk.Tests.Infrastructure;
 
 public interface IPolyfillCase
 {
+    string MarkerTypeName { get; }
+    string TargetFramework { get; }
     Task RunPositive(PackageFixture fixture, ITestOutputHelper output);
     Task RunNegative(PackageFixture fixture, ITestOutputHelper output);
+}
+
+/// <summary>
+/// xUnit v3 serializer for IPolyfillCase - allows Test Explorer to enumerate individual test cases.
+/// </summary>
+public sealed class PolyfillCaseSerializer : IXunitSerializer
+{
+    public bool IsSerializable(Type type, object? value, out string? failureReason)
+    {
+        failureReason = null;
+        return typeof(IPolyfillCase).IsAssignableFrom(type) && value is IPolyfillCase;
+    }
+
+    public string Serialize(object value)
+    {
+        var testCase = (IPolyfillCase)value;
+        return $"{testCase.MarkerTypeName}|{testCase.TargetFramework}";
+    }
+
+    public object Deserialize(Type type, string serializedValue)
+    {
+        var parts = serializedValue.Split('|');
+        var markerTypeName = parts[0];
+        var tfm = parts[1];
+
+        return markerTypeName switch
+        {
+            nameof(TrimAttributesFile) => new PolyfillCase<TrimAttributesFile>(tfm),
+            nameof(NullabilityAttributesFile) => new PolyfillCase<NullabilityAttributesFile>(tfm),
+            nameof(IsExternalInitFile) => new PolyfillCase<IsExternalInitFile>(tfm),
+            nameof(RequiredMemberFile) => new PolyfillCase<RequiredMemberFile>(tfm),
+            nameof(CompilerFeatureRequiredFile) => new PolyfillCase<CompilerFeatureRequiredFile>(tfm),
+            nameof(CallerArgumentExpressionFile) => new PolyfillCase<CallerArgumentExpressionFile>(tfm),
+            nameof(UnreachableExceptionFile) => new PolyfillCase<UnreachableExceptionFile>(tfm),
+            nameof(ExperimentalAttributeFile) => new PolyfillCase<ExperimentalAttributeFile>(tfm),
+            nameof(IndexRangeFile) => new PolyfillCase<IndexRangeFile>(tfm),
+            nameof(ParamCollectionFile) => new PolyfillCase<ParamCollectionFile>(tfm),
+            nameof(StackTraceHiddenFile) => new PolyfillCase<StackTraceHiddenFile>(tfm),
+            nameof(LockFile) => new PolyfillCase<LockFile>(tfm),
+            nameof(TimeProviderFile) => new PolyfillCase<TimeProviderFile>(tfm),
+            nameof(ThrowFile) => new PolyfillCase<ThrowFile>(tfm),
+            nameof(StringOrdinalComparerFile) => new PolyfillCase<StringOrdinalComparerFile>(tfm),
+            nameof(DiagnosticClassesFile) => new PolyfillCase<DiagnosticClassesFile>(tfm),
+            _ => throw new InvalidOperationException($"Unknown marker type: {markerTypeName}")
+        };
+    }
 }
 
 public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
     where TMarker : IPolyfillMarker
 {
+    public string MarkerTypeName => typeof(TMarker).Name;
+    public string TargetFramework => tfm;
     public async Task RunPositive(PackageFixture fixture, ITestOutputHelper output)
     {
         await using var project =

@@ -1,7 +1,5 @@
 // Copyright (c) ANcpLua. All rights reserved.
 
-using Xunit;
-
 namespace ANcpLua.Sdk.Tests;
 
 /// <summary>
@@ -41,7 +39,7 @@ public class ThrowPolyfillsTests
         object? myParameter = null;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentNullException>(() => 
+        var ex = Assert.Throws<ArgumentNullException>(() =>
             ArgumentNullException.ThrowIfNull(myParameter));
         Assert.Equal("myParameter", ex.ParamName);
     }
@@ -54,7 +52,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNullOrEmpty_WithValidString_DoesNotThrow()
     {
         // Arrange
-        string value = "test";
+        const string value = "test";
 
         // Act & Assert - should not throw
         ArgumentException.ThrowIfNullOrEmpty(value);
@@ -67,7 +65,7 @@ public class ThrowPolyfillsTests
         string? value = null;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentNullException>(() => 
+        var ex = Assert.Throws<ArgumentNullException>(() =>
             ArgumentException.ThrowIfNullOrEmpty(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -76,10 +74,10 @@ public class ThrowPolyfillsTests
     public void ThrowIfNullOrEmpty_WithEmptyString_ThrowsArgumentException()
     {
         // Arrange
-        string value = "";
+        const string value = "";
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() => 
+        var ex = Assert.Throws<ArgumentException>(() =>
             ArgumentException.ThrowIfNullOrEmpty(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -92,7 +90,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNullOrWhiteSpace_WithValidString_DoesNotThrow()
     {
         // Arrange
-        string value = "test";
+        const string value = "test";
 
         // Act & Assert - should not throw
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
@@ -102,10 +100,10 @@ public class ThrowPolyfillsTests
     public void ThrowIfNullOrWhiteSpace_WithWhitespaceString_ThrowsArgumentException()
     {
         // Arrange
-        string value = "   ";
+        const string value = "   ";
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentException>(() => 
+        var ex = Assert.Throws<ArgumentException>(() =>
             ArgumentException.ThrowIfNullOrWhiteSpace(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -117,7 +115,7 @@ public class ThrowPolyfillsTests
         string? value = null;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentNullException>(() => 
+        var ex = Assert.Throws<ArgumentNullException>(() =>
             ArgumentException.ThrowIfNullOrWhiteSpace(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -130,7 +128,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegative_WithPositiveInt_DoesNotThrow()
     {
         // Arrange
-        int value = 5;
+        const int value = 5;
 
         // Act & Assert - should not throw
         ArgumentOutOfRangeException.ThrowIfNegative(value);
@@ -140,7 +138,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegative_WithZero_DoesNotThrow()
     {
         // Arrange
-        int value = 0;
+        const int value = 0;
 
         // Act & Assert - should not throw (zero is not negative)
         ArgumentOutOfRangeException.ThrowIfNegative(value);
@@ -153,7 +151,7 @@ public class ThrowPolyfillsTests
         int value = -1;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfNegative(value));
         Assert.Equal("value", ex.ParamName);
         Assert.Equal(-1, ex.ActualValue);
@@ -166,7 +164,7 @@ public class ThrowPolyfillsTests
         long value = -100L;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfNegative(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -178,7 +176,7 @@ public class ThrowPolyfillsTests
         double value = -0.5;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfNegative(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -204,7 +202,7 @@ public class ThrowPolyfillsTests
         int value = 0;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfZero(value));
         Assert.Equal("value", ex.ParamName);
         Assert.Equal(0, ex.ActualValue);
@@ -231,7 +229,7 @@ public class ThrowPolyfillsTests
         int value = 0;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -243,7 +241,7 @@ public class ThrowPolyfillsTests
         int value = -5;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value));
         Assert.Equal("value", ex.ParamName);
     }
@@ -282,7 +280,7 @@ public class ThrowPolyfillsTests
         int limit = 10;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfGreaterThan(value, limit));
         Assert.Equal("value", ex.ParamName);
     }
@@ -321,7 +319,7 @@ public class ThrowPolyfillsTests
         int limit = 10;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfLessThan(value, limit));
         Assert.Equal("value", ex.ParamName);
     }
@@ -349,7 +347,7 @@ public class ThrowPolyfillsTests
         var instance = new object();
 
         // Act & Assert
-        Assert.Throws<ObjectDisposedException>(() => 
+        Assert.Throws<ObjectDisposedException>(() =>
             ObjectDisposedException.ThrowIf(isDisposed, instance));
     }
 
@@ -360,7 +358,7 @@ public class ThrowPolyfillsTests
         bool isDisposed = true;
 
         // Act & Assert
-        var ex = Assert.Throws<ObjectDisposedException>(() => 
+        var ex = Assert.Throws<ObjectDisposedException>(() =>
             ObjectDisposedException.ThrowIf(isDisposed, typeof(string)));
         Assert.Contains("String", ex.ObjectName);
     }
@@ -376,9 +374,9 @@ public class ThrowPolyfillsTests
         object? myVerySpecificParameterName = null;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentNullException>(() => 
+        var ex = Assert.Throws<ArgumentNullException>(() =>
             ArgumentNullException.ThrowIfNull(myVerySpecificParameterName));
-        
+
         // The CallerArgumentExpression should capture the variable name
         Assert.Equal("myVerySpecificParameterName", ex.ParamName);
     }
@@ -390,9 +388,9 @@ public class ThrowPolyfillsTests
         int userCount = -1;
 
         // Act & Assert
-        var ex = Assert.Throws<ArgumentOutOfRangeException>(() => 
+        var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
             ArgumentOutOfRangeException.ThrowIfNegative(userCount));
-        
+
         Assert.Equal("userCount", ex.ParamName);
     }
 
