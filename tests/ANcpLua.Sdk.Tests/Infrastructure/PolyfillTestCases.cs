@@ -18,10 +18,15 @@ public interface IPolyfillCase
 /// </summary>
 public sealed class PolyfillCaseSerializer : IXunitSerializer
 {
-    public bool IsSerializable(Type type, object? value, out string? failureReason)
+    public bool IsSerializable(Type type, object? value, [System.Diagnostics.CodeAnalysis.NotNullWhen(false)] out string? failureReason)
     {
-        failureReason = null;
-        return typeof(IPolyfillCase).IsAssignableFrom(type) && value is IPolyfillCase;
+        if (typeof(IPolyfillCase).IsAssignableFrom(type) && value is IPolyfillCase)
+        {
+            failureReason = null;
+            return true;
+        }
+        failureReason = $"Type {type.Name} is not IPolyfillCase";
+        return false;
     }
 
     public string Serialize(object value)

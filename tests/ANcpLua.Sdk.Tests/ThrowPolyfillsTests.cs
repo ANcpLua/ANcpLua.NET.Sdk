@@ -148,7 +148,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegative_WithNegativeInt_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        int value = -1;
+        const int value = -1;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -161,7 +161,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegative_WithNegativeLong_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        long value = -100L;
+        const long value = -100L;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -173,7 +173,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegative_WithNegativeDouble_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        double value = -0.5;
+        const double value = -0.5;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -189,7 +189,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfZero_WithNonZeroValue_DoesNotThrow()
     {
         // Arrange
-        int value = 1;
+        const int value = 1;
 
         // Act & Assert - should not throw
         ArgumentOutOfRangeException.ThrowIfZero(value);
@@ -199,7 +199,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfZero_WithZero_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        int value = 0;
+        const int value = 0;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -216,7 +216,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegativeOrZero_WithPositiveValue_DoesNotThrow()
     {
         // Arrange
-        int value = 1;
+        const int value = 1;
 
         // Act & Assert - should not throw
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value);
@@ -226,7 +226,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegativeOrZero_WithZero_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        int value = 0;
+        const int value = 0;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -238,7 +238,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegativeOrZero_WithNegativeValue_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        int value = -5;
+        const int value = -5;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -254,8 +254,8 @@ public class ThrowPolyfillsTests
     public void ThrowIfGreaterThan_WithValueLessThanLimit_DoesNotThrow()
     {
         // Arrange
-        int value = 5;
-        int limit = 10;
+        const int value = 5;
+        const int limit = 10;
 
         // Act & Assert - should not throw
         ArgumentOutOfRangeException.ThrowIfGreaterThan(value, limit);
@@ -265,8 +265,8 @@ public class ThrowPolyfillsTests
     public void ThrowIfGreaterThan_WithValueEqualToLimit_DoesNotThrow()
     {
         // Arrange
-        int value = 10;
-        int limit = 10;
+        const int value = 10;
+        const int limit = 10;
 
         // Act & Assert - should not throw (equal is okay)
         ArgumentOutOfRangeException.ThrowIfGreaterThan(value, limit);
@@ -276,8 +276,8 @@ public class ThrowPolyfillsTests
     public void ThrowIfGreaterThan_WithValueGreaterThanLimit_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        int value = 15;
-        int limit = 10;
+        const int value = 15;
+        const int limit = 10;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -293,8 +293,8 @@ public class ThrowPolyfillsTests
     public void ThrowIfLessThan_WithValueGreaterThanLimit_DoesNotThrow()
     {
         // Arrange
-        int value = 15;
-        int limit = 10;
+        const int value = 15;
+        const int limit = 10;
 
         // Act & Assert - should not throw
         ArgumentOutOfRangeException.ThrowIfLessThan(value, limit);
@@ -304,8 +304,8 @@ public class ThrowPolyfillsTests
     public void ThrowIfLessThan_WithValueEqualToLimit_DoesNotThrow()
     {
         // Arrange
-        int value = 10;
-        int limit = 10;
+        const int value = 10;
+        const int limit = 10;
 
         // Act & Assert - should not throw (equal is okay)
         ArgumentOutOfRangeException.ThrowIfLessThan(value, limit);
@@ -315,8 +315,8 @@ public class ThrowPolyfillsTests
     public void ThrowIfLessThan_WithValueLessThanLimit_ThrowsArgumentOutOfRangeException()
     {
         // Arrange
-        int value = 5;
-        int limit = 10;
+        const int value = 5;
+        const int limit = 10;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
@@ -332,7 +332,7 @@ public class ThrowPolyfillsTests
     public void ThrowIf_WithFalseCondition_DoesNotThrow()
     {
         // Arrange
-        bool isDisposed = false;
+        const bool isDisposed = false;
         var instance = new object();
 
         // Act & Assert - should not throw
@@ -343,7 +343,7 @@ public class ThrowPolyfillsTests
     public void ThrowIf_WithTrueCondition_ThrowsObjectDisposedException()
     {
         // Arrange
-        bool isDisposed = true;
+        const bool isDisposed = true;
         var instance = new object();
 
         // Act & Assert
@@ -355,7 +355,7 @@ public class ThrowPolyfillsTests
     public void ThrowIf_WithType_ThrowsObjectDisposedException()
     {
         // Arrange
-        bool isDisposed = true;
+        const bool isDisposed = true;
 
         // Act & Assert
         var ex = Assert.Throws<ObjectDisposedException>(() =>
@@ -385,7 +385,7 @@ public class ThrowPolyfillsTests
     public void ThrowIfNegative_CapturesCorrectParameterName()
     {
         // Arrange
-        int userCount = -1;
+        const int userCount = -1;
 
         // Act & Assert
         var ex = Assert.Throws<ArgumentOutOfRangeException>(() =>
