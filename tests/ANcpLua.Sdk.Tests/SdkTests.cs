@@ -1004,7 +1004,7 @@ public abstract class SdkTests(
                 var key = blobReader.ReadSerializedString();
                 var value = blobReader.ReadSerializedString();
 
-                Assert.Equal("Meziantou.Sdk.Name", key);
+                Assert.Equal("ANcpLua.Sdk.Name", key);
                 Assert.Equal(sdkName, value);
                 return;
             }

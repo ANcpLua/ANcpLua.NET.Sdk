@@ -34,27 +34,47 @@
     <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="analyzers/"/>
     <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers/"/>
 
-    <!-- Shared Sources - Polyfills from LegacySupport (explicit mappings to avoid glob issues) -->
-    <file src="../eng/LegacySupport/IndexRange/*.cs" target="shared/Polyfills/IndexRange/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/*.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/DiagnosticAttributes/*.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
-    <file src="../eng/LegacySupport/Diagnostics/*.cs" target="shared/Polyfills/Diagnostics/"/>
-    <file src="../eng/LegacySupport/NullabilityAttributes/*.cs" target="shared/Polyfills/NullabilityAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/*.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/Exceptions/*.cs" target="shared/Polyfills/Exceptions/"/>
-    <file src="../eng/LegacySupport/Experimental/*.cs" target="shared/Polyfills/Experimental/"/>
-    <file src="../eng/LegacySupport/TimeProvider/*.cs" target="shared/Polyfills/TimeProvider/"/>
-    <file src="../eng/LegacySupport/ThrowPolyfills/*.cs" target="shared/Polyfills/ThrowPolyfills/"/>
+    <!-- Shared Sources - Polyfills from LegacySupport (fully explicit paths) -->
+    <file src="../eng/LegacySupport/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
+    <file src="../eng/LegacySupport/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
+    <file src="../eng/LegacySupport/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
+    <file src="../eng/LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMemberTypes.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresDynamicCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresUnreferencedCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/UnconditionalSuppressMessageAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
+    <file src="../eng/LegacySupport/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
+    <file src="../eng/LegacySupport/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
+    <file src="../eng/LegacySupport/ThrowPolyfills/ThrowPolyfills.cs" target="shared/Polyfills/ThrowPolyfills/"/>
 
     <!-- Polyfills from MSBuild/Polyfills (root level files) -->
-    <file src="../eng/MSBuild/Polyfills/*.cs" target="shared/Polyfills/"/>
+    <file src="../eng/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/Polyfills/"/>
+    <file src="../eng/MSBuild/Polyfills/Lock.cs" target="shared/Polyfills/"/>
+    <file src="../eng/MSBuild/Polyfills/TrimAttributes.cs" target="shared/Polyfills/"/>
 
     <!-- Other shared sources -->
-    <file src="../eng/Shared/Throw/*.cs" target="shared/Throw/"/>
-    <file src="../eng/Shared/CodeTests/*.cs" target="shared/CodeTests/"/>
-    <file src="../eng/Extensions/Comparers/*.cs" target="shared/Extensions/Comparers/"/>
-    <file src="../eng/Extensions/FakeLogger/*.cs" target="shared/Extensions/FakeLogger/"/>
-    <file src="../eng/Extensions/SourceGen/*.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Shared/Throw/Throw.cs" target="shared/Throw/"/>
+    <file src="../eng/Shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
+    <file src="../eng/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
+    <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
+    <file src="../eng/Extensions/SourceGen/AnalyzerConfigOptionsProviderExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/CompilationExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/DiagnosticInfo.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/EquatableArray.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/EquatableMessageArgs.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/LocationInfo.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/SourceProductionContextExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/SymbolExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>
