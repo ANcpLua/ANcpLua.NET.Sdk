@@ -119,7 +119,7 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", "Console.WriteLine();");
-        var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
+        var data = await project.PackAndGetOutput();
 
         Assert.False(
             data.OutputContains("SbomFilePath=") ||
