@@ -85,6 +85,7 @@ jobs:
       - run: dotnet nuget locals all --clear
       - run: dotnet test tests/ANcpLua.Sdk.Tests --logger "trx" --logger GitHubActions --results-directory test_results
         env:
+            CI: true
             NUGET_DIRECTORY: ${{ env.NUGET_DIRECTORY }}
             PACKAGE_VERSION: ${{ needs.compute_version.outputs.package_version }}
       - uses: actions/upload-artifact@v6
@@ -131,21 +132,15 @@ jobs:
           }
 
       - name: Publish NuGet packages
-        if: ${{ steps.has_changes.outputs.has_changes == 'true' }}
+        if: ${{ steps.has_changes.outputs.has_changes == 'true' && github.ref == 'refs/heads/main' }}
         env:
-          NuGetApiKey: ${{ secrets.NuGetApiKey }}
-          FeedzApiKey: ${{ secrets.FEEDZ_APIKEY }}
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          Write-Host "Current ref: $env:GITHUB_REF"
-          Write-Host "Searching nupkg in folder: ${{ env.NUGET_DIRECTORY }}"
+          Write-Host "Publishing to NuGet.org"
           $files = Get-ChildItem "${{ env.NUGET_DIRECTORY }}/*" -Recurse -Include *.nupkg
           foreach ($file in $files) {
-              Write-Host "Pushing NuGet package: $($file.FullName)"
-              & dotnet nuget push "$($file.FullName)" --api-key "$env:FeedzApiKey" --source https://f.feedz.io/ancplua/ancplua-dotnet-sdk/nuget/index.json --force-english-output --skip-duplicate
-              if ($env:GITHUB_REF -eq 'refs/heads/main')
-              {
-                  & dotnet nuget push "$($file.FullName)" --api-key "$env:NuGetApiKey" --source https://api.nuget.org/v3/index.json --force-english-output --skip-duplicate
-              }
+              Write-Host "Pushing: $($file.Name)"
+              & dotnet nuget push "$($file.FullName)" --api-key "$env:NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
       - run: gh release create "${{ needs.compute_version.outputs.package_version }}" --generate-notes
