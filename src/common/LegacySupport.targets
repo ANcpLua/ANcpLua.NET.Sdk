@@ -209,7 +209,7 @@
        ═══════════════════════════════════════════════════════════════════════ -->
   <Target Name="EmbedSharedSourcesInBinLog" AfterTargets="CoreCompile">
     <ItemGroup>
-      <EmbedInBinlog Include="@(Compile)" Condition="$([System.String]::new('%(Identity)').Contains('Shared\'))"/>
+      <EmbedInBinlog Include="@(Compile)" Condition="$([System.String]::new('%(Identity)').Contains('Shared/'))"/>
     </ItemGroup>
   </Target>
 
