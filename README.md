@@ -143,6 +143,21 @@ When using `Microsoft.NET.Sdk.Web`, the SDK automatically adds Aspire 13.0-compa
 
 Opt-out: `<AutoRegisterServiceDefaults>false</AutoRegisterServiceDefaults>`
 
+## Running Tests Correctly
+
+The test suite simulates an environment where the SDK is packed and consumed. To avoid performance issues caused by parallel tests trying to repack the SDK simultaneously, use the following command:
+
+```bash
+# 1. Ensure artifacts are built (if running for the first time)
+# Note: The test fixture will auto-build if artifacts/nuget is empty, 
+# but for optimal performance, set up the environment variables.
+
+# 2. Run tests pointing to the artifacts directory
+export CI=true
+export NUGET_DIRECTORY="$(pwd)/artifacts/nuget"
+dotnet test tests/ANcpLua.Sdk.Tests
+```
+
 ## License
 
 MIT
