@@ -40,7 +40,7 @@ public class PackageFixture : IAsyncLifetime
                 var files = Directory.GetFiles(path, "*.nupkg", SearchOption.AllDirectories);
                 if (files.Length > 0)
                 {
-                    foreach (var file in files) File.Copy(file, _packageDirectory.FullPath / Path.GetFileName(file));
+                    foreach (var file in files) File.Copy(file, _packageDirectory.FullPath / Path.GetFileName(file), overwrite: true);
 
                     return;
                 }

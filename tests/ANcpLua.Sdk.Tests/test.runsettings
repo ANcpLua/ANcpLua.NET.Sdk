@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  RunSettings for ANcpLua.Sdk.Tests
+
+  IMPORTANT: Use this file to run tests in Rider/VS to avoid hanging tests.
+
+  In Rider:
+    Settings -> Build, Execution, Deployment -> Unit Testing -> Test Runner
+    -> "Use custom run settings file" -> Select this file
+
+  In VS:
+    Test -> Configure Run Settings -> Select Solution Wide runsettings File
+-->
+<RunSettings>
+  <RunConfiguration>
+    <!-- Environment variables for PackageFixture -->
+    <EnvironmentVariables>
+      <CI>true</CI>
+      <NUGET_DIRECTORY>$(SolutionDir)/artifacts</NUGET_DIRECTORY>
+    </EnvironmentVariables>
+
+    <!-- Limit parallelization to reduce resource contention -->
+    <MaxCpuCount>2</MaxCpuCount>
+
+    <!-- Test timeout in milliseconds (3 minutes per test) -->
+    <TestSessionTimeout>180000</TestSessionTimeout>
+  </RunConfiguration>
+
+  <xUnit>
+    <!-- xUnit specific settings -->
+    <MaxParallelThreads>4</MaxParallelThreads>
+    <ParallelizeTestCollections>true</ParallelizeTestCollections>
+    <ParallelAlgorithm>conservative</ParallelAlgorithm>
+  </xUnit>
+</RunSettings>

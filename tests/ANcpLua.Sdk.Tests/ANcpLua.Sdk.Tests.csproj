@@ -35,6 +35,12 @@
     <Using Include="Xunit"/>
   </ItemGroup>
 
+  <!-- xUnit configuration for parallelization and long-running test detection -->
+  <ItemGroup>
+    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
+    <None Include="test.runsettings" CopyToOutputDirectory="PreserveNewest"/>
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)../../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" Link="Extensions/FakeLoggerExtensions.cs"/>
   </ItemGroup>
