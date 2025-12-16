@@ -103,18 +103,13 @@ public abstract class SdkTests(
     public async Task GenerateSbom_IsSetWhenContinuousIntegrationBuildIsSet()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile([("ContinuousIntegrationBuild", "true")]);
+        project.AddCsprojFile(properties: [("ContinuousIntegrationBuild", "true")]);
         project.AddFile("Program.cs", "Console.WriteLine();");
-        var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
+        var data = await project.PackAndGetOutput();
         data.AssertMsBuildPropertyValue("GenerateSBOM", "true");
 
-        // SBOM generation is performed by Microsoft.Sbom.Targets; depending on the SDK/NuGet versions,
-        // the generated manifest may not be embedded into the .nupkg. We validate generation by checking
-        // the pack output.
-        Assert.True(
-            data.OutputContains("SbomFilePath=") ||
-            data.OutputContains("manifest.spdx.json"),
-            data.Output.ToString());
+        var sbomFiles = Directory.GetFiles(project.RootFolder, "manifest.spdx.json", SearchOption.AllDirectories);
+        Assert.NotEmpty(sbomFiles);
     }
 
     [Fact]

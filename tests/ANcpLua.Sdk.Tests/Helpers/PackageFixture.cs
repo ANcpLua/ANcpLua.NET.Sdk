@@ -13,6 +13,17 @@ public class PackageFixture : IAsyncLifetime
     public const string SdkWebName = "ANcpLua.NET.Sdk.Web";
     public const string SdkTestName = "ANcpLua.NET.Sdk.Test";
 
+    // External package versions used by tests - keep in sync with test code
+    private static readonly (string Name, string Version)[] ExternalPackages =
+    [
+        ("xunit", "2.9.3"),
+        ("xunit.v3", "3.2.0"),
+        ("xunit.v3.mtp-v2", "3.2.0"),
+        ("xunit.runner.visualstudio", "3.1.5"),
+        ("Newtonsoft.Json", "13.0.4"),
+        ("System.Net.Http", "4.3.3"),
+        ("Microsoft.Sbom.Targets", "4.1.4")
+    ];
 
     private readonly TemporaryDirectory _packageDirectory = TemporaryDirectory.Create();
 
@@ -41,6 +52,24 @@ public class PackageFixture : IAsyncLifetime
         }
 
         var repoRoot = RepositoryRoot.Locate();
+
+        // Generate Version.props before packing (same as build.ps1 does)
+        var versionPropsPath = repoRoot["src"] / "common" / "Version.props";
+        var versionPropsContent = $"""
+            <Project>
+              <!--
+                This file is auto-generated during build.
+                DO NOT EDIT MANUALLY - changes will be overwritten.
+
+                The version is set by build.ps1 based on the computed package version.
+                This ensures all SDK packages reference the same version.
+              -->
+              <PropertyGroup>
+                <ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>
+              </PropertyGroup>
+            </Project>
+            """;
+        await File.WriteAllTextAsync(versionPropsPath, versionPropsContent);
         var buildFiles = Directory
             .GetFiles(repoRoot["src"], "*.csproj")
             .Select(FullPath.FromPath)
@@ -90,6 +119,86 @@ public class PackageFixture : IAsyncLifetime
             if (result.ExitCode != 0)
                 Assert.Fail($"NuGet pack failed with exit code {result.ExitCode}. Output: {result.Output}");
         });
+
+        // Pre-warm NuGet cache to avoid race conditions in parallel tests
+        await PreWarmNuGetCacheAsync();
+    }
+
+    /// <summary>
+    /// Pre-warms the NuGet cache by restoring all external packages used by tests.
+    /// This prevents race conditions when parallel tests try to download the same packages.
+    /// </summary>
+    private async Task PreWarmNuGetCacheAsync()
+    {
+        var warmupDir = _packageDirectory.FullPath / "warmup";
+        Directory.CreateDirectory(warmupDir);
+
+        try
+        {
+            // Create NuGet.config pointing to our shared package folder
+            var nugetConfig = $"""
+                               <configuration>
+                                   <config>
+                                       <add key="globalPackagesFolder" value="{_packageDirectory.FullPath}/packages" />
+                                   </config>
+                                   <packageSources>
+                                       <clear />
+                                       <add key="TestSource" value="{_packageDirectory.FullPath}" />
+                                       <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+                                   </packageSources>
+                                   <packageSourceMapping>
+                                       <packageSource key="TestSource">
+                                           <package pattern="ANcpLua.*" />
+                                           <package pattern="ANcpSdk.*" />
+                                       </packageSource>
+                                       <packageSource key="nuget.org">
+                                           <package pattern="*" />
+                                       </packageSource>
+                                   </packageSourceMapping>
+                               </configuration>
+                               """;
+            await File.WriteAllTextAsync(warmupDir / "NuGet.config", nugetConfig);
+
+            // Build package references XML
+            var packageRefs = string.Join("\n        ",
+                ExternalPackages.Select(p => $"""<PackageReference Include="{p.Name}" Version="{p.Version}" />"""));
+
+            // Create warmup project that references all external packages
+            var csproj = $"""
+                          <Project Sdk="Microsoft.NET.Sdk">
+                              <Sdk Name="Microsoft.Sbom.Targets" Version="4.1.4" />
+                              <PropertyGroup>
+                                  <TargetFramework>net10.0</TargetFramework>
+                                  <GenerateSBOM>false</GenerateSBOM>
+                              </PropertyGroup>
+                              <ItemGroup>
+                                  {packageRefs}
+                              </ItemGroup>
+                          </Project>
+                          """;
+            await File.WriteAllTextAsync(warmupDir / "warmup.csproj", csproj);
+
+            // Restore packages (sequential, one-time)
+            var psi = new ProcessStartInfo("dotnet")
+            {
+                WorkingDirectory = warmupDir,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            psi.ArgumentList.AddRange("restore", "--no-cache");
+
+            var result = await psi.RunAsTaskAsync(CancellationToken.None);
+            if (result.ExitCode != 0)
+                Assert.Fail($"NuGet cache pre-warm failed with exit code {result.ExitCode}. Output: {result.Output}");
+        }
+        finally
+        {
+            // Cleanup warmup directory (packages stay in globalPackagesFolder)
+            if (Directory.Exists(warmupDir))
+                Directory.Delete(warmupDir, recursive: true);
+        }
     }
 
     public virtual async ValueTask DisposeAsync()

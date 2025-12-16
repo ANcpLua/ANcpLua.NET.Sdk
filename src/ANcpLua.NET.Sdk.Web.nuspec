@@ -16,6 +16,7 @@
     <!-- Fully explicit file paths (NuGet globs unreliable on Windows) -->
     <file src="common/Common.props" target="common/"/>
     <file src="common/Common.targets" target="common/"/>
+    <file src="common/Version.props" target="common/"/>
     <file src="common/ContinuousIntegrationBuild.props" target="common/"/>
     <file src="common/LegacySupport.props" target="common/"/>
     <file src="common/LegacySupport.targets" target="common/"/>

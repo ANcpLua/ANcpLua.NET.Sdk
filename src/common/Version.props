@@ -1,0 +1,12 @@
+<Project>
+  <!--
+    This file is auto-generated during build.
+    DO NOT EDIT MANUALLY - changes will be overwritten.
+
+    The version is set by build.ps1 based on the computed package version.
+    This ensures all SDK packages reference the same version.
+  -->
+  <PropertyGroup>
+    <ANcpSdkPackageVersion>999.9.9</ANcpSdkPackageVersion>
+  </PropertyGroup>
+</Project>

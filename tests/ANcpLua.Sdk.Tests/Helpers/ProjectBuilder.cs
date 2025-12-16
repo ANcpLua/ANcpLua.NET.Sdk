@@ -234,8 +234,9 @@ internal sealed class ProjectBuilder : IAsyncDisposable
 
         psi.ArgumentList.Add("/bl");
 
-        // Remove parent environment variables
+        // Remove parent environment variables that can interfere with SDK behavior
         psi.Environment.Remove("CI");
+        psi.Environment.Remove("DOTNET_ENVIRONMENT"); // Causes SBOM tool DI failure (microsoft/sbom-tool#278)
         foreach (var kvp in psi.Environment.ToArray())
             if (kvp.Key.StartsWith("GITHUB", StringComparison.Ordinal) ||
                 kvp.Key.StartsWith("MSBuild", StringComparison.OrdinalIgnoreCase) ||
@@ -250,7 +251,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         psi.Environment["DOTNET_ROOT_X64"] = Path.GetDirectoryName(psi.FileName);
         psi.Environment["DOTNET_HOST_PATH"] = psi.FileName;
         psi.Environment["NUGET_HTTP_CACHE_PATH"] = _fixture.PackageDirectory / "http-cache";
-        psi.Environment["NUGET_PACKAGES"] = _fixture.PackageDirectory;
+        psi.Environment["NUGET_PACKAGES"] = _fixture.PackageDirectory / "packages";
         psi.Environment["NUGET_SCRATCH"] = _fixture.PackageDirectory / "nuget-scratch";
         psi.Environment["NUGET_PLUGINS_CACHE_PATH"] = _fixture.PackageDirectory / "nuget-plugins-cache";
 
