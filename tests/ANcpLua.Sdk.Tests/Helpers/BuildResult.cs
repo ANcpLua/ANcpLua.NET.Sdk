@@ -57,6 +57,13 @@ public sealed record BuildResult(
         return SarifFile?.AllResults().Any(r => r.Level == "note" && r.RuleId == ruleId) ?? false;
     }
 
+    public bool HasInfo(string ruleId)
+    {
+        // Info-level diagnostics may be reported as "note" or "none" in SARIF
+        return SarifFile?.AllResults().Any(r =>
+            (r.Level is "note" or "none") && r.RuleId == ruleId) ?? false;
+    }
+
     public IReadOnlyCollection<string> GetBinLogFiles()
     {
         var build = GetBuild();

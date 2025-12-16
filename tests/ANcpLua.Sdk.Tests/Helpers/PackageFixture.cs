@@ -22,7 +22,9 @@ public class PackageFixture : IAsyncLifetime
         ("xunit.runner.visualstudio", "3.1.5"),
         ("Newtonsoft.Json", "13.0.4"),
         ("System.Net.Http", "4.3.3"),
-        ("Microsoft.Sbom.Targets", "4.1.4")
+        ("Microsoft.Sbom.Targets", "4.1.4"),
+        ("OpenTelemetry", "1.10.0"),
+        ("OpenTelemetry.Extensions.Hosting", "1.10.0")
     ];
 
     private readonly TemporaryDirectory _packageDirectory = TemporaryDirectory.Create();

@@ -115,7 +115,7 @@ jobs:
           $PreviousTag = git describe --tags --abbrev=0 2>$null
           if ($PreviousTag) {
             Write-Host "Previous tag: $PreviousTag"
-            $Changes = git diff --name-only $PreviousTag HEAD -- '*.nuspec' 'src/**/*'
+            $Changes = git diff --name-only $PreviousTag HEAD -- '*.nuspec' 'src/**/*' 'eng/**/*'
           } else {
             Write-Host "No previous tag found, checking all files"
             $Changes = $true

@@ -76,9 +76,9 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
     [Theory]
     [InlineData("gen_ai.system", "gen_ai.provider.name")]
     [InlineData("gen_ai.usage.prompt_tokens", "gen_ai.usage.input_tokens")]
-    [InlineData("gen_ai.usage.completion_tokens", "gen_ai.usage.output_tokens")]
-    [InlineData("gen_ai.request.max_tokens", "gen_ai.request.max_output_tokens")]
-    public async Task QYL0002_DeprecatedGenAiAttribute_Reports_Warning(string deprecatedAttribute, string _)
+    [InlineData("http.method", "http.request.method")]
+    [InlineData("db.statement", "db.query.text")]
+    public async Task QYL0002_DeprecatedAttribute_In_TelemetryContext_Reports_Warning(string deprecatedAttribute, string _)
     {
         await using var project =
             new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
@@ -88,12 +88,19 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
             (MsBuildProperties.OutputType, MsBuildValues.Library)
         ]);
 
+        // Test with indexer access on "attributes" dict - triggers telemetry context detection
         project.AddFile("DeprecatedAttribute.cs", $$"""
+                                                    using System.Collections.Generic;
+
                                                     namespace Consumer;
 
-                                                    internal class DeprecatedAttribute
+                                                    internal class DeprecatedAttributeUsage
                                                     {
-                                                        public string GetAttribute() => "{{deprecatedAttribute}}";
+                                                        public void SetTelemetry()
+                                                        {
+                                                            var attributes = new Dictionary<string, object>();
+                                                            attributes["{{deprecatedAttribute}}"] = "value";
+                                                        }
                                                     }
                                                     """);
 
@@ -105,10 +112,9 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
 
     [Theory]
     [InlineData("gen_ai.provider.name")]
-    [InlineData("gen_ai.usage.input_tokens")]
-    [InlineData("gen_ai.usage.output_tokens")]
-    [InlineData("gen_ai.request.max_output_tokens")]
-    public async Task QYL0002_CurrentGenAiAttribute_No_Warning(string currentAttribute)
+    [InlineData("http.request.method")]
+    [InlineData("db.query.text")]
+    public async Task QYL0002_CurrentAttribute_No_Warning(string currentAttribute)
     {
         await using var project =
             new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
@@ -119,11 +125,17 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
         ]);
 
         project.AddFile("CurrentAttribute.cs", $$"""
+                                                 using System.Collections.Generic;
+
                                                  namespace Consumer;
 
-                                                 internal class CurrentAttribute
+                                                 internal class CurrentAttributeUsage
                                                  {
-                                                     public string GetAttribute() => "{{currentAttribute}}";
+                                                     public void SetTelemetry()
+                                                     {
+                                                         var attributes = new Dictionary<string, object>();
+                                                         attributes["{{currentAttribute}}"] = "value";
+                                                     }
                                                  }
                                                  """);
 
@@ -131,6 +143,34 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
 
         Assert.False(result.HasWarning("QYL0002"),
             $"Did not expect QYL0002 warning for current attribute '{currentAttribute}'. Output: {result.ProcessOutput}");
+    }
+
+    [Fact]
+    public async Task QYL0002_DeprecatedAttribute_Outside_TelemetryContext_No_Warning()
+    {
+        await using var project =
+            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+
+        project.AddCsprojFile([
+            (MsBuildProperties.TargetFramework, TargetFrameworks.Net100),
+            (MsBuildProperties.OutputType, MsBuildValues.Library)
+        ]);
+
+        // Deprecated attribute name used outside telemetry context should NOT warn
+        project.AddFile("NotTelemetry.cs", """
+                                           namespace Consumer;
+
+                                           internal class NotTelemetry
+                                           {
+                                               // Just a plain string, not in telemetry context
+                                               public string GetValue() => "http.method";
+                                           }
+                                           """);
+
+        var result = await project.BuildAndGetOutput();
+
+        Assert.False(result.HasWarning("QYL0002"),
+            $"Did not expect QYL0002 warning outside telemetry context. Output: {result.ProcessOutput}");
     }
 
     [Fact]
@@ -157,5 +197,81 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
 
         Assert.False(result.HasWarning("QYL0002"),
             $"Did not expect QYL0002 warning for unrelated string. Output: {result.ProcessOutput}");
+    }
+
+    [Fact]
+    public async Task QYL0003_MissingSchemaUrl_Reports_Info()
+    {
+        await using var project =
+            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+
+        project.AddCsprojFile([
+            (MsBuildProperties.TargetFramework, TargetFrameworks.Net100),
+            (MsBuildProperties.OutputType, MsBuildValues.Library)
+        ], nuGetPackages: [
+            new NuGetReference("OpenTelemetry", "1.10.0"),
+            new NuGetReference("OpenTelemetry.Extensions.Hosting", "1.10.0")
+        ]);
+
+        project.AddFile("MissingSchemaUrl.cs", """
+                                               using OpenTelemetry.Resources;
+
+                                               namespace Consumer;
+
+                                               internal static class OtelConfig
+                                               {
+                                                   public static void Configure(ResourceBuilder builder)
+                                                   {
+                                                       // Missing telemetry.schema_url
+                                                       builder.ConfigureResource(r => r
+                                                           .AddService("my-service"));
+                                                   }
+                                               }
+                                               """);
+
+        var result = await project.BuildAndGetOutput();
+
+        // QYL0003 is Info level, not Warning
+        Assert.True(result.HasInfo("QYL0003") || result.HasWarning("QYL0003"),
+            $"Expected QYL0003 info/warning for missing schema URL. Output: {result.ProcessOutput}");
+    }
+
+    [Fact]
+    public async Task QYL0003_WithSchemaUrl_No_Warning()
+    {
+        await using var project =
+            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+
+        project.AddCsprojFile([
+            (MsBuildProperties.TargetFramework, TargetFrameworks.Net100),
+            (MsBuildProperties.OutputType, MsBuildValues.Library)
+        ], nuGetPackages: [
+            new NuGetReference("OpenTelemetry", "1.10.0"),
+            new NuGetReference("OpenTelemetry.Extensions.Hosting", "1.10.0")
+        ]);
+
+        project.AddFile("WithSchemaUrl.cs", """
+                                            using OpenTelemetry.Resources;
+
+                                            namespace Consumer;
+
+                                            internal static class OtelConfigWithSchema
+                                            {
+                                                public static void Configure(ResourceBuilder builder)
+                                                {
+                                                    // Has schema URL
+                                                    builder.ConfigureResource(r => r
+                                                        .AddService("my-service")
+                                                        .AddAttributes([
+                                                            new("telemetry.schema_url", "https://opentelemetry.io/schemas/1.25.0")
+                                                        ]));
+                                                }
+                                            }
+                                            """);
+
+        var result = await project.BuildAndGetOutput();
+
+        Assert.False(result.HasWarning("QYL0003"),
+            $"Did not expect QYL0003 warning when schema URL is set. Output: {result.ProcessOutput}");
     }
 }
