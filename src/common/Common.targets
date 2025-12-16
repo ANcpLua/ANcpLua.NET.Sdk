@@ -38,7 +38,6 @@
     <Analyzer Include="$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.dll" Condition="Exists('$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.dll')"/>
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.editorconfig" Condition="Exists('$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.editorconfig')"/>
 
-    <!-- SBOM generation package - always included, GenerateSBOM property controls generation -->
     <PackageReference Include="Microsoft.Sbom.Targets" Version="4.1.4" IsImplicitlyDefined="true">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
