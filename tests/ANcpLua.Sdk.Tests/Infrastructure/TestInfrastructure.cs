@@ -276,13 +276,11 @@ public readonly record struct PolyfillDefinition(
         "_ = typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute);",
         TargetFrameworks.NetStandard20);
 
-    public static ImmutableArray<PolyfillDefinition> All =>
-    [
+    public static ImmutableArray<PolyfillDefinition> All => ImmutableArray.Create(
         Lock, TimeProvider, IndexRange, IsExternalInit,
         RequiredMember, CompilerFeatureRequired, CallerArgumentExpression, ParamCollection,
         UnreachableException, StackTraceHidden, NullableAttributes, TrimAttributes, ExperimentalAttribute,
-        Throw, StringOrdinalComparer, DiagnosticClasses
-    ];
+        Throw, StringOrdinalComparer, DiagnosticClasses);
 }
 
 public readonly record struct RepositoryRoot
