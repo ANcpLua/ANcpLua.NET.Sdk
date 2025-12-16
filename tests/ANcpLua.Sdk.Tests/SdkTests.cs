@@ -108,8 +108,9 @@ public abstract class SdkTests(
         var data = await project.PackAndGetOutput();
         data.AssertMsBuildPropertyValue("GenerateSBOM", "true");
 
-        var sbomFiles = Directory.GetFiles(project.RootFolder, "manifest.spdx.json", SearchOption.AllDirectories);
-        Assert.NotEmpty(sbomFiles);
+        var nupkgFile = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
+        await using var archive = await ZipFile.OpenReadAsync(nupkgFile, TestContext.Current.CancellationToken);
+        Assert.Contains(archive.Entries, e => e.FullName.EndsWith("manifest.spdx.json", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
