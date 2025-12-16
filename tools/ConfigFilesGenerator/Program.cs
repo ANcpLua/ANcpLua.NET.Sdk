@@ -224,7 +224,9 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
 {
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null);
     foreach (var item in result)
-        if (item.Type is DependencyType.NuGet && item.Name is not null)
+        // Skip packages with unresolved MSBuild property versions (e.g., "$(ANcpSdkPackageVersion)")
+        if (item.Type is DependencyType.NuGet && item.Name is not null &&
+            (item.Version is null || !item.Version.Contains("$(")))
             yield return (item.Name, item.Version);
 
     // Add analyzers from the .NET SDK
