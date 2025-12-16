@@ -82,6 +82,7 @@ jobs:
       - uses: actions/setup-dotnet@v5
       - run: Get-ChildItem "${{ env.NUGET_DIRECTORY }}/*" -Recurse
       - run: dotnet --info
+      - run: dotnet nuget locals all --clear
       - run: dotnet test tests/ANcpLua.Sdk.Tests --logger "trx" --logger GitHubActions --results-directory test_results
         env:
             NUGET_DIRECTORY: ${{ env.NUGET_DIRECTORY }}
