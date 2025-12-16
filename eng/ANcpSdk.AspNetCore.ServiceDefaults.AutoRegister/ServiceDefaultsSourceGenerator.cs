@@ -42,9 +42,9 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
                 sb.AppendLine("{");
 
                 var index = 0;
-                foreach (var method in interceptionData.OrderBy(item => item.OrderKey, StringComparer.Ordinal))
+                foreach (var method in interceptionData.Where(m => m is not null).OrderBy(item => item!.OrderKey, StringComparer.Ordinal))
                 {
-                    if (method.Kind is InterceptionMethodKind.Build)
+                    if (method!.Kind is InterceptionMethodKind.Build && method.InterceptableLocation is not null)
                         sb.AppendLine($$"""
                                             // Intercepted call at {{method.InterceptableLocation.GetDisplayLocation()}}
                                             [System.Runtime.CompilerServices.InterceptsLocationAttribute(version:  {{method.InterceptableLocation.Version.ToString(CultureInfo.InvariantCulture)}}, data: "{{method.InterceptableLocation.Data}}")]
@@ -103,13 +103,19 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
                     invocation.TargetMethod.ContainingType,
                     context.SemanticModel.Compilation.GetTypeByMetadataName(
                         "Microsoft.AspNetCore.Builder.WebApplicationBuilder")))
+            {
+                var location = context.SemanticModel.GetInterceptableLocation(
+                    (InvocationExpressionSyntax)context.Node, cancellationToken);
+                if (location is null)
+                    return null;
+
                 return new InterceptionData
                 {
                     OrderKey = CreateOrderKey(context.Node),
                     Kind = InterceptionMethodKind.Build,
-                    InterceptableLocation = context.SemanticModel.GetInterceptableLocation(
-                        (InvocationExpressionSyntax)context.Node, cancellationToken)
+                    InterceptableLocation = location
                 };
+            }
 
             return null;
 

@@ -11,7 +11,7 @@ internal sealed class ValidationStartupFilter : IStartupFilter
         return app =>
         {
             var options = app.ApplicationServices.GetService<ANcpSdkServiceDefaultsOptions>();
-            if (!options.MapCalled)
+            if (options is not null && !options.MapCalled)
                 throw new InvalidOperationException(
                     $"You must call {nameof(ANcpSdkServiceDefaults.MapANcpSdkDefaultEndpoints)}.");
 
