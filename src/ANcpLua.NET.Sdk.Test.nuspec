@@ -13,12 +13,24 @@
   <files>
     <file src="Sdk/ANcpLua.NET.Sdk.Test/Sdk.props" target="Sdk/Sdk.props"/>
     <file src="Sdk/ANcpLua.NET.Sdk.Test/Sdk.targets" target="Sdk/Sdk.targets"/>
-    <!-- Explicit file patterns (avoid **/* glob issues on Windows) -->
-    <file src="common/*.props" target="common/"/>
-    <file src="common/*.targets" target="common/"/>
-    <file src="configuration/*.editorconfig" target="configuration/"/>
-    <file src="configuration/*.txt" target="configuration/"/>
-    <file src="configuration/*.runsettings" target="configuration/"/>
+    <!-- Fully explicit file paths (NuGet globs unreliable on Windows) -->
+    <file src="common/Common.props" target="common/"/>
+    <file src="common/Common.targets" target="common/"/>
+    <file src="common/ContinuousIntegrationBuild.props" target="common/"/>
+    <file src="common/LegacySupport.props" target="common/"/>
+    <file src="common/LegacySupport.targets" target="common/"/>
+    <file src="common/Npm.targets" target="common/"/>
+    <file src="common/Tests.targets" target="common/"/>
+    <file src="configuration/Analyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Meziantou.Analyzer.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/CodingStyle.editorconfig" target="configuration/"/>
+    <file src="configuration/NamingConvention.editorconfig" target="configuration/"/>
+    <file src="configuration/BannedSymbols.txt" target="configuration/"/>
+    <file src="configuration/BannedSymbols.NewtonsoftJson.txt" target="configuration/"/>
+    <file src="configuration/default.runsettings" target="configuration/"/>
     <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="analyzers/"/>
     <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers/"/>
 
