@@ -18,12 +18,27 @@
     <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="analyzers/"/>
     <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers/"/>
 
-    <!-- Shared Sources -->
-    <file src="../eng/Extensions/**/*" target="shared/Extensions/" exclude="**/README.md"/>
-    <file src="../eng/LegacySupport/**/*" target="shared/Polyfills/" exclude="**/README.md"/>
-    <file src="../eng/MSBuild/Polyfills/**/*" target="shared/Polyfills/" exclude="**/README.md"/>
-    <file src="../eng/Shared/Throw/**/*" target="shared/Throw/" exclude="**/README.md"/>
-    <file src="../eng/Shared/CodeTests/**/*" target="shared/CodeTests/" exclude="**/README.md"/>
+    <!-- Shared Sources - Polyfills from LegacySupport (explicit mappings to avoid glob issues) -->
+    <file src="../eng/LegacySupport/IndexRange/*.cs" target="shared/Polyfills/IndexRange/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/*.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/DiagnosticAttributes/*.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
+    <file src="../eng/LegacySupport/Diagnostics/*.cs" target="shared/Polyfills/Diagnostics/"/>
+    <file src="../eng/LegacySupport/NullabilityAttributes/*.cs" target="shared/Polyfills/NullabilityAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/*.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/Exceptions/*.cs" target="shared/Polyfills/Exceptions/"/>
+    <file src="../eng/LegacySupport/Experimental/*.cs" target="shared/Polyfills/Experimental/"/>
+    <file src="../eng/LegacySupport/TimeProvider/*.cs" target="shared/Polyfills/TimeProvider/"/>
+    <file src="../eng/LegacySupport/ThrowPolyfills/*.cs" target="shared/Polyfills/ThrowPolyfills/"/>
+
+    <!-- Polyfills from MSBuild/Polyfills (root level files) -->
+    <file src="../eng/MSBuild/Polyfills/*.cs" target="shared/Polyfills/"/>
+
+    <!-- Other shared sources -->
+    <file src="../eng/Shared/Throw/*.cs" target="shared/Throw/"/>
+    <file src="../eng/Shared/CodeTests/*.cs" target="shared/CodeTests/"/>
+    <file src="../eng/Extensions/Comparers/*.cs" target="shared/Extensions/Comparers/"/>
+    <file src="../eng/Extensions/FakeLogger/*.cs" target="shared/Extensions/FakeLogger/"/>
+    <file src="../eng/Extensions/SourceGen/*.cs" target="shared/Extensions/SourceGen/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>
