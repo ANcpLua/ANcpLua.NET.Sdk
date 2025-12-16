@@ -47,8 +47,30 @@ public class PackageFixture : IAsyncLifetime
             .ToList();
 
         // Also include ANcpSdk.AspNetCore.ServiceDefaults packages from eng/ directory
-        buildFiles.Add(repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj");
-        buildFiles.Add(repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj");
+        // These need to be built first because they have IncludeBuildOutput=false and manually include the Release DLL
+        var engProjects = new[]
+        {
+            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj",
+            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"
+        };
+
+        // Build eng projects first (they need explicit build due to IncludeBuildOutput=false)
+        foreach (var engProject in engProjects)
+        {
+            var buildPsi = new ProcessStartInfo("dotnet")
+            {
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            buildPsi.ArgumentList.AddRange("build", engProject, "-c", "Release");
+            var buildResult = await buildPsi.RunAsTaskAsync(CancellationToken.None);
+            if (buildResult.ExitCode != 0)
+                Assert.Fail($"Build failed with exit code {buildResult.ExitCode}. Output: {buildResult.Output}");
+        }
+
+        buildFiles.AddRange(engProjects);
 
         Assert.NotEmpty(buildFiles);
         await Parallel.ForEachAsync(buildFiles, async (nuspecPath, _) =>
@@ -60,7 +82,7 @@ public class PackageFixture : IAsyncLifetime
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-            psi.ArgumentList.AddRange("pack", nuspecPath, "-p:NuspecProperties=version=" + Version, "--output",
+            psi.ArgumentList.AddRange("pack", nuspecPath, "-c", "Release", "-p:NuspecProperties=version=" + Version, "--output",
                 _packageDirectory.FullPath);
             var result = await psi.RunAsTaskAsync(_);
             if (result.ExitCode != 0)
