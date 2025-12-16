@@ -6,7 +6,7 @@
           Condition="'$(GenerateClaudeMd)' == 'true' AND !Exists('$(ProjectDir)CLAUDE.md')">
 
     <PropertyGroup>
-      <_RootClaudeMd>$([MSBuild]::GetPathOfFileAbove('CLAUDE.md', '$(MSBuildProjectDirectory)\..'))</_RootClaudeMd>
+      <_RootClaudeMd>$([MSBuild]::GetPathOfFileAbove('CLAUDE.md', '$(MSBuildProjectDirectory)/..'))</_RootClaudeMd>
       <_RelativePath Condition="'$(_RootClaudeMd)' != ''">$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '$(_RootClaudeMd)'))</_RelativePath>
 
       <!-- Project type detection -->
