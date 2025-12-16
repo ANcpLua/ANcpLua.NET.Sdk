@@ -1,5 +1,6 @@
 // Licensed under MIT.
 
+using System;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -57,14 +58,13 @@ public sealed class LockKeywordAnalyzer : DiagnosticAnalyzer
         var lockStatement = (LockStatementSyntax)context.Node;
 
         // Get the type of the lock expression
-        var lockExpressionType = context.SemanticModel.GetTypeInfo(lockStatement.Expression, context.CancellationToken).Type;
+        var lockExpressionType =
+            context.SemanticModel.GetTypeInfo(lockStatement.Expression, context.CancellationToken).Type;
 
         // If locking on System.Threading.Lock, this is the correct modern pattern - don't warn
         if (lockExpressionType is not null &&
-            string.Equals(lockExpressionType.ToDisplayString(), LockTypeName, System.StringComparison.Ordinal))
-        {
+            string.Equals(lockExpressionType.ToDisplayString(), LockTypeName, StringComparison.Ordinal))
             return;
-        }
 
         var diagnostic = Diagnostic.Create(
             Rule,

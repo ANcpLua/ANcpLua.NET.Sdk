@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging.Testing;
 namespace ANcpLua.Sdk.Tests;
 
 /// <summary>
-/// Tests for the FakeLoggerExtensions helper methods.
+///     Tests for the FakeLoggerExtensions helper methods.
 /// </summary>
 public sealed class FakeLoggerExtensionsTests
 {
@@ -68,7 +68,8 @@ public sealed class FakeLoggerExtensionsTests
         logger.LogInformation("Expected message");
 
         // Act
-        var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("Expected")), timeout: TimeSpan.FromSeconds(1), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("Expected")),
+            TimeSpan.FromSeconds(1), cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -84,7 +85,8 @@ public sealed class FakeLoggerExtensionsTests
         logger.LogInformation("Other message");
 
         // Act
-        var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("NotFound")), timeout: TimeSpan.FromMilliseconds(100), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("NotFound")),
+            TimeSpan.FromMilliseconds(100), cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result);
@@ -105,7 +107,8 @@ public sealed class FakeLoggerExtensionsTests
         }, TestContext.Current.CancellationToken);
 
         // Act
-        var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("Delayed")), timeout: TimeSpan.FromSeconds(2), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("Delayed")),
+            TimeSpan.FromSeconds(2), cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -123,7 +126,8 @@ public sealed class FakeLoggerExtensionsTests
         logger.LogWarning("Warning message");
 
         // Act
-        var result = await collector.WaitForLogCountAsync(log => log.Level == LogLevel.Information, expectedCount: 2, timeout: TimeSpan.FromSeconds(1), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await collector.WaitForLogCountAsync(log => log.Level == LogLevel.Information, 2,
+            TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
 
         // Assert
         Assert.True(result);
@@ -139,7 +143,8 @@ public sealed class FakeLoggerExtensionsTests
         logger.LogInformation("Only one message");
 
         // Act
-        var result = await collector.WaitForLogCountAsync(log => log.Level == LogLevel.Information, expectedCount: 5, timeout: TimeSpan.FromMilliseconds(100), cancellationToken: TestContext.Current.CancellationToken);
+        var result = await collector.WaitForLogCountAsync(log => log.Level == LogLevel.Information, 5,
+            TimeSpan.FromMilliseconds(100), TestContext.Current.CancellationToken);
 
         // Assert
         Assert.False(result);
@@ -158,7 +163,7 @@ public sealed class FakeLoggerExtensionsTests
         // Act - The method catches OperationCanceledException and returns the condition result
         var result = await collector.WaitForLogAsync(
             _ => false, // Never true
-            timeout: TimeSpan.FromSeconds(10),
+            TimeSpan.FromSeconds(10),
             cancellationToken: cts.Token);
 
         // Assert

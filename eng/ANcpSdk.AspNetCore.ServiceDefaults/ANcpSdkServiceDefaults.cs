@@ -1,9 +1,11 @@
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -19,53 +21,42 @@ namespace ANcpSdk.AspNetCore.ServiceDefaults;
 
 public static class ANcpSdkServiceDefaults
 {
-    public static TBuilder TryUseANcpSdkConventions<TBuilder>(this TBuilder builder, Action<ANcpSdkServiceDefaultsOptions>? configure = null) 
+    public static TBuilder TryUseANcpSdkConventions<TBuilder>(this TBuilder builder,
+        Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
         foreach (var service in builder.Services)
-        {
             if (service.ServiceType == typeof(ANcpSdkServiceDefaultsOptions))
                 return builder;
-        }
 
         return builder.UseANcpSdkConventions(configure);
     }
 
-    public static TBuilder UseANcpSdkConventions<TBuilder>(this TBuilder builder, Action<ANcpSdkServiceDefaultsOptions>? configure = null) 
+    public static TBuilder UseANcpSdkConventions<TBuilder>(this TBuilder builder,
+        Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
         var options = new ANcpSdkServiceDefaultsOptions();
         configure?.Invoke(options);
 
         if (options.ValidateDependencyContainersOnStartup)
-        {
-            builder.ConfigureContainer(new DefaultServiceProviderFactory(new ServiceProviderOptions() 
-            { 
-                ValidateOnBuild = true, 
-                ValidateScopes = true 
+            builder.ConfigureContainer(new DefaultServiceProviderFactory(new ServiceProviderOptions
+            {
+                ValidateOnBuild = true,
+                ValidateScopes = true
             }));
-        }
 
-        builder.Services.Configure<KestrelServerOptions>(options =>
-        {
-            options.AddServerHeader = false;
-        });
+        builder.Services.Configure<KestrelServerOptions>(options => { options.AddServerHeader = false; });
 
         builder.Services.TryAddSingleton<IStartupFilter>(new ValidationStartupFilter());
         builder.Services.TryAddSingleton(options);
-        
-        if (options.AntiForgery.Enabled)
-        {
-            builder.Services.AddAntiforgery();
-        }
+
+        if (options.AntiForgery.Enabled) builder.Services.AddAntiforgery();
 
         builder.ConfigureOpenTelemetry(options);
         builder.AddDefaultHealthChecks();
 
-        if (options.OpenApi.Enabled)
-        {
-            builder.Services.AddOpenApi(options.OpenApi.ConfigureOpenApi ??  (_ => { }));
-        }
+        if (options.OpenApi.Enabled) builder.Services.AddOpenApi(options.OpenApi.ConfigureOpenApi ?? (_ => { }));
 
         builder.Services.AddServiceDiscovery();
         builder.Services.ConfigureHttpClientDefaults(http =>
@@ -76,16 +67,16 @@ public static class ANcpSdkServiceDefaults
             {
                 var hostEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
                 client.DefaultRequestHeaders.UserAgent.Add(
-                    new System.Net.Http.Headers.ProductInfoHeaderValue(
-                        hostEnvironment.ApplicationName, 
+                    new ProductInfoHeaderValue(
+                        hostEnvironment.ApplicationName,
                         Assembly.GetExecutingAssembly().GetName().Version?.ToString()));
             });
         });
 
-        builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(
-            jsonOptions => ConfigureJsonOptions(jsonOptions.JsonSerializerOptions, options));
-        builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(
-            jsonOptions => ConfigureJsonOptions(jsonOptions.SerializerOptions, options));
+        builder.Services.Configure<JsonOptions>(jsonOptions =>
+            ConfigureJsonOptions(jsonOptions.JsonSerializerOptions, options));
+        builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(jsonOptions =>
+            ConfigureJsonOptions(jsonOptions.SerializerOptions, options));
 
         builder.Services.AddProblemDetails();
 
@@ -103,11 +94,12 @@ public static class ANcpSdkServiceDefaults
         jsonOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         jsonOptions.RespectNullableAnnotations = true;
         jsonOptions.RespectRequiredConstructorParameters = true;
-        jsonOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, allowIntegerValues: true));
+        jsonOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, true));
         options.ConfigureJsonOptions?.Invoke(jsonOptions);
     }
 
-    private static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder, ANcpSdkServiceDefaultsOptions options) 
+    private static TBuilder ConfigureOpenTelemetry<TBuilder>(this TBuilder builder,
+        ANcpSdkServiceDefaultsOptions options)
         where TBuilder : IHostApplicationBuilder
     {
         builder.Logging.AddOpenTelemetry(logging =>
@@ -118,27 +110,27 @@ public static class ANcpSdkServiceDefaults
         });
 
         builder.Services.AddOpenTelemetry()
-           .ConfigureResource(x =>
+            .ConfigureResource(x =>
             {
                 var name = builder.Environment.ApplicationName;
                 var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "unknown";
                 x.AddService(name, serviceVersion: version);
             })
-           .WithMetrics(metrics =>
+            .WithMetrics(metrics =>
             {
                 metrics
-                   .AddAspNetCoreInstrumentation()
-                   .AddHttpClientInstrumentation()
-                   .AddRuntimeInstrumentation()
-                   .AddMeter("ANcpSdk.*");
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRuntimeInstrumentation()
+                    .AddMeter("ANcpSdk.*");
 
                 options.OpenTelemetry.ConfigureMetrics?.Invoke(metrics);
             })
-           .WithTracing(tracing =>
+            .WithTracing(tracing =>
             {
                 tracing
-                   .AddSource(builder.Environment.ApplicationName)
-                   .AddAspNetCoreInstrumentation(options =>
+                    .AddSource(builder.Environment.ApplicationName)
+                    .AddAspNetCoreInstrumentation(options =>
                     {
                         options.EnableAspNetCoreSignalRSupport = true;
                         options.Filter = context =>
@@ -149,26 +141,23 @@ public static class ANcpSdkServiceDefaults
                             return true;
                         };
                     })
-                   .AddHttpClientInstrumentation()
-                   .AddSource("ANcpSdk.*");
+                    .AddHttpClientInstrumentation()
+                    .AddSource("ANcpSdk.*");
 
                 options.OpenTelemetry.ConfigureTracing?.Invoke(tracing);
             });
 
-        var useOtlpExporter = ! string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
-        if (useOtlpExporter)
-        {
-            builder.Services.AddOpenTelemetry().UseOtlpExporter();
-        }
+        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+        if (useOtlpExporter) builder.Services.AddOpenTelemetry().UseOtlpExporter();
 
         return builder;
     }
 
-    private static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder) 
+    private static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder)
         where TBuilder : IHostApplicationBuilder
     {
         builder.Services.AddHealthChecks()
-           .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
         return builder;
     }
@@ -183,7 +172,7 @@ public static class ANcpSdkServiceDefaults
 
         var forwardedHeadersOptions = new ForwardedHeadersOptions
         {
-            ForwardedHeaders = options.ForwardedHeaders.ForwardedHeaders,
+            ForwardedHeaders = options.ForwardedHeaders.ForwardedHeaders
         };
 #pragma warning disable ASPDEPR005
         forwardedHeadersOptions.KnownNetworks.Clear();
@@ -194,50 +183,35 @@ public static class ANcpSdkServiceDefaults
         forwardedHeadersOptions.KnownProxies.Clear();
 
         app.UseForwardedHeaders(forwardedHeadersOptions);
-        
-        if (options.Https.Enabled)
-        {
-            app.UseHttpsRedirection();
-        }
+
+        if (options.Https.Enabled) app.UseHttpsRedirection();
 
         var environment = app.Services.GetRequiredService<IWebHostEnvironment>();
-        if (! app.Environment.IsDevelopment())
+        if (!app.Environment.IsDevelopment())
         {
-            app.UseExceptionHandler("/Error", createScopeForErrors: true);
+            app.UseExceptionHandler("/Error", true);
 
-            if (options.Https.Enabled && options.Https.HstsEnabled)
-            {
-                app.UseHsts();
-            }
+            if (options.Https.Enabled && options.Https.HstsEnabled) app.UseHsts();
         }
 
-        if (options.AntiForgery.Enabled)
-        {
-            app.UseAntiforgery();
-        }
+        if (options.AntiForgery.Enabled) app.UseAntiforgery();
 
         app.MapHealthChecks("/health");
         app.MapHealthChecks("/alive", new HealthCheckOptions
         {
-            Predicate = r => r.Tags.Contains("live"),
+            Predicate = r => r.Tags.Contains("live")
         });
 
         if (options.StaticAssets.Enabled)
         {
             var staticAssetsManifestPath = $"{environment.ApplicationName}.staticwebassets.endpoints.json";
-            staticAssetsManifestPath = ! Path.IsPathRooted(staticAssetsManifestPath) 
-                ? Path.Combine(AppContext.BaseDirectory, staticAssetsManifestPath) 
+            staticAssetsManifestPath = !Path.IsPathRooted(staticAssetsManifestPath)
+                ? Path.Combine(AppContext.BaseDirectory, staticAssetsManifestPath)
                 : staticAssetsManifestPath;
 
-            if (File.Exists(staticAssetsManifestPath))
-            {
-                app.MapStaticAssets();
-            }
+            if (File.Exists(staticAssetsManifestPath)) app.MapStaticAssets();
         }
 
-        if (options.OpenApi.Enabled)
-        {
-            app.MapOpenApi(options.OpenApi.RoutePattern).CacheOutput();
-        }
+        if (options.OpenApi.Enabled) app.MapOpenApi(options.OpenApi.RoutePattern).CacheOutput();
     }
 }

@@ -10,7 +10,7 @@
     <Authors>ANcpLua</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryUrl>https://github.com/ANcpLua/ANcpLua.NET.Sdk</RepositoryUrl>
-    
+
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoPackageAnalysis>true</NoPackageAnalysis>
@@ -23,24 +23,24 @@
   <!-- Polyfills for netstandard2.0 -->
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <!-- Language Features -->
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" Link="Polyfills/RequiredMemberAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" Link="Polyfills/CompilerFeatureRequiredAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/IsExternalInit.cs" Link="Polyfills/IsExternalInit.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" Link="Polyfills/CallerArgumentExpressionAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" Link="Polyfills/RequiredMemberAttribute.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" Link="Polyfills/CompilerFeatureRequiredAttribute.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/IsExternalInit.cs" Link="Polyfills/IsExternalInit.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" Link="Polyfills/CallerArgumentExpressionAttribute.cs"/>
     <!-- Index/Range for slicing -->
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IndexRange/Index.cs" Link="Polyfills/Index.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IndexRange/Range.cs" Link="Polyfills/Range.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IndexRange/Index.cs" Link="Polyfills/Index.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IndexRange/Range.cs" Link="Polyfills/Range.cs"/>
     <!-- Nullable Attributes -->
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/DiagnosticAttributes/NullableAttributes.cs" Link="Polyfills/NullableAttributes.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs" Link="Polyfills/MemberNotNullAttributes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/DiagnosticAttributes/NullableAttributes.cs" Link="Polyfills/NullableAttributes.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs" Link="Polyfills/MemberNotNullAttributes.cs"/>
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.targets" Pack="true" PackagePath="build/" />
-    <None Include="bin\Release\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+    <None Include="ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.targets" Pack="true" PackagePath="build/"/>
+    <None Include="bin\Release\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all"/>
   </ItemGroup>
 </Project>

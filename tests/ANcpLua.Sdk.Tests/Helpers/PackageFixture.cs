@@ -51,7 +51,8 @@ public class PackageFixture : IAsyncLifetime
         var engProjects = new[]
         {
             repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj",
-            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"
+            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" /
+            "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"
         };
 
         // Build eng projects first (they need explicit build due to IncludeBuildOutput=false)
@@ -82,7 +83,8 @@ public class PackageFixture : IAsyncLifetime
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-            psi.ArgumentList.AddRange("pack", nuspecPath, "-c", "Release", "-p:NuspecProperties=version=" + Version, "--output",
+            psi.ArgumentList.AddRange("pack", nuspecPath, "-c", "Release", "-p:NuspecProperties=version=" + Version,
+                "--output",
                 _packageDirectory.FullPath);
             var result = await psi.RunAsTaskAsync(_);
             if (result.ExitCode != 0)

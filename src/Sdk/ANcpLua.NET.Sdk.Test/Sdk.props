@@ -1,4 +1,7 @@
 <Project>
+  <!-- Import version info for consistent package versioning -->
+  <Import Project="$(MSBuildThisFileDirectory)../common/Version.props" />
+
   <PropertyGroup>
     <ANcpLuaSdkName>ANcpLua.NET.Sdk.Test</ANcpLuaSdkName>
     <IsTestProject>true</IsTestProject>

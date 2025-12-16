@@ -35,7 +35,7 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
         var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
 
         // Check content parts - the SDK generates a markdown link format
-        Assert.Contains("See [Root CLAUDE.md]", content);  // Link to root
+        Assert.Contains("See [Root CLAUDE.md]", content); // Link to root
         Assert.Contains("# MyLibrary", content); // Project Name
     }
 

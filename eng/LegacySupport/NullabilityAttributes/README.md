@@ -185,6 +185,7 @@ internal sealed class MemberNotNullWhenAttribute : Attribute
     public string[] Members { get; }
 }
 ```
+
 </details>
 
 <details> <summary><code>MemberNotNullAttributes.cs</code> (injected)</summary>
@@ -247,4 +248,5 @@ internal sealed class MemberNotNullWhenAttribute : Attribute
     public string[] Members { get; }
 }
 ```
+
 </details>

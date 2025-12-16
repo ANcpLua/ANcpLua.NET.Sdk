@@ -37,19 +37,30 @@
     <!-- Shared Sources - Polyfills from LegacySupport (fully explicit paths) -->
     <file src="../eng/LegacySupport/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
     <file src="../eng/LegacySupport/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
     <file src="../eng/LegacySupport/LanguageFeatures/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs"
+          target="shared/Polyfills/DiagnosticAttributes/"/>
     <file src="../eng/LegacySupport/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
-    <file src="../eng/LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMemberTypes.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/RequiresDynamicCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/RequiresUnreferencedCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/UnconditionalSuppressMessageAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs"
+          target="shared/Polyfills/NullabilityAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMemberTypes.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresDynamicCodeAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresUnreferencedCodeAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/UnconditionalSuppressMessageAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
     <file src="../eng/LegacySupport/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
     <file src="../eng/LegacySupport/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
     <file src="../eng/LegacySupport/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
@@ -65,7 +76,8 @@
     <file src="../eng/Shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
     <file src="../eng/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
     <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
-    <file src="../eng/Extensions/SourceGen/AnalyzerConfigOptionsProviderExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/AnalyzerConfigOptionsProviderExtensions.cs"
+          target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/CompilationExtensions.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/DiagnosticInfo.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>

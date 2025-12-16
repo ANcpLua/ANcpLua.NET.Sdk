@@ -1,7 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using ANcpLua.Sdk.Tests.Helpers;
+using ANcpLua.Sdk.Tests.Infrastructure;
 using Xunit.Sdk;
 
-[assembly: RegisterXunitSerializer(typeof(ANcpLua.Sdk.Tests.Infrastructure.PolyfillCaseSerializer), typeof(ANcpLua.Sdk.Tests.Infrastructure.IPolyfillCase))]
+[assembly: RegisterXunitSerializer(typeof(PolyfillCaseSerializer), typeof(IPolyfillCase))]
 
 namespace ANcpLua.Sdk.Tests.Infrastructure;
 
@@ -14,17 +16,18 @@ public interface IPolyfillCase
 }
 
 /// <summary>
-/// xUnit v3 serializer for IPolyfillCase - allows Test Explorer to enumerate individual test cases.
+///     xUnit v3 serializer for IPolyfillCase - allows Test Explorer to enumerate individual test cases.
 /// </summary>
 public sealed class PolyfillCaseSerializer : IXunitSerializer
 {
-    public bool IsSerializable(Type type, object? value, [System.Diagnostics.CodeAnalysis.NotNullWhen(false)] out string? failureReason)
+    public bool IsSerializable(Type type, object? value, [NotNullWhen(false)] out string? failureReason)
     {
         if (typeof(IPolyfillCase).IsAssignableFrom(type) && value is IPolyfillCase)
         {
             failureReason = null;
             return true;
         }
+
         failureReason = $"Type {type.Name} is not IPolyfillCase";
         return false;
     }
@@ -69,6 +72,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 {
     public string MarkerTypeName => typeof(TMarker).Name;
     public string TargetFramework => tfm;
+
     public async Task RunPositive(PackageFixture fixture, ITestOutputHelper output)
     {
         await using var project =

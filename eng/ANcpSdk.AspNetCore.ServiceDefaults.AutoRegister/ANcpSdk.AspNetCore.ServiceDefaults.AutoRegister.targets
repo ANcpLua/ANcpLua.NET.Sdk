@@ -1,5 +1,5 @@
 <Project>
-  <PropertyGroup>  
-	  <InterceptorsNamespaces>$(InterceptorsNamespaces);ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister</InterceptorsNamespaces>
+  <PropertyGroup>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister</InterceptorsNamespaces>
   </PropertyGroup>
 </Project>

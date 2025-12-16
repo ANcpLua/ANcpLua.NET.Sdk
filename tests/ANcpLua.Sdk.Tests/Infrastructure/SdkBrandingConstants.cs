@@ -10,8 +10,8 @@
 namespace ANcpLua.Sdk.Tests.Infrastructure;
 
 /// <summary>
-/// Single source of truth for all SDK branding strings.
-/// NEVER hardcode these values - always reference this class.
+///     Single source of truth for all SDK branding strings.
+///     NEVER hardcode these values - always reference this class.
 /// </summary>
 public static class SdkBrandingConstants
 {
@@ -23,29 +23,13 @@ public static class SdkBrandingConstants
     public const string ServiceDefaultsOptionsType = "ANcpSdkServiceDefaultsOptions";
     public const string ConventionsMethod = "UseANcpSdkConventions";
 
-    // Test Code Snippets
-    public static string ServiceDefaultsUsing => $"using {ServiceDefaultsNamespace};";
-
-    public static string WebAppWithConventions => $"""
-        {ServiceDefaultsUsing}
-        var builder = WebApplication.CreateBuilder();
-        builder.{ConventionsMethod}();
-        """;
-
-    public static string WebAppCheckServiceDefaults => $"""
-        {ServiceDefaultsUsing}
-        var builder = WebApplication.CreateBuilder();
-        var app = builder.Build();
-        return app.Services.GetService<{ServiceDefaultsOptionsType}>() is not null ? 0 : 1;
-        """;
-
     // ═══════════════════════════════════════════════════════════════════════
     // LEGACY NAMES - FOR DETECTION/MIGRATION ONLY - DO NOT USE IN NEW CODE!
     // ═══════════════════════════════════════════════════════════════════════
 
     /// <summary>
-    /// Legacy names that should NEVER appear in code. Used for validation only.
-    /// If you see these in a PR review, REJECT IT.
+    ///     Legacy names that should NEVER appear in code. Used for validation only.
+    ///     If you see these in a PR review, REJECT IT.
     /// </summary>
     public static readonly string[] LegacyNamesToBlock =
     [
@@ -57,4 +41,20 @@ public static class SdkBrandingConstants
         "Meziantou.AspNetCore.ServiceDefaults",
         "Meziantou.Sdk.Name"
     ];
+
+    // Test Code Snippets
+    public static string ServiceDefaultsUsing => $"using {ServiceDefaultsNamespace};";
+
+    public static string WebAppWithConventions => $"""
+                                                   {ServiceDefaultsUsing}
+                                                   var builder = WebApplication.CreateBuilder();
+                                                   builder.{ConventionsMethod}();
+                                                   """;
+
+    public static string WebAppCheckServiceDefaults => $"""
+                                                        {ServiceDefaultsUsing}
+                                                        var builder = WebApplication.CreateBuilder();
+                                                        var app = builder.Build();
+                                                        return app.Services.GetService<{ServiceDefaultsOptionsType}>() is not null ? 0 : 1;
+                                                        """;
 }

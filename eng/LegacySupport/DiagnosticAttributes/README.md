@@ -1,6 +1,7 @@
 # DiagnosticAttributes
 
-This directory provides polyfills for various diagnostic attributes, allowing their use in projects targeting older .NET frameworks where these attributes might not be natively supported.
+This directory provides polyfills for various diagnostic attributes, allowing their use in projects targeting older .NET
+frameworks where these attributes might not be natively supported.
 
 ## Usage
 
@@ -185,4 +186,5 @@ internal sealed class MemberNotNullWhenAttribute : Attribute
     public string[] Members { get; }
 }
 ```
+
 </details>

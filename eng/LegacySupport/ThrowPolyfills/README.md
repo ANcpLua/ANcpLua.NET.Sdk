@@ -6,17 +6,17 @@ Modern throw helpers using **C# 14 Extension Members** that polyfill .NET 6/7/8/
 
 Uses the new `extension(Type)` syntax to add static methods to exception types:
 
-| API | Available in | Polyfilled for |
-|-----|--------------|----------------|
-| `ArgumentNullException.ThrowIfNull` | .NET 6+ | < .NET 6 |
-| `ArgumentException.ThrowIfNullOrEmpty` | .NET 7+ | < .NET 7 |
-| `ArgumentException.ThrowIfNullOrWhiteSpace` | .NET 7+ | < .NET 7 |
-| `ArgumentOutOfRangeException.ThrowIfNegative` | .NET 8+ | < .NET 8 |
-| `ArgumentOutOfRangeException.ThrowIfZero` | .NET 8+ | < .NET 8 |
-| `ArgumentOutOfRangeException.ThrowIfNegativeOrZero` | .NET 8+ | < .NET 8 |
-| `ArgumentOutOfRangeException.ThrowIfGreaterThan` | .NET 8+ | < .NET 8 |
-| `ArgumentOutOfRangeException.ThrowIfLessThan` | .NET 8+ | < .NET 8 |
-| `ObjectDisposedException.ThrowIf` | .NET 9+ | < .NET 9 |
+| API                                                 | Available in | Polyfilled for |
+|-----------------------------------------------------|--------------|----------------|
+| `ArgumentNullException.ThrowIfNull`                 | .NET 6+      | < .NET 6       |
+| `ArgumentException.ThrowIfNullOrEmpty`              | .NET 7+      | < .NET 7       |
+| `ArgumentException.ThrowIfNullOrWhiteSpace`         | .NET 7+      | < .NET 7       |
+| `ArgumentOutOfRangeException.ThrowIfNegative`       | .NET 8+      | < .NET 8       |
+| `ArgumentOutOfRangeException.ThrowIfZero`           | .NET 8+      | < .NET 8       |
+| `ArgumentOutOfRangeException.ThrowIfNegativeOrZero` | .NET 8+      | < .NET 8       |
+| `ArgumentOutOfRangeException.ThrowIfGreaterThan`    | .NET 8+      | < .NET 8       |
+| `ArgumentOutOfRangeException.ThrowIfLessThan`       | .NET 8+      | < .NET 8       |
+| `ObjectDisposedException.ThrowIf`                   | .NET 9+      | < .NET 9       |
 
 ## Usage
 
@@ -27,7 +27,7 @@ public void ProcessData(string data, int count)
     ArgumentNullException.ThrowIfNull(data);
     ArgumentException.ThrowIfNullOrWhiteSpace(data);
     ArgumentOutOfRangeException.ThrowIfNegative(count);
-    
+
     // Process...
 }
 ```

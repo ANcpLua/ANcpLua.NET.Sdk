@@ -1,6 +1,8 @@
 # Trim Attributes Polyfills
 
-This directory contains polyfills for various .NET trimming and AOT (Ahead-of-Time) compilation related attributes (e.g., `RequiresUnreferencedCodeAttribute`, `DynamicallyAccessedMembersAttribute`). These enable the use of modern trimming annotations in projects targeting older .NET frameworks.
+This directory contains polyfills for various .NET trimming and AOT (Ahead-of-Time) compilation related attributes (
+e.g., `RequiresUnreferencedCodeAttribute`, `DynamicallyAccessedMembersAttribute`). These enable the use of modern
+trimming annotations in projects targeting older .NET frameworks.
 
 ## Usage
 
@@ -56,6 +58,7 @@ internal sealed class DynamicallyAccessedMembersAttribute : Attribute
     public DynamicallyAccessedMemberTypes MemberTypes { get; }
 }
 ```
+
 </details>
 
 <details> <summary><code>DynamicallyAccessedMemberTypes.cs</code> (injected)</summary>
@@ -129,6 +132,7 @@ internal enum DynamicallyAccessedMemberTypes
     All = ~None
 }
 ```
+
 </details>
 
 <details> <summary><code>RequiresDynamicCodeAttribute.cs</code> (injected)</summary>
@@ -167,6 +171,7 @@ internal sealed class RequiresDynamicCodeAttribute : Attribute
     public string? Url { get; set; }
 }
 ```
+
 </details>
 
 <details> <summary><code>RequiresUnreferencedCodeAttribute.cs</code> (injected)</summary>
@@ -206,6 +211,7 @@ internal sealed class RequiresUnreferencedCodeAttribute : Attribute
     public string? Url { get; set; }
 }
 ```
+
 </details>
 
 <details> <summary><code>UnconditionalSuppressMessageAttribute.cs</code> (injected)</summary>
@@ -263,4 +269,5 @@ internal sealed class UnconditionalSuppressMessageAttribute : Attribute
     public string? Justification { get; set; }
 }
 ```
+
 </details>

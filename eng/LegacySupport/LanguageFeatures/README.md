@@ -1,6 +1,7 @@
 # Language Feature Polyfills
 
-This directory provides polyfills for various C# language features, allowing their use in projects targeting older .NET frameworks where these features might not be natively supported.
+This directory provides polyfills for various C# language features, allowing their use in projects targeting older .NET
+frameworks where these features might not be natively supported.
 
 ## Usage
 
@@ -50,6 +51,7 @@ internal sealed class CallerArgumentExpressionAttribute : Attribute
     public string ParameterName { get; }
 }
 ```
+
 </details>
 
 <details> <summary><code>CompilerFeatureRequiredAttribute.cs</code> (injected)</summary>
@@ -95,6 +97,7 @@ internal sealed class CompilerFeatureRequiredAttribute : Attribute
     public const string RequiredMembers = nameof(RequiredMembers);
 }
 ```
+
 </details>
 
 <details> <summary><code>IsExternalInit.cs</code> (injected)</summary>
@@ -112,6 +115,7 @@ namespace System.Runtime.CompilerServices
     internal static class IsExternalInit { }
 }
 ```
+
 </details>
 
 <details> <summary><code>ParamCollectionAttribute.cs</code> (injected)</summary>
@@ -144,6 +148,7 @@ namespace System.Runtime.CompilerServices
 
 #endif
 ```
+
 </details>
 
 <details> <summary><code>RequiredMemberAttribute.cs</code> (injected)</summary>
@@ -162,4 +167,5 @@ namespace System.Runtime.CompilerServices;
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal sealed class RequiredMemberAttribute : Attribute;
 ```
+
 </details>

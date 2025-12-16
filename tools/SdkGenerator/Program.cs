@@ -6,7 +6,7 @@ var sdkRootPath = rootFolder / "src" / "Sdk";
 var sdks = new (string SdkName, string BaseSdkName)[]
 {
     ("ANcpLua.NET.Sdk", "Microsoft.NET.Sdk"),
-    ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web"),
+    ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web")
 };
 
 foreach (var (sdkName, baseSdkName) in sdks)

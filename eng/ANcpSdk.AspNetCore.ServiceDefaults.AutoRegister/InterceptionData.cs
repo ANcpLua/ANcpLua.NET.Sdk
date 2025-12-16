@@ -8,10 +8,18 @@ internal sealed class InterceptionData : IEquatable<InterceptionData?>
     public required InterceptionMethodKind Kind { get; set; }
     public required InterceptableLocation InterceptableLocation { get; set; }
 
-    public override bool Equals(object? obj) => Equals(obj as InterceptionData);
-    public bool Equals(InterceptionData? other) => 
-        other is not null && Kind == other.Kind && 
-        EqualityComparer<InterceptableLocation>.Default.Equals(InterceptableLocation, other.InterceptableLocation);
+    public bool Equals(InterceptionData? other)
+    {
+        return other is not null && Kind == other.Kind &&
+               EqualityComparer<InterceptableLocation>.Default.Equals(InterceptableLocation,
+                   other.InterceptableLocation);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return Equals(obj as InterceptionData);
+    }
+
     public override int GetHashCode()
     {
         unchecked

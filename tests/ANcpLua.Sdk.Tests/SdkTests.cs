@@ -3,11 +3,11 @@ using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
 using ANcpLua.Sdk.Tests.Helpers;
-using ANcpLua.Sdk.Tests.Infrastructure;
 using Meziantou.Framework;
 using NuGet.Packaging;
 using NuGet.Packaging.Licenses;
 using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
+using static ANcpLua.Sdk.Tests.Infrastructure.SdkBrandingConstants;
 using Task = System.Threading.Tasks.Task;
 
 namespace ANcpLua.Sdk.Tests;
@@ -29,13 +29,13 @@ public abstract class SdkTests(
 {
     // note: don't simplify names as they are used in the Renovate regex
     private static readonly NuGetReference[] XUnit2References =
-        [new NuGetReference("xunit", "2.9.3"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
+        [new("xunit", "2.9.3"), new("xunit.runner.visualstudio", "3.1.5")];
 
     private static readonly NuGetReference[] XUnit3References =
-        [new NuGetReference("xunit.v3", "3.2.0"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
+        [new("xunit.v3", "3.2.0"), new("xunit.runner.visualstudio", "3.1.5")];
 
     private static readonly NuGetReference[] XUnit3MTP2References =
-        [new NuGetReference("xunit.v3.mtp-v2", "3.2.0"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
+        [new("xunit.v3.mtp-v2", "3.2.0"), new("xunit.runner.visualstudio", "3.1.5")];
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkName)
     {
@@ -50,7 +50,6 @@ public abstract class SdkTests(
         var root = PathHelpers.GetRootDirectory() / "src";
         var files = Directory.GetFiles(root, "*", SearchOption.AllDirectories).Select(FullPath.FromPath);
         foreach (var file in files)
-        {
             if (file.Extension is ".props" or ".targets")
             {
                 var doc = XDocument.Load(file);
@@ -59,12 +58,9 @@ public abstract class SdkTests(
                 {
                     var attr = node.Attribute("IsImplicitlyDefined");
                     if (attr is null || attr.Value != "true")
-                    {
-                        Assert.Fail("Missing IsImplicitlyDefined=\"true\" on " + node.ToString());
-                    }
+                        Assert.Fail("Missing IsImplicitlyDefined=\"true\" on " + node);
                 }
             }
-        }
     }
 
     [Fact]
@@ -90,14 +86,14 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder(SdkTestName);
         project.AddCsprojFile();
         var data = await project.BuildAndGetOutput();
-        data.AssertMsBuildPropertyValue("RollForward", expectedValue: null);
+        data.AssertMsBuildPropertyValue("RollForward", null);
     }
 
     [Fact]
     public async Task CanOverrideLangVersion()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("LangVersion", "preview")]);
+        project.AddCsprojFile([("LangVersion", "preview")]);
         project.AddFile("sample.cs", "Console.WriteLine();");
         var data = await project.BuildAndGetOutput();
         data.AssertMsBuildPropertyValue("LangVersion", "preview");
@@ -107,7 +103,7 @@ public abstract class SdkTests(
     public async Task GenerateSbom_IsSetWhenContinuousIntegrationBuildIsSet()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("ContinuousIntegrationBuild", "true")]);
+        project.AddCsprojFile([("ContinuousIntegrationBuild", "true")]);
         project.AddFile("Program.cs", "Console.WriteLine();");
         var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
         data.AssertMsBuildPropertyValue("GenerateSBOM", "true");
@@ -116,8 +112,8 @@ public abstract class SdkTests(
         // the generated manifest may not be embedded into the .nupkg. We validate generation by checking
         // the pack output.
         Assert.True(
-            data.OutputContains("SbomFilePath=", StringComparison.Ordinal) ||
-            data.OutputContains("manifest.spdx.json", StringComparison.Ordinal),
+            data.OutputContains("SbomFilePath=") ||
+            data.OutputContains("manifest.spdx.json"),
             data.Output.ToString());
     }
 
@@ -130,8 +126,8 @@ public abstract class SdkTests(
         var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
         Assert.False(
-            data.OutputContains("SbomFilePath=", StringComparison.Ordinal) ||
-            data.OutputContains("manifest.spdx.json", StringComparison.Ordinal),
+            data.OutputContains("SbomFilePath=") ||
+            data.OutputContains("manifest.spdx.json"),
             data.Output.ToString());
     }
 
@@ -139,7 +135,7 @@ public abstract class SdkTests(
     public async Task CanOverrideRollForward()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("RollForward", "Minor")]);
+        project.AddCsprojFile([("RollForward", "Minor")]);
         project.AddFile("sample.cs", "Console.WriteLine();");
         var data = await project.BuildAndGetOutput();
         data.AssertMsBuildPropertyValue("RollForward", "Minor");
@@ -149,7 +145,7 @@ public abstract class SdkTests(
     public async Task RollForwardIsCompatibleWithClassLibraries()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("OutputType", "Library")]);
+        project.AddCsprojFile([("OutputType", "Library")]);
         var data = await project.BuildAndGetOutput();
         data.AssertMsBuildPropertyValue("RollForward", "LatestMajor");
     }
@@ -158,9 +154,7 @@ public abstract class SdkTests(
     public async Task CanOverrideLangVersionInDirectoryBuildProps()
     {
         if (sdkImportStyle is SdkImportStyle.SdkElement)
-        {
             Assert.Skip("Directory.Build.props is not supported with SdkImportStyle.SdkElement");
-        }
 
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
@@ -211,7 +205,7 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
-        project.AddFile("sample.cs", """_ = System.DateTime.Now;""");
+        project.AddFile("sample.cs", "_ = System.DateTime.Now;");
         var data = await project.BuildAndGetOutput();
         Assert.True(data.HasWarning("RS0030"));
 
@@ -233,8 +227,8 @@ public abstract class SdkTests(
     public async Task BannedSymbols_NewtonsoftJson_Disabled_AreNotReported()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("BannedNewtonsoftJsonSymbols", "false")],
-            nuGetPackages: [new NuGetReference("Newtonsoft.Json", "13.0.4")]);
+        project.AddCsprojFile([("BannedNewtonsoftJsonSymbols", "false")],
+            [new NuGetReference("Newtonsoft.Json", "13.0.4")]);
         project.AddFile("sample.cs", """_ = Newtonsoft.Json.JsonConvert.SerializeObject("test");""");
         var data = await project.BuildAndGetOutput();
         Assert.False(data.HasWarning("RS0030"));
@@ -245,17 +239,14 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
-        project.AddFile("sample.cs", """_ = System.DateTime.Now;""");
+        project.AddFile("sample.cs", "_ = System.DateTime.Now;");
         var localFile = project.AddFile(".editorconfig", "");
         TestContext.Current.TestOutputHelper.WriteLine("Local editorconfig path: " + localFile);
 
         var data = await project.BuildAndGetOutput();
 
         var files = data.GetBinLogFiles();
-        foreach (var file in files)
-        {
-            TestContext.Current.TestOutputHelper.WriteLine("Binlog file: " + file);
-        }
+        foreach (var file in files) TestContext.Current.TestOutputHelper.WriteLine("Binlog file: " + file);
 
         Assert.Contains(files, f => f.EndsWith(".editorconfig", StringComparison.Ordinal));
         Assert.Contains(files, f => f == localFile || f == "/private" + localFile); // macos may prefix it with /private
@@ -266,7 +257,7 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
-        project.AddFile("sample.cs", """_ = System.DateTime.Now;""");
+        project.AddFile("sample.cs", "_ = System.DateTime.Now;");
         var data = await project.BuildAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
         Assert.True(data.HasError("RS0030"));
     }
@@ -275,7 +266,7 @@ public abstract class SdkTests(
     public async Task Override_WarningsAsErrors()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("TreatWarningsAsErrors", "false")]);
+        project.AddCsprojFile([("TreatWarningsAsErrors", "false")]);
         project.AddFile("sample.cs", """
                                      _ = "";
 
@@ -401,9 +392,9 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(nuGetPackages: [new NuGetReference("System.Net.Http", "4.3.3")]);
-        project.AddFile("Program.cs", """System.Console.WriteLine();""");
+        project.AddFile("Program.cs", "System.Console.WriteLine();");
         var data = await project.BuildAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
-        Assert.True(data.OutputContains("error NU1903", StringComparison.Ordinal));
+        Assert.True(data.OutputContains("error NU1903"));
         Assert.Equal(1, data.ExitCode);
     }
 
@@ -412,10 +403,10 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(nuGetPackages: [new NuGetReference("System.Net.Http", "4.3.3")]);
-        project.AddFile("Program.cs", """System.Console.WriteLine();""");
+        project.AddFile("Program.cs", "System.Console.WriteLine();");
         var data = await project.BuildAndGetOutput();
-        Assert.True(data.OutputContains("warning NU1903", StringComparison.Ordinal));
-        Assert.True(data.OutputDoesNotContain("error NU1903", StringComparison.Ordinal));
+        Assert.True(data.OutputContains("warning NU1903"));
+        Assert.True(data.OutputDoesNotContain("error NU1903"));
         Assert.Equal(0, data.ExitCode);
     }
 
@@ -441,7 +432,7 @@ public abstract class SdkTests(
     public async Task MSBuildWarningsAsError_NotEnableOnDebug()
     {
         await using var project = CreateProjectBuilder();
-        project.AddFile("Program.cs", """System.Console.WriteLine();""");
+        project.AddFile("Program.cs", "System.Console.WriteLine();");
         project.AddCsprojFile(additionalProjectElements:
         [
             new XElement("Target", new XAttribute("Name", "Custom"), new XAttribute("BeforeTargets", "Build"),
@@ -483,9 +474,7 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-                                      """);
+        project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
 
@@ -497,14 +486,14 @@ public abstract class SdkTests(
     public async Task Dotnet_Pack_ClassLibrary()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("OutputType", "Library")]);
+        project.AddCsprojFile([("OutputType", "Library")]);
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         Assert.Single(files); // Only the .nupkg should be generated
         var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
-        ZipFile.ExtractToDirectory(nupkg, extractedPath);
+        await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
         await AssertPdbIsEmbedded(outputFiles);
@@ -527,7 +516,7 @@ public abstract class SdkTests(
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         Assert.Single(files); // Only the .nupkg should be generated
         var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
-        ZipFile.ExtractToDirectory(nupkg, extractedPath);
+        await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
         await AssertPdbIsEmbedded(outputFiles);
@@ -539,9 +528,7 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-                                      """);
+        project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.PackAndGetOutput();
 
@@ -549,7 +536,7 @@ public abstract class SdkTests(
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         Assert.Single(files); // Only the .nupkg should be generated
         var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
-        ZipFile.ExtractToDirectory(nupkg, extractedPath);
+        await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
         Assert.Contains(outputFiles, f => f.EndsWith(".xml", StringComparison.Ordinal));
@@ -573,10 +560,11 @@ public abstract class SdkTests(
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         Assert.Single(files); // Only the .nupkg should be generated
         var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
-        ZipFile.ExtractToDirectory(nupkg, extractedPath);
+        await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
         var allFiles = Directory.GetFiles(extractedPath);
         Assert.Contains("README.md", allFiles.Select(Path.GetFileName));
-        Assert.Equal("sample", File.ReadAllText(extractedPath / "README.md"));
+        Assert.Equal("sample",
+            await File.ReadAllTextAsync(extractedPath / "README.md", TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -595,9 +583,10 @@ public abstract class SdkTests(
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
         Assert.Single(files); // Only the .nupkg should be generated
         var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
-        ZipFile.ExtractToDirectory(nupkg, extractedPath);
+        await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
-        Assert.Equal("sample", File.ReadAllText(extractedPath / "README.md"));
+        Assert.Equal("sample",
+            await File.ReadAllTextAsync(extractedPath / "README.md", TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -614,7 +603,7 @@ public abstract class SdkTests(
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
         Assert.Single(files); // Only the .nupkg should be generated
         var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
-        ZipFile.ExtractToDirectory(nupkg, extractedPath);
+        await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         Assert.False(File.Exists(extractedPath / "README.md"));
     }
@@ -624,8 +613,8 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
-            properties: [("IsTestProject", "true")],
-            nuGetPackages: [.. XUnit2References]
+            [("IsTestProject", "true")],
+            [.. XUnit2References]
         );
         project.AddFile("sample.cs", """
                                      public class Sample
@@ -646,8 +635,8 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
-            properties: [("IsTestProject", "true"), ("OptimizeVsTestRun", "false")],
-            nuGetPackages: [.. XUnit2References]
+            [("IsTestProject", "true"), ("OptimizeVsTestRun", "false")],
+            [.. XUnit2References]
         );
         project.AddFile("sample.cs", """
                                      public class Sample
@@ -668,15 +657,15 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(filename: "sample.csproj");
-        project.AddFile("Program.cs", """Console.WriteLine();""");
-        project.AddFile("LICENSE.txt", """dummy""");
+        project.AddFile("Program.cs", "Console.WriteLine();");
+        project.AddFile("LICENSE.txt", "dummy");
         var data = await project.PackAndGetOutput();
         Assert.Equal(0, data.ExitCode);
 
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.NotEqual(SdkBrandingConstants.Author, nuspecReader.GetAuthors());
+        Assert.NotEqual(Author, nuspecReader.GetAuthors());
         Assert.NotEqual("icon.png", nuspecReader.GetIcon());
         Assert.DoesNotContain("icon.png", packageReader.GetFiles());
     }
@@ -686,15 +675,15 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
-        project.AddFile("Program.cs", """Console.WriteLine();""");
-        project.AddFile("LICENSE.txt", """dummy""");
+        project.AddFile("Program.cs", "Console.WriteLine();");
+        project.AddFile("LICENSE.txt", "dummy");
         var data = await project.PackAndGetOutput();
         Assert.Equal(0, data.ExitCode);
 
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(SdkBrandingConstants.Author, nuspecReader.GetAuthors());
+        Assert.Equal(Author, nuspecReader.GetAuthors());
         Assert.Null(nuspecReader.GetIcon());
         Assert.DoesNotContain("icon.png", packageReader.GetFiles());
         Assert.Contains("LICENSE.txt", packageReader.GetFiles());
@@ -705,7 +694,7 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(filename: "ANcpLua.Analyzer.csproj");
-        project.AddFile("Program.cs", """Console.WriteLine();""");
+        project.AddFile("Program.cs", "Console.WriteLine();");
         var data = await project.BuildAndGetOutput();
         Assert.Equal(0, data.ExitCode);
     }
@@ -735,22 +724,19 @@ public abstract class SdkTests(
         var data = await project.TestAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
         Assert.Equal(1, data.ExitCode);
-        Assert.True(data.OutputContains("failure message", StringComparison.Ordinal),
-            userMessage: "Output must contain 'failure message'");
+        Assert.True(data.OutputContains("failure message"),
+            "Output must contain 'failure message'");
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.coverage", SearchOption.AllDirectories));
-        Assert.True(data.OutputContains("::error title=Tests.Test1,", StringComparison.Ordinal),
-            userMessage: "Output must contain '::error title=Tests.Test1'");
+        Assert.True(data.OutputContains("::error title=Tests.Test1,"),
+            "Output must contain '::error title=Tests.Test1'");
         Assert.NotEmpty(project.GetGitHubStepSummaryContent());
     }
 
     [Fact]
     public async Task VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3()
     {
-        if (OperatingSystem.IsWindows())
-        {
-            Assert.Skip("Failing, need more investigation");
-        }
+        if (OperatingSystem.IsWindows()) Assert.Skip("Failing, need more investigation");
 
         await using var project = CreateProjectBuilder(SdkTestName);
         project.AddCsprojFile(
@@ -774,10 +760,10 @@ public abstract class SdkTests(
         var data = await project.TestAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
         Assert.Equal(1, data.ExitCode);
-        Assert.True(data.OutputContains("failure message", StringComparison.Ordinal));
+        Assert.True(data.OutputContains("failure message"));
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
-        Assert.True(data.OutputContains("::error title=Tests.Test1,", StringComparison.Ordinal),
-            userMessage: "Output must contain '::error title=Tests.Test1'");
+        Assert.True(data.OutputContains("::error title=Tests.Test1,"),
+            "Output must contain '::error title=Tests.Test1'");
         Assert.NotEmpty(project.GetGitHubStepSummaryContent());
     }
 
@@ -804,7 +790,7 @@ public abstract class SdkTests(
         var data = await project.TestAndGetOutput();
 
         Assert.Equal(1, data.ExitCode);
-        Assert.True(data.OutputContains("failure message", StringComparison.Ordinal));
+        Assert.True(data.OutputContains("failure message"));
         Assert.Empty(project.GetGitHubStepSummaryContent());
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
         Assert.Empty(Directory.GetFiles(project.RootFolder, "*.coverage", SearchOption.AllDirectories));
@@ -819,9 +805,7 @@ public abstract class SdkTests(
             filename: "Sample.Tests.csproj"
         );
 
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-                                      """);
+        project.AddFile("Program.cs", "Console.WriteLine();");
 
         project.AddFile("Directory.Packages.props", """
                                                     <Project>
@@ -846,9 +830,7 @@ public abstract class SdkTests(
             nuGetPackages: [new NuGetReference("System.Net.Http", "4.3.3")],
             properties: [("NOWARN", "$(NOWARN);NU1510")]);
 
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-                                      """);
+        project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.Equal(1, data.ExitCode);
@@ -868,9 +850,7 @@ public abstract class SdkTests(
             ],
             properties: [("NOWARN", "$(NOWARN);NU1510")]);
 
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-                                      """);
+        project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.Equal(0, data.ExitCode);
@@ -905,7 +885,7 @@ public abstract class SdkTests(
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(SdkBrandingConstants.Author, nuspecReader.GetAuthors());
+        Assert.Equal(Author, nuspecReader.GetAuthors());
         Assert.Null(nuspecReader.GetIcon());
         Assert.Equal(LicenseType.Expression, nuspecReader.GetLicenseMetadata().Type);
         Assert.Equal(LicenseExpressionType.License, nuspecReader.GetLicenseMetadata().LicenseExpression.Type);
@@ -980,11 +960,9 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder(sdkName);
         project.AddCsprojFile(filename: "Sample.Tests.csproj");
 
-        project.AddDirectoryBuildPropsFile(postSdkContent: "", sdkName: sdkName);
+        project.AddDirectoryBuildPropsFile("", sdkName: sdkName);
 
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-                                      """);
+        project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.BuildAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -1000,7 +978,7 @@ public abstract class SdkTests(
             var attributeType = customAttribute.Constructor;
             var typeName = metadata.GetString(metadata
                 .GetTypeReference(
-                    (TypeReferenceHandle)metadata.GetMemberReference(((MemberReferenceHandle)attributeType)).Parent)
+                    (TypeReferenceHandle)metadata.GetMemberReference((MemberReferenceHandle)attributeType).Parent)
                 .Name);
             if (typeName is "AssemblyMetadataAttribute")
             {
@@ -1009,7 +987,7 @@ public abstract class SdkTests(
                 var key = blobReader.ReadSerializedString();
                 var value = blobReader.ReadSerializedString();
 
-                Assert.Equal(SdkBrandingConstants.SdkMetadataKey, key);
+                Assert.Equal(SdkMetadataKey, key);
                 Assert.Equal(sdkName, value);
                 return;
             }
@@ -1032,9 +1010,7 @@ public abstract class SdkTests(
             filename: "Sample.Tests.csproj",
             properties: [(propName, version)]);
 
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-                                      """);
+        project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.BuildAndGetOutput();
         Assert.True(data.ExitCode == 0, data.Output.ToString());
@@ -1043,13 +1019,11 @@ public abstract class SdkTests(
 
         var expectedVersion = version;
         if (string.IsNullOrEmpty(expectedVersion))
-        {
             expectedVersion = dotnetSdkVersion switch
             {
                 NetSdkVersion.Net100 => "net10.0",
-                _ => throw new NotSupportedException(),
+                _ => throw new NotSupportedException()
             };
-        }
 
         await using var assembly = File.OpenRead(dllPath);
         using var reader = new PEReader(assembly);
@@ -1060,7 +1034,7 @@ public abstract class SdkTests(
             var attributeType = customAttribute.Constructor;
             var typeName = metadata.GetString(metadata
                 .GetTypeReference(
-                    (TypeReferenceHandle)metadata.GetMemberReference(((MemberReferenceHandle)attributeType)).Parent)
+                    (TypeReferenceHandle)metadata.GetMemberReference((MemberReferenceHandle)attributeType).Parent)
                 .Name);
             if (typeName is "TargetFrameworkAttribute")
             {

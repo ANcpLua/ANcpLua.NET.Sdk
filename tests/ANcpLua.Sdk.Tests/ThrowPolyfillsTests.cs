@@ -3,9 +3,9 @@
 namespace ANcpLua.Sdk.Tests;
 
 /// <summary>
-/// Tests for C# 14 Extension Member ThrowPolyfills.
-/// These tests verify that the polyfill APIs work correctly on .NET 10+
-/// (where the native APIs exist, so we're testing compatibility).
+///     Tests for C# 14 Extension Member ThrowPolyfills.
+///     These tests verify that the polyfill APIs work correctly on .NET 10+
+///     (where the native APIs exist, so we're testing compatibility).
 /// </summary>
 public class ThrowPolyfillsTests
 {

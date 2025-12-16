@@ -1,6 +1,7 @@
 # TimeProvider Polyfill
 
-This directory contains a polyfill for the `System.TimeProvider` class, enabling consistent time abstraction in projects targeting older .NET frameworks that do not natively support this API.
+This directory contains a polyfill for the `System.TimeProvider` class, enabling consistent time abstraction in projects
+targeting older .NET frameworks that do not natively support this API.
 
 ## Usage
 
@@ -129,4 +130,5 @@ namespace System
 
 #endif
 ```
+
 </details>

@@ -20,14 +20,16 @@ internal sealed class DisallowNullAttribute : Attribute
 }
 
 /// <summary>Specifies that an output may be null even if the corresponding type disallows it.</summary>
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited
+ = false)]
 [ExcludeFromCodeCoverage]
 internal sealed class MaybeNullAttribute : Attribute
 {
 }
 
 /// <summary>Specifies that an output will not be null even if the corresponding type allows it. Specifies that an input argument was not null when the call returns.</summary>
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited = false)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, Inherited
+ = false)]
 [ExcludeFromCodeCoverage]
 internal sealed class NotNullAttribute : Attribute
 {
@@ -64,7 +66,8 @@ internal sealed class NotNullWhenAttribute : Attribute
 }
 
 /// <summary>Specifies that the output will be non-null if the named parameter is non-null.</summary>
-[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple = true, Inherited = false)]
+[AttributeUsage(AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.ReturnValue, AllowMultiple =
+ true, Inherited = false)]
 [ExcludeFromCodeCoverage]
 internal sealed class NotNullIfNotNullAttribute : Attribute
 {
@@ -102,20 +105,23 @@ internal sealed class DoesNotReturnIfAttribute : Attribute
 }
 #endif
 
-/// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values.</summary>
+/// <summary>
+///     Specifies that the method or property will ensure that the listed field and property members have not-null
+///     values.
+/// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
 [ExcludeFromCodeCoverage]
 internal sealed class MemberNotNullAttribute : Attribute
 {
     /// <summary>Initializes the attribute with a field or property member.</summary>
     /// <param name="member">
-    /// The field or property member that is promised to be not-null.
+    ///     The field or property member that is promised to be not-null.
     /// </param>
     public MemberNotNullAttribute(string member) => this.Members = new[] { member };
 
     /// <summary>Initializes the attribute with the list of field and property members.</summary>
     /// <param name="members">
-    /// The list of field and property members that are promised to be not-null.
+    ///     The list of field and property members that are promised to be not-null.
     /// </param>
     public MemberNotNullAttribute(params string[] members) => this.Members = members;
 
@@ -123,17 +129,21 @@ internal sealed class MemberNotNullAttribute : Attribute
     public string[] Members { get; }
 }
 
-/// <summary>Specifies that the method or property will ensure that the listed field and property members have not-null values when returning with the specified return value condition.</summary>
+/// <summary>
+///     Specifies that the method or property will ensure that the listed field and property members have not-null
+///     values when returning with the specified return value condition.
+/// </summary>
 [AttributeUsage(AttributeTargets.Method | AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
 [ExcludeFromCodeCoverage]
 internal sealed class MemberNotNullWhenAttribute : Attribute
 {
     /// <summary>Initializes the attribute with the specified return value condition and a field or property member.</summary>
     /// <param name="returnValue">
-    /// The return value condition. If the method returns this value, the associated parameter will not be <see langword="null" />.
+    ///     The return value condition. If the method returns this value, the associated parameter will not be
+    ///     <see langword="null" />.
     /// </param>
     /// <param name="member">
-    /// The field or property member that is promised to be not-null.
+    ///     The field or property member that is promised to be not-null.
     /// </param>
     public MemberNotNullWhenAttribute(bool returnValue, string member)
     {
@@ -143,10 +153,11 @@ internal sealed class MemberNotNullWhenAttribute : Attribute
 
     /// <summary>Initializes the attribute with the specified return value condition and list of field and property members.</summary>
     /// <param name="returnValue">
-    /// The return value condition. If the method returns this value, the associated parameter will not be <see langword="null" />.
+    ///     The return value condition. If the method returns this value, the associated parameter will not be
+    ///     <see langword="null" />.
     /// </param>
     /// <param name="members">
-    /// The list of field and property members that are promised to be not-null.
+    ///     The list of field and property members that are promised to be not-null.
     /// </param>
     public MemberNotNullWhenAttribute(bool returnValue, params string[] members)
     {

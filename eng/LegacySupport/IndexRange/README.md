@@ -1,6 +1,7 @@
 # Index & Range Polyfills
 
-This directory contains polyfills for the `System.Index` and `System.Range` types, enabling their use in projects targeting older .NET frameworks that do not natively support them.
+This directory contains polyfills for the `System.Index` and `System.Range` types, enabling their use in projects
+targeting older .NET frameworks that do not natively support them.
 
 ## Usage
 
@@ -91,6 +92,7 @@ namespace System
 }
 #endif
 ```
+
 </details>
 
 <details> <summary><code>Range.cs</code> (injected)</summary>
@@ -145,4 +147,5 @@ namespace System
 }
 #endif
 ```
+
 </details>

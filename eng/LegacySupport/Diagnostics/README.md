@@ -46,4 +46,5 @@ internal sealed class StackTraceHiddenAttribute : Attribute
 
 #endif
 ```
+
 </details>

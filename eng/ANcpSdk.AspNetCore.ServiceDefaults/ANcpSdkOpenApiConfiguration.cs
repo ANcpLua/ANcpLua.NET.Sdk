@@ -7,6 +7,6 @@ public sealed class ANcpSdkOpenApiConfiguration
 {
     public bool Enabled { get; set; } = true;
     public Action<OpenApiOptions>? ConfigureOpenApi { get; set; }
-    [StringSyntax("Route")]
-    public string RoutePattern { get; set; } = "/openapi/{documentName}.json";
+
+    [StringSyntax("Route")] public string RoutePattern { get; set; } = "/openapi/{documentName}.json";
 }

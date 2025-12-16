@@ -5,6 +5,34 @@ param([Parameter(ValueFromRemainingArguments=$true)]$Args)
 
 $ErrorActionPreference = "Stop"
 
+# Extract version from args (e.g., "-p:Version=1.1.7")
+$Version = "1.0.0"
+foreach ($arg in $Args) {
+    if ($arg -match '-p:Version=(.+)') {
+        $Version = $Matches[1]
+        Write-Host "Detected version: $Version"
+    }
+}
+
+# Generate Version.props with the package version
+$VersionPropsPath = "src/common/Version.props"
+$VersionPropsContent = @"
+<Project>
+  <!--
+    This file is auto-generated during build.
+    DO NOT EDIT MANUALLY - changes will be overwritten.
+
+    The version is set by build.ps1 based on the computed package version.
+    This ensures all SDK packages reference the same version.
+  -->
+  <PropertyGroup>
+    <ANcpSdkPackageVersion>$Version</ANcpSdkPackageVersion>
+  </PropertyGroup>
+</Project>
+"@
+Set-Content -Path $VersionPropsPath -Value $VersionPropsContent -Encoding UTF8
+Write-Host "Generated $VersionPropsPath with version $Version"
+
 # Build Analyzers first
 dotnet build eng/ANcpLua.Analyzers/ANcpLua.Analyzers.csproj -c Release
 
