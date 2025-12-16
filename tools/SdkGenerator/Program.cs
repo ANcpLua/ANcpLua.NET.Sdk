@@ -17,14 +17,19 @@ foreach (var (sdkName, baseSdkName) in sdks)
     propsPath.CreateParentDirectory();
 
     // Sdk.props
+    var generateClaudeMdProperty = sdkName == "ANcpLua.NET.Sdk" 
+        ? "    <GenerateClaudeMd Condition=\"'$(GenerateClaudeMd)' == ''\">false</GenerateClaudeMd>\n\n" 
+        : "";
+    
     File.WriteAllText(propsPath.Value, $"""
                                         <Project>
                                           <PropertyGroup>
                                             <ANcpLuaSdkName>{sdkName}</ANcpLuaSdkName>
                                             <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
-
+                                        {generateClaudeMdProperty}
+                                            <!-- Paths relative to NuGet package structure: Sdk/ -> common/ -->
                                             <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../common/Common.props</CustomBeforeDirectoryBuildProps>
-                                            <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)/../common/Common.targets</BeforeMicrosoftNETSdkTargets>
+                                            <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../common/Common.targets</BeforeMicrosoftNETSdkTargets>
                                           </PropertyGroup>
 
                                           <Import Project="Sdk.props" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
