@@ -1,37 +1,40 @@
 using System.IO.Compression;
+using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
-using NuGet.Packaging;
-using Task = System.Threading.Tasks.Task;
-using static Meziantou.Sdk.Tests.Helpers.PackageFixture;
-using Meziantou.Sdk.Tests.Helpers;
+using ANcpLua.Sdk.Tests.Helpers;
 using Meziantou.Framework;
-using System.Reflection.Metadata;
+using NuGet.Packaging;
 using NuGet.Packaging.Licenses;
+using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
+using Task = System.Threading.Tasks.Task;
 
-namespace Meziantou.Sdk.Tests;
-
-public sealed class Sdk9_0_Root_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
-    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net9_0, SdkImportStyle.ProjectElement);
-
-public sealed class Sdk9_0_Inner_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
-    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net9_0, SdkImportStyle.SdkElement);
+namespace ANcpLua.Sdk.Tests;
 
 public sealed class Sdk10_0_Root_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
-    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net10_0, SdkImportStyle.ProjectElement);
+    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net100, SdkImportStyle.ProjectElement);
 
 public sealed class Sdk10_0_Inner_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
-    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net10_0, SdkImportStyle.SdkElement);
+    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net100, SdkImportStyle.SdkElement);
 
 public sealed class Sdk10_0_DirectoryBuildProps_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
-    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net10_0, SdkImportStyle.SdkElementDirectoryBuildProps);
+    : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net100, SdkImportStyle.SdkElementDirectoryBuildProps);
 
-public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOutputHelper, NetSdkVersion dotnetSdkVersion, SdkImportStyle sdkImportStyle)
+public abstract class SdkTests(
+    PackageFixture fixture,
+    ITestOutputHelper testOutputHelper,
+    NetSdkVersion dotnetSdkVersion,
+    SdkImportStyle sdkImportStyle)
 {
     // note: don't simplify names as they are used in the Renovate regex
-    private static readonly NuGetReference[] XUnit2References = [new NuGetReference("xunit", "2.9.3"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
-    private static readonly NuGetReference[] XUnit3References = [new NuGetReference("xunit.v3", "3.2.0"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
-    private static readonly NuGetReference[] XUnit3MTP2References = [new NuGetReference("xunit.v3.mtp-v2", "3.2.0"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
+    private static readonly NuGetReference[] XUnit2References =
+        [new NuGetReference("xunit", "2.9.3"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
+
+    private static readonly NuGetReference[] XUnit3References =
+        [new NuGetReference("xunit.v3", "3.2.0"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
+
+    private static readonly NuGetReference[] XUnit3MTP2References =
+        [new NuGetReference("xunit.v3.mtp-v2", "3.2.0"), new NuGetReference("xunit.runner.visualstudio", "3.1.5")];
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkName)
     {
@@ -70,14 +73,14 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile();
         project.AddFile("sample.cs", "");
         var data = await project.BuildAndGetOutput();
-        data.AssertMSBuildPropertyValue("LangVersion", "latest");
-        data.AssertMSBuildPropertyValue("PublishRepositoryUrl", "true");
-        data.AssertMSBuildPropertyValue("DebugType", "embedded");
-        data.AssertMSBuildPropertyValue("EmbedUntrackedSources", "true");
-        data.AssertMSBuildPropertyValue("EnableNETAnalyzers", "true");
-        data.AssertMSBuildPropertyValue("AnalysisLevel", "latest-all");
-        data.AssertMSBuildPropertyValue("EnablePackageValidation", "true");
-        data.AssertMSBuildPropertyValue("RollForward", "LatestMajor");
+        data.AssertMsBuildPropertyValue("LangVersion", "latest");
+        data.AssertMsBuildPropertyValue("PublishRepositoryUrl", "true");
+        data.AssertMsBuildPropertyValue("DebugType", "embedded");
+        data.AssertMsBuildPropertyValue("EmbedUntrackedSources", "true");
+        data.AssertMsBuildPropertyValue("EnableNETAnalyzers", "true");
+        data.AssertMsBuildPropertyValue("AnalysisLevel", "latest-all");
+        data.AssertMsBuildPropertyValue("EnablePackageValidation", "true");
+        data.AssertMsBuildPropertyValue("RollForward", "LatestMajor");
     }
 
     [Fact]
@@ -86,7 +89,7 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder(SdkTestName);
         project.AddCsprojFile();
         var data = await project.BuildAndGetOutput();
-        data.AssertMSBuildPropertyValue("RollForward", expectedValue: null);
+        data.AssertMsBuildPropertyValue("RollForward", expectedValue: null);
     }
 
     [Fact]
@@ -96,7 +99,7 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(properties: [("LangVersion", "preview")]);
         project.AddFile("sample.cs", "Console.WriteLine();");
         var data = await project.BuildAndGetOutput();
-        data.AssertMSBuildPropertyValue("LangVersion", "preview");
+        data.AssertMsBuildPropertyValue("LangVersion", "preview");
     }
 
     [Fact]
@@ -106,7 +109,7 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(properties: [("ContinuousIntegrationBuild", "true")]);
         project.AddFile("Program.cs", "Console.WriteLine();");
         var data = await project.PackAndGetOutput();
-        data.AssertMSBuildPropertyValue("GenerateSBOM", "true");
+        data.AssertMsBuildPropertyValue("GenerateSBOM", "true");
 
         var nupkg = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var archive = ZipFile.OpenRead(nupkg);
@@ -123,7 +126,8 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
 
         var nupkg = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var archive = ZipFile.OpenRead(nupkg);
-        Assert.DoesNotContain(archive.Entries, e => e.FullName.EndsWith("manifest.spdx.json", StringComparison.Ordinal));
+        Assert.DoesNotContain(archive.Entries,
+            e => e.FullName.EndsWith("manifest.spdx.json", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -133,7 +137,7 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(properties: [("RollForward", "Minor")]);
         project.AddFile("sample.cs", "Console.WriteLine();");
         var data = await project.BuildAndGetOutput();
-        data.AssertMSBuildPropertyValue("RollForward", "Minor");
+        data.AssertMsBuildPropertyValue("RollForward", "Minor");
     }
 
     [Fact]
@@ -142,7 +146,7 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(properties: [("OutputType", "Library")]);
         var data = await project.BuildAndGetOutput();
-        data.AssertMSBuildPropertyValue("RollForward", "LatestMajor");
+        data.AssertMsBuildPropertyValue("RollForward", "LatestMajor");
     }
 
     [Fact]
@@ -156,13 +160,13 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddDirectoryBuildPropsFile("""
-            <PropertyGroup>
-                <LangVersion>preview</LangVersion>
-            </PropertyGroup>
-            """);
+                                           <PropertyGroup>
+                                               <LangVersion>preview</LangVersion>
+                                           </PropertyGroup>
+                                           """);
         project.AddFile("sample.cs", "Console.WriteLine();");
         var data = await project.BuildAndGetOutput();
-        data.AssertMSBuildPropertyValue("LangVersion", "preview");
+        data.AssertMsBuildPropertyValue("LangVersion", "preview");
     }
 
     [Fact]
@@ -171,11 +175,11 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("sample.cs", """
-            unsafe
-            {
-                int* p = null;
-            }
-            """);
+                                     unsafe
+                                     {
+                                         int* p = null;
+                                     }
+                                     """);
 
         var data = await project.BuildAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -187,11 +191,11 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("sample.cs", """
-            var o = new object();
-            if (o is Math) // Error CS7023 The second operand of an 'is' or 'as' operator may not be static type 'Math'
-            {
-            }
-            """);
+                                     var o = new object();
+                                     if (o is Math) // Error CS7023 The second operand of an 'is' or 'as' operator may not be static type 'Math'
+                                     {
+                                     }
+                                     """);
 
         var data = await project.BuildAndGetOutput();
         Assert.True(data.HasWarning("CS7023"));
@@ -224,7 +228,8 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
     public async Task BannedSymbols_NewtonsoftJson_Disabled_AreNotReported()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("BannedNewtonsoftJsonSymbols", "false")], nuGetPackages: [new NuGetReference("Newtonsoft.Json", "13.0.4")]);
+        project.AddCsprojFile(properties: [("BannedNewtonsoftJsonSymbols", "false")],
+            nuGetPackages: [new NuGetReference("Newtonsoft.Json", "13.0.4")]);
         project.AddFile("sample.cs", """_ = Newtonsoft.Json.JsonConvert.SerializeObject("test");""");
         var data = await project.BuildAndGetOutput();
         Assert.False(data.HasWarning("RS0030"));
@@ -267,17 +272,17 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(properties: [("TreatWarningsAsErrors", "false")]);
         project.AddFile("sample.cs", """
-            _ = "";
+                                     _ = "";
 
-            class Sample
-            {
-                private readonly int field;
+                                     class Sample
+                                     {
+                                         private readonly int field;
 
-                public Sample(int a) => field = a;
+                                         public Sample(int a) => field = a;
 
-                public int A() => field;
-            }
-            """);
+                                         public int A() => field;
+                                     }
+                                     """);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.True(data.HasWarning("IDE1006"));
     }
@@ -288,17 +293,17 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("sample.cs", """
-            _ = "";
+                                     _ = "";
 
-            class Sample
-            {
-                private readonly int field;
+                                     class Sample
+                                     {
+                                         private readonly int field;
 
-                public Sample(int a) => field = a;
+                                         public Sample(int a) => field = a;
 
-                public int A() => field;
-            }
-            """);
+                                         public int A() => field;
+                                     }
+                                     """);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.True(data.HasError("IDE1006"));
     }
@@ -309,13 +314,13 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("sample.cs", """
-            _ = "";
+                                     _ = "";
 
-            class Sample
-            {
-                private int _field;
-            }
-            """);
+                                     class Sample
+                                     {
+                                         private int _field;
+                                     }
+                                     """);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.False(data.HasError("IDE1006"));
         Assert.False(data.HasWarning("IDE1006"));
@@ -327,13 +332,13 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", """
-            A();
+                                      A();
 
-            static void A()
-            {
-                System.Console.WriteLine();
-            }
-            """);
+                                      static void A()
+                                      {
+                                          System.Console.WriteLine();
+                                      }
+                                      """);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.False(data.HasWarning());
         Assert.False(data.HasError());
@@ -345,10 +350,10 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", """
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine();
+                                      var sb = new System.Text.StringBuilder();
+                                      sb.AppendLine();
 
-            """);
+                                      """);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.False(data.HasWarning());
         Assert.False(data.HasError());
@@ -360,26 +365,26 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", """
-            _ = "";
+                                      _ = "";
 
-            class Sample
-            {
-                public static void A()
-                {
-                    B();
+                                      class Sample
+                                      {
+                                          public static void A()
+                                          {
+                                              B();
 
-                    static void B()
-                    {
-                        System.Console.WriteLine();
-                    }
-                }
-            }
+                                              static void B()
+                                              {
+                                                  System.Console.WriteLine();
+                                              }
+                                          }
+                                      }
 
-            """);
+                                      """);
         project.AddFile(".editorconfig", """
-            [*.cs]
-            csharp_style_expression_bodied_local_functions = true:warning
-            """);
+                                         [*.cs]
+                                         csharp_style_expression_bodied_local_functions = true:warning
+                                         """);
 
         var data = await project.BuildAndGetOutput(["--configuration", "Debug"]);
         Assert.True(data.HasWarning());
@@ -414,12 +419,14 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
     {
         await using var project = CreateProjectBuilder();
         project.AddFile("Program.cs", """
-            System.Console.WriteLine();
+                                      System.Console.WriteLine();
 
-            """);
-        project.AddCsprojFile(additionalProjectElements: [
+                                      """);
+        project.AddCsprojFile(additionalProjectElements:
+        [
             new XElement("Target", new XAttribute("Name", "Custom"), new XAttribute("BeforeTargets", "Build"),
-                new XElement("Warning", new XAttribute("Text", "CustomWarning")))]);
+                new XElement("Warning", new XAttribute("Text", "CustomWarning")))
+        ]);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
 
         Assert.True(data.OutputContains("error : CustomWarning"));
@@ -430,9 +437,11 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
     {
         await using var project = CreateProjectBuilder();
         project.AddFile("Program.cs", """System.Console.WriteLine();""");
-        project.AddCsprojFile(additionalProjectElements: [
+        project.AddCsprojFile(additionalProjectElements:
+        [
             new XElement("Target", new XAttribute("Name", "Custom"), new XAttribute("BeforeTargets", "Build"),
-                new XElement("Warning", new XAttribute("Text", "CustomWarning")))]);
+                new XElement("Warning", new XAttribute("Text", "CustomWarning")))
+        ]);
         var data = await project.BuildAndGetOutput(["--configuration", "Debug"]);
 
         Assert.True(data.OutputContains("warning : CustomWarning"));
@@ -444,21 +453,21 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Sample1.cs", """
-            System.Console.WriteLine();
+                                      System.Console.WriteLine();
 
-            class A {}
+                                      class A {}
 
-            file class Sample
-            {
-            }
-            """);
+                                      file class Sample
+                                      {
+                                      }
+                                      """);
         project.AddFile("Sample2.cs", """
-            class B {}
+                                      class B {}
 
-            file class sample
-            {
-            }
-            """);
+                                      file class sample
+                                      {
+                                      }
+                                      """);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.False(data.HasError("CA1708"));
         Assert.False(data.HasWarning("CA1708"));
@@ -470,8 +479,8 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", """
-            Console.WriteLine();
-            """);
+                                      Console.WriteLine();
+                                      """);
 
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
 
@@ -503,9 +512,9 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", """
-            Console.WriteLine();
+                                      Console.WriteLine();
 
-            """);
+                                      """);
 
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
 
@@ -526,8 +535,8 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", """
-            Console.WriteLine();
-            """);
+                                      Console.WriteLine();
+                                      """);
 
         var data = await project.PackAndGetOutput();
 
@@ -614,15 +623,15 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
             nuGetPackages: [.. XUnit2References]
         );
         project.AddFile("sample.cs", """
-            public class Sample
-            {
-                [Xunit.Fact]
-                public void Test()
-                {
-                    _ = System.DateTime.Now; // This should not be reported as an error
-                }
-            }
-            """);
+                                     public class Sample
+                                     {
+                                         [Xunit.Fact]
+                                         public void Test()
+                                         {
+                                             _ = System.DateTime.Now; // This should not be reported as an error
+                                         }
+                                     }
+                                     """);
         var data = await project.TestAndGetOutput();
         Assert.False(data.HasWarning("RS0030"));
     }
@@ -636,15 +645,15 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
             nuGetPackages: [.. XUnit2References]
         );
         project.AddFile("sample.cs", """
-            public class Sample
-            {
-                [Xunit.Fact]
-                public void Test()
-                {
-                    _ = System.DateTime.Now; // This should not be reported as an error
-                }
-            }
-            """);
+                                     public class Sample
+                                     {
+                                         [Xunit.Fact]
+                                         public void Test()
+                                         {
+                                             _ = System.DateTime.Now; // This should not be reported as an error
+                                         }
+                                     }
+                                     """);
         var data = await project.TestAndGetOutput();
         Assert.True(data.HasWarning("RS0030"));
     }
@@ -703,28 +712,30 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             nuGetPackages: [.. XUnit2References]
-            );
+        );
 
         project.AddFile("Program.cs", """
-            public class Tests
-            {
-                [Fact]
-                public void Test1()
-                {
-                    Assert.Equal("true", System.Environment.GetEnvironmentVariable("GITHUB_ACTIONS"));
-                    Assert.NotEmpty(System.Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY") ?? "");
-                    Assert.Fail("failure message");
-                }
-            }
-            """);
+                                      public class Tests
+                                      {
+                                          [Fact]
+                                          public void Test1()
+                                          {
+                                              Assert.Equal("true", System.Environment.GetEnvironmentVariable("GITHUB_ACTIONS"));
+                                              Assert.NotEmpty(System.Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY") ?? "");
+                                              Assert.Fail("failure message");
+                                          }
+                                      }
+                                      """);
 
         var data = await project.TestAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
         Assert.Equal(1, data.ExitCode);
-        Assert.True(data.OutputContains("failure message", StringComparison.Ordinal), userMessage: "Output must contain 'failure message'");
+        Assert.True(data.OutputContains("failure message", StringComparison.Ordinal),
+            userMessage: "Output must contain 'failure message'");
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.coverage", SearchOption.AllDirectories));
-        Assert.True(data.OutputContains("::error title=Tests.Test1,", StringComparison.Ordinal), userMessage: "Output must contain '::error title=Tests.Test1'");
+        Assert.True(data.OutputContains("::error title=Tests.Test1,", StringComparison.Ordinal),
+            userMessage: "Output must contain '::error title=Tests.Test1'");
         Assert.NotEmpty(project.GetGitHubStepSummaryContent());
     }
 
@@ -740,27 +751,28 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             nuGetPackages: [.. XUnit3References]
-            );
+        );
 
         project.AddFile("Program.cs", """
-            public class Tests
-            {
-                [Fact]
-                public void Test1()
-                {
-                    Assert.Equal("true", System.Environment.GetEnvironmentVariable("GITHUB_ACTIONS"));
-                    Assert.NotEmpty(System.Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY") ?? "");
-                    Assert.Fail("failure message");
-                }
-            }
-            """);
+                                      public class Tests
+                                      {
+                                          [Fact]
+                                          public void Test1()
+                                          {
+                                              Assert.Equal("true", System.Environment.GetEnvironmentVariable("GITHUB_ACTIONS"));
+                                              Assert.NotEmpty(System.Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY") ?? "");
+                                              Assert.Fail("failure message");
+                                          }
+                                      }
+                                      """);
 
         var data = await project.TestAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
         Assert.Equal(1, data.ExitCode);
         Assert.True(data.OutputContains("failure message", StringComparison.Ordinal));
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
-        Assert.True(data.OutputContains("::error title=Tests.Test1,", StringComparison.Ordinal), userMessage: "Output must contain '::error title=Tests.Test1'");
+        Assert.True(data.OutputContains("::error title=Tests.Test1,", StringComparison.Ordinal),
+            userMessage: "Output must contain '::error title=Tests.Test1'");
         Assert.NotEmpty(project.GetGitHubStepSummaryContent());
     }
 
@@ -771,18 +783,18 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             nuGetPackages: [.. XUnit2References]
-            );
+        );
 
         project.AddFile("Program.cs", """
-            public class Tests
-            {
-                [Fact]
-                public void Test1()
-                {
-                    Assert.Fail("failure message");
-                }
-            }
-            """);
+                                      public class Tests
+                                      {
+                                          [Fact]
+                                          public void Test1()
+                                          {
+                                              Assert.Fail("failure message");
+                                          }
+                                      }
+                                      """);
 
         var data = await project.TestAndGetOutput();
 
@@ -794,174 +806,28 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
     }
 
     [Fact]
-    public async Task MTP_DotnetTestSkipAnalyzers()
-    {
-        Assert.SkipWhen(dotnetSdkVersion == NetSdkVersion.Net9_0, "only fully supported in .NET10+");
-
-        await using var project = CreateProjectBuilder(SdkTestName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("UseMicrosoftTestingPlatform", "true")],
-            nuGetPackages: [.. XUnit3MTP2References]
-            );
-
-        project.AddFile("Program.cs", """
-            public class Tests
-            {
-                [Fact]
-                public void Test1()
-                {
-                    _ = System.DateTime.Now; // This should not be reported as an error
-                }
-            }
-            """);
-
-        project.AddFile("global.json", """
-            {
-                "test": {
-                    "runner": "Microsoft.Testing.Platform"
-                }
-            }
-            """);
-
-        var data = await project.TestAndGetOutput();
-        Assert.Equal(0, data.ExitCode);
-        Assert.False(data.HasWarning("RS0030"));
-        Assert.True(data.IsMSBuildTargetExecuted("_MTPBuild"));
-    }
-
-    [Fact]
-    public async Task MTP_OnUnknownContextShouldNotAddCustomLogger()
-    {
-        Assert.SkipWhen(dotnetSdkVersion == NetSdkVersion.Net9_0, "only fully supported in .NET10+");
-
-        await using var project = CreateProjectBuilder(SdkTestName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("UseMicrosoftTestingPlatform", "true")],
-            nuGetPackages: [.. XUnit3MTP2References]
-            );
-
-        project.AddFile("Program.cs", """
-            public class Tests
-            {
-                [Fact]
-                public void Test1()
-                {
-                    Assert.Fail("failure message");
-                }
-            }
-            """);
-
-        project.AddFile("global.json", """
-            {
-                "test": {
-                    "runner": "Microsoft.Testing.Platform"
-                }
-            }
-            """);
-
-        var data = await project.TestAndGetOutput();
-
-        Assert.Equal(2, data.ExitCode);
-        Assert.True(data.OutputContains("failure message", StringComparison.Ordinal));
-        Assert.Empty(project.GetGitHubStepSummaryContent());
-        Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
-        Assert.Empty(Directory.GetFiles(project.RootFolder, "*.coverage", SearchOption.AllDirectories));
-    }
-
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public async Task MTP_SuccessTests(bool addUseMicrosoftTestingPlatformProperty)
-    {
-        Assert.SkipWhen(dotnetSdkVersion == NetSdkVersion.Net9_0, "only fully supported in .NET10+");
-
-        await using var project = CreateProjectBuilder(SdkTestName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: addUseMicrosoftTestingPlatformProperty ? [("UseMicrosoftTestingPlatform", "true")] : [],
-            nuGetPackages: [.. XUnit3MTP2References]
-            );
-
-        project.AddFile("Program.cs", """
-            public class Tests
-            {
-                [Fact]
-                public void Test1()
-                {
-                }
-            }
-            """);
-
-        project.AddFile("global.json", """
-            {
-                "test": {
-                    "runner": "Microsoft.Testing.Platform"
-                }
-            }
-            """);
-
-        var data = await project.TestAndGetOutput();
-
-        Assert.Equal(0, data.ExitCode);
-        Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
-    }
-
-    [Fact]
-    public async Task MTP_NoTest()
-    {
-        Assert.SkipWhen(dotnetSdkVersion == NetSdkVersion.Net9_0, "only fully supported in .NET10+");
-
-        await using var project = CreateProjectBuilder(SdkTestName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("UseMicrosoftTestingPlatform", "true")],
-            nuGetPackages: [.. XUnit3MTP2References]
-            );
-
-        project.AddFile("Program.cs", """
-            public class Tests
-            {
-            }
-            """);
-
-        project.AddFile("global.json", """
-            {
-                "test": {
-                    "runner": "Microsoft.Testing.Platform"
-                }
-            }
-            """);
-
-        var data = await project.TestAndGetOutput();
-
-        Assert.Equal(8, data.ExitCode);
-    }
-
-    [Fact]
     public async Task CentralPackageManagement()
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             sdk: SdkTestName,
             filename: "Sample.Tests.csproj"
-            );
+        );
 
         project.AddFile("Program.cs", """
-            Console.WriteLine();
-            """);
+                                      Console.WriteLine();
+                                      """);
 
         project.AddFile("Directory.Packages.props", """
-            <Project>
-              <PropertyGroup>
-                <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-                <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-              </PropertyGroup>
-              <ItemGroup>
-              </ItemGroup>
-            </Project>
-            """);
+                                                    <Project>
+                                                      <PropertyGroup>
+                                                        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+                                                        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+                                                      </PropertyGroup>
+                                                      <ItemGroup>
+                                                      </ItemGroup>
+                                                    </Project>
+                                                    """);
 
         var data = await project.BuildAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -976,8 +842,8 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
             properties: [("NOWARN", "$(NOWARN);NU1510")]);
 
         project.AddFile("Program.cs", """
-            Console.WriteLine();
-            """);
+                                      Console.WriteLine();
+                                      """);
 
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.Equal(1, data.ExitCode);
@@ -989,12 +855,17 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             nuGetPackages: [new NuGetReference("System.Net.Http", "4.3.3")],
-            additionalProjectElements: [new XElement("ItemGroup", new XElement("NuGetAuditSuppress", new XAttribute("Include", "https://github.com/advisories/GHSA-7jgj-8wvc-jh57")))],
+            additionalProjectElements:
+            [
+                new XElement("ItemGroup",
+                    new XElement("NuGetAuditSuppress",
+                        new XAttribute("Include", "https://github.com/advisories/GHSA-7jgj-8wvc-jh57")))
+            ],
             properties: [("NOWARN", "$(NOWARN);NU1510")]);
 
         project.AddFile("Program.cs", """
-            Console.WriteLine();
-            """);
+                                      Console.WriteLine();
+                                      """);
 
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
         Assert.Equal(0, data.ExitCode);
@@ -1008,14 +879,14 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
             sdk: SdkName,
             filename: "Meziantou.Sample.csproj",
             properties: [("OutputType", "library")]
-            );
+        );
 
         project.AddFile("Class1.cs", """
-            namespace Meziantou.Sample;
-            public static class Class1
-            {
-            }
-            """);
+                                     namespace Meziantou.Sample;
+                                     public static class Class1
+                                     {
+                                     }
+                                     """);
 
         await project.ExecuteGitCommand("init");
         await project.ExecuteGitCommand("add", ".");
@@ -1047,11 +918,11 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(rootSdk: "Microsoft.NET.Sdk.Web");
 
         project.AddFile("Program.cs", """
-            using Meziantou.AspNetCore.ServiceDefaults;
+                                      using Meziantou.AspNetCore.ServiceDefaults;
 
-            var builder = WebApplication.CreateBuilder();
-            builder.UseMeziantouConventions();
-            """);
+                                      var builder = WebApplication.CreateBuilder();
+                                      builder.UseMeziantouConventions();
+                                      """);
 
         var data = await project.BuildAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
         Assert.Equal(0, data.ExitCode);
@@ -1064,12 +935,12 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddCsprojFile(rootSdk: "Microsoft.NET.Sdk.Web");
 
         project.AddFile("Program.cs", """
-            using Meziantou.AspNetCore.ServiceDefaults;
+                                      using Meziantou.AspNetCore.ServiceDefaults;
 
-            var builder = WebApplication.CreateBuilder();
-            var app = builder.Build();
-            return app.Services.GetService<MeziantouServiceDefaultsOptions>() is not null ? 0 : 1;
-            """);
+                                      var builder = WebApplication.CreateBuilder();
+                                      var app = builder.Build();
+                                      return app.Services.GetService<MeziantouServiceDefaultsOptions>() is not null ? 0 : 1;
+                                      """);
 
         var data = await project.RunAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -1084,12 +955,12 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
             properties: [("AutoRegisterServiceDefaults", "false")]);
 
         project.AddFile("Program.cs", """
-            using Meziantou.AspNetCore.ServiceDefaults;
+                                      using Meziantou.AspNetCore.ServiceDefaults;
 
-            var builder = WebApplication.CreateBuilder();
-            var app = builder.Build();
-            return app.Services.GetService<MeziantouServiceDefaultsOptions>() is not null ? 0 : 1;
-            """);
+                                      var builder = WebApplication.CreateBuilder();
+                                      var app = builder.Build();
+                                      return app.Services.GetService<MeziantouServiceDefaultsOptions>() is not null ? 0 : 1;
+                                      """);
 
         var data = await project.RunAndGetOutput();
         Assert.NotEqual(0, data.ExitCode);
@@ -1107,12 +978,13 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         project.AddDirectoryBuildPropsFile(postSdkContent: "", sdkName: sdkName);
 
         project.AddFile("Program.cs", """
-            Console.WriteLine();
-            """);
+                                      Console.WriteLine();
+                                      """);
 
         var data = await project.BuildAndGetOutput();
         Assert.Equal(0, data.ExitCode);
-        var dllPath = Directory.GetFiles(project.RootFolder / "bin" / "Debug", "Sample.Tests.dll", SearchOption.AllDirectories).Single();
+        var dllPath = Directory
+            .GetFiles(project.RootFolder / "bin" / "Debug", "Sample.Tests.dll", SearchOption.AllDirectories).Single();
 
         await using var assembly = File.OpenRead(dllPath);
         using var reader = new PEReader(assembly);
@@ -1121,7 +993,10 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         {
             var customAttribute = metadata.GetCustomAttribute(attrHandle);
             var attributeType = customAttribute.Constructor;
-            var typeName = metadata.GetString(metadata.GetTypeReference((TypeReferenceHandle)metadata.GetMemberReference(((MemberReferenceHandle)attributeType)).Parent).Name);
+            var typeName = metadata.GetString(metadata
+                .GetTypeReference(
+                    (TypeReferenceHandle)metadata.GetMemberReference(((MemberReferenceHandle)attributeType)).Parent)
+                .Name);
             if (typeName is "AssemblyMetadataAttribute")
             {
                 var blobReader = metadata.GetBlobReader(customAttribute.Value);
@@ -1153,20 +1028,20 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
             properties: [(propName, version)]);
 
         project.AddFile("Program.cs", """
-            Console.WriteLine();
-            """);
+                                      Console.WriteLine();
+                                      """);
 
         var data = await project.BuildAndGetOutput();
         Assert.Equal(0, data.ExitCode);
-        var dllPath = Directory.GetFiles(project.RootFolder / "bin" / "Debug", "Sample.Tests.dll", SearchOption.AllDirectories).Single();
+        var dllPath = Directory
+            .GetFiles(project.RootFolder / "bin" / "Debug", "Sample.Tests.dll", SearchOption.AllDirectories).Single();
 
         var expectedVersion = version;
         if (string.IsNullOrEmpty(expectedVersion))
         {
             expectedVersion = dotnetSdkVersion switch
             {
-                NetSdkVersion.Net9_0 => "net9.0",
-                NetSdkVersion.Net10_0 => "net10.0",
+                NetSdkVersion.Net100 => "net10.0",
                 _ => throw new NotSupportedException(),
             };
         }
@@ -1178,7 +1053,10 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
         {
             var customAttribute = metadata.GetCustomAttribute(attrHandle);
             var attributeType = customAttribute.Constructor;
-            var typeName = metadata.GetString(metadata.GetTypeReference((TypeReferenceHandle)metadata.GetMemberReference(((MemberReferenceHandle)attributeType)).Parent).Name);
+            var typeName = metadata.GetString(metadata
+                .GetTypeReference(
+                    (TypeReferenceHandle)metadata.GetMemberReference(((MemberReferenceHandle)attributeType)).Parent)
+                .Name);
             if (typeName is "TargetFrameworkAttribute")
             {
                 var blobReader = metadata.GetBlobReader(customAttribute.Value);
@@ -1201,15 +1079,15 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
 
         project.AddFile("Program.cs", "Console.WriteLine();");
         project.AddFile("package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                        {
+                                          "name": "sample",
+                                          "version": "1.0.0",
+                                          "private": true,
+                                          "devDependencies": {
+                                            "is-number": "7.0.0"
+                                          }
+                                        }
+                                        """);
 
         var data = await project.BuildAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -1227,15 +1105,15 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
 
         project.AddFile("Program.cs", "Console.WriteLine();");
         project.AddFile("package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                        {
+                                          "name": "sample",
+                                          "version": "1.0.0",
+                                          "private": true,
+                                          "devDependencies": {
+                                            "is-number": "7.0.0"
+                                          }
+                                        }
+                                        """);
 
         var data = await project.RestoreAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -1251,20 +1129,20 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
 
         var csprojFile = project.AddFile("Program.cs", "Console.WriteLine();");
         var slnFile = project.AddFile("sample.slnx", """
-            <Solution>
-                <Project Path="sample.csproj" />
-            </Solution>
-            """);
+                                                     <Solution>
+                                                         <Project Path="sample.csproj" />
+                                                     </Solution>
+                                                     """);
         project.AddFile("package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                        {
+                                          "name": "sample",
+                                          "version": "1.0.0",
+                                          "private": true,
+                                          "devDependencies": {
+                                            "is-number": "7.0.0"
+                                          }
+                                        }
+                                        """);
 
         var data = await project.BuildAndGetOutput([slnFile]);
         Assert.Equal(0, data.ExitCode);
@@ -1282,20 +1160,20 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
 
         var csprojFile = project.AddFile("Program.cs", "Console.WriteLine();");
         var slnFile = project.AddFile("sample.slnx", """
-            <Solution>
-                <Project Path="sample.csproj" />
-            </Solution>
-            """);
+                                                     <Solution>
+                                                         <Project Path="sample.csproj" />
+                                                     </Solution>
+                                                     """);
         project.AddFile("package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                        {
+                                          "name": "sample",
+                                          "version": "1.0.0",
+                                          "private": true,
+                                          "devDependencies": {
+                                            "is-number": "7.0.0"
+                                          }
+                                        }
+                                        """);
 
         var data = await project.ExecuteDotnetCommandAndGetOutput(command, [slnFile]);
         Assert.Equal(0, data.ExitCode);
@@ -1309,33 +1187,34 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
     {
         await using var project = CreateProjectBuilder(SdkWebName);
         project.AddCsprojFile(
-            additionalProjectElements: [
+            additionalProjectElements:
+            [
                 new XElement("ItemGroup",
                     new XElement("NpmPackageFile", new XAttribute("Include", "a/package.json")),
                     new XElement("NpmPackageFile", new XAttribute("Include", "b/package.json")))
-                ]);
+            ]);
 
         project.AddFile("Program.cs", "Console.WriteLine();");
         project.AddFile("a/package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                          {
+                                            "name": "sample",
+                                            "version": "1.0.0",
+                                            "private": true,
+                                            "devDependencies": {
+                                              "is-number": "7.0.0"
+                                            }
+                                          }
+                                          """);
         project.AddFile("b/package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                          {
+                                            "name": "sample",
+                                            "version": "1.0.0",
+                                            "private": true,
+                                            "devDependencies": {
+                                              "is-number": "7.0.0"
+                                            }
+                                          }
+                                          """);
 
         var data = await project.RestoreAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -1353,15 +1232,15 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
 
         project.AddFile("Program.cs", "Console.WriteLine();");
         project.AddFile("package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                        {
+                                          "name": "sample",
+                                          "version": "1.0.0",
+                                          "private": true,
+                                          "devDependencies": {
+                                            "is-number": "7.0.0"
+                                          }
+                                        }
+                                        """);
 
         var data = await project.BuildAndGetOutput(["/p:RestoreLockedMode=true"]);
         Assert.Equal(1, data.ExitCode);
@@ -1377,43 +1256,43 @@ public abstract class SdkTests(PackageFixture fixture, ITestOutputHelper testOut
 
         project.AddFile("Program.cs", "Console.WriteLine();");
         project.AddFile("package.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "private": true,
-              "devDependencies": {
-                "is-number": "7.0.0"
-              }
-            }
-            """);
+                                        {
+                                          "name": "sample",
+                                          "version": "1.0.0",
+                                          "private": true,
+                                          "devDependencies": {
+                                            "is-number": "7.0.0"
+                                          }
+                                        }
+                                        """);
         project.AddFile("package-lock.json", """
-            {
-              "name": "sample",
-              "version": "1.0.0",
-              "lockfileVersion": 3,
-              "requires": true,
-              "packages": {
-                "": {
-                  "name": "sample",
-                  "version": "1.0.0",
-                  "devDependencies": {
-                    "is-number": "7.0.0"
-                  }
-                },
-                "node_modules/is-number": {
-                  "version": "7.0.0",
-                  "resolved": "https://registry.npmjs.org/is-number/-/is-number-7.0.0.tgz",
-                  "integrity": "sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==",
-                  "dev": true,
-                  "license": "MIT",
-                  "engines": {
-                    "node": ">=0.12.0"
-                  }
-                }
-              }
-            }
+                                             {
+                                               "name": "sample",
+                                               "version": "1.0.0",
+                                               "lockfileVersion": 3,
+                                               "requires": true,
+                                               "packages": {
+                                                 "": {
+                                                   "name": "sample",
+                                                   "version": "1.0.0",
+                                                   "devDependencies": {
+                                                     "is-number": "7.0.0"
+                                                   }
+                                                 },
+                                                 "node_modules/is-number": {
+                                                   "version": "7.0.0",
+                                                   "resolved": "https://registry.npmjs.org/is-number/-/is-number-7.0.0.tgz",
+                                                   "integrity": "sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==",
+                                                   "dev": true,
+                                                   "license": "MIT",
+                                                   "engines": {
+                                                     "node": ">=0.12.0"
+                                                   }
+                                                 }
+                                               }
+                                             }
 
-            """);
+                                             """);
 
         var data = await project.BuildAndGetOutput([command]);
         Assert.Equal(0, data.ExitCode);

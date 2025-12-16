@@ -1,6 +1,6 @@
 using Meziantou.Framework;
 
-namespace Meziantou.Sdk.Tests.Helpers;
+namespace ANcpLua.Sdk.Tests.Helpers;
 
 internal static class PathHelpers
 {

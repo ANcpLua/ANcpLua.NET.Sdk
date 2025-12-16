@@ -10,6 +10,9 @@ namespace ANcpLua.Sdk.Tests.Helpers;
 public class PackageFixture : IAsyncLifetime
 {
     public const string SdkName = "ANcpLua.NET.Sdk";
+    public const string SdkWebName = "ANcpLua.NET.Sdk.Web";
+    public const string SdkTestName = "ANcpLua.NET.Sdk.Test";
+
 
     private readonly TemporaryDirectory _packageDirectory = TemporaryDirectory.Create();
 
@@ -42,6 +45,11 @@ public class PackageFixture : IAsyncLifetime
             .GetFiles(repoRoot["src"], "*.csproj")
             .Select(FullPath.FromPath)
             .ToList();
+
+        // Also include ANcpSdk.AspNetCore.ServiceDefaults packages from eng/ directory
+        buildFiles.Add(repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj");
+        buildFiles.Add(repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj");
+
         Assert.NotEmpty(buildFiles);
         await Parallel.ForEachAsync(buildFiles, async (nuspecPath, _) =>
         {
