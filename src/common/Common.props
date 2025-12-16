@@ -60,7 +60,7 @@
 
   <ItemGroup>
     <!-- Add all editorconfig files -->
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)\..\configuration\*.editorconfig"/>
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)configuration\*.editorconfig"/>
   </ItemGroup>
 
 </Project>

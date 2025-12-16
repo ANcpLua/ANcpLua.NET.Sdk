@@ -4,11 +4,11 @@
     <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
     <GenerateClaudeMd Condition="'$(GenerateClaudeMd)' == ''">false</GenerateClaudeMd>
 
-    <!-- Paths relative to NuGet package structure: Sdk/ -> common/ -->
-    <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../common/Common.props</CustomBeforeDirectoryBuildProps>
-    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../common/Common.targets</BeforeMicrosoftNETSdkTargets>
+    <!-- Paths relative to NuGet package structure: all content is inside Sdk/ -->
+    <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)common/Common.props</CustomBeforeDirectoryBuildProps>
+    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)common/Common.targets</BeforeMicrosoftNETSdkTargets>
   </PropertyGroup>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
-  <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'"/>
+  <Import Project="$(MSBuildThisFileDirectory)common/Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'"/>
 </Project>

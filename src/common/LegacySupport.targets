@@ -36,7 +36,7 @@
     <_NeedsNetCoreApp31Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.1'))">true</_NeedsNetCoreApp31Polyfills>
 
     <!-- Shared folder path -->
-    <_SharedSourcePath>$(MSBuildThisFileDirectory)..\shared\</_SharedSourcePath>
+    <_SharedSourcePath>$(MSBuildThisFileDirectory)shared\</_SharedSourcePath>
   </PropertyGroup>
 
   <Target Name="DebugLegacySupport" BeforeTargets="CoreCompile">

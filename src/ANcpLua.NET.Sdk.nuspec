@@ -13,17 +13,17 @@
   <files>
     <file src="Sdk/ANcpLua.NET.Sdk/Sdk.props" target="Sdk/Sdk.props"/>
     <file src="Sdk/ANcpLua.NET.Sdk/Sdk.targets" target="Sdk/Sdk.targets"/>
-    <file src="common/**/*" target="common/"/>
-    <file src="configuration/**/*" target="configuration/"/>
-    <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="analyzers"/>
-    <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers"/>
+    <file src="common/**/*" target="Sdk/common/"/>
+    <file src="configuration/**/*" target="Sdk/configuration/"/>
+    <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="Sdk/analyzers"/>
+    <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="Sdk/analyzers"/>
 
     <!-- Shared Sources -->
-    <file src="../eng/Extensions/**/*" target="shared/Extensions" exclude="**/README.md"/>
-    <file src="../eng/LegacySupport/**/*" target="shared/Polyfills" exclude="**/README.md"/>
-    <file src="../eng/MSBuild/Polyfills/**/*" target="shared/Polyfills" exclude="**/README.md"/>
-    <file src="../eng/Shared/Throw/**/*" target="shared/Throw" exclude="**/README.md"/>
-    <file src="../eng/Shared/CodeTests/**/*" target="shared/CodeTests" exclude="**/README.md"/>
+    <file src="../eng/Extensions/**/*" target="Sdk/shared/Extensions" exclude="**/README.md"/>
+    <file src="../eng/LegacySupport/**/*" target="Sdk/shared/Polyfills" exclude="**/README.md"/>
+    <file src="../eng/MSBuild/Polyfills/**/*" target="Sdk/shared/Polyfills" exclude="**/README.md"/>
+    <file src="../eng/Shared/Throw/**/*" target="Sdk/shared/Throw" exclude="**/README.md"/>
+    <file src="../eng/Shared/CodeTests/**/*" target="Sdk/shared/CodeTests" exclude="**/README.md"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>

@@ -37,8 +37,8 @@
     </PackageReference>
 
     <!-- qyl.analyzers bundled in SDK -->
-    <Analyzer Include="$(MSBuildThisFileDirectory)..\analyzers\ANcpLua.Analyzers.dll" Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\ANcpLua.Analyzers.dll')"/>
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\analyzers\ANcpLua.Analyzers.editorconfig" Condition="Exists('$(MSBuildThisFileDirectory)..\analyzers\ANcpLua.Analyzers.editorconfig')"/>
+    <Analyzer Include="$(MSBuildThisFileDirectory)analyzers\ANcpLua.Analyzers.dll" Condition="Exists('$(MSBuildThisFileDirectory)analyzers\ANcpLua.Analyzers.dll')"/>
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)analyzers\ANcpLua.Analyzers.editorconfig" Condition="Exists('$(MSBuildThisFileDirectory)analyzers\ANcpLua.Analyzers.editorconfig')"/>
 
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="4.14.0" IsImplicitlyDefined="true">
       <PrivateAssets>all</PrivateAssets>
@@ -47,8 +47,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)\..\configuration\BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)\..\configuration\BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)configuration\BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)configuration\BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
@@ -94,12 +94,12 @@
 
   <!-- NuGet Package -->
   <Choose>
-    <When Condition="'$(PackageIcon)' == '' AND '$(_IsANcpLuaProject)' == 'true' AND Exists('$(MSBuildThisFileDirectory)\..\icon.png')">
+    <When Condition="'$(PackageIcon)' == '' AND '$(_IsANcpLuaProject)' == 'true' AND Exists('$(MSBuildThisFileDirectory)icon.png')">
       <PropertyGroup>
         <PackageIcon>icon.png</PackageIcon>
       </PropertyGroup>
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)\..\icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="$(MSBuildThisFileDirectory)icon.png" Pack="true" PackagePath="" Visible="false"/>
       </ItemGroup>
     </When>
   </Choose>
