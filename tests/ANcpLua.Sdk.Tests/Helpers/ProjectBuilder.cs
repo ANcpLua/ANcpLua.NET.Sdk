@@ -250,7 +250,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         psi.Environment["DOTNET_ROOT_X64"] = Path.GetDirectoryName(psi.FileName);
         psi.Environment["DOTNET_HOST_PATH"] = psi.FileName;
         psi.Environment["NUGET_HTTP_CACHE_PATH"] = _fixture.PackageDirectory / "http-cache";
-        psi.Environment["NUGET_PACKAGES"] = _fixture.PackageDirectory / "packages";
+        psi.Environment["NUGET_PACKAGES"] = _fixture.PackageDirectory;
         psi.Environment["NUGET_SCRATCH"] = _fixture.PackageDirectory / "nuget-scratch";
         psi.Environment["NUGET_PLUGINS_CACHE_PATH"] = _fixture.PackageDirectory / "nuget-plugins-cache";
 
