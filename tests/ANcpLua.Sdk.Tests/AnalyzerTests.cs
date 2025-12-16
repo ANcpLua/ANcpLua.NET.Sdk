@@ -74,10 +74,11 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
     }
 
     [Theory]
-    [InlineData("gen_ai.system", "gen_ai.provider.name")]
-    [InlineData("gen_ai.usage.prompt_tokens", "gen_ai.usage.input_tokens")]
-    [InlineData("http.method", "http.request.method")]
-    [InlineData("db.statement", "db.query.text")]
+    [InlineData("gen_ai.system", "gen_ai.provider.name")] // v1.37.0
+    [InlineData("gen_ai.usage.prompt_tokens", "gen_ai.usage.input_tokens")] // v1.27.0
+    [InlineData("http.method", "http.request.method")] // v1.21.0
+    [InlineData("db.statement", "db.query.text")] // v1.25.0
+    [InlineData("code.function", "code.function.name")] // v1.30.0
     public async Task QYL0002_DeprecatedAttribute_In_TelemetryContext_Reports_Warning(string deprecatedAttribute, string _)
     {
         await using var project =
@@ -111,9 +112,10 @@ public class AnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputH
     }
 
     [Theory]
-    [InlineData("gen_ai.provider.name")]
-    [InlineData("http.request.method")]
-    [InlineData("db.query.text")]
+    [InlineData("gen_ai.provider.name")] // current GenAI
+    [InlineData("http.request.method")] // current HTTP
+    [InlineData("db.query.text")] // current DB
+    [InlineData("code.function.name")] // current Code
     public async Task QYL0002_CurrentAttribute_No_Warning(string currentAttribute)
     {
         await using var project =
