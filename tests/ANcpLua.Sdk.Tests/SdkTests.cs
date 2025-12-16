@@ -108,7 +108,7 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(properties: [("ContinuousIntegrationBuild", "true")]);
         project.AddFile("Program.cs", "Console.WriteLine();");
-        var data = await project.PackAndGetOutput();
+        var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
         data.AssertMsBuildPropertyValue("GenerateSBOM", "true");
 
         var nupkg = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
@@ -122,7 +122,7 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile();
         project.AddFile("Program.cs", "Console.WriteLine();");
-        var data = await project.PackAndGetOutput();
+        var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
         var nupkg = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var archive = ZipFile.OpenRead(nupkg);
@@ -671,7 +671,7 @@ public abstract class SdkTests(
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.NotEqual("meziantou", nuspecReader.GetAuthors());
+        Assert.NotEqual("ANcpLua", nuspecReader.GetAuthors());
         Assert.NotEqual("icon.png", nuspecReader.GetIcon());
         Assert.DoesNotContain("icon.png", packageReader.GetFiles());
     }
@@ -689,7 +689,7 @@ public abstract class SdkTests(
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.Equal("meziantou", nuspecReader.GetAuthors());
+        Assert.Equal("ANcpLua", nuspecReader.GetAuthors());
         Assert.Equal("icon.png", nuspecReader.GetIcon());
         Assert.Contains("icon.png", packageReader.GetFiles());
         Assert.Contains("LICENSE.txt", packageReader.GetFiles());
@@ -877,12 +877,12 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             sdk: SdkName,
-            filename: "Meziantou.Sample.csproj",
+            filename: "ANcpLua.Sample.csproj",
             properties: [("OutputType", "library")]
         );
 
         project.AddFile("Class1.cs", """
-                                     namespace Meziantou.Sample;
+                                     namespace ANcpLua.Sample;
                                      public static class Class1
                                      {
                                      }
@@ -891,7 +891,7 @@ public abstract class SdkTests(
         await project.ExecuteGitCommand("init");
         await project.ExecuteGitCommand("add", ".");
         await project.ExecuteGitCommand("commit", "-m", "sample");
-        await project.ExecuteGitCommand("remote", "add", "origin", "https://github.com/meziantou/sample.git");
+        await project.ExecuteGitCommand("remote", "add", "origin", "https://github.com/ancplua/sample.git");
 
         var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
         Assert.Equal(0, data.ExitCode);
@@ -900,13 +900,13 @@ public abstract class SdkTests(
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.Equal("meziantou", nuspecReader.GetAuthors());
+        Assert.Equal("ANcpLua", nuspecReader.GetAuthors());
         Assert.Equal("icon.png", nuspecReader.GetIcon());
         Assert.Equal(LicenseType.Expression, nuspecReader.GetLicenseMetadata().Type);
         Assert.Equal(LicenseExpressionType.License, nuspecReader.GetLicenseMetadata().LicenseExpression.Type);
         Assert.Equal("MIT", ((NuGetLicense)nuspecReader.GetLicenseMetadata().LicenseExpression).Identifier);
         Assert.Equal("git", nuspecReader.GetRepositoryMetadata().Type);
-        Assert.Equal("https://github.com/meziantou/sample.git", nuspecReader.GetRepositoryMetadata().Url);
+        Assert.Equal("https://github.com/ancplua/sample.git", nuspecReader.GetRepositoryMetadata().Url);
         Assert.Equal("refs/heads/main", nuspecReader.GetRepositoryMetadata().Branch);
         Assert.NotEmpty(nuspecReader.GetRepositoryMetadata().Commit);
     }
@@ -918,10 +918,10 @@ public abstract class SdkTests(
         project.AddCsprojFile(rootSdk: "Microsoft.NET.Sdk.Web");
 
         project.AddFile("Program.cs", """
-                                      using Meziantou.AspNetCore.ServiceDefaults;
+                                      using ANcpSdk.AspNetCore.ServiceDefaults;
 
                                       var builder = WebApplication.CreateBuilder();
-                                      builder.UseMeziantouConventions();
+                                      builder.UseANcpSdkConventions();
                                       """);
 
         var data = await project.BuildAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
@@ -935,11 +935,11 @@ public abstract class SdkTests(
         project.AddCsprojFile(rootSdk: "Microsoft.NET.Sdk.Web");
 
         project.AddFile("Program.cs", """
-                                      using Meziantou.AspNetCore.ServiceDefaults;
+                                      using ANcpSdk.AspNetCore.ServiceDefaults;
 
                                       var builder = WebApplication.CreateBuilder();
                                       var app = builder.Build();
-                                      return app.Services.GetService<MeziantouServiceDefaultsOptions>() is not null ? 0 : 1;
+                                      return app.Services.GetService<ANcpSdkServiceDefaultsOptions>() is not null ? 0 : 1;
                                       """);
 
         var data = await project.RunAndGetOutput();
@@ -955,11 +955,11 @@ public abstract class SdkTests(
             properties: [("AutoRegisterServiceDefaults", "false")]);
 
         project.AddFile("Program.cs", """
-                                      using Meziantou.AspNetCore.ServiceDefaults;
+                                      using ANcpSdk.AspNetCore.ServiceDefaults;
 
                                       var builder = WebApplication.CreateBuilder();
                                       var app = builder.Build();
-                                      return app.Services.GetService<MeziantouServiceDefaultsOptions>() is not null ? 0 : 1;
+                                      return app.Services.GetService<ANcpSdkServiceDefaultsOptions>() is not null ? 0 : 1;
                                       """);
 
         var data = await project.RunAndGetOutput();
