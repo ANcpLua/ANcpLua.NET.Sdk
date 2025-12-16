@@ -57,7 +57,7 @@ Enforces best practices via `BannedSymbols.txt`:
 | `System.Tuple`                         | `ValueTuple`                      |
 | `Math.Round` (no rounding mode)        | Overload with `MidpointRounding`  |
 | Local time file APIs                   | UTC variants                      |
-| Newtonsoft.Json                        | System.Text.Json                  |
+| Newtonsoft.Json                        | System.Text.J son                 |
 
 ### ANcpLua.Analyzers (Bundled)
 
