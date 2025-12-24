@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <!-- ANcpLua.Analyzers - now from NuGet package -->
-    <PackageReference Include="ANcpLua.Analyzers" Version="1.0.1" IsImplicitlyDefined="true">
+    <PackageReference Include="ANcpLua.Analyzers" Version="1.0.2" IsImplicitlyDefined="true">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
