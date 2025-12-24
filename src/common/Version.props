@@ -7,6 +7,6 @@
     This ensures all SDK packages reference the same version.
   -->
   <PropertyGroup>
-    <ANcpSdkPackageVersion>999.9.9</ANcpSdkPackageVersion>
+    <ANcpSdkPackageVersion>1.2.0</ANcpSdkPackageVersion>
   </PropertyGroup>
 </Project>

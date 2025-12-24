@@ -66,7 +66,7 @@ public static class RepositoryPaths
     public const string DiagnosticClassesPolyfill = "eng/MSBuild/Polyfills/DiagnosticClasses.cs";
     public const string TimeProviderPolyfill = "eng/LegacySupport/TimeProvider/TimeProvider.cs";
     public const string IndexPolyfill = "eng/LegacySupport/IndexRange/Index.cs";
-    public const string IsExternalInitPolyfill = "eng/LegacySupport/LanguageFeatures/IsExternalInit.cs";
+    public const string IsExternalInitPolyfill = "eng/LegacySupport/IsExternalInit/IsExternalInit.cs";
     public const string RequiredMemberPolyfill = "eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs";
 
     public const string CompilerFeatureRequiredPolyfill =

@@ -26,7 +26,7 @@
     <!-- Language Features -->
     <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" Link="Polyfills/RequiredMemberAttribute.cs"/>
     <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" Link="Polyfills/CompilerFeatureRequiredAttribute.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/IsExternalInit.cs" Link="Polyfills/IsExternalInit.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IsExternalInit/IsExternalInit.cs" Link="Polyfills/IsExternalInit.cs"/>
     <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" Link="Polyfills/CallerArgumentExpressionAttribute.cs"/>
     <!-- Index/Range for slicing -->
     <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/IndexRange/Index.cs" Link="Polyfills/Index.cs"/>
