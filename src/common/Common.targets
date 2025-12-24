@@ -34,9 +34,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- qyl.analyzers bundled in SDK -->
-    <Analyzer Include="$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.dll" Condition="Exists('$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.dll')"/>
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.editorconfig" Condition="Exists('$(MSBuildThisFileDirectory)../analyzers/ANcpLua.Analyzers.editorconfig')"/>
+    <!-- ANcpLua.Analyzers - now from NuGet package -->
+    <PackageReference Include="ANcpLua.Analyzers" Version="1.0.1" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
 
     <PackageReference Include="Microsoft.Sbom.Targets" Version="4.1.5" IsImplicitlyDefined="true">
       <PrivateAssets>all</PrivateAssets>

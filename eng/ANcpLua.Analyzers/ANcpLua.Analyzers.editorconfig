@@ -1,8 +1,0 @@
-# qyl.analyzers severity configuration
-is_global = true
-
-# QYL0001: Use Lock.EnterScope() instead of lock keyword
-dotnet_diagnostic.QYL0001.severity = warning
-
-# QYL0002: Deprecated GenAI attribute (OTel 1.38)
-dotnet_diagnostic.QYL0002.severity = warning
