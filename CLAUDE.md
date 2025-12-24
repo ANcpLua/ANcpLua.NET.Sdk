@@ -103,8 +103,31 @@ tests/ANcpLua.Sdk.Tests/
 | `InjectLockPolyfill` | System.Threading.Lock |
 | `InjectTimeProviderPolyfill` | System.TimeProvider |
 
-## SourceGen Helpers
+## SourceGen Helpers (Roslyn.Utilities Embedding)
 
+Source generators cannot reference NuGet packages at runtime, so utilities must be embedded as source.
+
+### Submodule Location
+```
+eng/submodules/Roslyn.Utilities/  ← Git submodule (ANcpLua.Roslyn.Utilities repo)
+```
+
+### Transformation Process
+```bash
+# Run before `dotnet pack`
+pwsh eng/scripts/Transform-RoslynUtilities.ps1
+```
+
+**Transformations applied:**
+| Original | Transformed |
+|----------|-------------|
+| `namespace ANcpLua.Roslyn.Utilities` | `namespace ANcpLua.SourceGen` |
+| `public static class` | `internal static class` |
+| (none) | Wrapped in `#if ANCPLUA_SOURCEGEN_HELPERS` |
+
+**Output:** `eng/.generated/SourceGen/` (gitignored, regenerated on build)
+
+### What Gets Embedded
 When `InjectSourceGenHelpers=true`:
 - `EquatableArray<T>` - Value-equal ImmutableArray wrapper (critical for caching)
 - `SymbolExtensions` - HasAttribute, GetAttribute, IsOrInheritsFrom
@@ -112,9 +135,11 @@ When `InjectSourceGenHelpers=true`:
 - `SemanticModelExtensions` - IsConstant, GetConstantValueOrDefault
 - `LocationInfo/DiagnosticInfo` - Cache-safe diagnostic patterns
 
-**Why embedded?** Source generators cannot reference NuGet packages. Standard industry pattern.
+### SDK-Specific Extensions
+Files in `eng/Extensions/SourceGen/` are SDK-specific and NOT from the submodule:
+- Additional helpers specific to SDK use cases
 
-**For non-generators:** Reference `ANcpLua.Roslyn.Utilities` NuGet directly.
+**For non-generators:** Reference `ANcpLua.Roslyn.Utilities` NuGet directly instead of embedding.
 
 ## Pending Work
 
