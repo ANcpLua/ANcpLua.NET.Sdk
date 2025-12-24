@@ -149,7 +149,7 @@ The test suite simulates an environment where the SDK is packed and consumed. To
 
 ```bash
 # 1. Ensure artifacts are built (if running for the first time)
-# Note: The test fixture will auto-build if artifacts/nuget is empty, 
+# Note: The test fixture will auto-build if artifacts/nuget is empty,
 # but for optimal performance, set up the environment variables.
 
 # 2. Run tests pointing to the artifacts directory
