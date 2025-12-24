@@ -16,10 +16,10 @@ Replace your SDK reference:
 
 ```xml
 <!-- Libraries / Console / Workers -->
-<Project Sdk="ANcpLua.NET.Sdk/1.1.2"></Project>
+<Project Sdk="ANcpLua.NET.Sdk/1.2.0"></Project>
 
-        <!-- Web APIs / ASP.NET Core -->
-<Project>Sdk="ANcpLua.NET.Sdk.Web/1.1.2"</Project>
+<!-- Web APIs / ASP.NET Core -->
+<Project Sdk="ANcpLua.NET.Sdk.Web/1.2.0"></Project>
 ```
 
 Or use `global.json` for centralized version management:
@@ -27,8 +27,8 @@ Or use `global.json` for centralized version management:
 ```json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "1.1.2",
-    "ANcpLua.NET.Sdk.Web": "1.1.2"
+    "ANcpLua.NET.Sdk": "1.2.0",
+    "ANcpLua.NET.Sdk.Web": "1.2.0"
   }
 }
 ```
@@ -57,14 +57,19 @@ Enforces best practices via `BannedSymbols.txt`:
 | `System.Tuple`                         | `ValueTuple`                      |
 | `Math.Round` (no rounding mode)        | Overload with `MidpointRounding`  |
 | Local time file APIs                   | UTC variants                      |
-| Newtonsoft.Json                        | System.Text.J son                 |
+| Newtonsoft.Json                        | System.Text.Json                  |
 
 ### ANcpLua.Analyzers (Bundled)
 
-| Rule    | Description                                            |
-|---------|--------------------------------------------------------|
-| QYL0001 | `lock` keyword → Use `Lock.EnterScope()` (.NET 9+)     |
-| QYL0002 | Deprecated OTel GenAI attributes → Use OTel 1.38 names |
+| Rule   | Severity | Description                                          |
+|--------|----------|------------------------------------------------------|
+| AL0001 | Error    | Prohibit reassignment of primary constructor params  |
+| AL0003 | Error    | Don't divide by constant zero                        |
+| AL0011 | Warning  | Avoid `lock` on non-Lock types (.NET 9+)             |
+| AL0012 | Warning  | Deprecated OTel semantic convention attribute        |
+| AL0013 | Info     | Missing telemetry schema URL                         |
+
+See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 13 rules.
 
 ### Extensions (Auto-Enabled by Default)
 
@@ -81,7 +86,25 @@ Enforces best practices via `BannedSymbols.txt`:
 |-------------------------------|--------------------------------------------------------------|---------|
 | `InjectStringOrdinalComparer` | Injects internal `StringOrdinalComparer`                     | `false` |
 | `InjectFakeLogger`            | Injects `FakeLoggerExtensions` (requires `FakeLogCollector`) | `false` |
-| `InjectSourceGenHelpers`      | Injects Roslyn symbol extensions                             | `false` |
+| `InjectSourceGenHelpers`      | Roslyn source generator utilities ([details](eng/Extensions/SourceGen/README.md)) | `false` |
+
+<details>
+<summary><b>SourceGen Helpers</b> - what's included</summary>
+
+- `EquatableArray<T>` - IEquatable wrapper for ImmutableArray (incremental generator caching)
+- `DiagnosticInfo` / `DiagnosticsExtensions` - Simplified diagnostic creation
+- `SymbolExtensions` - `HasAttribute`, `GetAttribute`, `IsOrInheritsFrom`, `ImplementsInterface`, `GetMethod`, `GetProperty`
+- `SyntaxExtensions` - `GetMethodName`, `GetIdentifierName`, `HasModifier`
+- `SemanticModelExtensions` - `IsConstant`, `AllConstant`, `GetConstantValueOrDefault`
+- `CompilationExtensions` - `IsCSharp9OrGreater`, `IsCSharp10OrGreater`, `IsCSharp11OrGreater`
+- `SyntaxValueProvider` helpers - `ForClassesWithAttribute`, `ForMethodsWithAttribute`
+- `EnumerableExtensions` - `SelectManyOrEmpty`, `OrEmpty`, `ToImmutableArrayOrEmpty`, `HasDuplicates`
+- `FileExtensions` - `WriteIfChangedAsync` (avoid unnecessary file writes)
+- `LocationInfo`, `EquatableMessageArgs` - Equatable records for caching
+
+**Note:** For analyzers, CLI tools, or test projects, use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead. The embedded source approach is specifically for source generators which cannot easily reference NuGet packages.
+
+</details>
 
 ### Polyfills (Opt-in for Legacy TFMs)
 
@@ -154,7 +177,7 @@ The test suite simulates an environment where the SDK is packed and consumed. To
 
 # 2. Run tests pointing to the artifacts directory
 export CI=true
-export NUGET_DIRECTORY="$(pwd)/artifacts/nuget"
+export NUGET_DIRECTORY="$(pwd)/artifacts"
 dotnet test tests/ANcpLua.Sdk.Tests
 ```
 

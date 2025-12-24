@@ -1,0 +1,3 @@
+[submodule "eng/submodules/Roslyn.Utilities"]
+	path = eng/submodules/Roslyn.Utilities
+	url = https://github.com/ANcpLua/ANcpLua.Roslyn.Utilities.git

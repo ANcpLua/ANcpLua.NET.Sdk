@@ -33,8 +33,7 @@ $VersionPropsContent = @"
 Set-Content -Path $VersionPropsPath -Value $VersionPropsContent -Encoding UTF8
 Write-Host "Generated $VersionPropsPath with version $Version"
 
-# Build Analyzers first
-dotnet build eng/ANcpLua.Analyzers/ANcpLua.Analyzers.csproj -c Release
+# ANcpLua.Analyzers now comes from NuGet package (no local build needed)
 
 # Pack NuGet packages
 dotnet pack src/ANcpLua.NET.Sdk.csproj -c Release -o artifacts @Args

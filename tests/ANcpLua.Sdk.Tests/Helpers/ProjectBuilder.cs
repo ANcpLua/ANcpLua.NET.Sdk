@@ -47,7 +47,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
                                                        </packageSources>
                                                        <packageSourceMapping>
                                                            <packageSource key="TestSource">
-                                                               <package pattern="ANcpLua.*" />
+                                                               <package pattern="ANcpLua.NET.Sdk*" />
                                                                <package pattern="ANcpSdk.*" />
                                                            </packageSource>
                                                            <packageSource key="nuget.org">

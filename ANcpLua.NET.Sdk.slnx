@@ -5,7 +5,6 @@
         <Project Path="src/ANcpLua.NET.Sdk.Test.csproj"/>
     </Folder>
     <Folder Name="/eng/">
-        <Project Path="eng/ANcpLua.Analyzers/ANcpLua.Analyzers.csproj"/>
         <Project Path="eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj"/>
         <Project
                 Path="eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"/>

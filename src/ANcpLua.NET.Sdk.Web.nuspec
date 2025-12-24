@@ -32,8 +32,7 @@
     <file src="configuration/BannedSymbols.txt" target="configuration/"/>
     <file src="configuration/BannedSymbols.NewtonsoftJson.txt" target="configuration/"/>
     <file src="configuration/default.runsettings" target="configuration/"/>
-    <file src="../eng/ANcpLua.Analyzers/bin/Release/netstandard2.0/ANcpLua.Analyzers.dll" target="analyzers/"/>
-    <file src="../eng/ANcpLua.Analyzers/ANcpLua.Analyzers.editorconfig" target="analyzers/"/>
+    <!-- ANcpLua.Analyzers now comes from NuGet package (PackageReference in Common.targets) -->
 
     <!-- Shared Sources - Polyfills from LegacySupport (fully explicit paths) -->
     <file src="../eng/LegacySupport/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>

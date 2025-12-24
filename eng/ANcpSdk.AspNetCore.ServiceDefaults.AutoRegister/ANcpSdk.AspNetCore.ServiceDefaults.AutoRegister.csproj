@@ -9,6 +9,7 @@
     <PackageId>ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister</PackageId>
     <Authors>ANcpLua</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/ANcpLua/ANcpLua.NET.Sdk</RepositoryUrl>
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -36,6 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="/"/>
     <None Include="ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.targets" Pack="true" PackagePath="build/"/>
     <None Include="bin\Release\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
   </ItemGroup>

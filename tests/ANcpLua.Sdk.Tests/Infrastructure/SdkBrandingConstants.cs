@@ -1,7 +1,7 @@
 // ============================================================================
 // CRITICAL: ALL SDK BRANDING STRINGS MUST COME FROM HERE
 //
-// DO NOT hardcode "Meziantou", "meziantou", or any legacy names anywhere.
+// DO NOT hardcode "randomanme", "wellknownname",  names anywhere.
 // This file is the SINGLE SOURCE OF TRUTH for all branding.
 //
 // History: 7 hours lost debugging because of hardcoded legacy names (2024-12-16)

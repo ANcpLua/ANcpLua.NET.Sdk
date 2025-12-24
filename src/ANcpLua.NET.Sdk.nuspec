@@ -41,7 +41,7 @@
           target="shared/Polyfills/LanguageFeatures/"/>
     <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs"
           target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/IsExternalInit/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs"
           target="shared/Polyfills/LanguageFeatures/"/>
     <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs"
@@ -76,16 +76,12 @@
     <file src="../eng/Shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
     <file src="../eng/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
     <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
-    <file src="../eng/Extensions/SourceGen/AnalyzerConfigOptionsProviderExtensions.cs"
-          target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/CompilationExtensions.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/DiagnosticInfo.cs" target="shared/Extensions/SourceGen/"/>
+    <!-- SourceGen files from Roslyn.Utilities (transformed) -->
+    <file src="../eng/.generated/SourceGen/*.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/.generated/SourceGen/Models/*.cs" target="shared/Extensions/SourceGen/Models/"/>
+
+    <!-- SDK-specific SourceGen files -->
     <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/EquatableArray.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/EquatableMessageArgs.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/LocationInfo.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/SourceProductionContextExtensions.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/SymbolExtensions.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
 
     <file src="../LICENSE.txt" target=""/>
