@@ -28,7 +28,7 @@ await GenerateBanSymbolsForNewtonsoftJson();
 Console.WriteLine($"{writtenFiles} configuration files written");
 if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color").WaitForExit();
 
-return writtenFiles;
+return 0; // Success - writtenFiles count is informational only
 
 async Task GenerateEditorConfigForAnalyzers()
 {
