@@ -116,6 +116,25 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         _sdkVersion = dotnetSdkVersion;
     }
 
+    /// <summary>
+    /// Enables Microsoft.Testing.Platform mode for test projects that use MTP packages.
+    /// Required for .NET 10+ when using xunit.v3.mtp-*, TUnit, or other MTP-based frameworks.
+    /// </summary>
+    public void EnableMtpMode()
+    {
+        _directory.CreateTextFile("global.json", """
+                                                 {
+                                                   "sdk": {
+                                                     "rollForward": "latestMinor",
+                                                     "version": "10.0.100"
+                                                   },
+                                                   "test": {
+                                                     "runner": "Microsoft.Testing.Platform"
+                                                   }
+                                                 }
+                                                 """);
+    }
+
     private string GetSdkElementContent(string sdkName)
     {
         return $"""<Sdk Name="{sdkName}" Version="{_fixture.Version}" />""";

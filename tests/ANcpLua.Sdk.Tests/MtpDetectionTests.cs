@@ -196,6 +196,7 @@ public abstract class MtpDetectionTests(
     public async Task XUnit3MtpV2_TestRuns()
     {
         await using var project = CreateProjectBuilder();
+        project.EnableMtpMode(); // Required for .NET 10+ with MTP packages
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             nuGetPackages: [.. XUnit3MtpV2Packages]
