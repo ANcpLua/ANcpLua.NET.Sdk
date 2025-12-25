@@ -12,8 +12,8 @@
     </PropertyGroup>
   </Target>
 
-  <!-- MTP -->
-  <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true' OR ('$(UseMicrosoftTestingPlatform)' == '' AND @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true')">
+  <!-- MTP v2 Extensions (all frameworks: xunit, NUnit, MSTest, TUnit) -->
+  <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">
     <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="2.0.2" IsImplicitlyDefined="true"/>
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" IsImplicitlyDefined="true"/>
     <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="2.0.2" IsImplicitlyDefined="true"/>
@@ -30,8 +30,8 @@
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --minimum-expected-tests 1</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
-  <!-- VSTest -->
-  <ItemGroup Condition="!('$(UseMicrosoftTestingPlatform)' == 'true' OR ('$(UseMicrosoftTestingPlatform)' == '' AND @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'))">
+  <!-- VSTest fallback (only when NOT using MTP) -->
+  <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" IsImplicitlyDefined="true"/>
   </ItemGroup>
 
@@ -93,14 +93,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\IntegrationTests\*.cs" LinkBase="ANcpLua.Generated\IntegrationTests" Visible="false"/>
   </ItemGroup>
 
-  <!-- VSTest on GitHub -->
+  <!-- GitHub Actions Test Reporting -->
   <Choose>
     <When Condition="'$(_IsGitHubActions)' == 'true'">
-      <PropertyGroup>
+      <!-- MTP: GitHubActionsTestLogger 3.0.1 auto-registers -->
+      <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">
+        <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" IsImplicitlyDefined="true"/>
+      </ItemGroup>
+
+      <!-- VSTest: GitHubActionsTestLogger 2.4.1 with logger config -->
+      <PropertyGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
         <VSTestLogger>$(VSTestLogger);GitHubActions</VSTestLogger>
       </PropertyGroup>
-
-      <ItemGroup>
+      <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
         <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" IsImplicitlyDefined="true">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

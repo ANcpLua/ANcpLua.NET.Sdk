@@ -103,6 +103,75 @@ tests/ANcpLua.Sdk.Tests/
 | `InjectLockPolyfill` | System.Threading.Lock |
 | `InjectTimeProviderPolyfill` | System.TimeProvider |
 
+## Test Project vs MTP Detection
+
+**CRITICAL:** These are TWO SEPARATE concerns - don't confuse them!
+
+### 1. Test Project Detection (Broad)
+```
+IsTestProject=true → Imports Tests.targets (implicit usings, test defaults)
+```
+
+Triggers: Any test framework package (xunit, xunit.v3, NUnit, MSTest.TestFramework, TUnit)
+
+**Users must set `IsTestProject=true` explicitly** in their csproj. Package-based auto-detection runs too late (MSBuild limitation).
+
+### 2. MTP Detection (Strict)
+```
+UseMicrosoftTestingPlatform=true → OutputType=Exe, skip Microsoft.NET.Test.Sdk, inject MTP extensions
+```
+
+**Only these signals trigger MTP:**
+
+| Signal | Type |
+|--------|------|
+| `TUnit` package | Always MTP |
+| `xunit.v3.mtp-v1` / `xunit.v3.mtp-v2` | Explicit MTP |
+| `Microsoft.Testing.Extensions.*` packages | Explicit MTP |
+| `EnableNUnitRunner=true` | Explicit opt-in |
+| `EnableMSTestRunner=true` | Explicit opt-in |
+| `UseMicrosoftTestingPlatform=true` | Explicit property |
+
+**NOT MTP signals (VSTest by default):**
+- Plain `xunit.v3` (ambiguous - don't assume!)
+- `NUnit` alone
+- `MSTest.TestFramework` alone
+- `xunit` (v2)
+
+### MSBuild Implementation
+
+```xml
+<!-- Property-based detection works during import -->
+<PropertyGroup>
+  <_UsesMTP Condition="'$(UseMicrosoftTestingPlatform)' == 'true'
+                       OR '$(EnableNUnitRunner)' == 'true'">true</_UsesMTP>
+</PropertyGroup>
+
+<!-- Package-based detection MUST be in a Target (MSBuild limitation) -->
+<Target Name="_DetectTestFrameworksAndMTP" BeforeTargets="BeforeBuild">
+  <!-- @(PackageReference->AnyHaveMetadataValue()) only works in Targets -->
+  <PropertyGroup>
+    <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'TUnit')) == 'true'">true</_UsesMTP>
+  </PropertyGroup>
+</Target>
+```
+
+**Why Target?** `@(PackageReference->...)` syntax fails in PropertyGroup conditions (MSB4099 error). Items aren't populated during initial import phase.
+
+### Safety Guard
+
+Target `_ValidateMTPConfiguration` emits `ANCPSDK001` warning if:
+- `UseMicrosoftTestingPlatform=true` AND `OutputType=Library`
+
+### What Gets Injected
+
+| Condition | Packages Injected |
+|-----------|-------------------|
+| `UseMicrosoftTestingPlatform=true` | CrashDump, HangDump, CodeCoverage, TrxReport, HotReload, Retry |
+| `UseMicrosoftTestingPlatform!=true` | Microsoft.NET.Test.Sdk (VSTest) |
+| GitHub Actions + MTP | GitHubActionsTestLogger 3.x |
+| GitHub Actions + VSTest | GitHubActionsTestLogger 2.4.1 |
+
 ## SourceGen Helpers (Roslyn.Utilities Embedding)
 
 Source generators cannot reference NuGet packages at runtime, so utilities must be embedded as source.

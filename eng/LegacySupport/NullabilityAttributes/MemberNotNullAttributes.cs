@@ -1,7 +1,6 @@
 // Copyright (c) ANcpLua. All rights reserved.
 // Licensed under the MIT License.
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable CA1019, IDE0300

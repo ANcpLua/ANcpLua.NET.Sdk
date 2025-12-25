@@ -2,33 +2,28 @@
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <!-- Enable MTP v2 with dotnet test -->
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Meziantou.Framework" Version="5.0.4"/>
-    <PackageReference Include="Meziantou.Framework.TemporaryDirectory" Version="1.0.25"/>
-    <PackageReference Include="Meziantou.Framework.Threading" Version="2.0.3"/>
-    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="1.0.6"/>
-    <PackageReference Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.1"/>
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.0.0"/>
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0"/>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
-    <PackageReference Include="MSBuild.StructuredLogger" Version="2.3.71"/>
-    <PackageReference Include="NuGet.Packaging" Version="7.0.0"/>
-    <PackageReference Include="xunit.v3" Version="3.2.0"/>
-    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="Meziantou.Framework"/>
+    <PackageReference Include="Meziantou.Framework.TemporaryDirectory"/>
+    <PackageReference Include="Meziantou.Framework.Threading"/>
+    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework"/>
+    <PackageReference Include="Microsoft.Deployment.DotNet.Releases"/>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
+    <PackageReference Include="Microsoft.Extensions.Logging"/>
+    <PackageReference Include="MSBuild.StructuredLogger"/>
+    <PackageReference Include="NuGet.Packaging"/>
+    <PackageReference Include="xunit.v3.mtp-v2"/>
+    <PackageReference Include="GitHubActionsTestLogger"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -46,7 +46,7 @@ public static class ANcpSdkServiceDefaults
                 ValidateScopes = true
             }));
 
-        builder.Services.Configure<KestrelServerOptions>(options => { options.AddServerHeader = false; });
+        builder.Services.Configure<KestrelServerOptions>(serverOptions => { serverOptions.AddServerHeader = false; });
 
         builder.Services.TryAddSingleton<IStartupFilter>(new ValidationStartupFilter());
         builder.Services.TryAddSingleton(options);
@@ -94,7 +94,7 @@ public static class ANcpSdkServiceDefaults
         jsonOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
         jsonOptions.RespectNullableAnnotations = true;
         jsonOptions.RespectRequiredConstructorParameters = true;
-        jsonOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase, true));
+        jsonOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
         options.ConfigureJsonOptions?.Invoke(jsonOptions);
     }
 
@@ -130,16 +130,11 @@ public static class ANcpSdkServiceDefaults
             {
                 tracing
                     .AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation(options =>
+                    .AddAspNetCoreInstrumentation(aspNetCoreTraceInstrumentationOptions =>
                     {
-                        options.EnableAspNetCoreSignalRSupport = true;
-                        options.Filter = context =>
-                        {
-                            // Filter out health check endpoints from traces
-                            if (context.Request.Path == "/health" || context.Request.Path == "/alive")
-                                return false;
-                            return true;
-                        };
+                        aspNetCoreTraceInstrumentationOptions.EnableAspNetCoreSignalRSupport = true;
+                        aspNetCoreTraceInstrumentationOptions.Filter = context =>
+                            context.Request.Path != "/health" && context.Request.Path != "/alive";
                     })
                     .AddHttpClientInstrumentation()
                     .AddSource("ANcpSdk.*");
@@ -191,7 +186,7 @@ public static class ANcpSdkServiceDefaults
         {
             app.UseExceptionHandler("/Error", true);
 
-            if (options.Https.Enabled && options.Https.HstsEnabled) app.UseHsts();
+            if (options.Https is { Enabled: true, HstsEnabled: true }) app.UseHsts();
         }
 
         if (options.AntiForgery.Enabled) app.UseAntiforgery();

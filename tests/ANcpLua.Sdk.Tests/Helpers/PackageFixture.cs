@@ -42,7 +42,8 @@ public class PackageFixture : IAsyncLifetime
                 var files = Directory.GetFiles(path, "*.nupkg", SearchOption.AllDirectories);
                 if (files.Length > 0)
                 {
-                    foreach (var file in files) File.Copy(file, _packageDirectory.FullPath / Path.GetFileName(file), overwrite: true);
+                    foreach (var file in files)
+                        File.Copy(file, _packageDirectory.FullPath / Path.GetFileName(file), true);
 
                     return;
                 }
@@ -58,19 +59,19 @@ public class PackageFixture : IAsyncLifetime
         // Generate Version.props before packing (same as build.ps1 does)
         var versionPropsPath = repoRoot["src"] / "common" / "Version.props";
         var versionPropsContent = $"""
-            <Project>
-              <!--
-                This file is auto-generated during build.
-                DO NOT EDIT MANUALLY - changes will be overwritten.
+                                   <Project>
+                                     <!--
+                                       This file is auto-generated during build.
+                                       DO NOT EDIT MANUALLY - changes will be overwritten.
 
-                The version is set by build.ps1 based on the computed package version.
-                This ensures all SDK packages reference the same version.
-              -->
-              <PropertyGroup>
-                <ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>
-              </PropertyGroup>
-            </Project>
-            """;
+                                       The version is set by build.ps1 based on the computed package version.
+                                       This ensures all SDK packages reference the same version.
+                                     -->
+                                     <PropertyGroup>
+                                       <ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>
+                                     </PropertyGroup>
+                                   </Project>
+                                   """;
         await File.WriteAllTextAsync(versionPropsPath, versionPropsContent);
         var buildFiles = Directory
             .GetFiles(repoRoot["src"], "*.csproj")
@@ -127,8 +128,8 @@ public class PackageFixture : IAsyncLifetime
     }
 
     /// <summary>
-    /// Pre-warms the NuGet cache by restoring all external packages used by tests.
-    /// This prevents race conditions when parallel tests try to download the same packages.
+    ///     Pre-warms the NuGet cache by restoring all external packages used by tests.
+    ///     This prevents race conditions when parallel tests try to download the same packages.
     /// </summary>
     private async Task PreWarmNuGetCacheAsync()
     {
@@ -199,7 +200,7 @@ public class PackageFixture : IAsyncLifetime
         {
             // Cleanup warmup directory (packages stay in globalPackagesFolder)
             if (Directory.Exists(warmupDir))
-                Directory.Delete(warmupDir, recursive: true);
+                Directory.Delete(warmupDir, true);
         }
     }
 

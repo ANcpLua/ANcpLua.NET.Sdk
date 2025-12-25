@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <!-- Source generators need older Roslyn for broader IDE/SDK compatibility - opt out of CPM -->
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
     <Version>1.0.0</Version>
     <Description>Auto register services and map routes for ANcpSdk applications</Description>
@@ -43,6 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" PrivateAssets="all"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" PrivateAssets="all"/>
   </ItemGroup>
 </Project>

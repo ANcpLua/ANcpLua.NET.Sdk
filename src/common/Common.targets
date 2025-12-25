@@ -4,6 +4,92 @@
     <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == ''">net$(NETCoreAppMaximumVersion)</TargetFramework>
   </PropertyGroup>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       AUTO-DETECT TEST/MTP PROJECTS (Smart SDK)
+
+       Property-based detection (during import phase):
+       - EnableNUnitRunner / EnableMSTestRunner / UseMicrosoftTestingPlatform
+
+       Package-based detection (via Target, runs before build):
+       - Test frameworks: xunit, xunit.v3, NUnit, MSTest.TestFramework, TUnit
+       - MTP signals: xunit.v3.mtp-v1/v2, TUnit, Microsoft.Testing.Extensions.*
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Property-based detection (works during import) -->
+  <PropertyGroup>
+    <!-- Explicit opt-in via property enables MTP -->
+    <_UsesMTP Condition="'$(UseMicrosoftTestingPlatform)' == 'true'
+                         OR '$(EnableNUnitRunner)' == 'true'
+                         OR '$(EnableMSTestRunner)' == 'true'">true</_UsesMTP>
+  </PropertyGroup>
+
+  <!-- MTP v2 auto-configuration when explicitly enabled via property -->
+  <PropertyGroup Condition="'$(_UsesMTP)' == 'true'">
+    <OutputType Condition="'$(OutputType)' == '' OR '$(OutputType)' == 'Library'">Exe</OutputType>
+    <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
+    <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PACKAGE-BASED DETECTION (via Target - runs after packages resolved)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <Target Name="_DetectTestFrameworksAndMTP" BeforeTargets="BeforeBuild;BeforeCompile;CoreCompile" Condition="'$(_ANcpLuaTestDetectionDone)' != 'true'">
+    <PropertyGroup>
+      <_ANcpLuaTestDetectionDone>true</_ANcpLuaTestDetectionDone>
+    </PropertyGroup>
+
+    <!-- Detect test frameworks (broad) -->
+    <PropertyGroup>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit')) == 'true'">true</_HasTestFramework>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3')) == 'true'">true</_HasTestFramework>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true'">true</_HasTestFramework>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'">true</_HasTestFramework>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-off')) == 'true'">true</_HasTestFramework>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'NUnit')) == 'true'">true</_HasTestFramework>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'MSTest.TestFramework')) == 'true'">true</_HasTestFramework>
+      <_HasTestFramework Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'TUnit')) == 'true'">true</_HasTestFramework>
+    </PropertyGroup>
+
+    <!-- Detect MTP usage (strict) - only EXPLICIT MTP signals -->
+    <PropertyGroup Condition="'$(_UsesMTP)' != 'true'">
+      <!-- TUnit is always MTP -->
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'TUnit')) == 'true'">true</_UsesMTP>
+      <!-- xUnit v3 MTP packages -->
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'">true</_UsesMTP>
+      <!-- Microsoft.Testing.Extensions.* packages -->
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.TrxReport')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.CodeCoverage')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.CrashDump')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.HangDump')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.HotReload')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.Retry')) == 'true'">true</_UsesMTP>
+    </PropertyGroup>
+
+    <!-- xunit.v3.mtp-off explicitly opts OUT of MTP -->
+    <PropertyGroup Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-off')) == 'true'">
+      <_UsesMTP>false</_UsesMTP>
+    </PropertyGroup>
+
+    <!-- Set UseMicrosoftTestingPlatform based on detection -->
+    <PropertyGroup Condition="'$(_UsesMTP)' == 'true'">
+      <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
+    </PropertyGroup>
+
+    <!-- Log detection results for diagnostics -->
+    <Message Text="ANcpLua.SDK Test Detection: _HasTestFramework=$(_HasTestFramework), _UsesMTP=$(_UsesMTP), UseMicrosoftTestingPlatform=$(UseMicrosoftTestingPlatform), IsTestProject=$(IsTestProject)" Importance="low"/>
+  </Target>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SAFETY GUARD: Detect contradictory MTP/OutputType state
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <Target Name="_ValidateMTPConfiguration" BeforeTargets="Build" Condition="'$(IsTestProject)' == 'true'" DependsOnTargets="_DetectTestFrameworksAndMTP">
+    <Warning
+      Code="ANCPSDK001"
+      Text="MTP is enabled (UseMicrosoftTestingPlatform=true) but OutputType is 'Library'. MTP test projects must be executables. Set OutputType=Exe or disable MTP."
+      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' == 'Library'"/>
+  </Target>
+
   <Import Project="$(MSBuildThisFileDirectory)/Tests.targets" Condition="'$(IsTestProject)' == 'true'"/>
   <Import Project="$(MSBuildThisFileDirectory)/Npm.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.targets"/>

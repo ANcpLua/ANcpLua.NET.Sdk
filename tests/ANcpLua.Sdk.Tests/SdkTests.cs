@@ -103,14 +103,15 @@ public abstract class SdkTests(
     public async Task GenerateSbom_IsSetWhenContinuousIntegrationBuildIsSet()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(properties: [("ContinuousIntegrationBuild", "true")]);
+        project.AddCsprojFile([("ContinuousIntegrationBuild", "true")]);
         project.AddFile("Program.cs", "Console.WriteLine();");
         var data = await project.PackAndGetOutput();
         data.AssertMsBuildPropertyValue("GenerateSBOM", "true");
 
         var nupkgFile = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         await using var archive = await ZipFile.OpenReadAsync(nupkgFile, TestContext.Current.CancellationToken);
-        Assert.Contains(archive.Entries, e => e.FullName.EndsWith("manifest.spdx.json", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(archive.Entries,
+            e => e.FullName.EndsWith("manifest.spdx.json", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

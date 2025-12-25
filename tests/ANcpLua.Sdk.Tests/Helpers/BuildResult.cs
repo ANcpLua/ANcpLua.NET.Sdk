@@ -61,7 +61,7 @@ public sealed record BuildResult(
     {
         // Info-level diagnostics may be reported as "note" or "none" in SARIF
         return SarifFile?.AllResults().Any(r =>
-            (r.Level is "note" or "none") && r.RuleId == ruleId) ?? false;
+            r.Level is "note" or "none" && r.RuleId == ruleId) ?? false;
     }
 
     public IReadOnlyCollection<string> GetBinLogFiles()
