@@ -328,6 +328,9 @@ static (AnalyzerConfiguration[] Rules, string[] Unknowns) GetConfiguration(FullP
     var rules = new List<AnalyzerConfiguration>();
     var unknowns = new List<string>();
 
+    if (!File.Exists(editorconfig))
+        return ([], []);
+
     var currentComment = new List<string>();
 
     var lines = File.ReadAllLines(editorconfig);
