@@ -118,6 +118,29 @@ SDK packages include embedded source
 2. Merge PR
 3. Done
 
+### NuGet Publishing (Tag-Triggered)
+
+**To publish a release - just push a tag:**
+```bash
+git tag v1.3.0
+git push origin v1.3.0
+# → GitHub Action builds + publishes to NuGet automatically
+```
+
+The `nuget-publish.yml` workflow:
+- Triggers on tag push (`v*`) or manual dispatch
+- Extracts version from tag (e.g., `v1.3.0` → `1.3.0`)
+- Runs `build.ps1` with that version
+- Pushes all packages to nuget.org
+
+**Manual dispatch:** Go to Actions → "Publish to NuGet" → Run workflow → Enter version
+
+| Repo | Packages Published |
+|------|-------------------|
+| SDK | ANcpLua.NET.Sdk, .Web, .Test, ServiceDefaults, AutoRegister |
+| Utilities | ANcpLua.Roslyn.Utilities, .Testing |
+| Analyzers | ANcpLua.Analyzers |
+
 ## Directory Structure
 
 ```
