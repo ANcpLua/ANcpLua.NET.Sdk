@@ -17,8 +17,8 @@
        Runs after _DetectTestFrameworksAndMTP to see package-based detection results
        ═══════════════════════════════════════════════════════════════════════ -->
   <Target Name="_InjectTestingPackages" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP">
-    <!-- MTP v2 Extensions (all frameworks: xunit, NUnit, MSTest, TUnit) -->
-    <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">
+    <!-- MTP v2 Extensions (NUnit, MSTest, TUnit - NOT xunit.v3 which has its own MTP implementation) -->
+    <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(_UsesXunitV3Mtp)' != 'true'">
       <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="2.0.2" IsImplicitlyDefined="true"/>
       <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" IsImplicitlyDefined="true"/>
       <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="2.0.2" IsImplicitlyDefined="true"/>

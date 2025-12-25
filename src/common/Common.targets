@@ -49,9 +49,11 @@
     <PropertyGroup Condition="'$(_UsesMTP)' != 'true'">
       <!-- TUnit is always MTP -->
       <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'TUnit')) == 'true'">true</_UsesMTP>
-      <!-- xUnit v3 MTP packages -->
+      <!-- xUnit v3 MTP packages (have their own MTP implementation, don't inject standard extensions) -->
       <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true'">true</_UsesMTP>
+      <_UsesXunitV3Mtp Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true'">true</_UsesXunitV3Mtp>
       <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'">true</_UsesMTP>
+      <_UsesXunitV3Mtp Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'">true</_UsesXunitV3Mtp>
       <!-- Microsoft.Testing.Extensions.* packages -->
       <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.TrxReport')) == 'true'">true</_UsesMTP>
       <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.CodeCoverage')) == 'true'">true</_UsesMTP>
