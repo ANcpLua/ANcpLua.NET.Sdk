@@ -42,7 +42,7 @@ async Task GenerateEditorConfigForAnalyzers()
 
         var rules = new HashSet<AnalyzerRule>();
         foreach (var assembly in await GetAnalyzerReferences(packageId, packageVersion))
-        foreach (var type in assembly.GetTypes())
+        foreach (var type in GetLoadableTypes(assembly))
         {
             if (type.IsAbstract || type.IsInterface)
                 continue;
@@ -460,3 +460,16 @@ internal sealed record AnalyzerRule(
     DiagnosticSeverity? DefaultEffectiveSeverity);
 
 internal sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
+
+// Skip types that can't be loaded (e.g., VB analyzers when we only have C# Roslyn)
+static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+{
+    try
+    {
+        return assembly.GetTypes();
+    }
+    catch (ReflectionTypeLoadException ex)
+    {
+        return ex.Types.Where(t => t is not null)!;
+    }
+}
