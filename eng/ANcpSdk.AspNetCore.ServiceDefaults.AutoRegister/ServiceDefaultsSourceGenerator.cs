@@ -47,12 +47,14 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
                         [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = true)]
                         file sealed class InterceptsLocationAttribute(int version, string data) : global::System.Attribute;
                     }
+
+                    namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister
+                    {
+                        using ANcpSdk.AspNetCore.ServiceDefaults;
+
+                        file static partial class Interceptors
+                        {
                     """);
-                sb.AppendLine();
-                sb.AppendLine("namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister;");
-                sb.AppendLine("using ANcpSdk.AspNetCore.ServiceDefaults;");
-                sb.AppendLine("file static partial class Interceptors");
-                sb.AppendLine("{");
 
                 var index = 0;
                 foreach (var method in interceptionData.Where(m => m is not null)
@@ -75,7 +77,8 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
                     index++;
                 }
 
-                sb.AppendLine("}");
+                sb.AppendLine("        }"); // close Interceptors class
+                sb.AppendLine("    }"); // close namespace
                 spc.AddSource("Intercepts.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
             });
         return;
