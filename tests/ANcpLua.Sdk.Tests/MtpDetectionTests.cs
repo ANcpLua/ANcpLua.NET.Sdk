@@ -457,17 +457,20 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task MTP_DoesNotInjectMicrosoftNETTestSdk()
     {
+        // Use TUnit (not xunit.v3.mtp) because xunit.v3.mtp has its own MTP implementation
+        // and we skip standard extension injection for it
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. XUnit3MtpV2Packages]
+            nuGetPackages: [.. TUnitPackages]
         );
 
         project.AddFile("Tests.cs", """
+                                    using TUnit.Core;
                                     public class SampleTests
                                     {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
+                                        [Test]
+                                        public void Test1() => Assert.That(true).IsTrue();
                                     }
                                     """);
 
@@ -481,23 +484,26 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task MTP_InjectsMTPExtensions()
     {
+        // Use TUnit (not xunit.v3.mtp) because xunit.v3.mtp has its own MTP implementation
+        // and we skip standard extension injection for it
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. XUnit3MtpV2Packages]
+            nuGetPackages: [.. TUnitPackages]
         );
 
         project.AddFile("Tests.cs", """
+                                    using TUnit.Core;
                                     public class SampleTests
                                     {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
+                                        [Test]
+                                        public void Test1() => Assert.That(true).IsTrue();
                                     }
                                     """);
 
         var data = await project.BuildAndGetOutput();
 
-        // MTP projects should have MTP extensions injected
+        // MTP projects should have MTP extensions injected (except xunit.v3.mtp which has its own implementation)
         var items = data.GetMsBuildItems("PackageReference");
         Assert.Contains(items,
             i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
