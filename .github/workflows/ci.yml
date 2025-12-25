@@ -85,7 +85,7 @@ jobs:
       - run: Get-ChildItem "${{ env.NUGET_DIRECTORY }}/*" -Recurse
       - run: dotnet --info
       - run: dotnet nuget locals all --clear
-      - run: dotnet test tests/ANcpLua.Sdk.Tests --report-xunit-trx --report-github --results-directory test_results
+      - run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --report-xunit-trx --report-github --results-directory test_results
         env:
             CI: true
             NUGET_DIRECTORY: ${{ env.NUGET_DIRECTORY }}
