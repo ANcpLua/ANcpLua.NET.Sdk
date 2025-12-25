@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!-- Opt out of CPM - this package has specific version requirements for ASP.NET Core components -->
-    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -24,24 +22,24 @@
 
   <ItemGroup>
     <!-- ASP.NET Core -->
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1"/>
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.1"/>
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0"/>
-    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.1.0"/>
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"/>
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience"/>
+    <PackageReference Include="Microsoft.Extensions.ServiceDiscovery"/>
 
     <!-- .NET 10 Telemetry (Enrichment, Redaction, Sampling) -->
-    <PackageReference Include="Microsoft.Extensions.Telemetry" Version="10.1.0"/>
-    <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions" Version="10.1.0"/>
-    <PackageReference Include="Microsoft.Extensions.Compliance.Redaction" Version="10.1.0"/>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="10.1.0"/>
+    <PackageReference Include="Microsoft.Extensions.Telemetry"/>
+    <PackageReference Include="Microsoft.Extensions.Telemetry.Abstractions"/>
+    <PackageReference Include="Microsoft.Extensions.Compliance.Redaction"/>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.Middleware"/>
 
     <!-- OpenTelemetry -->
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.14.0"/>
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0"/>
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0"/>
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0"/>
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0"/>
-    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0"/>
+    <PackageReference Include="OpenTelemetry.Exporter.Console"/>
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol"/>
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting"/>
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore"/>
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http"/>
+    <PackageReference Include="OpenTelemetry.Instrumentation.Runtime"/>
   </ItemGroup>
 
 </Project>

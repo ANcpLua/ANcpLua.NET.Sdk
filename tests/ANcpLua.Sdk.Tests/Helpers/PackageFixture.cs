@@ -35,7 +35,7 @@ public class PackageFixture : IAsyncLifetime
 
     public async ValueTask InitializeAsync()
     {
-        if (Environment.GetEnvironmentVariable("CI") != null)
+        if (Environment.GetEnvironmentVariable("CI") is not null)
         {
             if (Environment.GetEnvironmentVariable("NUGET_DIRECTORY") is { } path)
             {
@@ -99,7 +99,7 @@ public class PackageFixture : IAsyncLifetime
             };
             buildPsi.ArgumentList.AddRange("build", engProject, "-c", "Release");
             var buildResult = await buildPsi.RunAsTaskAsync(CancellationToken.None);
-            if (buildResult.ExitCode != 0)
+            if (buildResult.ExitCode is not 0)
                 Assert.Fail($"Build failed with exit code {buildResult.ExitCode}. Output: {buildResult.Output}");
         }
 
@@ -119,12 +119,17 @@ public class PackageFixture : IAsyncLifetime
                 "--output",
                 _packageDirectory.FullPath);
             var result = await psi.RunAsTaskAsync(_);
-            if (result.ExitCode != 0)
+            if (result.ExitCode is not 0)
                 Assert.Fail($"NuGet pack failed with exit code {result.ExitCode}. Output: {result.Output}");
         });
 
         // Pre-warm NuGet cache to avoid race conditions in parallel tests
         await PreWarmNuGetCacheAsync();
+    }
+
+    public virtual async ValueTask DisposeAsync()
+    {
+        await _packageDirectory.DisposeAsync();
     }
 
     /// <summary>
@@ -193,7 +198,7 @@ public class PackageFixture : IAsyncLifetime
             psi.ArgumentList.AddRange("restore", "--no-cache");
 
             var result = await psi.RunAsTaskAsync(CancellationToken.None);
-            if (result.ExitCode != 0)
+            if (result.ExitCode is not 0)
                 Assert.Fail($"NuGet cache pre-warm failed with exit code {result.ExitCode}. Output: {result.Output}");
         }
         finally
@@ -202,11 +207,6 @@ public class PackageFixture : IAsyncLifetime
             if (Directory.Exists(warmupDir))
                 Directory.Delete(warmupDir, true);
         }
-    }
-
-    public virtual async ValueTask DisposeAsync()
-    {
-        await _packageDirectory.DisposeAsync();
     }
 }
 

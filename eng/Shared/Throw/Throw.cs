@@ -257,14 +257,14 @@ internal static partial class Throw
             switch (argument)
             {
                 case ICollection<T> collection:
-                    if (collection.Count == 0)
+                    if (collection.Count is 0)
                     {
                         ArgumentException(paramName, "Collection is empty");
                     }
 
                     break;
                 case IReadOnlyCollection<T> readOnlyCollection:
-                    if (readOnlyCollection.Count == 0)
+                    if (readOnlyCollection.Count is 0)
                     {
                         ArgumentException(paramName, "Collection is empty");
                     }
@@ -505,7 +505,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int IfZero(int argument, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        if (argument == 0)
+        if (argument is 0)
         {
             ArgumentOutOfRangeException(paramName, "Argument is zero");
         }
@@ -617,7 +617,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static uint IfZero(uint argument, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        if (argument == 0U)
+        if (argument is 0U)
         {
             ArgumentOutOfRangeException(paramName, "Argument is zero");
         }
@@ -729,7 +729,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static long IfZero(long argument, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        if (argument == 0L)
+        if (argument is 0L)
         {
             ArgumentOutOfRangeException(paramName, "Argument is zero");
         }
@@ -841,7 +841,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static ulong IfZero(ulong argument, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        if (argument == 0UL)
+        if (argument is 0UL)
         {
             ArgumentOutOfRangeException(paramName, "Argument is zero");
         }
@@ -958,7 +958,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double IfZero(double argument, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        if (argument == 0.0)
+        if (argument is 0.0)
         {
             ArgumentOutOfRangeException(paramName, "Argument is zero");
         }

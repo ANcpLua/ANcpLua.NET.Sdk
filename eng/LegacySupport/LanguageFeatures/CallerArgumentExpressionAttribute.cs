@@ -7,7 +7,7 @@ namespace System.Runtime.CompilerServices;
 /// <summary>
 ///     Tags parameter that should be filled with specific caller name.
 /// </summary>
-[AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Parameter)]
 [ExcludeFromCodeCoverage]
 internal sealed class CallerArgumentExpressionAttribute : Attribute
 {

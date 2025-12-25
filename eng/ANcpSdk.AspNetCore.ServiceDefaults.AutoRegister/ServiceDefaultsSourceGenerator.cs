@@ -24,7 +24,7 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
             .CreateSyntaxProvider(
                 static (syntaxNode, _) => syntaxNode.IsKind(SyntaxKind.InvocationExpression),
                 Transform)
-            .Where(static node => node != null)
+            .Where(static node => node is not null)
             .Collect();
 
         var combined = syntax.Combine(hasType);

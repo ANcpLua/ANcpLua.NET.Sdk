@@ -20,7 +20,8 @@
     <!-- Explicit opt-in via property enables MTP -->
     <_UsesMTP Condition="'$(UseMicrosoftTestingPlatform)' == 'true'
                          OR '$(EnableNUnitRunner)' == 'true'
-                         OR '$(EnableMSTestRunner)' == 'true'">true</_UsesMTP>
+                         OR '$(EnableMSTestRunner)' == 'true'">true
+    </_UsesMTP>
   </PropertyGroup>
 
   <!-- MTP v2 auto-configuration when explicitly enabled via property -->

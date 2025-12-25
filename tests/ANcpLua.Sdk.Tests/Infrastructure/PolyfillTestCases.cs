@@ -104,7 +104,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
                                       """);
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode == 0,
+        Assert.True(result.ExitCode is 0,
             $"Build failed for {TMarker.InjectPropertyName} on {tfm} when expected to succeed. Output: {result.ProcessOutput}");
     }
 
@@ -140,7 +140,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
         ");
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode != 0,
+        Assert.True(result.ExitCode is not 0,
             $"Build succeeded for {TMarker.InjectPropertyName} on {tfm} when expected to fail without the flag. Output: {result.ProcessOutput}");
 
         Assert.True(

@@ -1,0 +1,11 @@
+<Project>
+  <!--
+    Centralize build output to artifacts/ for most projects.
+    Exception: eng/ projects need local bin/obj for NuGet pack paths.
+  -->
+  <PropertyGroup Condition="!$(MSBuildProjectDirectory.Contains('eng'))">
+    <ArtifactsPath>$(MSBuildThisFileDirectory)artifacts/</ArtifactsPath>
+    <BaseOutputPath>$(ArtifactsPath)bin/$(MSBuildProjectName)/</BaseOutputPath>
+    <BaseIntermediateOutputPath>$(ArtifactsPath)obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

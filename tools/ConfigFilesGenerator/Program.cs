@@ -76,7 +76,7 @@ async Task GenerateEditorConfigForAnalyzers()
             foreach (var rule in rules.OrderBy(rule => rule.Id))
             {
                 var currentRuleConfiguration = currentConfiguration.Rules.FirstOrDefault(r => r.Id == rule.Id);
-                var severity = currentRuleConfiguration != null
+                var severity = currentRuleConfiguration is not null
                     ? currentRuleConfiguration.Severity
                     : rule.DefaultEffectiveSeverity;
 
@@ -204,7 +204,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
             var dependencyInfo =
                 await dependencyInfoResource.ResolvePackage(package, framework, cache, logger, cancellationToken);
 
-            if (dependencyInfo == null) continue;
+            if (dependencyInfo is null) continue;
 
             if (!dependencies.Add(dependencyInfo)) continue;
             foreach (var dependency in dependencyInfo.Dependencies)
@@ -376,7 +376,7 @@ static (AnalyzerConfiguration[] Rules, string[] Unknowns) GetConfiguration(FullP
             {
                 foreach (var comment in currentComment) unknowns.Add(comment);
 
-                if (rules.Count == 0 || !string.IsNullOrEmpty(line)) unknowns.Add(line);
+                if (rules.Count is 0 || !string.IsNullOrEmpty(line)) unknowns.Add(line);
             }
         }
         finally

@@ -876,7 +876,7 @@ public abstract class SdkTests(
         await project.ExecuteGitCommand("remote", "add", "origin", "https://github.com/ancplua/sample.git");
 
         var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
-        Assert.True(data.ExitCode == 0, data.Output.ToString());
+        Assert.True(data.ExitCode is 0, data.Output.ToString());
 
         // Validate nupkg
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
@@ -1010,7 +1010,7 @@ public abstract class SdkTests(
         project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.BuildAndGetOutput();
-        Assert.True(data.ExitCode == 0, data.Output.ToString());
+        Assert.True(data.ExitCode is 0, data.Output.ToString());
         var dllPath = Directory
             .GetFiles(project.RootFolder / "bin" / "Debug", "Sample.Tests.dll", SearchOption.AllDirectories).Single();
 

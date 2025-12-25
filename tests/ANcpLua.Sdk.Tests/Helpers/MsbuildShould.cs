@@ -34,7 +34,7 @@ public static class MsbuildShould
         var propsDict = props.ToDictionary(k => k.Key, v => v.Value);
         var result = await MsbuildScenario.BuildAsync(fixture, propsDict);
 
-        if (result.ExitCode != 0)
+        if (result.ExitCode is not 0)
             throw new XunitException(
                 $"Build failed (ExitCode={result.ExitCode}). Output:\n{string.Join("\n", result.ProcessOutput.Select(l => l.Text))}");
 
@@ -74,7 +74,7 @@ public static class MsbuildShould
             new ProjectBuilder(fixture, output, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         var propsArray = props
-            .Where(kv => kv.Value != null)
+            .Where(kv => kv.Value is not null)
             .Select(kv => (kv.Key, kv.Value!))
             .ToArray();
 
@@ -84,7 +84,7 @@ public static class MsbuildShould
 
         var result = await project.BuildAndGetOutput();
 
-        if (result.ExitCode != 0)
+        if (result.ExitCode is not 0)
         {
             var errors = result.SarifFile?.AllResults().Where(r => r.Level == "error").Select(r => r.ToString()) ?? [];
             throw new XunitException($"Build failed (ExitCode={result.ExitCode}). Errors: {string.Join("; ", errors)}");
@@ -108,7 +108,7 @@ public static class MsbuildShould
                 new ProjectBuilder(fixture, output, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
             var propsArray = props
-                .Where(kv => kv.Value != null)
+                .Where(kv => kv.Value is not null)
                 .Select(kv => (kv.Key, kv.Value!))
                 .ToArray();
 

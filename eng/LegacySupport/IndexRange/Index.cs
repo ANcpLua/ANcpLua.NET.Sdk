@@ -79,7 +79,7 @@ internal readonly struct Index : IEquatable<Index>
 
     public override string ToString()
     {
-        return IsFromEnd ? "^" + Value.ToString() : ((uint)Value).ToString();
+        return IsFromEnd ? "^" + Value : ((uint)Value).ToString();
     }
 }
 #endif

@@ -4,24 +4,21 @@ using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
 namespace ANcpLua.Sdk.Tests;
 
 /// <summary>
-/// Comprehensive test matrix for MTP (Microsoft Testing Platform) vs VSTest detection.
-///
-/// Two separate concerns:
-/// 1. IsTestProject = "this project contains tests" (broad detection)
-/// 2. UseMicrosoftTestingPlatform = "uses MTP" (strict detection)
-///
-/// MTP should ONLY be enabled for:
-/// - TUnit (always MTP)
-/// - xunit.v3.mtp-v1 / xunit.v3.mtp-v2 (explicit MTP)
-/// - Microsoft.Testing.Extensions.* packages
-/// - EnableNUnitRunner=true / EnableMSTestRunner=true (explicit opt-in)
-/// - UseMicrosoftTestingPlatform=true (explicit)
-///
-/// MTP should NOT be enabled for:
-/// - Plain xunit.v3 (ambiguous)
-/// - NUnit alone (VSTest by default)
-/// - MSTest.TestFramework alone (VSTest by default)
-/// - xunit (v2, VSTest)
+///     Comprehensive test matrix for MTP (Microsoft Testing Platform) vs VSTest detection.
+///     Two separate concerns:
+///     1. IsTestProject = "this project contains tests" (broad detection)
+///     2. UseMicrosoftTestingPlatform = "uses MTP" (strict detection)
+///     MTP should ONLY be enabled for:
+///     - TUnit (always MTP)
+///     - xunit.v3.mtp-v1 / xunit.v3.mtp-v2 (explicit MTP)
+///     - Microsoft.Testing.Extensions.* packages
+///     - EnableNUnitRunner=true / EnableMSTestRunner=true (explicit opt-in)
+///     - UseMicrosoftTestingPlatform=true (explicit)
+///     MTP should NOT be enabled for:
+///     - Plain xunit.v3 (ambiguous)
+///     - NUnit alone (VSTest by default)
+///     - MSTest.TestFramework alone (VSTest by default)
+///     - xunit (v2, VSTest)
 /// </summary>
 public sealed class MtpDetectionNet100Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
     : MtpDetectionTests(fixture, testOutputHelper, NetSdkVersion.Net100);
@@ -78,12 +75,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -111,12 +108,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void PassingTest() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void PassingTest() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.TestAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -140,12 +137,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -173,12 +170,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -205,12 +202,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void PassingTest() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void PassingTest() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.TestAndGetOutput();
         Assert.Equal(0, data.ExitCode);
@@ -226,12 +223,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -255,12 +252,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -288,15 +285,15 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            using NUnit.Framework;
+                                    using NUnit.Framework;
 
-            [TestFixture]
-            public class SampleTests
-            {
-                [Test]
-                public void Test1() => Assert.That(true, Is.True);
-            }
-            """);
+                                    [TestFixture]
+                                    public class SampleTests
+                                    {
+                                        [Test]
+                                        public void Test1() => Assert.That(true, Is.True);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -325,15 +322,15 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            using NUnit.Framework;
+                                    using NUnit.Framework;
 
-            [TestFixture]
-            public class SampleTests
-            {
-                [Test]
-                public void Test1() => Assert.That(true, Is.True);
-            }
-            """);
+                                    [TestFixture]
+                                    public class SampleTests
+                                    {
+                                        [Test]
+                                        public void Test1() => Assert.That(true, Is.True);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -357,15 +354,15 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            using Microsoft.VisualStudio.TestTools.UnitTesting;
+                                    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-            [TestClass]
-            public class SampleTests
-            {
-                [TestMethod]
-                public void Test1() => Assert.IsTrue(true);
-            }
-            """);
+                                    [TestClass]
+                                    public class SampleTests
+                                    {
+                                        [TestMethod]
+                                        public void Test1() => Assert.IsTrue(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -394,15 +391,15 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            using Microsoft.VisualStudio.TestTools.UnitTesting;
+                                    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-            [TestClass]
-            public class SampleTests
-            {
-                [TestMethod]
-                public void Test1() => Assert.IsTrue(true);
-            }
-            """);
+                                    [TestClass]
+                                    public class SampleTests
+                                    {
+                                        [TestMethod]
+                                        public void Test1() => Assert.IsTrue(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -426,14 +423,14 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            using TUnit.Core;
+                                    using TUnit.Core;
 
-            public class SampleTests
-            {
-                [Test]
-                public void Test1() => Assert.That(true).IsTrue();
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Test]
+                                        public void Test1() => Assert.That(true).IsTrue();
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -459,12 +456,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -483,12 +480,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -507,19 +504,21 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
         // MTP projects should have MTP extensions injected
         var items = data.GetMsBuildItems("PackageReference");
-        Assert.Contains(items, i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(items, i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(items,
+            i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(items,
+            i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -537,12 +536,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -566,12 +565,12 @@ public abstract class MtpDetectionTests(
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 
@@ -590,16 +589,16 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. XUnit2Packages, new("Microsoft.Testing.Extensions.TrxReport", "2.0.2")]
+            nuGetPackages: [.. XUnit2Packages, new NuGetReference("Microsoft.Testing.Extensions.TrxReport", "2.0.2")]
         );
 
         project.AddFile("Tests.cs", """
-            public class SampleTests
-            {
-                [Fact]
-                public void Test1() => Assert.True(true);
-            }
-            """);
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
 
         var data = await project.BuildAndGetOutput();
 

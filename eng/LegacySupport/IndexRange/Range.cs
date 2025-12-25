@@ -35,7 +35,7 @@ internal readonly struct Range : IEquatable<Range>
 
     public override int GetHashCode()
     {
-        return (Start.GetHashCode() * 31) + End.GetHashCode();
+        return Start.GetHashCode() * 31 + End.GetHashCode();
     }
 
     public override string ToString()

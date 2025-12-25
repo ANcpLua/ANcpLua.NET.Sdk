@@ -49,15 +49,74 @@ Guidance for Claude Code when working with this repository.
 ## Build & Test
 
 ```bash
-# Build
-pwsh -Command './build.ps1 "-p:Version=1.2.0"'      # Release
-pwsh -Command './build.ps1 "-p:Version=999.9.9"'    # Testing
+# Build (fully automated - syncs submodule + transforms + packs)
+pwsh ./build.ps1 -Version 1.3.0    # Release
+pwsh ./build.ps1 -Version 999.9.9  # Testing
 
 # Test
-./run-tests.sh              # Full (~5 min)
-./run-tests.sh --quick      # Fast (~1 min)
-./run-tests.sh --filter "ClassName"
+dotnet test tests/ANcpLua.Sdk.Tests/
 ```
+
+## Automation (ZERO MANUAL STEPS REQUIRED)
+
+**Everything is automated. Don't remind Claude about these - they happen automatically.**
+
+### What's Automated
+
+| Automation | Trigger | What Happens |
+|------------|---------|--------------|
+| **Submodule sync** | `build.ps1` | Auto-syncs Roslyn.Utilities to latest |
+| **Source transform** | `build.ps1` | Auto-regenerates embedded source |
+| **Dependabot** | Daily/Weekly | Creates PRs for package updates |
+| **Submodule PRs** | Daily | GitHub Action creates PR when Roslyn.Utilities updates |
+
+### build.ps1 Does Everything
+
+```bash
+pwsh ./build.ps1 -Version 1.3.0
+```
+
+This single command:
+1. ✅ Fetches latest Roslyn.Utilities submodule
+2. ✅ Auto-syncs if behind
+3. ✅ Transforms source (namespace, visibility, preprocessor)
+4. ✅ Cleans old .nupkg files
+5. ✅ Generates Version.props
+6. ✅ Packs all 5 NuGet packages
+
+**No need to manually run transform scripts or sync submodules.**
+
+### Dependabot Configuration
+
+`.github/dependabot.yml` handles:
+- **NuGet packages** - Weekly on Monday, grouped by category
+- **GitHub Actions** - Weekly updates
+- **Git submodules** - Daily sync (Roslyn.Utilities)
+
+### Cross-Repo Dependency Flow
+
+```
+ANcpLua.Roslyn.Utilities (push to main)
+         │
+         ▼ (Dependabot: gitsubmodule daily)
+ANcpLua.NET.Sdk/eng/submodules/Roslyn.Utilities
+         │
+         ▼ (build.ps1 auto-transforms)
+eng/.generated/SourceGen/
+         │
+         ▼
+SDK packages include embedded source
+```
+
+**When Roslyn.Utilities updates:**
+1. Dependabot creates PR to update submodule
+2. Merge PR
+3. Next `build.ps1` auto-transforms the new source
+
+**When ANcpLua.Analyzers updates its dependency on Roslyn.Utilities:**
+1. Dependabot creates PR in Analyzers repo
+2. Merge PR
+3. Done
 
 ## Directory Structure
 
@@ -209,18 +268,6 @@ Files in `eng/Extensions/SourceGen/` are SDK-specific and NOT from the submodule
 - Additional helpers specific to SDK use cases
 
 **For non-generators:** Reference `ANcpLua.Roslyn.Utilities` NuGet directly instead of embedding.
-
-## Pending Work
-
-See `MIGRATION-PLAN.md` - consolidating utilities:
-
-**Phase 1:** Move SDK utilities → Roslyn.Utilities (single source of truth) ✅ COMPLETE
-**Phase 2:** SDK embeds FROM Roslyn.Utilities (delete duplicates)
-**Phase 3:** Validate
-
-**⚠️ Anti-Pattern:** Do NOT copy TO SDK first (increases duplication)
-
-**⚠️ C# 14 Issue:** Roslyn.Utilities uses experimental `extension(Type)` syntax. When embedding, convert to traditional `this Type` methods.
 
 ## Critical Patterns
 

@@ -47,7 +47,7 @@ public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper te
         var result = await project.BuildAndGetOutput();
 
         // Verify compilation success (sanity check)
-        Assert.True(result.ExitCode == 0,
+        Assert.True(result.ExitCode is 0,
             $"Build failed for {polyfill.InjectionProperty} on {tfm}. Output: {result.ProcessOutput}");
 
         // Check if the expected file is in the output

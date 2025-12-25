@@ -62,7 +62,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
                                              """);
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode == 0,
+        Assert.True(result.ExitCode is 0,
             $"Build failed when combining language feature polyfills. Output: {result.ProcessOutput}");
     }
 
@@ -107,7 +107,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
                                            """);
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode == 0,
+        Assert.True(result.ExitCode is 0,
             $"Build failed when combining Throw + TimeProvider polyfills. Output: {result.ProcessOutput}");
     }
 
@@ -166,7 +166,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
                                                """);
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode == 0,
+        Assert.True(result.ExitCode is 0,
             $"Build failed for realistic service with common polyfills. Output: {result.ProcessOutput}");
     }
 
@@ -217,7 +217,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
                                         """);
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode == 0,
+        Assert.True(result.ExitCode is 0,
             $"Build failed when combining Nullable + CallerExpression polyfills. Output: {result.ProcessOutput}");
     }
 }

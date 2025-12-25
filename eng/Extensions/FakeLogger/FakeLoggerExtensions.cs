@@ -10,7 +10,7 @@ public static class FakeLoggerExtensions
         Func<FakeLogRecord, string>? formatter = null)
     {
         StringBuilder sb = new();
-        IReadOnlyList<FakeLogRecord> snapshot = source.GetSnapshot();
+        var snapshot = source.GetSnapshot();
         formatter ??= record => $"{record.Level} - {record.Message}";
 
         foreach (var record in snapshot) sb.AppendLine(formatter(record));

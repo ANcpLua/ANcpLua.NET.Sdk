@@ -135,12 +135,12 @@ internal sealed class ProjectBuilder : IAsyncDisposable
     {
         sdk ??= _defaultSdkName;
         var propertiesElement = new XElement("PropertyGroup");
-        if (properties != null)
+        if (properties is not null)
             foreach (var prop in properties)
                 propertiesElement.Add(new XElement(prop.Name, prop.Value));
 
         var packagesElement = new XElement("ItemGroup");
-        if (nuGetPackages != null)
+        if (nuGetPackages is not null)
             foreach (var package in nuGetPackages)
                 packagesElement.Add(new XElement("PackageReference", new XAttribute("Include", package.Name),
                     new XAttribute("Version", package.Version)));
@@ -228,7 +228,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
             UseShellExecute = false
         };
         psi.ArgumentList.Add(command);
-        if (buildArguments != null)
+        if (buildArguments is not null)
             foreach (var arg in buildArguments)
                 psi.ArgumentList.Add(arg);
 
@@ -255,7 +255,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         psi.Environment["NUGET_SCRATCH"] = _fixture.PackageDirectory / "nuget-scratch";
         psi.Environment["NUGET_PLUGINS_CACHE_PATH"] = _fixture.PackageDirectory / "nuget-plugins-cache";
 
-        if (environmentVariables != null)
+        if (environmentVariables is not null)
             foreach (var env in environmentVariables)
                 psi.Environment[env.Name] = env.Value;
 
@@ -268,7 +268,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
 
         // Retry up to 5 times if MSB4236 error occurs (SDK resolution issue)
         const int maxRetries = 5;
-        for (var retry = 0; retry < maxRetries && result.ExitCode != 0; retry++)
+        for (var retry = 0; retry < maxRetries && result.ExitCode is not 0; retry++)
             if (result.Output.Any(line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
                                           line.Text.Contains(
                                               "The project file may be invalid or missing targets required for restore",
@@ -348,7 +348,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
             psi.ArgumentList.Add($"{param.Key}={param.Value}");
         }
 
-        if (arguments != null)
+        if (arguments is not null)
             foreach (var arg in arguments)
                 psi.ArgumentList.Add(arg);
 

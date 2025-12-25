@@ -170,7 +170,7 @@ internal static class ThrowPolyfills
             int value,
             [CallerArgumentExpression(nameof(value))] string? paramName = null)
         {
-            if (value == 0)
+            if (value is 0)
             {
                 ThrowZero(value, paramName);
             }
