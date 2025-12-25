@@ -87,7 +87,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY", GetGitHubStepSummaryContent() ?? "");
+        TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY", XmlSanitizer.SanitizeForXml(GetGitHubStepSummaryContent()));
         await _directory.DisposeAsync();
     }
 
@@ -246,7 +246,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         {
             _testOutputHelper.WriteLine("File: " + file);
             var content = await File.ReadAllTextAsync(file);
-            _testOutputHelper.WriteLine(content);
+            _testOutputHelper.WriteLine(XmlSanitizer.SanitizeForXml(content));
         }
 
         _testOutputHelper.WriteLine("-------- dotnet " + command);
@@ -316,7 +316,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
                 break;
 
         _testOutputHelper.WriteLine("Process exit code: " + result.ExitCode);
-        _testOutputHelper.WriteLine(result.Output.ToString());
+        _testOutputHelper.WriteLine(XmlSanitizer.SanitizeForXml(result.Output.ToString()));
 
         var sarifPath = _directory.FullPath / SarifFileName;
         SarifFile? sarif = null;
@@ -325,7 +325,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
             var bytes = await File.ReadAllBytesAsync(sarifPath);
             sarif = JsonSerializer.Deserialize<SarifFile>(bytes);
             _testOutputHelper.WriteLine("Sarif result:\n" +
-                                        string.Join("\n", sarif!.AllResults().Select(r => r.ToString())));
+                                        XmlSanitizer.SanitizeForXml(string.Join("\n", sarif!.AllResults().Select(r => r.ToString()))));
         }
         else
             _testOutputHelper.WriteLine("Sarif file not found: " + sarifPath);
@@ -337,7 +337,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         if (File.Exists(vstestdiagPath))
         {
             vstestDiagContent = await File.ReadAllTextAsync(vstestdiagPath);
-            TestContext.Current.AddAttachment(vstestdiagPath.Name, vstestDiagContent);
+            TestContext.Current.AddAttachment(vstestdiagPath.Name, XmlSanitizer.SanitizeForXml(vstestDiagContent));
         }
 
         if (result.Output.Any(line => line.Text.Contains("Could not resolve SDK")))
