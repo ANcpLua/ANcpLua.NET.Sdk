@@ -451,16 +451,6 @@ static IEnumerable<INamespaceSymbol> GetAllNamespaces(IAssemblySymbol assembly)
     }
 }
 
-internal sealed record AnalyzerRule(
-    string Id,
-    string Title,
-    string? Url,
-    bool Enabled,
-    DiagnosticSeverity DefaultSeverity,
-    DiagnosticSeverity? DefaultEffectiveSeverity);
-
-internal sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
-
 // Skip types that can't be loaded (e.g., VB analyzers when we only have C# Roslyn)
 static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
 {
@@ -473,3 +463,13 @@ static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
         return ex.Types.Where(t => t is not null)!;
     }
 }
+
+internal sealed record AnalyzerRule(
+    string Id,
+    string Title,
+    string? Url,
+    bool Enabled,
+    DiagnosticSeverity DefaultSeverity,
+    DiagnosticSeverity? DefaultEffectiveSeverity);
+
+internal sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
