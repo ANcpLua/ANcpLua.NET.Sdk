@@ -57,8 +57,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          submodules: true
       - uses: actions/setup-dotnet@v5
-      - run: ./build.ps1 "-p:Version=${{ needs.compute_version.outputs.package_version }}"
+      - run: ./build.ps1 -Version ${{ needs.compute_version.outputs.package_version }}
       - uses: actions/upload-artifact@v6
         with:
           name: nuget
