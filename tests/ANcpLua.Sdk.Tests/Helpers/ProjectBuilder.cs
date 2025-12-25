@@ -57,6 +57,17 @@ internal sealed class ProjectBuilder : IAsyncDisposable
                                                    </configuration>
                                                    """);
 
+        // Create isolated global.json to prevent inheriting test.runner from parent directory
+        // This ensures temp projects don't get forced into MTP mode
+        _directory.CreateTextFile("global.json", """
+                                                 {
+                                                   "sdk": {
+                                                     "rollForward": "latestMinor",
+                                                     "version": "10.0.100"
+                                                   }
+                                                 }
+                                                 """);
+
         if (defaultSdkImportStyle is SdkImportStyle.SdkElementDirectoryBuildProps)
             AddDirectoryBuildPropsFile(string.Empty);
 
