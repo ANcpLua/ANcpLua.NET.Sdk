@@ -263,3 +263,21 @@ __pycache__/
 
 # Generated files from Roslyn.Utilities transformation
 eng/.generated/
+
+# macOS
+.DS_Store
+*/.DS_Store
+**/.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# Temporary files
+*.swp
+*.swo
+*.tmp
