@@ -1,0 +1,30 @@
+name: Debug Windows Test
+on: workflow_dispatch
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
+          dotnet-quality: 'preview'
+
+      - name: Pack SDK
+        run: pwsh ./build.ps1 -Version 999.9.9
+
+      - name: Run Single Test
+        run: dotnet test tests/ANcpLua.Sdk.Tests/ --filter "FullyQualifiedName~VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3" --logger "trx" -v detailed
+        env:
+          PACKAGE_VERSION: 999.9.9
+          NUGET_DIRECTORY: ${{ github.workspace }}/artifacts
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: "**/*.trx"
