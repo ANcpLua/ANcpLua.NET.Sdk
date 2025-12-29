@@ -33,24 +33,24 @@ public abstract class MtpDetectionTests(
         [new("xunit", "2.9.3"), new("xunit.runner.visualstudio", "3.1.5")];
 
     private static readonly NuGetReference[] XUnit3PlainPackages =
-        [new("xunit.v3", "3.2.0")];
+        [new("xunit.v3", "3.2.1")];
 
     private static readonly NuGetReference[] XUnit3MtpV1Packages =
-        [new("xunit.v3.mtp-v1", "3.2.0")];
+        [new("xunit.v3.mtp-v1", "3.2.1")];
 
     private static readonly NuGetReference[] XUnit3MtpV2Packages =
-        [new("xunit.v3.mtp-v2", "3.2.0")];
+        [new("xunit.v3.mtp-v2", "3.2.1")];
 
     private static readonly NuGetReference[] XUnit3MtpOffPackages =
-        [new("xunit.v3.mtp-off", "3.2.0")];
+        [new("xunit.v3.mtp-off", "3.2.1")];
 
     private static readonly NuGetReference[] NUnitPackages =
         [new("NUnit", "4.3.2"), new("NUnit3TestAdapter", "5.0.0")];
 
-    private static readonly NuGetReference[] MSTestPackages =
+    private static readonly NuGetReference[] MsTestPackages =
         [new("MSTest.TestFramework", "3.8.3"), new("MSTest.TestAdapter", "3.8.3")];
 
-    private static readonly NuGetReference[] TUnitPackages =
+    private static readonly NuGetReference[] UnitPackages =
         [new("TUnit", "0.17.28")];
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkTestName)
@@ -334,7 +334,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. MSTestPackages]
+            nuGetPackages: [.. MsTestPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -371,7 +371,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("EnableMSTestRunner", "true")],
-            nuGetPackages: [.. MSTestPackages]
+            nuGetPackages: [.. MsTestPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -403,7 +403,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. TUnitPackages]
+            nuGetPackages: [.. UnitPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -462,7 +462,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. TUnitPackages]
+            nuGetPackages: [.. UnitPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -489,7 +489,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. TUnitPackages]
+            nuGetPackages: [.. UnitPackages]
         );
 
         project.AddFile("Tests.cs", """

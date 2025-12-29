@@ -87,7 +87,8 @@ internal sealed class ProjectBuilder : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY", XmlSanitizer.SanitizeForXml(GetGitHubStepSummaryContent()));
+        TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY",
+            XmlSanitizer.SanitizeForXml(GetGitHubStepSummaryContent()));
         await _directory.DisposeAsync();
     }
 
@@ -98,9 +99,7 @@ internal sealed class ProjectBuilder : IAsyncDisposable
 
     public string? GetGitHubStepSummaryContent()
     {
-        if (File.Exists(_githubStepSummaryFile)) return File.ReadAllText(_githubStepSummaryFile);
-
-        return null;
+        return File.Exists(_githubStepSummaryFile) ? File.ReadAllText(_githubStepSummaryFile) : null;
     }
 
     public FullPath AddFile(string relativePath, string content)
@@ -325,7 +324,8 @@ internal sealed class ProjectBuilder : IAsyncDisposable
             var bytes = await File.ReadAllBytesAsync(sarifPath);
             sarif = JsonSerializer.Deserialize<SarifFile>(bytes);
             _testOutputHelper.WriteLine("Sarif result:\n" +
-                                        XmlSanitizer.SanitizeForXml(string.Join("\n", sarif!.AllResults().Select(r => r.ToString()))));
+                                        XmlSanitizer.SanitizeForXml(string.Join("\n",
+                                            sarif!.AllResults().Select(r => r.ToString()))));
         }
         else
             _testOutputHelper.WriteLine("Sarif file not found: " + sarifPath);
@@ -333,10 +333,9 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         var binlogContent = await File.ReadAllBytesAsync(_directory.FullPath / "msbuild.binlog");
         TestContext.Current.AddAttachment($"msbuild{_buildCount}.binlog", binlogContent);
 
-        string? vstestDiagContent = null;
         if (File.Exists(vstestdiagPath))
         {
-            vstestDiagContent = await File.ReadAllTextAsync(vstestdiagPath);
+            var vstestDiagContent = await File.ReadAllTextAsync(vstestdiagPath);
             TestContext.Current.AddAttachment(vstestdiagPath.Name, XmlSanitizer.SanitizeForXml(vstestDiagContent));
         }
 
@@ -383,5 +382,41 @@ internal sealed class ProjectBuilder : IAsyncDisposable
                 psi.ArgumentList.Add(arg);
 
         return psi.RunAsTaskAsync();
+    }
+}
+
+/// <summary>
+/// Utility to sanitize strings for XML 1.0 compatibility.
+/// XML 1.0 does not allow certain control characters (like form feed 0x0C).
+/// </summary>
+internal static class XmlSanitizer
+{
+    /// <summary>
+    /// Removes characters that are invalid in XML 1.0 documents.
+    /// Valid characters: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+    /// </summary>
+    public static string SanitizeForXml(string? text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return text ?? string.Empty;
+
+        // Fast path: check if any invalid characters exist
+        var hasInvalidChars = text.Any(ch => !IsValidXmlChar(ch));
+
+        return !hasInvalidChars ? text :
+            // Slow path: filter out invalid characters
+            new string(text.Where(IsValidXmlChar).ToArray());
+    }
+
+    private static bool IsValidXmlChar(char ch)
+    {
+        // XML 1.0 valid characters:
+        // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD]
+        // Note: Surrogate pairs (#x10000-#x10FFFF) are handled by .NET as two chars
+        return ch == 0x9 ||
+               ch == 0xA ||
+               ch == 0xD ||
+               (ch >= 0x20 && ch <= 0xD7FF) ||
+               (ch >= 0xE000 && ch <= 0xFFFD);
     }
 }

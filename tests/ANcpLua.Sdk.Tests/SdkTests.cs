@@ -3,6 +3,7 @@ using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
 using ANcpLua.Sdk.Tests.Helpers;
+using ANcpLua.Sdk.Tests.Infrastructure;
 using Meziantou.Framework;
 using NuGet.Packaging;
 using NuGet.Packaging.Licenses;
@@ -12,13 +13,13 @@ using Task = System.Threading.Tasks.Task;
 
 namespace ANcpLua.Sdk.Tests;
 
-public sealed class Sdk10_0_Root_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
+public sealed class Sdk100RootTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
     : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net100, SdkImportStyle.ProjectElement);
 
-public sealed class Sdk10_0_Inner_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
+public sealed class Sdk100InnerTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
     : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net100, SdkImportStyle.SdkElement);
 
-public sealed class Sdk10_0_DirectoryBuildProps_Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
+public sealed class Sdk100DirectoryBuildPropsTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
     : SdkTests(fixture, testOutputHelper, NetSdkVersion.Net100, SdkImportStyle.SdkElementDirectoryBuildProps);
 
 public abstract class SdkTests(
@@ -32,10 +33,10 @@ public abstract class SdkTests(
         [new("xunit", "2.9.3"), new("xunit.runner.visualstudio", "3.1.5")];
 
     private static readonly NuGetReference[] XUnit3References =
-        [new("xunit.v3", "3.2.0"), new("xunit.runner.visualstudio", "3.1.5")];
+        [new("xunit.v3", "3.2.1"), new("xunit.runner.visualstudio", "3.1.5")];
 
-    private static readonly NuGetReference[] XUnit3MTP2References =
-        [new("xunit.v3.mtp-v2", "3.2.0"), new("xunit.runner.visualstudio", "3.1.5")];
+    private static readonly NuGetReference[] XUnit3Mtp2References =
+        [new("xunit.v3.mtp-v2", "3.2.1"), new("xunit.runner.visualstudio", "3.1.5")];
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkName)
     {
@@ -47,7 +48,7 @@ public abstract class SdkTests(
     [Fact]
     public void PackageReferenceAreValid()
     {
-        var root = PathHelpers.GetRootDirectory() / "src";
+        var root = RepositoryRoot.Locate()["src"];
         var files = Directory.GetFiles(root, "*", SearchOption.AllDirectories).Select(FullPath.FromPath);
         foreach (var file in files)
             if (file.Extension is ".props" or ".targets")
@@ -238,12 +239,12 @@ public abstract class SdkTests(
         project.AddCsprojFile();
         project.AddFile("sample.cs", "_ = System.DateTime.Now;");
         var localFile = project.AddFile(".editorconfig", "");
-        TestContext.Current.TestOutputHelper.WriteLine("Local editorconfig path: " + localFile);
+        TestContext.Current.TestOutputHelper?.WriteLine("Local editorconfig path: " + localFile);
 
         var data = await project.BuildAndGetOutput();
 
         var files = data.GetBinLogFiles();
-        foreach (var file in files) TestContext.Current.TestOutputHelper.WriteLine("Binlog file: " + file);
+        foreach (var file in files) TestContext.Current.TestOutputHelper?.WriteLine("Binlog file: " + file);
 
         Assert.Contains(files, f => f.EndsWith(".editorconfig", StringComparison.Ordinal));
         Assert.Contains(files, f => f == localFile || f == "/private" + localFile); // macos may prefix it with /private
@@ -408,7 +409,7 @@ public abstract class SdkTests(
     }
 
     [Fact]
-    public async Task MSBuildWarningsAsError()
+    public async Task MsBuildWarningsAsError()
     {
         await using var project = CreateProjectBuilder();
         project.AddFile("Program.cs", """
@@ -727,7 +728,7 @@ public abstract class SdkTests(
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.coverage", SearchOption.AllDirectories));
         Assert.True(data.OutputContains("::error title=Tests.Test1,"),
             "Output must contain '::error title=Tests.Test1'");
-        Assert.NotEmpty(project.GetGitHubStepSummaryContent());
+        Assert.NotEmpty(project.GetGitHubStepSummaryContent() ?? "");
     }
 
     [Fact]
@@ -761,7 +762,7 @@ public abstract class SdkTests(
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
         Assert.True(data.OutputContains("::error title=Tests.Test1,"),
             "Output must contain '::error title=Tests.Test1'");
-        Assert.NotEmpty(project.GetGitHubStepSummaryContent());
+        Assert.NotEmpty(project.GetGitHubStepSummaryContent() ?? "");
     }
 
     [Fact]
@@ -788,7 +789,7 @@ public abstract class SdkTests(
 
         Assert.Equal(1, data.ExitCode);
         Assert.True(data.OutputContains("failure message"));
-        Assert.Empty(project.GetGitHubStepSummaryContent());
+        Assert.Empty(project.GetGitHubStepSummaryContent() ?? "");
         Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
         Assert.Empty(Directory.GetFiles(project.RootFolder, "*.coverage", SearchOption.AllDirectories));
     }
@@ -1103,7 +1104,7 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder(SdkWebName);
         project.AddCsprojFile(filename: "sample.csproj");
 
-        var csprojFile = project.AddFile("Program.cs", "Console.WriteLine();");
+        project.AddFile("Program.cs", "Console.WriteLine();");
         var slnFile = project.AddFile("sample.slnx", """
                                                      <Solution>
                                                          <Project Path="sample.csproj" />
@@ -1134,7 +1135,7 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder(SdkWebName);
         project.AddCsprojFile(filename: "sample.csproj");
 
-        var csprojFile = project.AddFile("Program.cs", "Console.WriteLine();");
+        project.AddFile("Program.cs", "Console.WriteLine();");
         var slnFile = project.AddFile("sample.slnx", """
                                                      <Solution>
                                                          <Project Path="sample.csproj" />

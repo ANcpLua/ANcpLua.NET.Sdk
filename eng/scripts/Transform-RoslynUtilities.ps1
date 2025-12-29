@@ -4,7 +4,9 @@
 param([switch]$Verbose)
 
 $ErrorActionPreference = 'Stop'
-$sourceDir = "$PSScriptRoot/../submodules/Roslyn.Utilities/ANcpLua.Roslyn.Utilities/ANcpLua.Roslyn.Utilities"
+# IMPORTANT: Resolve paths to canonical form to avoid substring calculation issues
+# Get-ChildItem returns resolved paths, so $sourceDir must also be resolved
+$sourceDir = (Resolve-Path "$PSScriptRoot/../submodules/Roslyn.Utilities/ANcpLua.Roslyn.Utilities/ANcpLua.Roslyn.Utilities").Path
 $outputDir = "$PSScriptRoot/../.generated/SourceGen"
 
 if (-not (Test-Path $sourceDir)) {

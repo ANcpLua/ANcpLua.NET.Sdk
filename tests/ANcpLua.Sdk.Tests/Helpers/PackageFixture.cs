@@ -17,14 +17,14 @@ public class PackageFixture : IAsyncLifetime
     private static readonly (string Name, string Version)[] ExternalPackages =
     [
         ("xunit", "2.9.3"),
-        ("xunit.v3", "3.2.0"),
-        ("xunit.v3.mtp-v2", "3.2.0"),
+        ("xunit.v3", "3.2.1"),
+        ("xunit.v3.mtp-v2", "3.2.1"),
         ("xunit.runner.visualstudio", "3.1.5"),
         ("Newtonsoft.Json", "13.0.4"),
-        ("System.Net.Http", "4.3.3"),
-        ("Microsoft.Sbom.Targets", "4.1.4"),
-        ("OpenTelemetry", "1.10.0"),
-        ("OpenTelemetry.Extensions.Hosting", "1.10.0")
+        ("System.Net.Http", "4.3.4"),
+        ("Microsoft.Sbom.Targets", "4.1.5"),
+        ("OpenTelemetry", "1.14.0"),
+        ("OpenTelemetry.Extensions.Hosting", "1.14.0")
     ];
 
     private readonly TemporaryDirectory _packageDirectory = TemporaryDirectory.Create();
@@ -106,7 +106,7 @@ public class PackageFixture : IAsyncLifetime
         buildFiles.AddRange(engProjects);
 
         Assert.NotEmpty(buildFiles);
-        await Parallel.ForEachAsync(buildFiles, async (nuspecPath, _) =>
+        await Parallel.ForEachAsync(buildFiles, async (nuspecPath, t) =>
         {
             var psi = new ProcessStartInfo("dotnet")
             {
@@ -118,7 +118,7 @@ public class PackageFixture : IAsyncLifetime
             psi.ArgumentList.AddRange("pack", nuspecPath, "-c", "Release", "-p:NuspecProperties=version=" + Version,
                 "--output",
                 _packageDirectory.FullPath);
-            var result = await psi.RunAsTaskAsync(_);
+            var result = await psi.RunAsTaskAsync(t);
             if (result.ExitCode is not 0)
                 Assert.Fail($"NuGet pack failed with exit code {result.ExitCode}. Output: {result.Output}");
         });
@@ -174,7 +174,7 @@ public class PackageFixture : IAsyncLifetime
             // Create warmup project that references all external packages
             var csproj = $"""
                           <Project Sdk="Microsoft.NET.Sdk">
-                              <Sdk Name="Microsoft.Sbom.Targets" Version="4.1.4" />
+                              <Sdk Name="Microsoft.Sbom.Targets" Version="4.1.5" />
                               <PropertyGroup>
                                   <TargetFramework>net10.0</TargetFramework>
                                   <GenerateSBOM>false</GenerateSBOM>

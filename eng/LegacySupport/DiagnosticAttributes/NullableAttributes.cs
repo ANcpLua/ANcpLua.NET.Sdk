@@ -143,7 +143,7 @@ internal sealed class MemberNotNullAttribute : Attribute
     /// </param>
     public MemberNotNullAttribute(string member)
     {
-        Members = new[] { member };
+        Members = [member];
     }
 
     /// <summary>Initializes the attribute with the list of field and property members.</summary>

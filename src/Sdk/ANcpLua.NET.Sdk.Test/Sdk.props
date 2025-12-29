@@ -5,6 +5,7 @@
   <PropertyGroup>
     <ANcpLuaSdkName>ANcpLua.NET.Sdk.Test</ANcpLuaSdkName>
     <IsTestProject>true</IsTestProject>
+    <!-- Default OutputType for test projects (may be overridden by user or Common.targets for MTP) -->
     <OutputType Condition="'$(OutputType)' == ''">Library</OutputType>
     <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
 

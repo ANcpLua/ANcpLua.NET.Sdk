@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Meziantou.Framework;
 using Microsoft.Build.Logging.StructuredLogger;
 
@@ -88,7 +89,7 @@ public sealed record BuildResult(
         return build.FindLastDescendant<Property>(e => e.Name == name)?.Value;
     }
 
-    public void AssertMsBuildPropertyValue(string name, string expectedValue, bool ignoreCase = true)
+    public void AssertMsBuildPropertyValue(string name, string? expectedValue, bool ignoreCase = true)
     {
         var build = GetBuild();
         var actual = build.FindLastDescendant<Property>(e => e.Name == name)?.Value;
@@ -108,4 +109,43 @@ public sealed record BuildResult(
 
         return true;
     }
+}
+
+public class SarifFile
+{
+    [JsonPropertyName("runs")] public SarifFileRun[]? Runs { get; set; }
+
+    public IEnumerable<SarifFileRunResult> AllResults()
+    {
+        return Runs?.SelectMany(r => r.Results ?? []) ?? [];
+    }
+}
+
+public class SarifFileRunResult
+{
+    [JsonPropertyName("ruleId")] public string? RuleId { get; set; }
+
+    [JsonPropertyName("level")] public string? Level { get; set; }
+
+    [JsonPropertyName("message")] public SarifFileRunResultMessage? Message { get; set; }
+
+    public override string ToString()
+    {
+        return $"{Level}:{RuleId} {Message}";
+    }
+}
+
+public class SarifFileRunResultMessage
+{
+    [JsonPropertyName("text")] public string? Text { get; set; }
+
+    public override string ToString()
+    {
+        return Text ?? "";
+    }
+}
+
+public class SarifFileRun
+{
+    [JsonPropertyName("results")] public SarifFileRunResult[]? Results { get; set; }
 }

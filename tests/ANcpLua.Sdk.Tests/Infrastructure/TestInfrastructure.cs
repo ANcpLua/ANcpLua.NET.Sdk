@@ -276,11 +276,13 @@ public readonly record struct PolyfillDefinition(
         "_ = typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute);",
         TargetFrameworks.NetStandard20);
 
-    public static ImmutableArray<PolyfillDefinition> All => ImmutableArray.Create(
+    public static ImmutableArray<PolyfillDefinition> All =>
+    [
         Lock, TimeProvider, IndexRange, IsExternalInit,
         RequiredMember, CompilerFeatureRequired, CallerArgumentExpression, ParamCollection,
         UnreachableException, StackTraceHidden, NullableAttributes, TrimAttributes, ExperimentalAttribute,
-        Throw, StringOrdinalComparer, DiagnosticClasses);
+        Throw, StringOrdinalComparer, DiagnosticClasses
+    ];
 }
 
 public readonly record struct RepositoryRoot
@@ -380,14 +382,8 @@ public sealed class MsBuildPropertyBuilder : Dictionary<string, string?>
         foreach (var snippet in xmlSnippets)
         {
             if (string.IsNullOrWhiteSpace(snippet)) continue;
-            try
-            {
-                var element = XElement.Parse(snippet);
-                builder[element.Name.LocalName] = element.Value;
-            }
-            catch
-            {
-            }
+            var element = XElement.Parse(snippet);
+            builder[element.Name.LocalName] = element.Value;
         }
 
         return builder;
@@ -419,18 +415,19 @@ public static class XmlSnippetBuilder
 
 public static class PolyfillTestDataSource
 {
-    public static TheoryData<string> AllTargetFrameworks => new()
-    {
+    public static TheoryData<string> AllTargetFrameworks =>
+    [
         TargetFrameworks.NetStandard20,
         TargetFrameworks.Net100
-    };
+    ];
 
-    public static TheoryData<string> AllLangVersions => new()
-    {
+    public static TheoryData<string> AllLangVersions =>
+    [
         "12",
         "13",
+        "14",
         MsBuildValues.Latest
-    };
+    ];
 
     public static TheoryData<PolyfillDefinition, string, bool> InjectionMatrix()
     {
@@ -439,8 +436,7 @@ public static class PolyfillTestDataSource
         {
             data.Add(polyfill, polyfill.MinimumTargetFramework, true);
 
-            var isExtension = polyfill.InjectionProperty == InjectionPropertyNames.Throw ||
-                              polyfill.InjectionProperty == InjectionPropertyNames.StringOrdinalComparer;
+            var isExtension = polyfill.InjectionProperty is InjectionPropertyNames.Throw or InjectionPropertyNames.StringOrdinalComparer;
 
             data.Add(polyfill, TargetFrameworks.Net100, isExtension);
         }
@@ -599,4 +595,42 @@ public sealed class ExperimentalAttributeFile : IPolyfillMarker
     public static string InjectPropertyName => InjectionPropertyNames.ExperimentalAttribute;
     public static string ExpectedType => PolyfillTypeNames.ExperimentalAttribute;
     public static string ActivationSnippet => PolyfillActivationCode.Experimental;
+}
+
+// ============================================================================
+// CRITICAL: ALL SDK BRANDING STRINGS MUST COME FROM HERE
+//
+// DO NOT hardcode "randomanme", "wellknownname",  names anywhere.
+// This file is the SINGLE SOURCE OF TRUTH for all branding.
+//
+// History: 7 hours lost debugging because of hardcoded legacy names (2025-12-16)
+// ============================================================================
+
+/// <summary>
+///     Single source of truth for all SDK branding strings.
+///     NEVER hardcode these values - always reference this class.
+/// </summary>
+public static class SdkBrandingConstants
+{
+    public const string Author = "ANcpLua";
+    public const string SdkMetadataKey = "ANcpLua.Sdk.Name";
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // LEGACY NAMES - FOR DETECTION/MIGRATION ONLY - DO NOT USE IN NEW CODE!
+    // ═══════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    ///     Legacy names that should NEVER appear in code. Used for validation only.
+    ///     If you see these in a PR review, REJECT IT.
+    /// </summary>
+    public static readonly string[] LegacyNamesToBlock =
+    [
+        "Meziantou",
+        "meziantou",
+        "MEZIANTOU",
+        "UseMeziantouConventions",
+        "MeziantouServiceDefaultsOptions",
+        "Meziantou.AspNetCore.ServiceDefaults",
+        "Meziantou.Sdk.Name"
+    ];
 }
