@@ -163,8 +163,8 @@ eng/
 └── LegacySupport/             # Polyfills
 
 tests/ANcpLua.Sdk.Tests/
-├── Helpers/                   # PackageFixture, ProjectBuilder
-└── Infrastructure/            # SdkBrandingConstants
+├── Helpers/                   # PackageFixture, ProjectBuilder, BuildResult
+└── Infrastructure/            # TestInfrastructure, PolyfillTestCases
 ```
 
 ## Key MSBuild Properties
@@ -318,5 +318,5 @@ Location, ISymbol, Compilation, SemanticModel, SyntaxNode
 |------|---------|
 | `src/common/Common.targets` | Main injection logic |
 | `src/common/LegacySupport.targets` | Polyfill + SourceGen injection |
-| `tests/.../SdkBrandingConstants.cs` | Branding source of truth |
+| `tests/.../TestInfrastructure.cs` | Test constants, polyfill definitions, branding |
 | `tests/.../ProjectBuilder.cs` | Test project builder |
