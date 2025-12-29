@@ -8,7 +8,7 @@
     <!-- NuGet Package -->
     <IsPackable>true</IsPackable>
     <PackageId>ANcpSdk.AspNetCore.ServiceDefaults</PackageId>
-    <Version>1.0.0</Version>
+    <Version>$(ANcpSdkPackageVersion)</Version>
     <Authors>ANcpLua</Authors>
     <Description>Default configuration for ANcpSdk applications - OpenTelemetry, Health Checks, Resilience</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

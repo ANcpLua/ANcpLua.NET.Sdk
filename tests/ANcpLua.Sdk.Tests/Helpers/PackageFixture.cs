@@ -115,7 +115,8 @@ public class PackageFixture : IAsyncLifetime
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-            psi.ArgumentList.AddRange("pack", nuspecPath, "-c", "Release", "-p:NuspecProperties=version=" + Version,
+            psi.ArgumentList.AddRange("pack", nuspecPath, "-c", "Release",
+                "-p:Version=" + Version, "-p:NuspecProperties=version=" + Version,
                 "--output",
                 _packageDirectory.FullPath);
             var result = await psi.RunAsTaskAsync(t);
