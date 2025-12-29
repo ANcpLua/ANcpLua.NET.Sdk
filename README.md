@@ -16,10 +16,10 @@ Replace your SDK reference:
 
 ```xml
 <!-- Libraries / Console / Workers -->
-<Project Sdk="ANcpLua.NET.Sdk/1.2.0"></Project>
+<Project Sdk="ANcpLua.NET.Sdk/1.2.4"></Project>
 
 <!-- Web APIs / ASP.NET Core -->
-<Project Sdk="ANcpLua.NET.Sdk.Web/1.2.0"></Project>
+<Project Sdk="ANcpLua.NET.Sdk.Web/1.2.4"></Project>
 ```
 
 Or use `global.json` for centralized version management:
@@ -27,8 +27,8 @@ Or use `global.json` for centralized version management:
 ```json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "1.2.0",
-    "ANcpLua.NET.Sdk.Web": "1.2.0"
+    "ANcpLua.NET.Sdk": "1.2.4",
+    "ANcpLua.NET.Sdk.Web": "1.2.4"
   }
 }
 ```
