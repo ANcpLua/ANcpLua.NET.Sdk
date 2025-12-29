@@ -27,9 +27,9 @@
 
   <!-- Run npm install for each NpmPackageFile -->
   <Target Name="NpmRestore" DependsOnTargets="ComputeNpmPackageMetadata;NpmRestoreForce" Inputs="@(NpmPackageFile)" Outputs="%(NpmPackageFile.StampFile)" BeforeTargets="Restore;CollectPackageReferences">
-    <Message Importance="high" Text="Installing npm packages for @(NpmPackageFile)"/>
-    <Exec Command="@(NpmPackageFile->'%(RestoreCommand)')" WorkingDirectory="%(WorkingDirectory)"/>
-    <Touch Files="@(NpmPackageFile->'%(StampFile)')" AlwaysCreate="true"/>
+    <Message Importance="high" Text="Installing npm packages for %(NpmPackageFile.Identity)"/>
+    <Exec Command="%(NpmPackageFile.RestoreCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)"/>
+    <Touch Files="%(NpmPackageFile.StampFile)" AlwaysCreate="true"/>
   </Target>
 
   <!-- Reinstall npm packages when using dotnet build force -->
@@ -42,7 +42,7 @@
 
   <!-- dotnet msbuild /t:NpmInstall -->
   <Target Name="NpmInstall" DependsOnTargets="ComputeNpmPackageMetadata">
-    <Exec Command="@(NpmPackageFile->'%(InstallCommand)')" WorkingDirectory="%(WorkingDirectory)"/>
+    <Exec Command="%(NpmPackageFile.InstallCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)"/>
   </Target>
 
   <Target Name="EmbedNpmLockFileInBinLog" DependsOnTargets="ComputeNpmPackageMetadata" AfterTargets="CoreCompile">
