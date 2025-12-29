@@ -188,10 +188,3 @@ dotnet test tests/ANcpLua.Sdk.Tests
 ## License
 
 MIT
-
----
-
-## Credits
-
-- Inspired by [Meziantou.NET.Sdk](https://github.com/meziantou/Meziantou.NET.Sdk) by Gérald Barré
-- ServiceDefaults pattern from [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/)
