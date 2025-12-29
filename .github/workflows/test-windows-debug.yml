@@ -14,6 +14,14 @@ jobs:
           dotnet-version: '10.0.x'
           dotnet-quality: 'preview'
 
+      - name: Remove Windows skip from test
+        run: |
+          $file = "tests/ANcpLua.Sdk.Tests/SdkTests.cs"
+          $content = Get-Content $file -Raw
+          $content = $content -replace 'if \(OperatingSystem\.IsWindows\(\)\) Assert\.Skip\("Failing, need more investigation"\);', '// SKIP REMOVED FOR DEBUGGING'
+          Set-Content $file $content
+          Write-Host "Patched SdkTests.cs - removed Windows skip"
+
       - name: Pack SDK
         run: pwsh ./build.ps1 -Version 999.9.9
 
