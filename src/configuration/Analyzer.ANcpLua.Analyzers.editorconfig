@@ -1,0 +1,69 @@
+# global_level must be higher than the NET Analyzer files
+is_global = true
+global_level = 0
+
+# AL0001: Prohibit reassignment of primary constructor parameters
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0001.md
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL0001.severity = error
+
+# AL0002: Don't repeat negated patterns
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0002.md
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0002.severity = warning
+
+# AL0003: Don't divide by constant zero
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0003.md
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL0003.severity = error
+
+# AL0004: Use pattern matching when comparing Span with constants
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0004.md
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0004.severity = warning
+
+# AL0005: Use SequenceEqual when comparing Span with non-constants
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0005.md
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0005.severity = warning
+
+# AL0006: Field name conflicts with primary constructor parameter
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0006.md
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0006.severity = warning
+
+# AL0007: GetSchema should be explicitly implemented
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0007.md
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL0007.severity = error
+
+# AL0008: GetSchema must return null and not be abstract
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0008.md
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL0008.severity = error
+
+# AL0009: Don't call IXmlSerializable.GetSchema
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0009.md
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL0009.severity = error
+
+# AL0010: Type should be partial
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0010.md
+# Enabled: False, Severity: suggestion
+dotnet_diagnostic.AL0010.severity = none
+
+# AL0011: Avoid lock keyword on non-Lock types
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0011.md
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0011.severity = warning
+
+# AL0012: Deprecated semantic convention attribute
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0012.md
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0012.severity = warning
+
+# AL0013: Missing telemetry schema URL
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0013.md
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL0013.severity = suggestion
+

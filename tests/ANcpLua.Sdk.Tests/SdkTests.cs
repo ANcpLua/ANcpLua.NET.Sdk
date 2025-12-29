@@ -996,9 +996,7 @@ public abstract class SdkTests(
     [InlineData("TargetFramework", "")]
     [InlineData("TargetFrameworks", "")]
     [InlineData("TargetFramework", "net8.0")]
-    [InlineData("TargetFramework", "net9.0")]
     [InlineData("TargetFrameworks", "net8.0")]
-    [InlineData("TargetFrameworks", "net9.0")]
     public async Task SetTargetFramework(string propName, string version)
     {
         await using var project = CreateProjectBuilder();

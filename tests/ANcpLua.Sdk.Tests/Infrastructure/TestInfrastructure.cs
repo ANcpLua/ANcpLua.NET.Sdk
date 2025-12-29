@@ -4,56 +4,57 @@ using Meziantou.Framework;
 
 namespace ANcpLua.Sdk.Tests.Infrastructure;
 
+// Legacy aliases for backwards compatibility - use Tfm, Prop, Val, Item, Attr instead
 public static class TargetFrameworks
 {
-    public const string NetStandard20 = "netstandard2.0";
-    public const string Net80 = "net8.0";
-    public const string Net100 = "net10.0";
+    public const string NetStandard20 = Tfm.NetStandard20;
+    public const string Net80 = Tfm.Net80;
+    public const string Net100 = Tfm.Net100;
 }
 
 public static class MsBuildProperties
 {
-    public const string TargetFramework = nameof(TargetFramework);
-    public const string TargetFrameworks = nameof(TargetFrameworks);
-    public const string OutputType = nameof(OutputType);
-    public const string Nullable = nameof(Nullable);
-    public const string ImplicitUsings = nameof(ImplicitUsings);
-    public const string LangVersion = nameof(LangVersion);
-    public const string TreatWarningsAsErrors = nameof(TreatWarningsAsErrors);
-    public const string IsPackable = nameof(IsPackable);
-    public const string GenerateDocumentationFile = nameof(GenerateDocumentationFile);
-    public const string ManagePackageVersionsCentrally = nameof(ManagePackageVersionsCentrally);
+    public const string TargetFramework = Prop.TargetFramework;
+    public const string TargetFrameworks = Prop.TargetFrameworks;
+    public const string OutputType = Prop.OutputType;
+    public const string Nullable = Prop.Nullable;
+    public const string ImplicitUsings = Prop.ImplicitUsings;
+    public const string LangVersion = Prop.LangVersion;
+    public const string TreatWarningsAsErrors = Prop.TreatWarningsAsErrors;
+    public const string IsPackable = Prop.IsPackable;
+    public const string GenerateDocumentationFile = Prop.GenerateDocumentationFile;
+    public const string ManagePackageVersionsCentrally = Prop.ManagePackageVersionsCentrally;
 }
 
 public static class MsBuildItems
 {
-    public const string PackageReference = nameof(PackageReference);
-    public const string PackageVersion = nameof(PackageVersion);
-    public const string ProjectReference = nameof(ProjectReference);
-    public const string Compile = nameof(Compile);
-    public const string Content = nameof(Content);
-    public const string None = nameof(None);
-    public const string EmbeddedResource = nameof(EmbeddedResource);
+    public const string PackageReference = Item.PackageReference;
+    public const string PackageVersion = Item.PackageVersion;
+    public const string ProjectReference = Item.ProjectReference;
+    public const string Compile = Item.Compile;
+    public const string Content = Item.Content;
+    public const string None = Item.None;
+    public const string EmbeddedResource = Item.EmbeddedResource;
 }
 
 public static class MsBuildAttributes
 {
-    public const string Include = nameof(Include);
-    public const string Version = nameof(Version);
-    public const string PrivateAssets = nameof(PrivateAssets);
-    public const string Condition = nameof(Condition);
+    public const string Include = Attr.Include;
+    public const string Version = Attr.Version;
+    public const string PrivateAssets = Attr.PrivateAssets;
+    public const string Condition = Attr.Condition;
 }
 
 public static class MsBuildValues
 {
-    public const string Exe = nameof(Exe);
-    public const string Library = nameof(Library);
-    public const string Enable = "enable";
-    public const string Disable = "disable";
-    public const string True = "true";
-    public const string False = "false";
-    public const string Latest = "latest";
-    public const string Preview = "preview";
+    public const string Exe = Val.Exe;
+    public const string Library = Val.Library;
+    public const string Enable = Val.Enable;
+    public const string Disable = Val.Disable;
+    public const string True = Val.True;
+    public const string False = Val.False;
+    public const string Latest = Val.Latest;
+    public const string Preview = Val.Preview;
 }
 
 public static class RepositoryPaths
@@ -88,22 +89,22 @@ public static class RepositoryPaths
 
 public static class InjectionPropertyNames
 {
-    public const string Throw = "InjectSharedThrow";
-    public const string StringOrdinalComparer = "InjectStringOrdinalComparer";
-    public const string Lock = "InjectLockPolyfill";
-    public const string TimeProvider = "InjectTimeProviderPolyfill";
-    public const string IndexRange = "InjectIndexRangeOnLegacy";
-    public const string IsExternalInit = "InjectIsExternalInitOnLegacy";
-    public const string RequiredMember = "InjectRequiredMemberOnLegacy";
-    public const string CompilerFeatureRequired = "InjectCompilerFeatureRequiredOnLegacy";
-    public const string CallerArgumentExpression = "InjectCallerAttributesOnLegacy";
-    public const string ParamCollection = "InjectParamCollectionOnLegacy";
-    public const string UnreachableException = "InjectUnreachableExceptionOnLegacy";
-    public const string StackTraceHidden = "InjectStackTraceHiddenOnLegacy";
-    public const string NullableAttributes = "InjectNullabilityAttributesOnLegacy";
-    public const string TrimAttributes = "InjectTrimAttributesOnLegacy";
-    public const string ExperimentalAttribute = "InjectExperimentalAttributeOnLegacy";
-    public const string DiagnosticClasses = "InjectDiagnosticClassesOnLegacy";
+    public const string Throw = Prop.InjectSharedThrow;
+    public const string StringOrdinalComparer = Prop.InjectStringOrdinalComparer;
+    public const string Lock = Prop.InjectLockPolyfill;
+    public const string TimeProvider = Prop.InjectTimeProviderPolyfill;
+    public const string IndexRange = Prop.InjectIndexRangeOnLegacy;
+    public const string IsExternalInit = Prop.InjectIsExternalInitOnLegacy;
+    public const string RequiredMember = Prop.InjectRequiredMemberOnLegacy;
+    public const string CompilerFeatureRequired = Prop.InjectCompilerFeatureRequiredOnLegacy;
+    public const string CallerArgumentExpression = Prop.InjectCallerAttributesOnLegacy;
+    public const string ParamCollection = Prop.InjectParamCollectionOnLegacy;
+    public const string UnreachableException = Prop.InjectUnreachableExceptionOnLegacy;
+    public const string StackTraceHidden = Prop.InjectStackTraceHiddenOnLegacy;
+    public const string NullableAttributes = Prop.InjectNullabilityAttributesOnLegacy;
+    public const string TrimAttributes = Prop.InjectTrimAttributesOnLegacy;
+    public const string ExperimentalAttribute = Prop.InjectExperimentalAttributeOnLegacy;
+    public const string DiagnosticClasses = Prop.InjectDiagnosticClassesOnLegacy;
 }
 
 public static class PolyfillTypeNames
@@ -169,112 +170,112 @@ public readonly record struct PolyfillDefinition(
         RepositoryPaths.LockPolyfill,
         PolyfillTypeNames.Lock,
         PolyfillActivationCode.Lock,
-        TargetFrameworks.Net80);
+        Tfm.Net80);
 
     public static readonly PolyfillDefinition TimeProvider = new(
         InjectionPropertyNames.TimeProvider,
         RepositoryPaths.TimeProviderPolyfill,
         PolyfillTypeNames.TimeProvider,
         PolyfillActivationCode.TimeProvider,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition IndexRange = new(
         InjectionPropertyNames.IndexRange,
         RepositoryPaths.IndexPolyfill,
         PolyfillTypeNames.Index,
         PolyfillActivationCode.Index,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition IsExternalInit = new(
         InjectionPropertyNames.IsExternalInit,
         RepositoryPaths.IsExternalInitPolyfill,
         PolyfillTypeNames.IsExternalInit,
         PolyfillActivationCode.IsExternalInit,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition RequiredMember = new(
         InjectionPropertyNames.RequiredMember,
         RepositoryPaths.RequiredMemberPolyfill,
         PolyfillTypeNames.RequiredMemberAttribute,
         PolyfillActivationCode.RequiredMember,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition CompilerFeatureRequired = new(
         InjectionPropertyNames.CompilerFeatureRequired,
         RepositoryPaths.CompilerFeatureRequiredPolyfill,
         PolyfillTypeNames.CompilerFeatureRequiredAttribute,
         PolyfillActivationCode.CompilerFeatureRequired,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition CallerArgumentExpression = new(
         InjectionPropertyNames.CallerArgumentExpression,
         RepositoryPaths.CallerArgumentExpressionPolyfill,
         PolyfillTypeNames.CallerArgumentExpressionAttribute,
         PolyfillActivationCode.CallerArgumentExpression,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition ParamCollection = new(
         InjectionPropertyNames.ParamCollection,
         RepositoryPaths.ParamCollectionPolyfill,
         PolyfillTypeNames.ParamCollectionAttribute,
         PolyfillActivationCode.ParamCollection,
-        TargetFrameworks.Net80);
+        Tfm.Net80);
 
     public static readonly PolyfillDefinition UnreachableException = new(
         InjectionPropertyNames.UnreachableException,
         RepositoryPaths.UnreachableExceptionPolyfill,
         PolyfillTypeNames.UnreachableException,
         PolyfillActivationCode.UnreachableException,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition StackTraceHidden = new(
         InjectionPropertyNames.StackTraceHidden,
         RepositoryPaths.StackTraceHiddenPolyfill,
         PolyfillTypeNames.StackTraceHiddenAttribute,
         PolyfillActivationCode.StackTraceHidden,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition NullableAttributes = new(
         InjectionPropertyNames.NullableAttributes,
         RepositoryPaths.NullableAttributesPolyfill,
         PolyfillTypeNames.AllowNullAttribute,
         PolyfillActivationCode.AllowNull,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition TrimAttributes = new(
         InjectionPropertyNames.TrimAttributes,
         RepositoryPaths.TrimAttributesPolyfill,
         PolyfillTypeNames.DynamicallyAccessedMembersAttribute,
         PolyfillActivationCode.DynamicallyAccessedMembers,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition ExperimentalAttribute = new(
         InjectionPropertyNames.ExperimentalAttribute,
         RepositoryPaths.ExperimentalAttributePolyfill,
         PolyfillTypeNames.ExperimentalAttribute,
         PolyfillActivationCode.Experimental,
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition Throw = new(
         InjectionPropertyNames.Throw,
         RepositoryPaths.ThrowHelper,
         "Microsoft.Shared.Diagnostics.Throw",
         "_ = Microsoft.Shared.Diagnostics.Throw.IfNull((object?)null);",
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition StringOrdinalComparer = new(
         InjectionPropertyNames.StringOrdinalComparer,
         RepositoryPaths.StringOrdinalComparer,
         "ANcpLua.NET.Sdk.shared.Extensions.Comparers.StringOrdinalComparer",
         "_ = ANcpLua.NET.Sdk.shared.Extensions.Comparers.StringOrdinalComparer.Instance;",
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition DiagnosticClasses = new(
         InjectionPropertyNames.DiagnosticClasses,
         RepositoryPaths.DiagnosticClassesPolyfill,
         "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute",
         "_ = typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute);",
-        TargetFrameworks.NetStandard20);
+        Tfm.NetStandard20);
 
     public static ImmutableArray<PolyfillDefinition> All =>
     [
@@ -417,8 +418,8 @@ public static class PolyfillTestDataSource
 {
     public static TheoryData<string> AllTargetFrameworks =>
     [
-        TargetFrameworks.NetStandard20,
-        TargetFrameworks.Net100
+        Tfm.NetStandard20,
+        Tfm.Net100
     ];
 
     public static TheoryData<string> AllLangVersions =>
@@ -426,7 +427,7 @@ public static class PolyfillTestDataSource
         "12",
         "13",
         "14",
-        MsBuildValues.Latest
+        Val.Latest
     ];
 
     public static TheoryData<PolyfillDefinition, string, bool> InjectionMatrix()
@@ -438,7 +439,7 @@ public static class PolyfillTestDataSource
 
             var isExtension = polyfill.InjectionProperty is InjectionPropertyNames.Throw or InjectionPropertyNames.StringOrdinalComparer;
 
-            data.Add(polyfill, TargetFrameworks.Net100, isExtension);
+            data.Add(polyfill, Tfm.Net100, isExtension);
         }
 
         return data;

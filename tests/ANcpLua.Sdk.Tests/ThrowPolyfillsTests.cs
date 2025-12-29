@@ -9,8 +9,6 @@ namespace ANcpLua.Sdk.Tests;
 /// </summary>
 public class ThrowPolyfillsTests
 {
-    #region ArgumentNullException.ThrowIfNull
-
     [Fact]
     public void ThrowIfNull_WithNonNullValue_DoesNotThrow()
     {
@@ -43,10 +41,6 @@ public class ThrowPolyfillsTests
             ArgumentNullException.ThrowIfNull(myParameter));
         Assert.Equal("myParameter", ex.ParamName);
     }
-
-    #endregion
-
-    #region ArgumentException.ThrowIfNullOrEmpty
 
     [Fact]
     public void ThrowIfNullOrEmpty_WithValidString_DoesNotThrow()
@@ -82,10 +76,6 @@ public class ThrowPolyfillsTests
         Assert.Equal("value", ex.ParamName);
     }
 
-    #endregion
-
-    #region ArgumentException.ThrowIfNullOrWhiteSpace
-
     [Fact]
     public void ThrowIfNullOrWhiteSpace_WithValidString_DoesNotThrow()
     {
@@ -119,10 +109,6 @@ public class ThrowPolyfillsTests
             ArgumentException.ThrowIfNullOrWhiteSpace(value));
         Assert.Equal("value", ex.ParamName);
     }
-
-    #endregion
-
-    #region ArgumentOutOfRangeException.ThrowIfNegative
 
     [Fact]
     public void ThrowIfNegative_WithPositiveInt_DoesNotThrow()
@@ -181,10 +167,6 @@ public class ThrowPolyfillsTests
         Assert.Equal("value", ex.ParamName);
     }
 
-    #endregion
-
-    #region ArgumentOutOfRangeException.ThrowIfZero
-
     [Fact]
     public void ThrowIfZero_WithNonZeroValue_DoesNotThrow()
     {
@@ -207,10 +189,6 @@ public class ThrowPolyfillsTests
         Assert.Equal("value", ex.ParamName);
         Assert.Equal(0, ex.ActualValue);
     }
-
-    #endregion
-
-    #region ArgumentOutOfRangeException.ThrowIfNegativeOrZero
 
     [Fact]
     public void ThrowIfNegativeOrZero_WithPositiveValue_DoesNotThrow()
@@ -245,10 +223,6 @@ public class ThrowPolyfillsTests
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value));
         Assert.Equal("value", ex.ParamName);
     }
-
-    #endregion
-
-    #region ArgumentOutOfRangeException.ThrowIfGreaterThan
 
     [Fact]
     public void ThrowIfGreaterThan_WithValueLessThanLimit_DoesNotThrow()
@@ -285,10 +259,6 @@ public class ThrowPolyfillsTests
         Assert.Equal("value", ex.ParamName);
     }
 
-    #endregion
-
-    #region ArgumentOutOfRangeException.ThrowIfLessThan
-
     [Fact]
     public void ThrowIfLessThan_WithValueGreaterThanLimit_DoesNotThrow()
     {
@@ -323,10 +293,6 @@ public class ThrowPolyfillsTests
             ArgumentOutOfRangeException.ThrowIfLessThan(value, limit));
         Assert.Equal("value", ex.ParamName);
     }
-
-    #endregion
-
-    #region ObjectDisposedException.ThrowIf
 
     [Fact]
     public void ThrowIf_WithFalseCondition_DoesNotThrow()
@@ -363,10 +329,6 @@ public class ThrowPolyfillsTests
         Assert.Contains("String", ex.ObjectName);
     }
 
-    #endregion
-
-    #region CallerArgumentExpression Tests
-
     [Fact]
     public void ThrowIfNull_CapturesCorrectParameterName()
     {
@@ -394,5 +356,4 @@ public class ThrowPolyfillsTests
         Assert.Equal("userCount", ex.ParamName);
     }
 
-    #endregion
 }

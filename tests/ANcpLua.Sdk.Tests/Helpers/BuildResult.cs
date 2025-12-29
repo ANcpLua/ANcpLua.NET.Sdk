@@ -109,6 +109,77 @@ public sealed record BuildResult(
 
         return true;
     }
+
+    /// <summary>Asserts the build succeeded (exit code 0)</summary>
+    public BuildResult ShouldSucceed(string? because = null)
+    {
+        Assert.True(ExitCode is 0,
+            because ?? $"Build should succeed. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts the build failed (non-zero exit code)</summary>
+    public BuildResult ShouldFail(string? because = null)
+    {
+        Assert.True(ExitCode is not 0,
+            because ?? $"Build should fail. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts the build has a specific warning</summary>
+    public BuildResult ShouldHaveWarning(string ruleId)
+    {
+        Assert.True(HasWarning(ruleId),
+            $"Expected warning {ruleId}. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts the build does not have a specific warning</summary>
+    public BuildResult ShouldNotHaveWarning(string ruleId)
+    {
+        Assert.False(HasWarning(ruleId),
+            $"Did not expect warning {ruleId}. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts the build has a specific error</summary>
+    public BuildResult ShouldHaveError(string ruleId)
+    {
+        Assert.True(HasError(ruleId),
+            $"Expected error {ruleId}. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts the build does not have a specific error</summary>
+    public BuildResult ShouldNotHaveError(string ruleId)
+    {
+        Assert.False(HasError(ruleId),
+            $"Did not expect error {ruleId}. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts the output contains a specific string</summary>
+    public BuildResult ShouldContainOutput(string text)
+    {
+        Assert.True(OutputContains(text),
+            $"Expected output to contain '{text}'. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts the output does not contain a specific string</summary>
+    public BuildResult ShouldNotContainOutput(string text)
+    {
+        Assert.True(OutputDoesNotContain(text),
+            $"Expected output to NOT contain '{text}'. Output: {ProcessOutput}");
+        return this;
+    }
+
+    /// <summary>Asserts a specific MSBuild property has an expected value</summary>
+    public BuildResult ShouldHavePropertyValue(string name, string? expectedValue, bool ignoreCase = true)
+    {
+        AssertMsBuildPropertyValue(name, expectedValue, ignoreCase);
+        return this;
+    }
 }
 
 public class SarifFile

@@ -14,7 +14,7 @@ public enum SdkImportStyle
     SdkElementDirectoryBuildProps
 }
 
-internal sealed class ProjectBuilder : IAsyncDisposable
+public sealed class ProjectBuilder : IAsyncDisposable
 {
     private const string SarifFileName = "BuildOutput.sarif";
     private readonly SdkImportStyle _defaultSdkImportStyle;
@@ -26,6 +26,13 @@ internal sealed class ProjectBuilder : IAsyncDisposable
     private readonly ITestOutputHelper _testOutputHelper;
     private int _buildCount;
     private NetSdkVersion _sdkVersion = NetSdkVersion.Net100;
+
+    // Fluent API state
+    private readonly List<(string Key, string Value)> _properties = [];
+    private readonly List<(string Name, string Content)> _sourceFiles = [];
+    private readonly List<NuGetReference> _nugetPackages = [];
+    private string? _projectFilename = "ANcpLua.TestProject.csproj";
+    private SdkImportStyle? _importStyleOverride;
 
     public ProjectBuilder(PackageFixture fixture, ITestOutputHelper testOutputHelper,
         SdkImportStyle defaultSdkImportStyle, string defaultSdkName)
@@ -92,11 +99,6 @@ internal sealed class ProjectBuilder : IAsyncDisposable
         await _directory.DisposeAsync();
     }
 
-    public static string WithTargetFramework(string tfm)
-    {
-        return $"<TargetFramework>{tfm}</TargetFramework>";
-    }
-
     public string? GetGitHubStepSummaryContent()
     {
         return File.Exists(_githubStepSummaryFile) ? File.ReadAllText(_githubStepSummaryFile) : null;
@@ -132,6 +134,87 @@ internal sealed class ProjectBuilder : IAsyncDisposable
                                                    }
                                                  }
                                                  """);
+    }
+
+    /// <summary>Sets the target framework</summary>
+    public ProjectBuilder WithTargetFramework(string tfm)
+    {
+        _properties.Add((Prop.TargetFramework, tfm));
+        return this;
+    }
+
+    /// <summary>Sets the output type (Library, Exe)</summary>
+    public ProjectBuilder WithOutputType(string type)
+    {
+        _properties.Add((Prop.OutputType, type));
+        return this;
+    }
+
+    /// <summary>Sets the language version</summary>
+    public ProjectBuilder WithLangVersion(string version = Val.Latest)
+    {
+        _properties.Add((Prop.LangVersion, version));
+        return this;
+    }
+
+    /// <summary>Sets an arbitrary MSBuild property</summary>
+    public ProjectBuilder WithProperty(string name, string value)
+    {
+        _properties.Add((name, value));
+        return this;
+    }
+
+    /// <summary>Sets multiple MSBuild properties</summary>
+    public ProjectBuilder WithProperties(params (string Key, string Value)[] properties)
+    {
+        _properties.AddRange(properties);
+        return this;
+    }
+
+    /// <summary>Adds a source file to the project</summary>
+    public ProjectBuilder AddSource(string filename, string content)
+    {
+        _sourceFiles.Add((filename, content));
+        return this;
+    }
+
+    /// <summary>Adds a NuGet package reference</summary>
+    public ProjectBuilder WithPackage(string name, string version)
+    {
+        _nugetPackages.Add(new NuGetReference(name, version));
+        return this;
+    }
+
+    /// <summary>Sets the project filename</summary>
+    public ProjectBuilder WithFilename(string filename)
+    {
+        _projectFilename = filename;
+        return this;
+    }
+
+    /// <summary>Overrides the SDK import style</summary>
+    public ProjectBuilder WithImportStyle(SdkImportStyle style)
+    {
+        _importStyleOverride = style;
+        return this;
+    }
+
+    /// <summary>Builds the project and returns the result</summary>
+    public async Task<BuildResult> BuildAsync(string[]? buildArguments = null,
+        (string Name, string Value)[]? environmentVariables = null)
+    {
+        // Generate csproj from accumulated state
+        AddCsprojFile(
+            properties: [.._properties],
+            nuGetPackages: [.._nugetPackages],
+            filename: _projectFilename ?? "ANcpLua.TestProject.csproj",
+            importStyle: _importStyleOverride ?? SdkImportStyle.Default);
+
+        // Add all source files
+        foreach (var (name, content) in _sourceFiles)
+            AddFile(name, content);
+
+        return await BuildAndGetOutput(buildArguments, environmentVariables);
     }
 
     private string GetSdkElementContent(string sdkName)

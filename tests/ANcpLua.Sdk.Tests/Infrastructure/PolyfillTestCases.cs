@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using ANcpLua.Sdk.Tests.Helpers;
 using ANcpLua.Sdk.Tests.Infrastructure;
@@ -20,6 +21,27 @@ public interface IPolyfillCase
 /// </summary>
 public sealed class PolyfillCaseSerializer : IXunitSerializer
 {
+    private static readonly FrozenDictionary<string, Func<string, IPolyfillCase>> Factories =
+        new Dictionary<string, Func<string, IPolyfillCase>>
+        {
+            [nameof(TrimAttributesFile)] = tfm => new PolyfillCase<TrimAttributesFile>(tfm),
+            [nameof(NullabilityAttributesFile)] = tfm => new PolyfillCase<NullabilityAttributesFile>(tfm),
+            [nameof(IsExternalInitFile)] = tfm => new PolyfillCase<IsExternalInitFile>(tfm),
+            [nameof(RequiredMemberFile)] = tfm => new PolyfillCase<RequiredMemberFile>(tfm),
+            [nameof(CompilerFeatureRequiredFile)] = tfm => new PolyfillCase<CompilerFeatureRequiredFile>(tfm),
+            [nameof(CallerArgumentExpressionFile)] = tfm => new PolyfillCase<CallerArgumentExpressionFile>(tfm),
+            [nameof(UnreachableExceptionFile)] = tfm => new PolyfillCase<UnreachableExceptionFile>(tfm),
+            [nameof(ExperimentalAttributeFile)] = tfm => new PolyfillCase<ExperimentalAttributeFile>(tfm),
+            [nameof(IndexRangeFile)] = tfm => new PolyfillCase<IndexRangeFile>(tfm),
+            [nameof(ParamCollectionFile)] = tfm => new PolyfillCase<ParamCollectionFile>(tfm),
+            [nameof(StackTraceHiddenFile)] = tfm => new PolyfillCase<StackTraceHiddenFile>(tfm),
+            [nameof(LockFile)] = tfm => new PolyfillCase<LockFile>(tfm),
+            [nameof(TimeProviderFile)] = tfm => new PolyfillCase<TimeProviderFile>(tfm),
+            [nameof(ThrowFile)] = tfm => new PolyfillCase<ThrowFile>(tfm),
+            [nameof(StringOrdinalComparerFile)] = tfm => new PolyfillCase<StringOrdinalComparerFile>(tfm),
+            [nameof(DiagnosticClassesFile)] = tfm => new PolyfillCase<DiagnosticClassesFile>(tfm),
+        }.ToFrozenDictionary();
+
     public bool IsSerializable(Type type, object? value, [NotNullWhen(false)] out string? failureReason)
     {
         if (typeof(IPolyfillCase).IsAssignableFrom(type) && value is IPolyfillCase)
@@ -44,26 +66,9 @@ public sealed class PolyfillCaseSerializer : IXunitSerializer
         var markerTypeName = parts[0];
         var tfm = parts[1];
 
-        return markerTypeName switch
-        {
-            nameof(TrimAttributesFile) => new PolyfillCase<TrimAttributesFile>(tfm),
-            nameof(NullabilityAttributesFile) => new PolyfillCase<NullabilityAttributesFile>(tfm),
-            nameof(IsExternalInitFile) => new PolyfillCase<IsExternalInitFile>(tfm),
-            nameof(RequiredMemberFile) => new PolyfillCase<RequiredMemberFile>(tfm),
-            nameof(CompilerFeatureRequiredFile) => new PolyfillCase<CompilerFeatureRequiredFile>(tfm),
-            nameof(CallerArgumentExpressionFile) => new PolyfillCase<CallerArgumentExpressionFile>(tfm),
-            nameof(UnreachableExceptionFile) => new PolyfillCase<UnreachableExceptionFile>(tfm),
-            nameof(ExperimentalAttributeFile) => new PolyfillCase<ExperimentalAttributeFile>(tfm),
-            nameof(IndexRangeFile) => new PolyfillCase<IndexRangeFile>(tfm),
-            nameof(ParamCollectionFile) => new PolyfillCase<ParamCollectionFile>(tfm),
-            nameof(StackTraceHiddenFile) => new PolyfillCase<StackTraceHiddenFile>(tfm),
-            nameof(LockFile) => new PolyfillCase<LockFile>(tfm),
-            nameof(TimeProviderFile) => new PolyfillCase<TimeProviderFile>(tfm),
-            nameof(ThrowFile) => new PolyfillCase<ThrowFile>(tfm),
-            nameof(StringOrdinalComparerFile) => new PolyfillCase<StringOrdinalComparerFile>(tfm),
-            nameof(DiagnosticClassesFile) => new PolyfillCase<DiagnosticClassesFile>(tfm),
-            _ => throw new InvalidOperationException($"Unknown marker type: {markerTypeName}")
-        };
+        return Factories.TryGetValue(markerTypeName, out var factory)
+            ? factory(tfm)
+            : throw new InvalidOperationException($"Unknown marker type: {markerTypeName}");
     }
 }
 
@@ -80,13 +85,13 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 
         var properties = new List<(string, string)>
         {
-            (TMarker.InjectPropertyName, MsBuildValues.True),
-            (MsBuildProperties.TargetFramework, tfm),
-            (MsBuildProperties.OutputType, MsBuildValues.Library)
+            (TMarker.InjectPropertyName, Val.True),
+            (Prop.TargetFramework, tfm),
+            (Prop.OutputType, Val.Library)
         };
 
-        if (TMarker.InjectPropertyName is "InjectRequiredMemberOnLegacy" or "InjectCompilerFeatureRequiredOnLegacy")
-            properties.Add((MsBuildProperties.LangVersion, MsBuildValues.Latest));
+        if (TMarker.InjectPropertyName is Prop.InjectRequiredMemberOnLegacy or Prop.InjectCompilerFeatureRequiredOnLegacy)
+            properties.Add((Prop.LangVersion, Val.Latest));
 
         project.AddCsprojFile(properties.ToArray());
 
@@ -104,8 +109,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
                                       """);
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode is 0,
-            $"Build failed for {TMarker.InjectPropertyName} on {tfm} when expected to succeed. Output: {result.ProcessOutput}");
+        result.ShouldSucceed($"Build failed for {TMarker.InjectPropertyName} on {tfm}");
     }
 
     public async Task RunNegative(PackageFixture fixture, ITestOutputHelper output)
@@ -117,12 +121,12 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 
         var properties = new List<(string, string)>
         {
-            (MsBuildProperties.TargetFramework, tfm),
-            (MsBuildProperties.OutputType, MsBuildValues.Library)
+            (Prop.TargetFramework, tfm),
+            (Prop.OutputType, Val.Library)
         };
 
-        if (TMarker.InjectPropertyName is "InjectRequiredMemberOnLegacy" or "InjectCompilerFeatureRequiredOnLegacy")
-            properties.Add((MsBuildProperties.LangVersion, MsBuildValues.Latest));
+        if (TMarker.InjectPropertyName is Prop.InjectRequiredMemberOnLegacy or Prop.InjectCompilerFeatureRequiredOnLegacy)
+            properties.Add((Prop.LangVersion, Val.Latest));
 
         project.AddCsprojFile(properties.ToArray());
 
@@ -140,8 +144,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
         ");
 
         var result = await project.BuildAndGetOutput();
-        Assert.True(result.ExitCode is not 0,
-            $"Build succeeded for {TMarker.InjectPropertyName} on {tfm} when expected to fail without the flag. Output: {result.ProcessOutput}");
+        result.ShouldFail($"Build succeeded for {TMarker.InjectPropertyName} on {tfm} when expected to fail without the flag");
 
         Assert.True(
             result.OutputContains("CS0246") ||
