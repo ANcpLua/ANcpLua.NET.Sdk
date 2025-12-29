@@ -64,7 +64,7 @@ jobs:
 
       - name: Create Pull Request
         if: steps.check.outputs.behind == 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: update Roslyn.Utilities submodule"
