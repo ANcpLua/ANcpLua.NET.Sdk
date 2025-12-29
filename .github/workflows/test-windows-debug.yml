@@ -18,7 +18,7 @@ jobs:
         run: pwsh ./build.ps1 -Version 999.9.9
 
       - name: Run Single Test
-        run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --treenode-filter "/**/VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3" --report-trx
+        run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj -p:TestingPlatformDotnetTestSupport=false --filter "FullyQualifiedName~VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3" --logger "trx"
         env:
           PACKAGE_VERSION: 999.9.9
           NUGET_DIRECTORY: ${{ github.workspace }}/artifacts
@@ -27,4 +27,4 @@ jobs:
         if: always()
         with:
           name: test-results
-          path: "**/TestResults/**/*.trx"
+          path: "**/*.trx"

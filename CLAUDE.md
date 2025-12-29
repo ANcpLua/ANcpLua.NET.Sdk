@@ -5,141 +5,89 @@ Guidance for Claude Code when working with this repository.
 ## Project Overview
 
 **ANcpLua.NET.Sdk** is an opinionated MSBuild SDK providing better developer experience than plain Microsoft.NET.Sdk:
-- Banned API enforcement (RS0030) + ANcpLua.Analyzers (AL0001-AL0013)
+
+- Banned API enforcement (RS0030) + ANcpLua.Analyzers (AL0001-AL0014)
 - Polyfills for modern .NET features on legacy TFMs
 - Embedded source helpers (Throw.IfNull, SourceGen utilities)
 - ASP.NET Core service defaults (OpenTelemetry, Health Checks, Resilience)
 
-**Current Version:** 1.2.0
+**Current Version:** 1.2.2
+
+## CLI Commands (READ THIS FIRST)
+
+### dotnet test
+
+**This test project uses MTP (xunit.v3.mtp-v2), NOT VSTest.**
+
+```bash
+# ✅ MTP syntax (this repo)
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --treenode-filter "/**/SomeTest"
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --report-trx
+
+# ❌ VSTest syntax (DOES NOT WORK with MTP)
+dotnet test --filter "FullyQualifiedName~SomeTest"
+dotnet test --logger "trx"
+
+# ❌ Missing --project flag
+dotnet test tests/ANcpLua.Sdk.Tests/
+dotnet test tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
+```
+
+**MTP vs VSTest option mapping:**
+
+| VSTest                                  | MTP                                         |
+|-----------------------------------------|---------------------------------------------|
+| `--filter "FullyQualifiedName~Foo"`     | `--treenode-filter "/**/Foo"`               |
+| `--logger "trx"`                        | `--report-trx`                              |
+| `--logger "console;verbosity=detailed"` | `--verbosity detailed`                      |
+| `-v detailed`                           | N/A (MSBuild verbosity, not test verbosity) |
+
+```
+
+### Build & Pack
+
+```bash
+pwsh ./build.ps1 -Version 1.3.0    # Release
+pwsh ./build.ps1 -Version 999.9.9  # Testing
+```
+
+### GitHub Actions Versions (Dec 2025)
+
+```yaml
+- uses: actions/checkout@v6
+- uses: actions/setup-dotnet@v5
+- uses: actions/upload-artifact@v4
+```
+
+### gh CLI
+
+```bash
+gh workflow run <workflow>.yml
+gh run watch
+gh run download <run-id> --name <artifact-name>
+```
 
 ## Package Ecosystem
 
 ```
-┌─────────────────────────────────────────────────────────────────────────┐
-│                        ANcpLua.Roslyn.Utilities                         │
-│                     (Public NuGet, netstandard2.0)                      │
-│  SINGLE SOURCE OF TRUTH for Roslyn utilities                            │
-│  Path: /Users/ancplua/ANcpLua.Roslyn.Utilities                          │
-└─────────────────────────────────────────────────────────────────────────┘
-                    │                               │
-                    ▼                               ▼
-┌───────────────────────────────────┐   ┌─────────────────────────────────┐
-│ ANcpLua.Roslyn.Utilities.Testing  │   │ ANcpLua.NET.Sdk (this repo)     │
-│ (net10.0, NuGet reference)        │   │ (embeds source for generators)  │
-└───────────────────────────────────┘   └─────────────────────────────────┘
-                                                    │
-                                        ┌───────────┴───────────┐
-                                        ▼                       ▼
-                            ┌───────────────────┐   ┌───────────────────┐
-                            │ ANcpLua.NET.Sdk   │   │ ANcpLua.NET.Sdk   │
-                            │ .Web              │   │ .Test             │
-                            └───────────────────┘   └───────────────────┘
-```
-
-| Package | Purpose |
-|---------|---------|
-| `ANcpLua.NET.Sdk` | Base SDK for libraries, console, workers |
-| `ANcpLua.NET.Sdk.Web` | Web SDK with auto-registered ServiceDefaults |
-| `ANcpLua.NET.Sdk.Test` | Test SDK with xUnit configuration |
-| `ANcpLua.Analyzers` | Code analyzers (AL0001-AL0013) |
-| `ANcpLua.Roslyn.Utilities` | **Single source** for Roslyn utilities |
-
-**Architecture Rule:** Roslyn.Utilities owns all Roslyn extensions. SDK embeds from it for generator compatibility.
-
-## Build & Test
-
-```bash
-# Build (fully automated - syncs submodule + transforms + packs)
-pwsh ./build.ps1 -Version 1.3.0    # Release
-pwsh ./build.ps1 -Version 999.9.9  # Testing
-
-# Test
-dotnet test tests/ANcpLua.Sdk.Tests/
-```
-
-## Automation (ZERO MANUAL STEPS REQUIRED)
-
-**Everything is automated. Don't remind Claude about these - they happen automatically.**
-
-### What's Automated
-
-| Automation | Trigger | What Happens |
-|------------|---------|--------------|
-| **Submodule sync** | `build.ps1` | Auto-syncs Roslyn.Utilities to latest |
-| **Source transform** | `build.ps1` | Auto-regenerates embedded source |
-| **Dependabot** | Daily/Weekly | Creates PRs for package updates |
-| **Submodule PRs** | Daily | GitHub Action creates PR when Roslyn.Utilities updates |
-
-### build.ps1 Does Everything
-
-```bash
-pwsh ./build.ps1 -Version 1.3.0
-```
-
-This single command:
-1. ✅ Fetches latest Roslyn.Utilities submodule
-2. ✅ Auto-syncs if behind
-3. ✅ Transforms source (namespace, visibility, preprocessor)
-4. ✅ Cleans old .nupkg files
-5. ✅ Generates Version.props
-6. ✅ Packs all 5 NuGet packages
-
-**No need to manually run transform scripts or sync submodules.**
-
-### Dependabot Configuration
-
-`.github/dependabot.yml` handles:
-- **NuGet packages** - Weekly on Monday, grouped by category
-- **GitHub Actions** - Weekly updates
-- **Git submodules** - Daily sync (Roslyn.Utilities)
-
-### Cross-Repo Dependency Flow
-
-```
-ANcpLua.Roslyn.Utilities (push to main)
+ANcpLua.Roslyn.Utilities (NuGet, netstandard2.0)
          │
-         ▼ (Dependabot: gitsubmodule daily)
-ANcpLua.NET.Sdk/eng/submodules/Roslyn.Utilities
+         ├──► ANcpLua.Roslyn.Utilities.Testing (net10.0)
          │
-         ▼ (build.ps1 auto-transforms)
-eng/.generated/SourceGen/
-         │
-         ▼
-SDK packages include embedded source
+         └──► ANcpLua.NET.Sdk (embeds source)
+                    │
+                    ├──► ANcpLua.NET.Sdk.Web
+                    └──► ANcpLua.NET.Sdk.Test
 ```
 
-**When Roslyn.Utilities updates:**
-1. Dependabot creates PR to update submodule
-2. Merge PR
-3. Next `build.ps1` auto-transforms the new source
-
-**When ANcpLua.Analyzers updates its dependency on Roslyn.Utilities:**
-1. Dependabot creates PR in Analyzers repo
-2. Merge PR
-3. Done
-
-### NuGet Publishing (Tag-Triggered)
-
-**To publish a release - just push a tag:**
-```bash
-git tag v1.3.0
-git push origin v1.3.0
-# → GitHub Action builds + publishes to NuGet automatically
-```
-
-The `nuget-publish.yml` workflow:
-- Triggers on tag push (`v*`) or manual dispatch
-- Extracts version from tag (e.g., `v1.3.0` → `1.3.0`)
-- Runs `build.ps1` with that version
-- Pushes all packages to nuget.org
-
-**Manual dispatch:** Go to Actions → "Publish to NuGet" → Run workflow → Enter version
-
-| Repo | Packages Published |
-|------|-------------------|
-| SDK | ANcpLua.NET.Sdk, .Web, .Test, ServiceDefaults, AutoRegister |
-| Utilities | ANcpLua.Roslyn.Utilities, .Testing |
-| Analyzers | ANcpLua.Analyzers |
+| Package                    | Purpose                                      |
+|----------------------------|----------------------------------------------|
+| `ANcpLua.NET.Sdk`          | Base SDK for libraries, console, workers     |
+| `ANcpLua.NET.Sdk.Web`      | Web SDK with auto-registered ServiceDefaults |
+| `ANcpLua.NET.Sdk.Test`     | Test SDK with xUnit configuration            |
+| `ANcpLua.Analyzers`        | Code analyzers (AL0001-AL0014)               |
+| `ANcpLua.Roslyn.Utilities` | Single source for Roslyn utilities           |
 
 ## Directory Structure
 
@@ -147,14 +95,15 @@ The `nuget-publish.yml` workflow:
 src/
 ├── Sdk/ANcpLua.NET.Sdk/       # SDK entry points
 ├── common/
-│   ├── Common.targets         # Injection logic
+│   ├── Common.targets         # Main injection logic
 │   ├── LegacySupport.targets  # Polyfill + SourceGen injection
-│   └── Version.props          # Auto-generated
+│   ├── Tests.targets          # Test project configuration
+│   └── Version.props          # Auto-generated by build.ps1
 └── configuration/
     └── BannedSymbols.txt
 
 eng/
-├── ANcpSdk.AspNetCore.ServiceDefaults/      # Runtime package
+├── ANcpSdk.AspNetCore.ServiceDefaults/
 ├── Extensions/
 │   ├── SourceGen/             # Embedded Roslyn helpers
 │   ├── Comparers/             # StringOrdinalComparer
@@ -167,134 +116,112 @@ tests/ANcpLua.Sdk.Tests/
 └── Infrastructure/            # TestInfrastructure, PolyfillTestCases
 ```
 
-## Key MSBuild Properties
+## Automation (Zero Manual Steps)
 
-### Auto-Enabled
-| Property | Description |
-|----------|-------------|
-| `InjectSharedThrow` | Throw.IfNull() helpers |
-| `IncludeDefaultBannedSymbols` | RS0030 banned symbols |
-| `BanNewtonsoftJsonSymbols` | Ban Newtonsoft.Json |
+| Automation       | Trigger       | What Happens                |
+|------------------|---------------|-----------------------------|
+| Submodule sync   | `build.ps1`   | Auto-syncs Roslyn.Utilities |
+| Source transform | `build.ps1`   | Regenerates embedded source |
+| Dependabot       | Daily/Weekly  | Creates PRs for updates     |
+| NuGet publish    | Tag push `v*` | Publishes to nuget.org      |
 
-### Opt-In
-| Property | Description |
-|----------|-------------|
-| `InjectSourceGenHelpers` | Roslyn utilities for generators |
-| `InjectStringOrdinalComparer` | StringOrdinalComparer |
-| `InjectFakeLogger` | FakeLoggerExtensions |
-| `InjectLockPolyfill` | System.Threading.Lock |
-| `InjectTimeProviderPolyfill` | System.TimeProvider |
+**build.ps1 does everything:** submodule sync, transform, clean, version props, pack.
+
+## Test Infrastructure
+
+### Test Classes (SdkTests.cs)
+
+Tests run 3x due to inheritance:
+
+- `Sdk100RootTests` → `SdkImportStyle.ProjectElement`
+- `Sdk100InnerTests` → `SdkImportStyle.SdkElement`
+- `Sdk100DirectoryBuildPropsTests` → `SdkImportStyle.SdkElementDirectoryBuildProps`
+
+### Key Files
+
+| File                    | Purpose                                         |
+|-------------------------|-------------------------------------------------|
+| `PackageFixture.cs`     | Assembly fixture, packs SDK before tests        |
+| `ProjectBuilder.cs`     | Creates temp projects, runs dotnet commands     |
+| `BuildResult.cs`        | Parses binlog, SARIF, checks MSBuild properties |
+| `TestInfrastructure.cs` | Constants, polyfill definitions                 |
 
 ## Test Project vs MTP Detection
 
-**CRITICAL:** These are TWO SEPARATE concerns - don't confuse them!
+**Two separate concerns:**
 
-### 1. Test Project Detection (Broad)
-```
-IsTestProject=true → Imports Tests.targets (implicit usings, test defaults)
-```
+### 1. IsTestProject (broad)
 
-Triggers: Any test framework package (xunit, xunit.v3, NUnit, MSTest.TestFramework, TUnit)
+Triggers: Any test framework package (xunit, xunit.v3, NUnit, MSTest, TUnit)
 
-**Users must set `IsTestProject=true` explicitly** in their csproj. Package-based auto-detection runs too late (MSBuild limitation).
+Users must set `IsTestProject=true` explicitly in csproj.
 
-### 2. MTP Detection (Strict)
-```
-UseMicrosoftTestingPlatform=true → OutputType=Exe, skip Microsoft.NET.Test.Sdk, inject MTP extensions
-```
+### 2. UseMicrosoftTestingPlatform (strict)
 
-**Only these signals trigger MTP:**
+**MTP signals:**
 
-| Signal | Type |
-|--------|------|
-| `TUnit` package | Always MTP |
-| `xunit.v3.mtp-v1` / `xunit.v3.mtp-v2` | Explicit MTP |
-| `Microsoft.Testing.Extensions.*` packages | Explicit MTP |
-| `EnableNUnitRunner=true` | Explicit opt-in |
-| `EnableMSTestRunner=true` | Explicit opt-in |
-| `UseMicrosoftTestingPlatform=true` | Explicit property |
+- `TUnit` package (always MTP)
+- `xunit.v3.mtp-v1` / `xunit.v3.mtp-v2`
+- `Microsoft.Testing.Extensions.*` packages
+- `EnableNUnitRunner=true` / `EnableMSTestRunner=true`
+- `UseMicrosoftTestingPlatform=true`
 
-**NOT MTP signals (VSTest by default):**
-- Plain `xunit.v3` (ambiguous - don't assume!)
+**NOT MTP (VSTest by default):**
+
+- Plain `xunit.v3`
 - `NUnit` alone
 - `MSTest.TestFramework` alone
 - `xunit` (v2)
 
-### MSBuild Implementation
+### Injected Packages
 
-```xml
-<!-- Property-based detection works during import -->
-<PropertyGroup>
-  <_UsesMTP Condition="'$(UseMicrosoftTestingPlatform)' == 'true'
-                       OR '$(EnableNUnitRunner)' == 'true'">true</_UsesMTP>
-</PropertyGroup>
+| Condition       | Injected                                                       |
+|-----------------|----------------------------------------------------------------|
+| MTP             | CrashDump, HangDump, CodeCoverage, TrxReport, HotReload, Retry |
+| VSTest          | Microsoft.NET.Test.Sdk                                         |
+| GitHub + MTP    | GitHubActionsTestLogger 3.x                                    |
+| GitHub + VSTest | GitHubActionsTestLogger 2.4.1                                  |
 
-<!-- Package-based detection MUST be in a Target (MSBuild limitation) -->
-<Target Name="_DetectTestFrameworksAndMTP" BeforeTargets="BeforeBuild">
-  <!-- @(PackageReference->AnyHaveMetadataValue()) only works in Targets -->
-  <PropertyGroup>
-    <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'TUnit')) == 'true'">true</_UsesMTP>
-  </PropertyGroup>
-</Target>
-```
+## MSBuild Properties
 
-**Why Target?** `@(PackageReference->...)` syntax fails in PropertyGroup conditions (MSB4099 error). Items aren't populated during initial import phase.
+### Auto-Enabled
 
-### Safety Guard
+| Property                      | Description            |
+|-------------------------------|------------------------|
+| `InjectSharedThrow`           | Throw.IfNull() helpers |
+| `IncludeDefaultBannedSymbols` | RS0030 banned symbols  |
+| `BanNewtonsoftJsonSymbols`    | Ban Newtonsoft.Json    |
 
-Target `_ValidateMTPConfiguration` emits `ANCPSDK001` warning if:
-- `UseMicrosoftTestingPlatform=true` AND `OutputType=Library`
+### Opt-In
 
-### What Gets Injected
+| Property                      | Description                     |
+|-------------------------------|---------------------------------|
+| `InjectSourceGenHelpers`      | Roslyn utilities for generators |
+| `InjectStringOrdinalComparer` | StringOrdinalComparer           |
+| `InjectFakeLogger`            | FakeLoggerExtensions            |
+| `InjectLockPolyfill`          | System.Threading.Lock           |
+| `InjectTimeProviderPolyfill`  | System.TimeProvider             |
 
-| Condition | Packages Injected |
-|-----------|-------------------|
-| `UseMicrosoftTestingPlatform=true` | CrashDump, HangDump, CodeCoverage, TrxReport, HotReload, Retry |
-| `UseMicrosoftTestingPlatform!=true` | Microsoft.NET.Test.Sdk (VSTest) |
-| GitHub Actions + MTP | GitHubActionsTestLogger 3.x |
-| GitHub Actions + VSTest | GitHubActionsTestLogger 2.4.1 |
+## SourceGen Helpers
 
-## SourceGen Helpers (Roslyn.Utilities Embedding)
+Source generators can't reference NuGet at runtime — must embed as source.
 
-Source generators cannot reference NuGet packages at runtime, so utilities must be embedded as source.
+**Submodule:** `eng/submodules/Roslyn.Utilities/`
 
-### Submodule Location
-```
-eng/submodules/Roslyn.Utilities/  ← Git submodule (ANcpLua.Roslyn.Utilities repo)
-```
+**Transform:** `pwsh eng/scripts/Transform-RoslynUtilities.ps1`
 
-### Transformation Process
-```bash
-# Run before `dotnet pack`
-pwsh eng/scripts/Transform-RoslynUtilities.ps1
-```
+| Original                             | Transformed                     |
+|--------------------------------------|---------------------------------|
+| `namespace ANcpLua.Roslyn.Utilities` | `namespace ANcpLua.SourceGen`   |
+| `public static class`                | `internal static class`         |
+| (none)                               | `#if ANCPLUA_SOURCEGEN_HELPERS` |
 
-**Transformations applied:**
-| Original | Transformed |
-|----------|-------------|
-| `namespace ANcpLua.Roslyn.Utilities` | `namespace ANcpLua.SourceGen` |
-| `public static class` | `internal static class` |
-| (none) | Wrapped in `#if ANCPLUA_SOURCEGEN_HELPERS` |
-
-**Output:** `eng/.generated/SourceGen/` (gitignored, regenerated on build)
-
-### What Gets Embedded
-When `InjectSourceGenHelpers=true`:
-- `EquatableArray<T>` - Value-equal ImmutableArray wrapper (critical for caching)
-- `SymbolExtensions` - HasAttribute, GetAttribute, IsOrInheritsFrom
-- `SyntaxExtensions` - GetMethodName, HasModifier, IsPartial
-- `SemanticModelExtensions` - IsConstant, GetConstantValueOrDefault
-- `LocationInfo/DiagnosticInfo` - Cache-safe diagnostic patterns
-
-### SDK-Specific Extensions
-Files in `eng/Extensions/SourceGen/` are SDK-specific and NOT from the submodule:
-- Additional helpers specific to SDK use cases
-
-**For non-generators:** Reference `ANcpLua.Roslyn.Utilities` NuGet directly instead of embedding.
+**Output:** `eng/.generated/SourceGen/` (gitignored)
 
 ## Critical Patterns
 
 ### Value Equality for Caching
+
 ```csharp
 // ✅ Correct
 IncrementalValuesProvider<EquatableArray<T>>
@@ -304,19 +231,18 @@ IncrementalValuesProvider<ImmutableArray<T>>
 ```
 
 ### Cache-Safe Diagnostics
+
 ```csharp
 // ✅ Extract primitives
 record struct LocationInfo(string Path, TextSpan Span, LinePositionSpan LineSpan);
 
-// ❌ Never cache these
+// ❌ Never cache
 Location, ISymbol, Compilation, SemanticModel, SyntaxNode
 ```
 
-## Critical Files
+## Known Test Skips
 
-| File | Purpose |
-|------|---------|
-| `src/common/Common.targets` | Main injection logic |
-| `src/common/LegacySupport.targets` | Polyfill + SourceGen injection |
-| `tests/.../TestInfrastructure.cs` | Test constants, polyfill definitions, branding |
-| `tests/.../ProjectBuilder.cs` | Test project builder |
+| Test                                                  | Platform               | Reason                                                        |
+|-------------------------------------------------------|------------------------|---------------------------------------------------------------|
+| `CanOverrideLangVersionInDirectoryBuildProps`         | All (SdkElement style) | MSBuild import order — covered by DirectoryBuildProps variant |
+| `VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3` | Windows                | Under investigation                                           |
