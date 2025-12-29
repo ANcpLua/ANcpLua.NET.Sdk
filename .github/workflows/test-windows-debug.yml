@@ -18,7 +18,7 @@ jobs:
         run: pwsh ./build.ps1 -Version 999.9.9
 
       - name: Run Single Test
-        run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj -- -method "*VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3*"
+        run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj -- --filter-query "/*/*/*/VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3*"
         env:
           PACKAGE_VERSION: 999.9.9
           NUGET_DIRECTORY: ${{ github.workspace }}/artifacts
