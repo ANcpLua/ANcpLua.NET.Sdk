@@ -242,7 +242,6 @@ Location, ISymbol, Compilation, SemanticModel, SyntaxNode
 
 ## Known Test Skips
 
-| Test                                                  | Platform               | Reason                                                        |
-|-------------------------------------------------------|------------------------|---------------------------------------------------------------|
-| `CanOverrideLangVersionInDirectoryBuildProps`         | All (SdkElement style) | MSBuild import order — covered by DirectoryBuildProps variant |
-| `VSTests_OnGitHubActionsShouldAddCustomLogger_Xunit3` | Windows                | Under investigation                                           |
+| Test                                          | Platform               | Reason                                                        |
+|-----------------------------------------------|------------------------|---------------------------------------------------------------|
+| `CanOverrideLangVersionInDirectoryBuildProps` | All (SdkElement style) | MSBuild import order — covered by DirectoryBuildProps variant |
