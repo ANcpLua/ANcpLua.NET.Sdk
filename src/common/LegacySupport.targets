@@ -193,8 +193,8 @@
   <ItemGroup Condition="('$(InjectTimeProviderPolyfill)' == 'true' OR '$(InjectANcpLuaTimeProviderPolyfill)' == 'true') AND '$(_NeedsNet8Polyfills)' == 'true'">
     <Compile Include="$(_SharedSourcePath)Polyfills/TimeProvider/TimeProvider.cs" LinkBase="Shared/Polyfills" Visible="false"/>
     <!-- TimeProvider on legacy frameworks requires IAsyncDisposable and ValueTask -->
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="6.0.0" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(BclAsyncInterfacesVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(TasksExtensionsVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────

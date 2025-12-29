@@ -19,17 +19,17 @@
   <Target Name="_InjectTestingPackages" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP">
     <!-- MTP v2 Extensions (NUnit, MSTest, TUnit - NOT xunit.v3 which has its own MTP implementation) -->
     <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(_UsesXunitV3Mtp)' != 'true'">
-      <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="2.0.2" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.1.0" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="2.0.2" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="2.0.2" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="2.0.2" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="2.0.2" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(CodeCoverageVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
 
     <!-- VSTest fallback (only when NOT using MTP) -->
     <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
   </Target>
 
@@ -76,7 +76,7 @@
 
   <!-- FakeLogger for testing - auto-inject -->
   <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.0.0" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(DiagnosticsTestingVersion)" IsImplicitlyDefined="true"/>
     <Using Include="Microsoft.Extensions.Diagnostics.Testing"/>
   </ItemGroup>
   <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
@@ -101,17 +101,17 @@
 
   <!-- GitHub Actions Test Reporting (via Target for correct timing) -->
   <Target Name="_InjectGitHubActionsLogger" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(_IsGitHubActions)' == 'true'">
-    <!-- MTP: GitHubActionsTestLogger 3.0.1 auto-registers -->
+    <!-- MTP: GitHubActionsTestLogger auto-registers -->
     <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">
-      <PackageReference Include="GitHubActionsTestLogger" Version="3.0.1" IsImplicitlyDefined="true"/>
+      <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
 
-    <!-- VSTest: GitHubActionsTestLogger 2.4.1 with logger config -->
+    <!-- VSTest: GitHubActionsTestLogger with logger config -->
     <PropertyGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
       <VSTestLogger>$(VSTestLogger);GitHubActions</VSTestLogger>
     </PropertyGroup>
     <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
-      <PackageReference Include="GitHubActionsTestLogger" Version="2.4.1" IsImplicitlyDefined="true">
+      <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerVSTestVersion)" IsImplicitlyDefined="true">
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
       </PackageReference>

@@ -44,7 +44,7 @@ if (Test-Path $TransformScript) {
 # =============================================================================
 Write-Host "Building version: $Version" -ForegroundColor Cyan
 
-# Generate Version.props with the package version
+# Generate Version.props with the package version and centralized dependency versions
 $VersionPropsPath = "src/common/Version.props"
 $VersionPropsContent = @"
 <Project>
@@ -57,6 +57,30 @@ $VersionPropsContent = @"
   -->
   <PropertyGroup>
     <ANcpSdkPackageVersion>$Version</ANcpSdkPackageVersion>
+  </PropertyGroup>
+
+  <!--
+    Centralized package versions for SDK-injected dependencies.
+    Single source of truth - change once, propagate everywhere.
+  -->
+  <PropertyGroup Label="MTP Extensions">
+    <MTPExtensionsVersion>2.0.2</MTPExtensionsVersion>
+    <CodeCoverageVersion>18.1.0</CodeCoverageVersion>
+    <TestSdkVersion>18.0.1</TestSdkVersion>
+    <DiagnosticsTestingVersion>10.0.0</DiagnosticsTestingVersion>
+    <GitHubActionsLoggerMTPVersion>3.0.1</GitHubActionsLoggerMTPVersion>
+    <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Analyzers">
+    <ANcpLuaAnalyzersVersion>1.0.4</ANcpLuaAnalyzersVersion>
+    <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
+    <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Legacy Polyfills">
+    <BclAsyncInterfacesVersion>6.0.0</BclAsyncInterfacesVersion>
+    <TasksExtensionsVersion>4.5.4</TasksExtensionsVersion>
   </PropertyGroup>
 </Project>
 "@
