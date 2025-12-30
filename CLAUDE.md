@@ -11,7 +11,7 @@ Guidance for Claude Code when working with this repository.
 - Embedded source helpers (Throw.IfNull, SourceGen utilities)
 - ASP.NET Core service defaults (OpenTelemetry, Health Checks, Resilience)
 
-**Current Version:** 1.2.2
+**Current Version:** 1.2.4
 
 ## CLI Commands (READ THIS FIRST)
 
@@ -57,7 +57,7 @@ pwsh ./build.ps1 -Version 999.9.9  # Testing
 ```yaml
 - uses: actions/checkout@v6
 - uses: actions/setup-dotnet@v5
-- uses: actions/upload-artifact@v4
+- uses: actions/upload-artifact@v6
 ```
 
 ### gh CLI
