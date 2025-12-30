@@ -190,12 +190,64 @@ public abstract class MtpDetectionTests(
         data.AssertMsBuildPropertyValue("TestingPlatformDotnetTestSupport", "true");
     }
 
-    // Skip: xunit.v3.mtp-v2 on .NET 10 has incompatibilities with dotnet test:
-    // - Without global.json test.runner: "Testing with VSTest target is no longer supported"
-    // - With global.json test.runner: "Unknown option '--report-trx'" (xunit.v3 has different CLI)
-    // The XUnit3MtpV2_IsMTP test verifies build-time MTP detection still works.
-    // [Fact]
-    // public async Task XUnit3MtpV2_TestRuns() { ... }
+    [Fact]
+    public async Task XUnit3MtpV2_DoesNotInjectMTPExtensions()
+    {
+        // xunit.v3.mtp has its own native MTP implementation - SDK should NOT inject
+        // Microsoft.Testing.Extensions packages (they use different CLI options)
+        await using var project = CreateProjectBuilder();
+        project.AddCsprojFile(
+            filename: "Sample.Tests.csproj",
+            nuGetPackages: [.. XUnit3MtpV2Packages]
+        );
+
+        project.AddFile("Tests.cs", """
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
+
+        var data = await project.BuildAndGetOutput();
+
+        // xunit.v3.mtp should NOT have Microsoft.Testing.Extensions injected
+        var items = data.GetMsBuildItems("PackageReference");
+        Assert.DoesNotContain(items,
+            i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items,
+            i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items,
+            i => i.Contains("Microsoft.Testing.Extensions.HangDump", StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task XUnit3MtpV2_UsesNativeTrxOption()
+    {
+        // xunit.v3.mtp uses --report-xunit-trx, NOT --report-trx
+        await using var project = CreateProjectBuilder();
+        project.AddCsprojFile(
+            filename: "Sample.Tests.csproj",
+            nuGetPackages: [.. XUnit3MtpV2Packages]
+        );
+
+        project.AddFile("Tests.cs", """
+                                    public class SampleTests
+                                    {
+                                        [Fact]
+                                        public void Test1() => Assert.True(true);
+                                    }
+                                    """);
+
+        var data = await project.BuildAndGetOutput();
+
+        // Verify the correct xunit.v3 native option is used
+        var cliArgs = data.GetMsBuildPropertyValue("TestingPlatformCommandLineArguments");
+        Assert.Contains("--report-xunit-trx", cliArgs);
+        Assert.DoesNotContain("--report-trx ", cliArgs); // Note: space to avoid matching --report-xunit-trx
+        Assert.DoesNotContain("--crashdump", cliArgs);
+        Assert.DoesNotContain("--hangdump", cliArgs);
+    }
 
     [Fact]
     public async Task XUnit3MtpV1_IsMTP()
