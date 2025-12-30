@@ -16,24 +16,18 @@
        TFM DETECTION HELPERS
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup>
-    <!-- Detect if we need polyfills based on TFM -->
-    <_NeedsNet5Polyfills>false</_NeedsNet5Polyfills>
-    <_NeedsNet5Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net5.0'))">true</_NeedsNet5Polyfills>
+    <!-- Parse TFM directly using MSBuild functions (works before TargetFrameworkIdentifier is set) -->
+    <_TfmId>$([MSBuild]::GetTargetFrameworkIdentifier('$(TargetFramework)'))</_TfmId>
+    <_TfmVersion Condition="'$(_TfmId)' == '.NETCoreApp'">$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)').TrimStart('v'))</_TfmVersion>
+    <_TfmVersion Condition="'$(_TfmVersion)' == ''">0.0</_TfmVersion>
 
-    <_NeedsNet6Polyfills>false</_NeedsNet6Polyfills>
-    <_NeedsNet6Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">true</_NeedsNet6Polyfills>
-
-    <_NeedsNet7Polyfills>false</_NeedsNet7Polyfills>
-    <_NeedsNet7Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">true</_NeedsNet7Polyfills>
-
-    <_NeedsNet8Polyfills>false</_NeedsNet8Polyfills>
-    <_NeedsNet8Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</_NeedsNet8Polyfills>
-
-    <_NeedsNet9Polyfills>false</_NeedsNet9Polyfills>
-    <_NeedsNet9Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">true</_NeedsNet9Polyfills>
-
-    <_NeedsNetCoreApp31Polyfills>false</_NeedsNetCoreApp31Polyfills>
-    <_NeedsNetCoreApp31Polyfills Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp3.1'))">true</_NeedsNetCoreApp31Polyfills>
+    <!-- One-liners: true = type MISSING from framework -->
+    <_NeedsNetCoreApp31Polyfills Condition="$([MSBuild]::VersionLessThan('$(_TfmVersion)', '3.1'))">true</_NeedsNetCoreApp31Polyfills>
+    <_NeedsNet5Polyfills Condition="$([MSBuild]::VersionLessThan('$(_TfmVersion)', '5.0'))">true</_NeedsNet5Polyfills>
+    <_NeedsNet6Polyfills Condition="$([MSBuild]::VersionLessThan('$(_TfmVersion)', '6.0'))">true</_NeedsNet6Polyfills>
+    <_NeedsNet7Polyfills Condition="$([MSBuild]::VersionLessThan('$(_TfmVersion)', '7.0'))">true</_NeedsNet7Polyfills>
+    <_NeedsNet8Polyfills Condition="$([MSBuild]::VersionLessThan('$(_TfmVersion)', '8.0'))">true</_NeedsNet8Polyfills>
+    <_NeedsNet9Polyfills Condition="$([MSBuild]::VersionLessThan('$(_TfmVersion)', '9.0'))">true</_NeedsNet9Polyfills>
 
     <!-- Shared folder path -->
     <_SharedSourcePath>$(MSBuildThisFileDirectory)../shared/</_SharedSourcePath>

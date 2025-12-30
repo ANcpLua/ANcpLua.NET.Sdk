@@ -19,13 +19,13 @@ by [Meziantou.NET.Sdk](https://github.com/meziantou/Meziantou.NET.Sdk).
 Replace your SDK reference:
 
 ```xml
-<Project Sdk="ANcpLua.NET.Sdk/1.3.1"></Project>
+<Project Sdk="ANcpLua.NET.Sdk/1.3.3"></Project>
 ```
 
 For Web projects:
 
 ```xml
-<Project Sdk="ANcpLua.NET.Sdk.Web/1.3.1"></Project>
+<Project Sdk="ANcpLua.NET.Sdk.Web/1.3.3"></Project>
 ```
 
 Or use `global.json` for centralized version management:
@@ -33,8 +33,8 @@ Or use `global.json` for centralized version management:
 ```json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "1.3.1",
-    "ANcpLua.NET.Sdk.Web": "1.3.1"
+    "ANcpLua.NET.Sdk": "1.3.3",
+    "ANcpLua.NET.Sdk.Web": "1.3.3"
   }
 }
 ```
