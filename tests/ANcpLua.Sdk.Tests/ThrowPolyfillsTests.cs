@@ -355,5 +355,4 @@ public class ThrowPolyfillsTests
 
         Assert.Equal("userCount", ex.ParamName);
     }
-
 }

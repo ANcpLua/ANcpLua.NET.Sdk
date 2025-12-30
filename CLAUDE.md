@@ -11,7 +11,7 @@ Guidance for Claude Code when working with this repository.
 - Embedded source helpers (Throw.IfNull, SourceGen utilities)
 - ASP.NET Core service defaults (OpenTelemetry, Health Checks, Resilience)
 
-**Current Version:** 1.2.4
+**Current Version:** 1.3.0
 
 ## CLI Commands (READ THIS FIRST)
 

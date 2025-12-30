@@ -3,7 +3,7 @@ using ANcpLua.Sdk.Tests.Helpers;
 namespace ANcpLua.Sdk.Tests.Infrastructure;
 
 /// <summary>
-/// Base class for SDK tests providing common helper methods.
+///     Base class for SDK tests providing common helper methods.
 /// </summary>
 public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper output)
 {
@@ -14,7 +14,9 @@ public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper outp
     protected ProjectBuilder CreateProject(
         SdkImportStyle style = SdkImportStyle.SdkElement,
         string sdk = PackageFixture.SdkName)
-        => new(fixture, output, style, sdk);
+    {
+        return new ProjectBuilder(fixture, output, style, sdk);
+    }
 
     /// <summary>Quick build helper for simple test cases</summary>
     protected async Task<BuildResult> QuickBuild(
@@ -36,7 +38,9 @@ public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper outp
         string code,
         string tfm = Tfm.Net100,
         params (string Key, string Value)[] extraProps)
-        => await QuickBuild(code, tfm, extraProps);
+    {
+        return await QuickBuild(code, tfm, extraProps);
+    }
 
     /// <summary>Quick build helper with exe output type</summary>
     protected async Task<BuildResult> BuildExe(

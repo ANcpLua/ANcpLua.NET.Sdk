@@ -25,11 +25,9 @@ public static class ANcpSdkServiceDefaults
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
-        foreach (var service in builder.Services)
-            if (service.ServiceType == typeof(ANcpSdkServiceDefaultsOptions))
-                return builder;
-
-        return builder.UseANcpSdkConventions(configure);
+        return builder.Services.Any(service => service.ServiceType == typeof(ANcpSdkServiceDefaultsOptions))
+            ? builder
+            : builder.UseANcpSdkConventions(configure);
     }
 
     public static TBuilder UseANcpSdkConventions<TBuilder>(this TBuilder builder,

@@ -437,7 +437,9 @@ public static class PolyfillTestDataSource
         {
             data.Add(polyfill, polyfill.MinimumTargetFramework, true);
 
-            var isExtension = polyfill.InjectionProperty is InjectionPropertyNames.Throw or InjectionPropertyNames.StringOrdinalComparer;
+            var isExtension =
+                polyfill.InjectionProperty is InjectionPropertyNames.Throw
+                    or InjectionPropertyNames.StringOrdinalComparer;
 
             data.Add(polyfill, Tfm.Net100, isExtension);
         }

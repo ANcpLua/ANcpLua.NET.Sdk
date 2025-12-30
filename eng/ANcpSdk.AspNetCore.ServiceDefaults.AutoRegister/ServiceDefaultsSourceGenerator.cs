@@ -42,19 +42,19 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
                 sb.AppendLine();
                 // Include file-scoped InterceptsLocationAttribute in the same file where it's used
                 sb.AppendLine("""
-                    namespace System.Runtime.CompilerServices
-                    {
-                        [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = true)]
-                        file sealed class InterceptsLocationAttribute(int version, string data) : global::System.Attribute;
-                    }
+                              namespace System.Runtime.CompilerServices
+                              {
+                                  [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = true)]
+                                  file sealed class InterceptsLocationAttribute(int version, string data) : global::System.Attribute;
+                              }
 
-                    namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister
-                    {
-                        using ANcpSdk.AspNetCore.ServiceDefaults;
+                              namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister
+                              {
+                                  using ANcpSdk.AspNetCore.ServiceDefaults;
 
-                        file static partial class Interceptors
-                        {
-                    """);
+                                  file static partial class Interceptors
+                                  {
+                              """);
 
                 var index = 0;
                 foreach (var method in interceptionData.Where(m => m is not null)

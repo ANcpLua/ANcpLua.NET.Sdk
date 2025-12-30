@@ -9,21 +9,26 @@ $ErrorActionPreference = 'Stop'
 $sourceDir = (Resolve-Path "$PSScriptRoot/../submodules/Roslyn.Utilities/ANcpLua.Roslyn.Utilities/ANcpLua.Roslyn.Utilities").Path
 $outputDir = "$PSScriptRoot/../.generated/SourceGen"
 
-if (-not (Test-Path $sourceDir)) {
+if (-not (Test-Path $sourceDir))
+{
     Write-Error "Source directory not found: $sourceDir"
     Write-Error "Run: git submodule update --init --recursive"
     exit 1
 }
 
 # Clean and create output
-if (Test-Path $outputDir) { Remove-Item $outputDir -Recurse -Force }
+if (Test-Path $outputDir)
+{
+    Remove-Item $outputDir -Recurse -Force
+}
 New-Item -ItemType Directory -Path $outputDir -Force | Out-Null
 
 # Auto-discover ALL .cs files (no hardcoded list!)
 $allFiles = Get-ChildItem $sourceDir -Filter "*.cs" -Recurse | Where-Object { $_.Name -ne "AssemblyInfo.cs" }
 $count = 0
 
-foreach ($file in $allFiles) {
+foreach ($file in $allFiles)
+{
     $relativePath = $file.FullName.Substring($sourceDir.Length + 1)
     $content = Get-Content $file.FullName -Raw
 
@@ -45,13 +50,17 @@ foreach ($file in $allFiles) {
     # Preserve directory structure
     $outputPath = Join-Path $outputDir $relativePath
     $outputDirPath = Split-Path $outputPath -Parent
-    if (-not (Test-Path $outputDirPath)) {
+    if (-not (Test-Path $outputDirPath))
+    {
         New-Item -ItemType Directory -Path $outputDirPath -Force | Out-Null
     }
 
     Set-Content $outputPath $content -NoNewline
     $count++
-    if ($Verbose) { Write-Host "Transformed: $relativePath" }
+    if ($Verbose)
+    {
+        Write-Host "Transformed: $relativePath"
+    }
 }
 
 Write-Host "Transformed $count files to $outputDir"

@@ -1,4 +1,4 @@
 <Project>
   <!-- Import shared version for consistency with SDK packages -->
-  <Import Project="../src/common/Version.props" />
+  <Import Project="../src/common/Version.props"/>
 </Project>

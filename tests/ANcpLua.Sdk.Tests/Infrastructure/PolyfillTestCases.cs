@@ -39,7 +39,7 @@ public sealed class PolyfillCaseSerializer : IXunitSerializer
             [nameof(TimeProviderFile)] = tfm => new PolyfillCase<TimeProviderFile>(tfm),
             [nameof(ThrowFile)] = tfm => new PolyfillCase<ThrowFile>(tfm),
             [nameof(StringOrdinalComparerFile)] = tfm => new PolyfillCase<StringOrdinalComparerFile>(tfm),
-            [nameof(DiagnosticClassesFile)] = tfm => new PolyfillCase<DiagnosticClassesFile>(tfm),
+            [nameof(DiagnosticClassesFile)] = tfm => new PolyfillCase<DiagnosticClassesFile>(tfm)
         }.ToFrozenDictionary();
 
     public bool IsSerializable(Type type, object? value, [NotNullWhen(false)] out string? failureReason)
@@ -90,7 +90,8 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
             (Prop.OutputType, Val.Library)
         };
 
-        if (TMarker.InjectPropertyName is Prop.InjectRequiredMemberOnLegacy or Prop.InjectCompilerFeatureRequiredOnLegacy)
+        if (TMarker.InjectPropertyName is Prop.InjectRequiredMemberOnLegacy
+            or Prop.InjectCompilerFeatureRequiredOnLegacy)
             properties.Add((Prop.LangVersion, Val.Latest));
 
         project.AddCsprojFile(properties.ToArray());
@@ -125,7 +126,8 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
             (Prop.OutputType, Val.Library)
         };
 
-        if (TMarker.InjectPropertyName is Prop.InjectRequiredMemberOnLegacy or Prop.InjectCompilerFeatureRequiredOnLegacy)
+        if (TMarker.InjectPropertyName is Prop.InjectRequiredMemberOnLegacy
+            or Prop.InjectCompilerFeatureRequiredOnLegacy)
             properties.Add((Prop.LangVersion, Val.Latest));
 
         project.AddCsprojFile(properties.ToArray());
@@ -144,7 +146,8 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
         ");
 
         var result = await project.BuildAndGetOutput();
-        result.ShouldFail($"Build succeeded for {TMarker.InjectPropertyName} on {tfm} when expected to fail without the flag");
+        result.ShouldFail(
+            $"Build succeeded for {TMarker.InjectPropertyName} on {tfm} when expected to fail without the flag");
 
         Assert.True(
             result.OutputContains("CS0246") ||

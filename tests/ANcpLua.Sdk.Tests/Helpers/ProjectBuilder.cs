@@ -23,16 +23,16 @@ public sealed class ProjectBuilder : IAsyncDisposable
     private readonly TemporaryDirectory _directory;
     private readonly PackageFixture _fixture;
     private readonly FullPath _githubStepSummaryFile;
-    private readonly ITestOutputHelper _testOutputHelper;
-    private int _buildCount;
-    private NetSdkVersion _sdkVersion = NetSdkVersion.Net100;
+    private readonly List<NuGetReference> _nugetPackages = [];
 
     // Fluent API state
     private readonly List<(string Key, string Value)> _properties = [];
     private readonly List<(string Name, string Content)> _sourceFiles = [];
-    private readonly List<NuGetReference> _nugetPackages = [];
-    private string? _projectFilename = "ANcpLua.TestProject.csproj";
+    private readonly ITestOutputHelper _testOutputHelper;
+    private int _buildCount;
     private SdkImportStyle? _importStyleOverride;
+    private string? _projectFilename = "ANcpLua.TestProject.csproj";
+    private NetSdkVersion _sdkVersion = NetSdkVersion.Net100;
 
     public ProjectBuilder(PackageFixture fixture, ITestOutputHelper testOutputHelper,
         SdkImportStyle defaultSdkImportStyle, string defaultSdkName)
@@ -118,8 +118,8 @@ public sealed class ProjectBuilder : IAsyncDisposable
     }
 
     /// <summary>
-    /// Enables Microsoft.Testing.Platform mode for test projects that use MTP packages.
-    /// Required for .NET 10+ when using xunit.v3.mtp-*, TUnit, or other MTP-based frameworks.
+    ///     Enables Microsoft.Testing.Platform mode for test projects that use MTP packages.
+    ///     Required for .NET 10+ when using xunit.v3.mtp-*, TUnit, or other MTP-based frameworks.
     /// </summary>
     public void EnableMtpMode()
     {
@@ -205,8 +205,8 @@ public sealed class ProjectBuilder : IAsyncDisposable
     {
         // Generate csproj from accumulated state
         AddCsprojFile(
-            properties: [.._properties],
-            nuGetPackages: [.._nugetPackages],
+            [.._properties],
+            [.._nugetPackages],
             filename: _projectFilename ?? "ANcpLua.TestProject.csproj",
             importStyle: _importStyleOverride ?? SdkImportStyle.Default);
 
@@ -469,14 +469,14 @@ public sealed class ProjectBuilder : IAsyncDisposable
 }
 
 /// <summary>
-/// Utility to sanitize strings for XML 1.0 compatibility.
-/// XML 1.0 does not allow certain control characters (like form feed 0x0C).
+///     Utility to sanitize strings for XML 1.0 compatibility.
+///     XML 1.0 does not allow certain control characters (like form feed 0x0C).
 /// </summary>
 internal static class XmlSanitizer
 {
     /// <summary>
-    /// Removes characters that are invalid in XML 1.0 documents.
-    /// Valid characters: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+    ///     Removes characters that are invalid in XML 1.0 documents.
+    ///     Valid characters: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
     /// </summary>
     public static string SanitizeForXml(string? text)
     {
@@ -486,7 +486,9 @@ internal static class XmlSanitizer
         // Fast path: check if any invalid characters exist
         var hasInvalidChars = text.Any(ch => !IsValidXmlChar(ch));
 
-        return !hasInvalidChars ? text :
+        return !hasInvalidChars
+            ? text
+            :
             // Slow path: filter out invalid characters
             new string(text.Where(IsValidXmlChar).ToArray());
     }
