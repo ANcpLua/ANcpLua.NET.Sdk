@@ -33,13 +33,24 @@
     </ItemGroup>
   </Target>
 
-  <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-trx</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments Condition="'$(EnableCodeCoverage)' == 'true'">$(TestingPlatformCommandLineArguments) --coverage</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --crashdump --crashdump-type mini</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --hangdump --hangdump-timeout 10m --hangdump-type mini</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --minimum-expected-tests 1</TestingPlatformCommandLineArguments>
-  </PropertyGroup>
+  <!-- MTP CLI args must be set in a target AFTER detection to check _UsesXunitV3Mtp -->
+  <Target Name="_SetMTPCommandLineArgs" BeforeTargets="Build;VSTest" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(EnableDefaultTestSettings)' != 'false' AND '$(UseMicrosoftTestingPlatform)' == 'true'">
+    <!-- Standard MTP extensions (NOT xunit.v3 which has its own options) -->
+    <PropertyGroup Condition="'$(_UsesXunitV3Mtp)' != 'true'">
+      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-trx</TestingPlatformCommandLineArguments>
+      <TestingPlatformCommandLineArguments Condition="'$(EnableCodeCoverage)' == 'true'">$(TestingPlatformCommandLineArguments) --coverage</TestingPlatformCommandLineArguments>
+      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --crashdump --crashdump-type mini</TestingPlatformCommandLineArguments>
+      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --hangdump --hangdump-timeout 10m --hangdump-type mini</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+    <!-- xunit.v3 native MTP options -->
+    <PropertyGroup Condition="'$(_UsesXunitV3Mtp)' == 'true'">
+      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-xunit-trx</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+    <!-- Common options for all MTP -->
+    <PropertyGroup>
+      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --minimum-expected-tests 1</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+  </Target>
 
   <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
     <VSTestBlame>true</VSTestBlame>
