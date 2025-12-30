@@ -130,6 +130,15 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
             or Prop.InjectCompilerFeatureRequiredOnLegacy)
             properties.Add((Prop.LangVersion, Val.Latest));
 
+        // InjectSharedThrow defaults to true, which auto-enables:
+        // - InjectCallerAttributesOnLegacy
+        // - InjectNullabilityAttributesOnLegacy
+        // For negative tests of these polyfills, we must explicitly disable InjectSharedThrow
+        if (TMarker.InjectPropertyName is Prop.InjectSharedThrow
+            or Prop.InjectCallerAttributesOnLegacy
+            or Prop.InjectNullabilityAttributesOnLegacy)
+            properties.Add((Prop.InjectSharedThrow, Val.False));
+
         project.AddCsprojFile(properties.ToArray());
 
         project.AddFile("Smoke.cs", $@"

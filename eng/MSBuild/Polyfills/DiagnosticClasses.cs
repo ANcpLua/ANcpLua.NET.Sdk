@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft. All rights reserved.
 // Polyfill for diagnostic classes on legacy TFMs
+// Note: CallerArgumentExpressionAttribute is in a separate file (LanguageFeatures/CallerArgumentExpressionAttribute.cs)
 
 #if NETSTANDARD2_0 || NET472
 
@@ -12,16 +13,6 @@ namespace System.Diagnostics.CodeAnalysis
     internal sealed class ExcludeFromCodeCoverageAttribute : Attribute
     {
         public string? Justification { get; set; }
-    }
-}
-
-namespace System.Runtime.CompilerServices
-{
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
-    internal sealed class CallerArgumentExpressionAttribute : Attribute
-    {
-        public CallerArgumentExpressionAttribute(string parameterName) => ParameterName = parameterName;
-        public string ParameterName { get; }
     }
 }
 
