@@ -57,8 +57,7 @@
     <InjectANcpLuaTimeProviderPolyfill Condition="'$(InjectANcpLuaTimeProviderPolyfill)' == ''">false</InjectANcpLuaTimeProviderPolyfill>
     <InjectANcpLuaTrimAttributesPolyfills Condition="'$(InjectANcpLuaTrimAttributesPolyfills)' == ''">false</InjectANcpLuaTrimAttributesPolyfills>
 
-    <!-- Extensions default to false - opt-in -->
-    <InjectSharedThrow Condition="'$(InjectSharedThrow)' == ''">false</InjectSharedThrow>
+    <!-- Extensions default to false - opt-in (InjectSharedThrow default set in Common.props) -->
     <InjectSourceGenHelpers Condition="'$(InjectSourceGenHelpers)' == ''">false</InjectSourceGenHelpers>
     <InjectCommonComparers Condition="'$(InjectCommonComparers)' == ''">false</InjectCommonComparers>
     <InjectStringOrdinalComparer Condition="'$(InjectStringOrdinalComparer)' == ''">false</InjectStringOrdinalComparer>
