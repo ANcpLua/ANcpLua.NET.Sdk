@@ -36,12 +36,16 @@ dotnet test tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 
 **MTP vs VSTest option mapping:**
 
-| VSTest                                  | MTP                                         |
+| VSTest                                  | xUnit v3 MTP                                |
 |-----------------------------------------|---------------------------------------------|
-| `--filter "FullyQualifiedName~Foo"`     | `--treenode-filter "/**/Foo"`               |
-| `--logger "trx"`                        | `--report-trx`                              |
-| `--logger "console;verbosity=detailed"` | `--verbosity detailed`                      |
+| `--filter "FullyQualifiedName~Foo"`     | `--filter-method "*Foo*"`                   |
+| `--filter "ClassName~Bar"`              | `--filter-class "*Bar*"`                    |
+| `--logger "trx"`                        | `--report-xunit-trx`                        |
+| `--logger "console;verbosity=detailed"` | `--output Detailed`                         |
 | `-v detailed`                           | N/A (MSBuild verbosity, not test verbosity) |
+
+**Note:** xUnit v3 native MTP uses different options than standard MTP (TUnit, NUnit MTP, MSTest MTP).
+Standard MTP uses `--report-trx`, `--crashdump`, `--hangdump` - xUnit v3 does NOT support these.
 
 ```
 
