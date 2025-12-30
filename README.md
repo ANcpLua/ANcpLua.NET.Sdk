@@ -19,11 +19,13 @@ by [Meziantou.NET.Sdk](https://github.com/meziantou/Meziantou.NET.Sdk).
 Replace your SDK reference:
 
 ```xml
-<!-- Libraries / Console / Workers -->
-<Project Sdk="ANcpLua.NET.Sdk/1.2.4"></Project>
+<Project Sdk="ANcpLua.NET.Sdk/1.3.0"></Project>
+```
 
-<!-- Web APIs / ASP.NET Core -->
-<Project Sdk="ANcpLua.NET.Sdk.Web/1.2.4"></Project>
+For Web projects:
+
+```xml
+<Project Sdk="ANcpLua.NET.Sdk.Web/1.3.0"></Project>
 ```
 
 Or use `global.json` for centralized version management:
@@ -31,8 +33,8 @@ Or use `global.json` for centralized version management:
 ```json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "1.2.4",
-    "ANcpLua.NET.Sdk.Web": "1.2.4"
+    "ANcpLua.NET.Sdk": "1.3.0",
+    "ANcpLua.NET.Sdk.Web": "1.3.0"
   }
 }
 ```
@@ -40,7 +42,6 @@ Or use `global.json` for centralized version management:
 Then reference without version:
 
 ```xml
-
 <Project Sdk="ANcpLua.NET.Sdk"></Project>
 ```
 
@@ -134,7 +135,6 @@ See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 13
 Modern throw helpers using C# 14 `extension(Type)` syntax. Available on all targets:
 
 ```csharp
-// .NET 6+ style APIs - work everywhere!
 ArgumentNullException.ThrowIfNull(myArg);
 ArgumentException.ThrowIfNullOrEmpty(myString);
 ArgumentException.ThrowIfNullOrWhiteSpace(myString);
@@ -170,19 +170,12 @@ When using `Microsoft.NET.Sdk.Web`, the SDK automatically adds Aspire 13.0-compa
 
 Opt-out: `<AutoRegisterServiceDefaults>false</AutoRegisterServiceDefaults>`
 
-## Running Tests Correctly
-
-The test suite simulates an environment where the SDK is packed and consumed. To avoid performance issues caused by parallel tests trying to repack the SDK simultaneously, use the following command:
+## Running Tests
 
 ```bash
-# 1. Ensure artifacts are built (if running for the first time)
-# Note: The test fixture will auto-build if artifacts/nuget is empty,
-# but for optimal performance, set up the environment variables.
-
-# 2. Run tests pointing to the artifacts directory
 export CI=true
 export NUGET_DIRECTORY="$(pwd)/artifacts"
-dotnet test tests/ANcpLua.Sdk.Tests
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 ```
 
 ## License
