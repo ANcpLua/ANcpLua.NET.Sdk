@@ -94,20 +94,20 @@ See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 13
 | `InjectSourceGenHelpers`      | Roslyn source generator utilities ([details](eng/Extensions/SourceGen/README.md)) | `false` |
 
 <details>
-<summary><b>SourceGen Helpers</b> - what's included</summary>
+<summary>SourceGen Helpers - what's included</summary>
 
-- `EquatableArray<T>` - IEquatable wrapper for ImmutableArray (incremental generator caching)
-- `DiagnosticInfo` / `DiagnosticsExtensions` - Simplified diagnostic creation
-- `SymbolExtensions` - `HasAttribute`, `GetAttribute`, `IsOrInheritsFrom`, `ImplementsInterface`, `GetMethod`, `GetProperty`
-- `SyntaxExtensions` - `GetMethodName`, `GetIdentifierName`, `HasModifier`
-- `SemanticModelExtensions` - `IsConstant`, `AllConstant`, `GetConstantValueOrDefault`
-- `CompilationExtensions` - `IsCSharp9OrGreater`, `IsCSharp10OrGreater`, `IsCSharp11OrGreater`
-- `SyntaxValueProvider` helpers - `ForClassesWithAttribute`, `ForMethodsWithAttribute`
-- `EnumerableExtensions` - `SelectManyOrEmpty`, `OrEmpty`, `ToImmutableArrayOrEmpty`, `HasDuplicates`
-- `FileExtensions` - `WriteIfChangedAsync` (avoid unnecessary file writes)
-- `LocationInfo`, `EquatableMessageArgs` - Equatable records for caching
+- **EquatableArray\<T\>** - IEquatable wrapper for ImmutableArray (incremental generator caching)
+- **DiagnosticInfo / DiagnosticsExtensions** - Simplified diagnostic creation
+- **SymbolExtensions** - `HasAttribute`, `GetAttribute`, `IsOrInheritsFrom`, `ImplementsInterface`, `GetMethod`, `GetProperty`
+- **SyntaxExtensions** - `GetMethodName`, `GetIdentifierName`, `HasModifier`
+- **SemanticModelExtensions** - `IsConstant`, `AllConstant`, `GetConstantValueOrDefault`
+- **CompilationExtensions** - `IsCSharp9OrGreater`, `IsCSharp10OrGreater`, `IsCSharp11OrGreater`
+- **SyntaxValueProvider helpers** - `ForClassesWithAttribute`, `ForMethodsWithAttribute`
+- **EnumerableExtensions** - `SelectManyOrEmpty`, `OrEmpty`, `ToImmutableArrayOrEmpty`, `HasDuplicates`
+- **FileExtensions** - `WriteIfChangedAsync` (avoid unnecessary file writes)
+- **LocationInfo, EquatableMessageArgs** - Equatable records for caching
 
-**Note:** For analyzers, CLI tools, or test projects, use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead. The embedded source approach is specifically for source generators which cannot easily reference NuGet packages.
+For analyzers, CLI tools, or test projects, use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead.
 
 </details>
 
@@ -177,7 +177,3 @@ export CI=true
 export NUGET_DIRECTORY="$(pwd)/artifacts"
 dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 ```
-
-## License
-
-MIT
