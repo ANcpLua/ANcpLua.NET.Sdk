@@ -120,8 +120,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- ANcpLua.Analyzers - now from NuGet package -->
-    <PackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)" IsImplicitlyDefined="true">
+    <!-- ANcpLua.Analyzers - skip when building the analyzer itself to avoid cycle -->
+    <PackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)" IsImplicitlyDefined="true"
+                      Condition="'$(PackageId)' != 'ANcpLua.Analyzers'">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
