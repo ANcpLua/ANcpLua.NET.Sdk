@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 
 #pragma warning disable CA1019, IDE0300
 
-namespace ANcpLua.NET.Sdk.shared.Polyfills.NullabilityAttributes;
+namespace ANcpLua.NET.Sdk.Shared.Polyfills.NullabilityAttributes;
 
 /// <summary>
 ///     Specifies that the method or property will ensure that the listed field and property members have not-null

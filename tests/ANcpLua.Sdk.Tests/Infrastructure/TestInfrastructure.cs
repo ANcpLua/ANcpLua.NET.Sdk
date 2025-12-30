@@ -266,8 +266,8 @@ public readonly record struct PolyfillDefinition(
     public static readonly PolyfillDefinition StringOrdinalComparer = new(
         InjectionPropertyNames.StringOrdinalComparer,
         RepositoryPaths.StringOrdinalComparer,
-        "ANcpLua.NET.Sdk.shared.Extensions.Comparers.StringOrdinalComparer",
-        "_ = ANcpLua.NET.Sdk.shared.Extensions.Comparers.StringOrdinalComparer.Instance;",
+        "ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer",
+        "_ = ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer.Instance;",
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition DiagnosticClasses = new(
@@ -480,10 +480,10 @@ public sealed class StringOrdinalComparerFile : IPolyfillMarker
 {
     public static string RepoRelativePath => RepositoryPaths.StringOrdinalComparer;
     public static string InjectPropertyName => InjectionPropertyNames.StringOrdinalComparer;
-    public static string ExpectedType => "ANcpLua.NET.Sdk.shared.Extensions.Comparers.StringOrdinalComparer";
+    public static string ExpectedType => "ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer";
 
     public static string ActivationSnippet =>
-        "_ = ANcpLua.NET.Sdk.shared.Extensions.Comparers.StringOrdinalComparer.Instance;";
+        "_ = ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer.Instance;";
 }
 
 public sealed class DiagnosticClassesFile : IPolyfillMarker

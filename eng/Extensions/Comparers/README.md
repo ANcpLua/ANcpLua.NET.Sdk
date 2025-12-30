@@ -26,7 +26,7 @@ You do not copy/paste or add these files manually.
 using System;
 using System.Collections.Generic;
 
-namespace ANcpLua.NET.Sdk.shared.Extensions.Comparers;
+namespace ANcpLua.NET.Sdk.Shared.Extensions.Comparers;
 
 /// <summary>
 ///     A singleton ordinal string comparer for consistent, allocation-free comparisons.
