@@ -93,23 +93,9 @@ See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 13
 | `InjectFakeLogger`            | Injects `FakeLoggerExtensions` (requires `FakeLogCollector`) | `false` |
 | `InjectSourceGenHelpers`      | Roslyn source generator utilities ([details](eng/Extensions/SourceGen/README.md)) | `false` |
 
-<details>
-<summary>SourceGen Helpers - what's included</summary>
+**SourceGen Helpers include:** `EquatableArray<T>`, `DiagnosticInfo`, `DiagnosticsExtensions`, `SymbolExtensions`, `SyntaxExtensions`, `SemanticModelExtensions`, `CompilationExtensions`, `SyntaxValueProvider` helpers, `EnumerableExtensions`, `FileExtensions`, `LocationInfo`, `EquatableMessageArgs`
 
-- **EquatableArray\<T\>** - IEquatable wrapper for ImmutableArray (incremental generator caching)
-- **DiagnosticInfo / DiagnosticsExtensions** - Simplified diagnostic creation
-- **SymbolExtensions** - `HasAttribute`, `GetAttribute`, `IsOrInheritsFrom`, `ImplementsInterface`, `GetMethod`, `GetProperty`
-- **SyntaxExtensions** - `GetMethodName`, `GetIdentifierName`, `HasModifier`
-- **SemanticModelExtensions** - `IsConstant`, `AllConstant`, `GetConstantValueOrDefault`
-- **CompilationExtensions** - `IsCSharp9OrGreater`, `IsCSharp10OrGreater`, `IsCSharp11OrGreater`
-- **SyntaxValueProvider helpers** - `ForClassesWithAttribute`, `ForMethodsWithAttribute`
-- **EnumerableExtensions** - `SelectManyOrEmpty`, `OrEmpty`, `ToImmutableArrayOrEmpty`, `HasDuplicates`
-- **FileExtensions** - `WriteIfChangedAsync` (avoid unnecessary file writes)
-- **LocationInfo, EquatableMessageArgs** - Equatable records for caching
-
-For analyzers, CLI tools, or test projects, use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead.
-
-</details>
+> For analyzers, CLI tools, or test projects, use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead.
 
 ### Polyfills (Opt-in for Legacy TFMs)
 
