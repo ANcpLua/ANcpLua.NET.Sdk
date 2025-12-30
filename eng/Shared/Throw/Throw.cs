@@ -94,7 +94,6 @@ internal static partial class Throw
     /// </example>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNull]
-    [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "Analyzer isn't seeing the reference to 'argument' in the attribute")]
     public static TMember IfMemberNull<TParameter, TMember>(
         TParameter argument,
         [NotNull] TMember member,
@@ -102,6 +101,8 @@ internal static partial class Throw
         [CallerArgumentExpression(nameof(member))] string memberName = "")
         where TParameter : notnull
     {
+        _ = argument; // Satisfy IDE0060 - parameter used only for CallerArgumentExpression
+
         if (member is null)
         {
             ArgumentException(paramName, $"Member {memberName} of {paramName} is null");
