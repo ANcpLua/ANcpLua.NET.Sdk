@@ -1,51 +1,24 @@
 version: 2
 updates:
-  # NuGet packages
+  - package-ecosystem: "dotnet-sdk"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
     groups:
       roslyn:
-        patterns:
-          - "Microsoft.CodeAnalysis*"
+        patterns: ["Microsoft.CodeAnalysis*"]
       testing:
-        patterns:
-          - "xunit*"
-          - "Microsoft.Testing*"
-          - "coverlet*"
+        patterns: ["xunit*", "Microsoft.NET.Test*", "coverlet*", "Microsoft.Testing*"]
       aspnetcore:
-        patterns:
-          - "Microsoft.AspNetCore*"
-          - "Microsoft.Extensions*"
-    commit-message:
-      prefix: "deps"
-    labels:
-      - "dependencies"
-      - "automated"
-    open-pull-requests-limit: 10
+        patterns: ["Microsoft.AspNetCore*", "Microsoft.Extensions*"]
 
-  # GitHub Actions
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "monday"
-    commit-message:
-      prefix: "ci"
-    labels:
-      - "ci"
-      - "automated"
-
-  # Git submodules (Roslyn.Utilities)
-  - package-ecosystem: "gitsubmodule"
-    directory: "/"
-    schedule:
-      interval: "daily"
-    commit-message:
-      prefix: "deps"
-    labels:
-      - "dependencies"
-      - "submodule"
-      - "automated"
