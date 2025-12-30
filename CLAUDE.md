@@ -6,12 +6,12 @@ Guidance for Claude Code when working with this repository.
 
 **ANcpLua.NET.Sdk** is an opinionated MSBuild SDK providing better developer experience than plain Microsoft.NET.Sdk:
 
-- Banned API enforcement (RS0030) + ANcpLua.Analyzers (AL0001-AL0014)
+- Banned API enforcement (RS0030) + ANcpLua.Analyzers (AL0001-AL0016)
 - Polyfills for modern .NET features on legacy TFMs
 - Embedded source helpers (Throw.IfNull, SourceGen utilities)
 - ASP.NET Core service defaults (OpenTelemetry, Health Checks, Resilience)
 
-**Current Version:** 1.3.1
+**Current Version:** 1.3.7
 
 ## CLI Commands (READ THIS FIRST)
 
@@ -90,7 +90,7 @@ ANcpLua.Roslyn.Utilities (NuGet, netstandard2.0)
 | `ANcpLua.NET.Sdk`          | Base SDK for libraries, console, workers     |
 | `ANcpLua.NET.Sdk.Web`      | Web SDK with auto-registered ServiceDefaults |
 | `ANcpLua.NET.Sdk.Test`     | Test SDK with xUnit configuration            |
-| `ANcpLua.Analyzers`        | Code analyzers (AL0001-AL0014)               |
+| `ANcpLua.Analyzers`        | Code analyzers (AL0001-AL0016)               |
 | `ANcpLua.Roslyn.Utilities` | Single source for Roslyn utilities           |
 
 ## Directory Structure
