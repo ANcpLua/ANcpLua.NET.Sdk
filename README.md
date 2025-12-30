@@ -108,23 +108,6 @@ See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 13
 | `InjectExperimentalAttributeOnLegacy`   | Injects `ExperimentalAttribute`                                 | `false` |
 | `InjectParamCollectionOnLegacy`         | Injects `ParamCollectionAttribute`                              | `false` |
 | `InjectStackTraceHiddenOnLegacy`        | Injects `StackTraceHiddenAttribute`                             | `false` |
-| `InjectThrowPolyfillsOnLegacy`          | Injects C# 14 ThrowPolyfills (extension members)                | `false` |
-
-### C# 14 Extension Member Polyfills
-
-Modern throw helpers using C# 14 `extension(Type)` syntax. Available on all targets:
-
-```csharp
-ArgumentNullException.ThrowIfNull(myArg);
-ArgumentException.ThrowIfNullOrEmpty(myString);
-ArgumentException.ThrowIfNullOrWhiteSpace(myString);
-ArgumentOutOfRangeException.ThrowIfNegative(count);
-ArgumentOutOfRangeException.ThrowIfZero(count);
-ArgumentOutOfRangeException.ThrowIfNegativeOrZero(count);
-ArgumentOutOfRangeException.ThrowIfGreaterThan(value, max);
-ArgumentOutOfRangeException.ThrowIfLessThan(value, min);
-ObjectDisposedException.ThrowIf(isDisposed, this);
-```
 
 ## Configuration
 
