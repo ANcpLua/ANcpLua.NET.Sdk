@@ -16,33 +16,27 @@ by [Meziantou.NET.Sdk](https://github.com/meziantou/Meziantou.NET.Sdk).
 
 ## Installation
 
-Replace your SDK reference:
+Add a `global.json` to your repo root:
+
+```json
+{
+  "msbuild-sdks": {
+    "ANcpLua.NET.Sdk": "*",
+    "ANcpLua.NET.Sdk.Web": "*"
+  }
+}
+```
+
+Then replace your SDK reference:
 
 ```xml
-<Project Sdk="ANcpLua.NET.Sdk/1.3.3"></Project>
+<Project Sdk="ANcpLua.NET.Sdk"></Project>
 ```
 
 For Web projects:
 
 ```xml
-<Project Sdk="ANcpLua.NET.Sdk.Web/1.3.3"></Project>
-```
-
-Or use `global.json` for centralized version management:
-
-```json
-{
-  "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "1.3.3",
-    "ANcpLua.NET.Sdk.Web": "1.3.3"
-  }
-}
-```
-
-Then reference without version:
-
-```xml
-<Project Sdk="ANcpLua.NET.Sdk"></Project>
+<Project Sdk="ANcpLua.NET.Sdk.Web"></Project>
 ```
 
 ## Working Features

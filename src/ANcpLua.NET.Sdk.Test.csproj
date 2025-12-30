@@ -5,9 +5,9 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NoWarn>NU5128</NoWarn>
     <NuSpecFile>ANcpLua.NET.Sdk.Test.nuspec</NuSpecFile>
-    <Version>1.2.0</Version>
+    <Version>0.0.0-local</Version>
     <NuspecProperties>$(NuspecProperties);version=$(Version)</NuspecProperties>
-    <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_REPOSITORY_URL);RepositoryCommit=$(GITHUB_SHA)</NuspecProperties>
+    <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY);RepositoryCommit=$(GITHUB_SHA)</NuspecProperties>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
