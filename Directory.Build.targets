@@ -1,0 +1,64 @@
+<Project>
+  <!--
+    Capability-Based Project Detection
+    Replaces brittle filename matching with explicit ProjectCapability items.
+    Run Migrate-Capabilities.ps1 to inject capabilities into existing projects.
+  -->
+
+  <!-- Fallback: filename-based detection for unmigrated projects (evaluated at property time) -->
+  <PropertyGroup Condition="'$(IsWebProject)' != 'true'">
+    <IsWebProject Condition="$(MSBuildProjectName.EndsWith('.Web'))">true</IsWebProject>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsApiProject)' != 'true'">
+    <IsApiProject Condition="$(MSBuildProjectName.EndsWith('.Api'))">true</IsApiProject>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
+    <IsTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests')) or $(MSBuildProjectName.EndsWith('.Test'))">true</IsTestProject>
+  </PropertyGroup>
+
+  <!-- Apply settings based on detection -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!--
+    Target-based capability detection (runs at target time when items are resolved)
+    Uses CreateItem to filter capabilities, then checks if filtered list is non-empty.
+  -->
+  <Target Name="_AncpLuaDetectCapabilities" BeforeTargets="BeforeBuild;ResolveProjectReferences">
+    <!-- Filter capabilities into separate item groups -->
+    <ItemGroup>
+      <_WebCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaWeb'" />
+      <_ApiCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaApi'" />
+      <_TestCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaTest'" />
+    </ItemGroup>
+
+    <!-- Override properties based on capabilities -->
+    <PropertyGroup Condition="'@(_WebCapabilities)' != ''">
+      <IsWebProject>true</IsWebProject>
+    </PropertyGroup>
+    <PropertyGroup Condition="'@(_ApiCapabilities)' != ''">
+      <IsApiProject>true</IsApiProject>
+    </PropertyGroup>
+    <PropertyGroup Condition="'@(_TestCapabilities)' != ''">
+      <IsTestProject>true</IsTestProject>
+      <IsPackable>false</IsPackable>
+    </PropertyGroup>
+  </Target>
+
+  <!-- Target for ProjectReference inspection (runs later when items resolved) -->
+  <Target Name="_AncpLuaDetectReferences" BeforeTargets="ResolveProjectReferences">
+    <ItemGroup>
+      <_WebRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Web.csproj'))" />
+      <_ApiRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Api.csproj'))" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'@(_WebRefs)' != ''">
+      <DefineConstants>$(DefineConstants);HAS_WEB_REFERENCE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'@(_ApiRefs)' != ''">
+      <DefineConstants>$(DefineConstants);HAS_API_REFERENCE</DefineConstants>
+    </PropertyGroup>
+  </Target>
+
+</Project>

@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    ANcpLua.Sdk.Canary - Build Validation Project
+
+    Purpose: Catches SDK packaging errors in <10 seconds locally before CI runs 612 tests.
+
+    This project:
+    1. References the SDK via ProjectReference (not PackageReference) for local dev
+    2. Can be switched to PackageReference for ephemeral feed testing
+  -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <Nullable>enable</Nullable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <!-- SDK Reference: ProjectReference for local dev, PackageReference for CI canary -->
+  <ItemGroup Condition="'$(UseLocalSdk)' != 'false'">
+    <ProjectReference Include="../../src/ANcpLua.NET.Sdk.csproj"
+                      ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseLocalSdk)' == 'false'">
+    <!-- For ephemeral feed testing -->
+    <PackageReference Include="ANcpLua.NET.Sdk" Version="*" />
+  </ItemGroup>
+
+  <!-- Test dependencies (versions from Directory.Packages.props) -->
+  <ItemGroup>
+    <PackageReference Include="xunit.v3.mtp-v2" />
+    <PackageReference Include="AwesomeAssertions" />
+  </ItemGroup>
+
+</Project>
