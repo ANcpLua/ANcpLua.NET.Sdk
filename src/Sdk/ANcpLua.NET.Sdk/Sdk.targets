@@ -33,6 +33,7 @@
       Condition="'$(_RootClaudeMd)' != ''"/>
   </Target>
 
-  <!-- Analyzer pack layout enforcement -->
-  <Import Project="$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets" />
+  <!-- Analyzer pack layout enforcement (dev-only, not included in nupkg) -->
+  <Import Project="$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets"
+          Condition="Exists('$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets')" />
 </Project>

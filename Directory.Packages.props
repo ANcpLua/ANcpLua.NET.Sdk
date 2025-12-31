@@ -54,7 +54,7 @@
     <PackageVersion Include="MSBuild.StructuredLogger" Version="2.3.113"/>
     <PackageVersion Include="NuGet.Protocol" Version="7.0.1"/>
     <PackageVersion Include="NuGet.Packaging" Version="7.0.1"/>
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="9.0.0"/>
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
   </ItemGroup>
 
   <!-- OpenTelemetry -->

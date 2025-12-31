@@ -7,13 +7,10 @@
        $(MSBuildProjectDirectory.Contains('tests')))">true</IsTestProject>
   </PropertyGroup>
 
-  <!-- Detect integration test project -->
+  <!-- Detect integration test project (directory-based, evaluated at property time) -->
   <PropertyGroup>
-    <_ReferencesWebProject Condition="@(ProjectReference->AnyHaveMetadataValue('Identity', '.Web.csproj')) or 
-                                      @(ProjectReference->AnyHaveMetadataValue('Identity', '.Api.csproj'))">true</_ReferencesWebProject>
-    <IsIntegrationTestProject Condition="'$(IsIntegrationTestProject)' == '' and 
-      ('$(_ReferencesWebProject)' == 'true' or 
-       $(MSBuildProjectDirectory.Contains('Integration')) or 
+    <IsIntegrationTestProject Condition="'$(IsIntegrationTestProject)' == '' and
+      ($(MSBuildProjectDirectory.Contains('Integration')) or
        $(MSBuildProjectDirectory.Contains('E2E')))">true</IsIntegrationTestProject>
   </PropertyGroup>
 
@@ -69,5 +66,19 @@
     <Using Include="Microsoft.AspNetCore.TestHost" />
     <Using Include="Microsoft.AspNetCore.Hosting" />
   </ItemGroup>
+
+  <!--
+    Target-based integration test detection (runs at target time when items are resolved)
+    Detects projects that reference .Web or .Api projects
+  -->
+  <Target Name="_AncpLuaDetectIntegrationTestReferences" BeforeTargets="BeforeBuild;ResolveProjectReferences">
+    <ItemGroup>
+      <_WebApiRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Web.csproj')) or $([System.String]::new('%(Identity)').EndsWith('.Api.csproj'))" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'@(_WebApiRefs)' != '' and '$(IsIntegrationTestProject)' != 'true'">
+      <IsIntegrationTestProject>true</IsIntegrationTestProject>
+    </PropertyGroup>
+  </Target>
 
 </Project>
