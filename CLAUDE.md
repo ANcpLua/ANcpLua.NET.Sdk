@@ -277,3 +277,51 @@ Location, ISymbol, Compilation, SemanticModel, SyntaxNode
 | Test                                          | Platform               | Reason                                                        |
 |-----------------------------------------------|------------------------|---------------------------------------------------------------|
 | `CanOverrideLangVersionInDirectoryBuildProps` | All (SdkElement style) | MSBuild import order — covered by DirectoryBuildProps variant |
+
+## Test Fixture Patterns (CRITICAL)
+
+When creating test fixtures that generate C# code, **always include namespaces and XML docs**:
+
+```csharp
+// ✅ CORRECT - includes namespace and XML doc
+project.AddFile("Class1.cs", """
+    namespace TestProject;
+
+    /// <summary>Test class.</summary>
+    public class Class1 { }
+    """);
+
+// ❌ WRONG - CA1050 error: Declare types in namespaces
+project.AddFile("Class1.cs", "public class Class1 { }");
+
+// ❌ WRONG - empty file with OutputType=exe causes CS5001 (no Main)
+project.AddFile("sample.cs", "");
+```
+
+**For library tests (no Main needed):**
+```csharp
+project.AddCsprojFile([("OutputType", "Library")]);
+project.AddFile("sample.cs", """
+    namespace TestProject;
+
+    /// <summary>Sample class for SDK validation.</summary>
+    public class Sample { }
+    """);
+```
+
+**For exe tests:**
+```csharp
+project.AddCsprojFile();  // defaults to exe
+project.AddFile("Program.cs", "System.Console.WriteLine();");  // top-level statements
+```
+
+**MTP test projects must use correct SDK:**
+```csharp
+// For TUnit/NUnit/MSTest - use base SDK, not Test SDK
+await using var project = CreateProjectBuilder(SdkName);
+project.AddCsprojFile(
+    filename: "Sample.Tests.csproj",
+    properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
+    nuGetPackages: [.. TUnitPackages]
+);
+```
