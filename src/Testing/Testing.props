@@ -30,19 +30,19 @@
 
   <!-- Auto-inject test packages -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true'">
-    <PackageReference Include="xunit.v3.mtp-v2" />
-    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" />
-    <PackageReference Include="AwesomeAssertions" />
-    <PackageReference Include="AwesomeAssertions.Analyzers">
+    <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(ParallelTestFrameworkVersion)" IsImplicitlyDefined="true"/>
+    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="true"/>
+    <PackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)" IsImplicitlyDefined="true">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" />
+    <!-- Microsoft.Extensions.Diagnostics.Testing is injected by Tests.targets -->
   </ItemGroup>
 
   <!-- Auto-inject integration test packages -->
   <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" IsImplicitlyDefined="true"/>
   </ItemGroup>
 
   <!-- Auto-inject test base classes -->

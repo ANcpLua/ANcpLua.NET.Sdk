@@ -68,8 +68,8 @@ public class PackageFixture : IAsyncLifetime
                                        This ensures all SDK packages reference the same version.
                                      -->
                                      <PropertyGroup>
-                                       <ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>
-                                     </PropertyGroup>
+                                     <ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>
+                                   </PropertyGroup>
 
                                      <!--
                                        Centralized package versions for SDK-injected dependencies.
@@ -93,6 +93,14 @@ public class PackageFixture : IAsyncLifetime
                                      <PropertyGroup Label="Legacy Polyfills">
                                        <BclAsyncInterfacesVersion>6.0.0</BclAsyncInterfacesVersion>
                                        <TasksExtensionsVersion>4.5.4</TasksExtensionsVersion>
+                                     </PropertyGroup>
+
+                                     <PropertyGroup Label="Test Packages">
+                                       <XunitMtpVersion>3.2.1</XunitMtpVersion>
+                                       <ParallelTestFrameworkVersion>1.0.6</ParallelTestFrameworkVersion>
+                                       <AwesomeAssertionsVersion>9.3.0</AwesomeAssertionsVersion>
+                                       <AwesomeAssertionsAnalyzersVersion>9.0.8</AwesomeAssertionsAnalyzersVersion>
+                                       <MvcTestingVersion>10.0.1</MvcTestingVersion>
                                      </PropertyGroup>
                                    </Project>
                                    """;

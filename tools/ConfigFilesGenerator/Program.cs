@@ -26,7 +26,7 @@ await GenerateEditorConfigForAnalyzers();
 await GenerateBanSymbolsForNewtonsoftJson();
 
 Console.WriteLine($"{writtenFiles} configuration files written");
-if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color").WaitForExit();
+if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color")?.WaitForExit();
 
 return 0; // Success - writtenFiles count is informational only
 
@@ -50,7 +50,9 @@ async Task GenerateEditorConfigForAnalyzers()
             if (!typeof(DiagnosticAnalyzer).IsAssignableFrom(type))
                 continue;
 
-            var analyzer = (DiagnosticAnalyzer)Activator.CreateInstance(type)!;
+            if (Activator.CreateInstance(type) is not DiagnosticAnalyzer analyzer)
+                continue;
+
             foreach (var diagnostic in analyzer.SupportedDiagnostics)
                 rules.Add(new AnalyzerRule(diagnostic.Id,
                     diagnostic.Title.ToString(CultureInfo.InvariantCulture).Trim(), diagnostic.HelpLinkUri,
@@ -73,7 +75,7 @@ async Task GenerateEditorConfigForAnalyzers()
             else
                 sb.AppendLine();
 
-            foreach (var rule in rules.OrderBy(rule => rule.Id))
+            foreach (var rule in rules.OrderBy(static rule => rule.Id))
             {
                 var currentRuleConfiguration = currentConfiguration.Rules.FirstOrDefault(r => r.Id == rule.Id);
                 var severity = currentRuleConfiguration is not null
@@ -128,7 +130,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
 
     var compatibleFrameworks = libItems.Where(item =>
         DefaultCompatibilityProvider.Instance.IsCompatible(NuGetFramework.Parse("net10.0"), item.TargetFramework));
-    var items = compatibleFrameworks.SelectMany(item => item.Items).ToArray();
+    var items = compatibleFrameworks.SelectMany(static item => item.Items).ToArray();
     foreach (var item in items)
     {
         if (!string.Equals(Path.GetExtension(item), ".dll", StringComparison.OrdinalIgnoreCase))
@@ -139,8 +141,14 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
         var allRefs = Net100.References.All.Add(metadataRef);
 
         var compilation = CSharpCompilation.Create("temp", [], allRefs);
-        var asm = compilation.GetTypeByMetadataName("Newtonsoft.Json.JsonConvert")!.ContainingAssembly;
-        foreach (var type in GetAllNamespaces(asm))
+        var jsonConvertType = compilation.GetTypeByMetadataName("Newtonsoft.Json.JsonConvert");
+        if (jsonConvertType is null)
+        {
+            Console.WriteLine($"Warning: Could not find Newtonsoft.Json.JsonConvert in {item}");
+            continue;
+        }
+
+        foreach (var type in GetAllNamespaces(jsonConvertType.ContainingAssembly))
         {
             var ns = DocumentationCommentId.CreateDeclarationId(type);
             if (ns is not null && ns.StartsWith("N:Newtonsoft", StringComparison.Ordinal)) bannedSymbols.Add(ns);
@@ -149,7 +157,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
 
     var sb = new StringBuilder();
     sb.AppendLine("# Banned symbols from Newtonsoft.Json");
-    foreach (var symbol in bannedSymbols.OrderBy(s => s, StringComparer.Ordinal)) sb.AppendLine(symbol);
+    foreach (var symbol in bannedSymbols.OrderBy(static s => s, StringComparer.Ordinal)) sb.AppendLine(symbol);
 
     var text = sb.ToString().ReplaceLineEndings("\n");
     if (File.Exists(bannedSymbolsFilePath))
@@ -165,7 +173,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 {
     var foundPackages = new HashSet<SourcePackageDependencyInfo>();
 
-    var cache = new SourceCacheContext();
+    using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
     var resource = await repository.GetResourceAsync<PackageMetadataResource>();
 
@@ -177,7 +185,9 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         {
             var metadata = await resource.GetMetadataAsync(package.Id, true, false, cache, NullLogger.Instance,
                 CancellationToken.None);
-            version = metadata.MaxBy(packageSearchMetadata => packageSearchMetadata.Identity.Version)!.Identity.Version;
+            var latestPackage = metadata.MaxBy(static m => m.Identity.Version)
+                ?? throw new InvalidOperationException($"No versions found for package '{package.Id}'");
+            version = latestPackage.Identity.Version;
         }
 
         var packageIdentity = new PackageIdentity(package.Id, version);
@@ -185,15 +195,15 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
             NullLogger.Instance, foundPackages, CancellationToken.None);
     }
 
-    return [.. foundPackages.Select(p => (p.Id, p.Version))];
+    return [.. foundPackages.Select(static p => (p.Id, p.Version))];
 
     static async Task ListAllPackageDependencies(
         PackageIdentity package,
-        IReadOnlyList<SourceRepository> repositories,
+        IEnumerable<SourceRepository> repositories,
         NuGetFramework framework,
         SourceCacheContext cache,
         ILogger logger,
-        HashSet<SourcePackageDependencyInfo> dependencies,
+        ISet<SourcePackageDependencyInfo> dependencies,
         CancellationToken cancellationToken)
     {
         if (dependencies.Contains(package)) return;
@@ -246,10 +256,7 @@ static FullPath GetRootFolderPath()
         path = path.Parent;
     }
 
-    if (path.IsEmpty)
-        throw new InvalidOperationException("Cannot find the root folder");
-
-    return path;
+    return path.IsEmpty ? throw new InvalidOperationException("Cannot find the root folder") : path;
 }
 
 static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersion version)
@@ -266,18 +273,19 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
         var context = new AssemblyLoadContext(null);
         context.Resolving += (_, assemblyName) =>
         {
+            if (assemblyName.Name is null)
+                return null;
+
             var assemblyFileName = assemblyName.Name + ".dll";
 
             foreach (var folder in GetProbeFolders())
             {
                 var files = filesGroupedByFolder.FirstOrDefault(group =>
                     string.Equals(group.Key, folder, StringComparison.OrdinalIgnoreCase));
-                if (files is null)
-                    continue;
 
-                var assemblyPath = files.FirstOrDefault(f =>
+                var assemblyPath = files?.FirstOrDefault(f =>
                     string.Equals(Path.GetFileName(f), assemblyFileName, StringComparison.OrdinalIgnoreCase));
-                if (assemblyPath is not null)
+                if (assemblyPath != null)
                     try
                     {
                         using var stream = package.PackageReader.GetStream(assemblyPath);
@@ -359,18 +367,26 @@ static (AnalyzerConfiguration[] Rules, string[] Unknowns) GetConfiguration(FullP
             if (line.StartsWith("global_level", StringComparison.Ordinal))
                 continue;
 
-            var match = Regex.Match(line,
-                @"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9]+).severity\s*=\s*(?<Severity>[a-z]+)");
+            var match = Patterns.DiagnosticSeverity.Match(line);
             if (match.Success)
             {
                 DiagnosticSeverity? diagnosticSeverity = null;
                 var severityValue = match.Groups["Severity"].Value;
-                if (severityValue == "silent")
-                    diagnosticSeverity = DiagnosticSeverity.Hidden;
-                else if (severityValue == "suggestion")
-                    diagnosticSeverity = DiagnosticSeverity.Info;
-                else if (Enum.TryParse<DiagnosticSeverity>(severityValue, true, out var severity))
-                    diagnosticSeverity = severity;
+                switch (severityValue)
+                {
+                    case "silent":
+                        diagnosticSeverity = DiagnosticSeverity.Hidden;
+                        break;
+                    case "suggestion":
+                        diagnosticSeverity = DiagnosticSeverity.Info;
+                        break;
+                    default:
+                    {
+                        if (Enum.TryParse<DiagnosticSeverity>(severityValue, true, out var severity))
+                            diagnosticSeverity = severity;
+                        break;
+                    }
+                }
 
                 rules.Add(new AnalyzerConfiguration(match.Groups["RuleId"].Value, [.. currentComment.Skip(1)],
                     diagnosticSeverity));
@@ -396,9 +412,9 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
 {
     var settings = Settings.LoadDefaultSettings(null);
     var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(settings);
-    var source = "https://api.nuget.org/v3/index.json";
+    const string source = "https://api.nuget.org/v3/index.json";
 
-    var cache = new SourceCacheContext();
+    using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3(source);
     var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
 
@@ -407,7 +423,9 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
         var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>();
         var metadata = await metadataResource.GetMetadataAsync(packageId, true, false, cache, NullLogger.Instance,
             CancellationToken.None);
-        version = metadata.MaxBy(metadata => metadata.Identity.Version)!.Identity.Version;
+        var latestPackage = metadata.MaxBy(static m => m.Identity.Version)
+            ?? throw new InvalidOperationException($"No versions found for package '{packageId}'");
+        version = latestPackage.Identity.Version;
     }
 
     var package = GlobalPackagesFolderUtility.GetPackage(new PackageIdentity(packageId, version), globalPackagesFolder);
@@ -447,7 +465,7 @@ static IEnumerable<INamespaceSymbol> GetAllNamespaces(IAssemblySymbol assembly)
 
     return result;
 
-    static void ProcessNamespace(List<INamespaceSymbol> result, INamespaceSymbol ns)
+    static void ProcessNamespace(ICollection<INamespaceSymbol> result, INamespaceSymbol ns)
     {
         result.Add(ns);
         foreach (var nestedNs in ns.GetNamespaceMembers()) ProcessNamespace(result, nestedNs);
@@ -463,11 +481,11 @@ static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
     }
     catch (ReflectionTypeLoadException ex)
     {
-        return ex.Types.Where(t => t is not null)!;
+        return ex.Types.OfType<Type>();
     }
 }
 
-internal sealed record AnalyzerRule(
+file sealed record AnalyzerRule(
     string Id,
     string Title,
     string? Url,
@@ -475,4 +493,11 @@ internal sealed record AnalyzerRule(
     DiagnosticSeverity DefaultSeverity,
     DiagnosticSeverity? DefaultEffectiveSeverity);
 
-internal sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
+file sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
+
+file static class Patterns
+{
+    public static readonly Regex DiagnosticSeverity = new(
+        @"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9]+).severity\s*=\s*(?<Severity>[a-z]+)",
+        RegexOptions.Compiled);
+}
