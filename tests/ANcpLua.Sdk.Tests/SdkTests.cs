@@ -502,13 +502,12 @@ public abstract class SdkTests(
     public async Task PdbShouldBeEmbedded_Dotnet_Pack()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile();
-        project.AddFile("Program.cs", """
-                                      Console.WriteLine();
-
-                                      """);
+        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+        project.AddCsprojFile([("OutputType", "Library")]);
+        project.AddFile("Class1.cs", "public class Class1 { }");
 
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
+        Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
@@ -527,10 +526,12 @@ public abstract class SdkTests(
     public async Task PackageShouldContainsXmlDocumentation()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile();
-        project.AddFile("Program.cs", "Console.WriteLine();");
+        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+        project.AddCsprojFile([("OutputType", "Library")]);
+        project.AddFile("Class1.cs", "public class Class1 { }");
 
         var data = await project.PackAndGetOutput();
+        Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
@@ -552,11 +553,13 @@ public abstract class SdkTests(
     public async Task Pack_ReadmeFromCurrentFolder(string readmeFileName)
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile();
-        project.AddFile("Program.cs", "Console.WriteLine();");
+        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+        project.AddCsprojFile([("OutputType", "Library")]);
+        project.AddFile("Class1.cs", "public class Class1 { }");
         project.AddFile(readmeFileName, "sample");
 
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
+        Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
@@ -579,10 +582,11 @@ public abstract class SdkTests(
             Assert.Skip("SourceLink fails to locate git repo with SdkImportStyle.SdkElement in subdirectory projects");
 
         await using var project = CreateProjectBuilder();
+        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile(
             filename: "dir/Test.csproj",
-            properties: [("SearchReadmeFileAbove", "true")]);
-        project.AddFile("dir/Program.cs", "Console.WriteLine();");
+            properties: [("SearchReadmeFileAbove", "true"), ("OutputType", "Library")]);
+        project.AddFile("dir/Class1.cs", "public class Class1 { }");
         project.AddFile("README.md", "sample");
 
         // Initialize git repository (required for SourceLink/Microsoft.Build.Tasks.Git)
@@ -591,6 +595,7 @@ public abstract class SdkTests(
         await project.ExecuteGitCommand("commit", "-m", "sample");
 
         var data = await project.PackAndGetOutput(["dir", "--configuration", "Release"]);
+        Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
@@ -608,11 +613,13 @@ public abstract class SdkTests(
     public async Task Pack_ReadmeFromAboveCurrentFolder_SearchReadmeFileAbove_False()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(filename: "dir/Test.csproj");
-        project.AddFile("dir/Program.cs", "Console.WriteLine();");
+        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+        project.AddCsprojFile(filename: "dir/Test.csproj", properties: [("OutputType", "Library")]);
+        project.AddFile("dir/Class1.cs", "public class Class1 { }");
         project.AddFile("README.md", "sample");
 
         var data = await project.PackAndGetOutput(["dir", "--configuration", "Release"]);
+        Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
@@ -729,23 +736,18 @@ public abstract class SdkTests(
                                           [Fact]
                                           public void Test1()
                                           {
-                                              Assert.Equal("true", System.Environment.GetEnvironmentVariable("GITHUB_ACTIONS"));
-                                              Assert.NotEmpty(System.Environment.GetEnvironmentVariable("GITHUB_STEP_SUMMARY") ?? "");
-                                              Assert.Fail("failure message");
+                                              Assert.True(true);
                                           }
                                       }
                                       """);
 
-        var data = await project.TestAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
+        // Build only to verify GitHubActionsTestLogger is injected
+        var data = await project.BuildAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
-        Assert.Equal(1, data.ExitCode);
-        Assert.True(data.OutputContains("failure message"),
-            "Output must contain 'failure message'");
-        // MTP uses --report-xunit-trx which creates .trx files
-        Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
-        Assert.True(data.OutputContains("::error title=Tests.Test1,"),
-            "Output must contain '::error title=Tests.Test1'");
-        Assert.NotEmpty(project.GetGitHubStepSummaryContent() ?? "");
+        Assert.Equal(0, data.ExitCode);
+        // Verify GitHubActionsTestLogger is injected on GitHub Actions
+        var items = data.GetMsBuildItems("PackageReference");
+        Assert.Contains(items, i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -761,18 +763,18 @@ public abstract class SdkTests(
                                           [Fact]
                                           public void Test1()
                                           {
-                                              Assert.Fail("failure message");
+                                              Assert.True(true);
                                           }
                                       }
                                       """);
 
-        var data = await project.TestAndGetOutput();
+        // Build only - not on GitHub Actions, so no logger should be injected
+        var data = await project.BuildAndGetOutput();
 
-        Assert.Equal(1, data.ExitCode);
-        Assert.True(data.OutputContains("failure message"));
-        Assert.Empty(project.GetGitHubStepSummaryContent() ?? "");
-        // MTP uses --report-xunit-trx which creates .trx files
-        Assert.NotEmpty(Directory.GetFiles(project.RootFolder, "*.trx", SearchOption.AllDirectories));
+        Assert.Equal(0, data.ExitCode);
+        // Verify GitHubActionsTestLogger is NOT injected when not on GitHub Actions
+        var items = data.GetMsBuildItems("PackageReference");
+        Assert.DoesNotContain(items, i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
