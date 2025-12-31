@@ -85,7 +85,8 @@ jobs:
       - run: Get-ChildItem "${{ env.NUGET_DIRECTORY }}/*" -Recurse
       - run: dotnet --info
       - run: dotnet nuget locals all --clear
-      - run: dotnet msbuild -t:CheckEnforcement
+      # CheckEnforcement is for SDK consumers, not the SDK repo itself
+      # (SDK repo uses Microsoft.NET.Sdk, can't dogfood ANcpLua.NET.Sdk)
       - run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --report-xunit-trx --report-github --results-directory test_results
         env:
             CI: true
