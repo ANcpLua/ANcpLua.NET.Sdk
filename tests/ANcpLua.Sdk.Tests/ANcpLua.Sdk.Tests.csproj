@@ -32,7 +32,6 @@
   <!-- xUnit configuration for parallelization and long-running test detection -->
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
-    <None Include="test.runsettings" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
   <ItemGroup>
