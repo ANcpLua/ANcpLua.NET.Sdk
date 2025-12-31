@@ -14,9 +14,9 @@
   <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'"/>
 
   <!-- Enforcement and determinism/SourceLink -->
-  <Import Project="$(MSBuildThisFileDirectory)../../Enforcement/Enforcement.props" />
-  <Import Project="$(MSBuildThisFileDirectory)../../Enforcement/DeterminismAndSourceLink.props" />
+  <Import Project="$(MSBuildThisFileDirectory)../Enforcement/Enforcement.props" />
+  <Import Project="$(MSBuildThisFileDirectory)../Enforcement/DeterminismAndSourceLink.props" />
 
   <!-- Testing auto-injection -->
-  <Import Project="$(MSBuildThisFileDirectory)../../Testing/Testing.props" />
+  <Import Project="$(MSBuildThisFileDirectory)../Testing/Testing.props" />
 </Project>
