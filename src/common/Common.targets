@@ -45,26 +45,30 @@
       <_ANcpLuaTestDetectionDone>true</_ANcpLuaTestDetectionDone>
     </PropertyGroup>
 
+    <!-- Filter MTP-indicating packages using correct MSBuild syntax (item filtering, not hallucinated AnyHaveMetadataValue) -->
+    <ItemGroup>
+      <_TUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'TUnit'" />
+      <_XunitMtpV1Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'" />
+      <_XunitMtpV2Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'" />
+      <_XunitMtpOffPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-off'" />
+      <_MtpExtPkg Include="@(PackageReference)" Condition="$([System.String]::new('%(Identity)').StartsWith('Microsoft.Testing.Extensions'))" />
+    </ItemGroup>
+
     <!-- Detect MTP usage (strict) - only EXPLICIT MTP signals -->
     <PropertyGroup Condition="'$(_UsesMTP)' != 'true'">
       <!-- TUnit is always MTP -->
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'TUnit')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="'@(_TUnitPkg)' != ''">true</_UsesMTP>
       <!-- xUnit v3 MTP packages (have their own MTP implementation, don't inject standard extensions) -->
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true'">true</_UsesMTP>
-      <_UsesXunitV3Mtp Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true'">true</_UsesXunitV3Mtp>
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'">true</_UsesMTP>
-      <_UsesXunitV3Mtp Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'">true</_UsesXunitV3Mtp>
+      <_UsesMTP Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesMTP>
+      <_UsesXunitV3Mtp Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesXunitV3Mtp>
+      <_UsesMTP Condition="'@(_XunitMtpV2Pkg)' != ''">true</_UsesMTP>
+      <_UsesXunitV3Mtp Condition="'@(_XunitMtpV2Pkg)' != ''">true</_UsesXunitV3Mtp>
       <!-- Microsoft.Testing.Extensions.* packages -->
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.TrxReport')) == 'true'">true</_UsesMTP>
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.CodeCoverage')) == 'true'">true</_UsesMTP>
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.CrashDump')) == 'true'">true</_UsesMTP>
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.HangDump')) == 'true'">true</_UsesMTP>
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.HotReload')) == 'true'">true</_UsesMTP>
-      <_UsesMTP Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'Microsoft.Testing.Extensions.Retry')) == 'true'">true</_UsesMTP>
+      <_UsesMTP Condition="'@(_MtpExtPkg)' != ''">true</_UsesMTP>
     </PropertyGroup>
 
     <!-- xunit.v3.mtp-off explicitly opts OUT of MTP -->
-    <PropertyGroup Condition="@(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-off')) == 'true'">
+    <PropertyGroup Condition="'@(_XunitMtpOffPkg)' != ''">
       <_UsesMTP>false</_UsesMTP>
     </PropertyGroup>
 

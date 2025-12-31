@@ -33,15 +33,19 @@
     <VSTestLogger>$(VSTestLogger)trx;console%3bverbosity=normal</VSTestLogger>
   </PropertyGroup>
 
-  <!-- Add implicit using for xunit -->
-  <ItemGroup Condition="'$(ImplicitUsings)' == 'enable' AND (
-                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit')) == 'true' OR
-                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3')) == 'true' OR
-                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true' OR
-                            @(PackageReference-&gt;AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true'
-                            )">
-    <Using Include="Xunit"/>
-  </ItemGroup>
+  <!-- Add implicit using for xunit (via Target for correct timing - items require Target) -->
+  <Target Name="_InjectXunitUsings" BeforeTargets="BeforeBuild;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(ImplicitUsings)' == 'enable'">
+    <!-- Filter xUnit packages using correct MSBuild syntax -->
+    <ItemGroup>
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit'" />
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'" />
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'" />
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'" />
+    </ItemGroup>
+    <ItemGroup Condition="'@(_XunitUsings)' != ''">
+      <Using Include="Xunit"/>
+    </ItemGroup>
+  </Target>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        TEST EXTENSIONS (Auto-injected for test projects)

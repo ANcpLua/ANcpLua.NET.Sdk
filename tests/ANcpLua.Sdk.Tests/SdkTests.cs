@@ -491,8 +491,10 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        Assert.Single(files); // Only the .nupkg should be generated
-        var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
+        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        Assert.Single(nupkgFiles);
+        var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
@@ -514,8 +516,10 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        Assert.Single(files); // Only the .nupkg should be generated
-        var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
+        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        Assert.Single(nupkgFiles);
+        var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
@@ -534,8 +538,10 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        Assert.Single(files); // Only the .nupkg should be generated
-        var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
+        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        Assert.Single(nupkgFiles);
+        var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
@@ -558,8 +564,10 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        Assert.Single(files); // Only the .nupkg should be generated
-        var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
+        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        Assert.Single(nupkgFiles);
+        var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
         var allFiles = Directory.GetFiles(extractedPath);
         Assert.Contains("README.md", allFiles.Select(Path.GetFileName));
@@ -581,8 +589,10 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
-        Assert.Single(files); // Only the .nupkg should be generated
-        var nupkg = files.Single(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase));
+        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        Assert.Single(nupkgFiles);
+        var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         Assert.Equal("sample",

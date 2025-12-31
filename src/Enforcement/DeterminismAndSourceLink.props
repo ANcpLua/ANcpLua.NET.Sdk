@@ -1,4 +1,13 @@
 <Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    Determinism & SourceLink Configuration
+    ═══════════════════════════════════════════════════════════════════════════
+
+    SourceLink is ONLY enabled on CI builds to prevent errors in temp directories
+    that aren't Git repositories (e.g., test project infrastructure).
+    ═══════════════════════════════════════════════════════════════════════════
+  -->
   <PropertyGroup>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
@@ -7,10 +16,16 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">$(CI)</EnableSourceLink>
-    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">$(CI)</EnableSourceControlManagerQueries>
+
+    <!-- Only enable SourceLink/Git queries on CI to prevent errors in temp directories -->
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">$(ContinuousIntegrationBuild)</EnableSourceLink>
+    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">$(ContinuousIntegrationBuild)</EnableSourceControlManagerQueries>
+
+    <!-- Explicitly disable when not on CI to prevent transitive package issues -->
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">false</EnableSourceLink>
+    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">false</EnableSourceControlManagerQueries>
   </PropertyGroup>
-  
+
   <ItemGroup Condition="'$(EnableSourceLink)' == 'true'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" IsImplicitlyDefined="true"/>
   </ItemGroup>
