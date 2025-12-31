@@ -71,8 +71,13 @@ public abstract class SdkTests(
     public async Task ValidateDefaultProperties()
     {
         await using var project = CreateProjectBuilder();
-        project.AddCsprojFile();
-        project.AddFile("sample.cs", "");
+        project.AddCsprojFile([("OutputType", "Library")]);
+        project.AddFile("sample.cs", """
+            namespace TestProject;
+
+            /// <summary>Sample class for SDK validation.</summary>
+            public class Sample { }
+            """);
         var data = await project.BuildAndGetOutput();
         data.AssertMsBuildPropertyValue("LangVersion", "latest");
         data.AssertMsBuildPropertyValue("PublishRepositoryUrl", "true");
@@ -510,7 +515,12 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile([("OutputType", "Library")]);
-        project.AddFile("Class1.cs", "public class Class1 { }");
+        project.AddFile("Class1.cs", """
+            namespace TestProject;
+
+            /// <summary>Test class.</summary>
+            public class Class1 { }
+            """);
 
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
         Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
@@ -534,7 +544,12 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile([("OutputType", "Library")]);
-        project.AddFile("Class1.cs", "public class Class1 { }");
+        project.AddFile("Class1.cs", """
+            namespace TestProject;
+
+            /// <summary>Test class.</summary>
+            public class Class1 { }
+            """);
 
         var data = await project.PackAndGetOutput();
         Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
@@ -561,7 +576,12 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile([("OutputType", "Library")]);
-        project.AddFile("Class1.cs", "public class Class1 { }");
+        project.AddFile("Class1.cs", """
+            namespace TestProject;
+
+            /// <summary>Test class.</summary>
+            public class Class1 { }
+            """);
         project.AddFile(readmeFileName, "sample");
 
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
@@ -592,7 +612,12 @@ public abstract class SdkTests(
         project.AddCsprojFile(
             filename: "dir/Test.csproj",
             properties: [("SearchReadmeFileAbove", "true"), ("OutputType", "Library")]);
-        project.AddFile("dir/Class1.cs", "public class Class1 { }");
+        project.AddFile("dir/Class1.cs", """
+            namespace TestProject;
+
+            /// <summary>Test class.</summary>
+            public class Class1 { }
+            """);
         project.AddFile("README.md", "sample");
 
         // Initialize git repository (required for SourceLink/Microsoft.Build.Tasks.Git)
@@ -621,7 +646,12 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile(filename: "dir/Test.csproj", properties: [("OutputType", "Library")]);
-        project.AddFile("dir/Class1.cs", "public class Class1 { }");
+        project.AddFile("dir/Class1.cs", """
+            namespace TestProject;
+
+            /// <summary>Test class.</summary>
+            public class Class1 { }
+            """);
         project.AddFile("README.md", "sample");
 
         var data = await project.PackAndGetOutput(["dir", "--configuration", "Release"]);
