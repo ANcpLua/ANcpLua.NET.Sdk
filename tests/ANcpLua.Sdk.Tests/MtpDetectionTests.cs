@@ -29,8 +29,9 @@ public abstract class MtpDetectionTests(
     NetSdkVersion dotnetSdkVersion)
 {
     // Package references for each scenario - note: renovate will update these
+    // xUnit v2 uses xunit.runner.visualstudio 2.x (v3 runner has MTP deps that block VSTest on .NET 10)
     private static readonly NuGetReference[] XUnit2Packages =
-        [new("xunit", "2.9.3"), new("xunit.runner.visualstudio", "3.1.5")];
+        [new("xunit", "2.9.3"), new("xunit.runner.visualstudio", "2.8.2")];
 
     private static readonly NuGetReference[] XUnit3PlainPackages =
         [new("xunit.v3", "3.2.1")];
@@ -68,9 +69,13 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task XUnit2_IsVSTest_NotMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (SdkName) to test detection without MTP enforcement
+        // ANcpLua.NET.Sdk.Test unconditionally sets UseMicrosoftTestingPlatform=true
+        // InjectFakeLogger=false to avoid Microsoft.Extensions.Diagnostics.Testing v10+ which brings in MTP packages
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
             nuGetPackages: [.. XUnit2Packages]
         );
 
@@ -92,16 +97,27 @@ public abstract class MtpDetectionTests(
         Assert.True(string.IsNullOrEmpty(useMtp) || useMtp == "false",
             $"UseMicrosoftTestingPlatform should be empty or false, got: {useMtp}");
 
-        // Assert MTP is NOT enabled (VSTest path)
         // Note: We don't check OutputType here because MSBuild normalizes it and the project template sets it
     }
 
     [Fact]
     public async Task XUnit2_TestRuns_WithVSTest()
     {
-        await using var project = CreateProjectBuilder();
+        // Skip on .NET 10: xUnit v2 + VSTest is not supported because:
+        // - Microsoft.NET.Test.Sdk v18+ (injected by SDK) brings in Microsoft.Testing.Platform.MSBuild
+        // - Microsoft.Testing.Platform.MSBuild errors on .NET 10 when VSTest mode is detected
+        // - This is a Microsoft ecosystem change, not an SDK bug
+        if (dotnetSdkVersion >= NetSdkVersion.Net100)
+            Assert.Skip("xUnit v2 + VSTest is not supported on .NET 10+ due to Microsoft.Testing.Platform.MSBuild incompatibility");
+
+        // Use base SDK (SdkName) instead of Test SDK (SdkTestName) because:
+        // - ANcpLua.NET.Sdk.Test enforces MTP unconditionally
+        // - xUnit v2 + VSTest is only supported with the base SDK
+        // - InjectFakeLogger=false to avoid Microsoft.Extensions.Diagnostics.Testing v10+ which brings in MTP packages
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
             nuGetPackages: [.. XUnit2Packages]
         );
 
@@ -485,9 +501,13 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task VSTest_InjectsMicrosoftNETTestSdk()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (SdkName) to test VSTest package injection
+        // ANcpLua.NET.Sdk.Test enforces MTP and doesn't inject Microsoft.NET.Test.Sdk
+        // InjectFakeLogger=false to avoid Microsoft.Extensions.Diagnostics.Testing v10+ which brings in MTP packages
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
             nuGetPackages: [.. XUnit2Packages]
         );
 

@@ -19,13 +19,15 @@
            Text="POLICY: DisableTransitiveProjectReferences banned. Use CentralPackageTransitivePinningEnabled." />
   </Target>
 
-  <!-- BANNED: Microsoft.NET.Test.Sdk -->
-  <Target Name="_EnforceNoVSTestSdk" BeforeTargets="ResolveReferences;Restore">
+  <!-- BANNED: Microsoft.NET.Test.Sdk ONLY when MTP is enabled -->
+  <!-- For legacy xUnit v2 VSTest projects, Microsoft.NET.Test.Sdk is required -->
+  <Target Name="_EnforceNoVSTestSdk" BeforeTargets="ResolveReferences;Restore"
+          Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">
     <ItemGroup>
       <_VSTestSdk Include="@(PackageReference)" Condition="'%(Identity)' == 'Microsoft.NET.Test.Sdk'" />
     </ItemGroup>
     <Error Condition="'@(_VSTestSdk)' != ''"
-           Text="POLICY: Microsoft.NET.Test.Sdk banned. MTP is enforced via xunit.v3.mtp-v2." />
+           Text="POLICY: Microsoft.NET.Test.Sdk banned when UseMicrosoftTestingPlatform=true. MTP projects don't need VSTest infrastructure." />
   </Target>
 
   <!-- BANNED: FluentAssertions -->
