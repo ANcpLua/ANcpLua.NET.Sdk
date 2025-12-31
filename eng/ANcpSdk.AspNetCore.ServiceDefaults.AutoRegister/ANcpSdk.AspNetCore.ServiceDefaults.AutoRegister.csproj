@@ -3,6 +3,9 @@
     <!-- Source generators need older Roslyn for broader IDE/SDK compatibility - opt out of CPM -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- netstandard2.0 defaults to C# 7.3, but we use modern features (required, init, file-scoped namespaces) -->
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
     <Version>$(ANcpSdkPackageVersion)</Version>
     <Description>Auto register services and map routes for ANcpSdk applications</Description>
 
