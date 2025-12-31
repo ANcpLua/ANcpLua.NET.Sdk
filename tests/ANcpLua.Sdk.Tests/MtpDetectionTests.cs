@@ -144,9 +144,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task XUnit3Plain_IsTestProject_NotMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
             nuGetPackages: [.. XUnit3PlainPackages]
         );
 
@@ -297,9 +299,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task XUnit3MtpOff_IsNotMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
             nuGetPackages: [.. XUnit3MtpOffPackages]
         );
 
@@ -330,9 +334,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task NUnit_IsVSTest_NotMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
             nuGetPackages: [.. NUnitPackages]
         );
 
@@ -399,9 +405,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task MSTest_IsVSTest_NotMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
             nuGetPackages: [.. MsTestPackages]
         );
 

@@ -82,6 +82,8 @@ jobs:
           name: nuget
           path: ${{ env.NUGET_DIRECTORY }}
       - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: '10.0.x'
       - run: Get-ChildItem "${{ env.NUGET_DIRECTORY }}/*" -Recurse
       - run: dotnet --info
       - run: dotnet nuget locals all --clear
