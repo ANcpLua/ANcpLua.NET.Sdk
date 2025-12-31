@@ -10,13 +10,14 @@
            Text="POLICY: PolySharp is banned. SDK provides polyfills." />
   </Target>
 
-  <!-- BANNED: PrivateAssets='all' (except analyzers/SourceLink) -->
+  <!-- BANNED: PrivateAssets='all' (except analyzers/SourceLink/NETStandard.Library) -->
   <Target Name="_EnforceNoPrivateAssetsAll" BeforeTargets="ResolveReferences">
     <ItemGroup>
-      <_BadPrivateAssets Include="@(PackageReference)" 
-        Condition="'%(PrivateAssets)' == 'all' and 
+      <_BadPrivateAssets Include="@(PackageReference)"
+        Condition="'%(PrivateAssets)' == 'all' and
                    !$([System.String]::new('%(Identity)').Contains('Analyzer')) and
-                   !$([System.String]::new('%(Identity)').Contains('SourceLink'))" />
+                   !$([System.String]::new('%(Identity)').Contains('SourceLink')) and
+                   '%(Identity)' != 'NETStandard.Library'" />
     </ItemGroup>
     <Error Condition="'@(_BadPrivateAssets)' != ''"
            Text="POLICY: PrivateAssets='all' banned on @(_BadPrivateAssets). Use transitive pinning." />

@@ -54,7 +54,9 @@ public abstract class SdkTests(
             if (file.Extension is ".props" or ".targets")
             {
                 var doc = XDocument.Load(file);
-                var nodes = doc.Descendants("PackageReference");
+                // Skip PackageReferences inside ItemDefinitionGroup (they set defaults, not actual references)
+                var nodes = doc.Descendants("PackageReference")
+                    .Where(static n => n.Parent?.Name.LocalName != "ItemDefinitionGroup");
                 foreach (var node in nodes)
                 {
                     var attr = node.Attribute("IsImplicitlyDefined");

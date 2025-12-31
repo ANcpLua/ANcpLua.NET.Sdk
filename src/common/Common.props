@@ -47,6 +47,8 @@
     <EnablePackageValidation Condition="'$(EnablePackageValidation)' == ''">true</EnablePackageValidation>
     <ManagePackageVersionsCentrally Condition="'$(ManagePackageVersionsCentrally)' == ''">true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled Condition="'$(CentralPackageTransitivePinningEnabled)' == ''">true</CentralPackageTransitivePinningEnabled>
+    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">false</EnableSourceControlManagerQueries>
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">false</EnableSourceLink>
   </PropertyGroup>
 
   <ItemDefinitionGroup>

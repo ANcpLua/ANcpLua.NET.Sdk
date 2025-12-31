@@ -7,9 +7,11 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">$(CI)</EnableSourceLink>
+    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">$(CI)</EnableSourceControlManagerQueries>
   </PropertyGroup>
   
-  <ItemGroup>
+  <ItemGroup Condition="'$(EnableSourceLink)' == 'true'">
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" IsImplicitlyDefined="true"/>
   </ItemGroup>
 </Project>

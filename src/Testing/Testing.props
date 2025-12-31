@@ -45,8 +45,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" IsImplicitlyDefined="true"/>
   </ItemGroup>
 
-  <!-- Auto-inject test base classes -->
-  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+  <!-- Auto-inject integration test base classes (only for integration test projects) -->
+  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/IntegrationTestBase.cs" Link="__Generated__/IntegrationTestBase.cs" Visible="false" />
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/KestrelTestBase.cs" Link="__Generated__/KestrelTestBase.cs" Visible="false" />
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" Visible="false" />
@@ -54,14 +54,15 @@
 
   <!-- Auto-inject GlobalUsings for tests -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
-    <Using Include="System.Net.Http.Json" />
     <Using Include="Xunit" />
     <Using Include="AwesomeAssertions" />
-    <Using Include="Microsoft.Extensions.DependencyInjection" />
-    <Using Include="Microsoft.Extensions.DependencyInjection.Extensions" />
   </ItemGroup>
 
+  <!-- Auto-inject GlobalUsings for integration tests (includes ASP.NET Core packages) -->
   <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
+    <Using Include="System.Net.Http.Json" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.DependencyInjection.Extensions" />
     <Using Include="Microsoft.AspNetCore.Mvc.Testing" />
     <Using Include="Microsoft.AspNetCore.TestHost" />
     <Using Include="Microsoft.AspNetCore.Hosting" />

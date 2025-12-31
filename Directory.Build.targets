@@ -12,7 +12,7 @@
   <PropertyGroup Condition="'$(IsApiProject)' != 'true'">
     <IsApiProject Condition="$(MSBuildProjectName.EndsWith('.Api'))">true</IsApiProject>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(IsTestProject)' != 'true'">
+  <PropertyGroup Condition="'$(IsTestProject)' == ''">
     <IsTestProject Condition="$(MSBuildProjectName.EndsWith('.Tests')) or $(MSBuildProjectName.EndsWith('.Test'))">true</IsTestProject>
   </PropertyGroup>
 
