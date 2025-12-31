@@ -45,19 +45,29 @@
       <_ANcpLuaTestDetectionDone>true</_ANcpLuaTestDetectionDone>
     </PropertyGroup>
 
-    <!-- Filter MTP-indicating packages using correct MSBuild syntax (item filtering, not hallucinated AnyHaveMetadataValue) -->
+    <!-- Filter test framework packages -->
     <ItemGroup>
       <_TUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'TUnit'" />
+      <_NUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'NUnit'" />
+      <_MSTestPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'MSTest.TestFramework'" />
       <_XunitMtpV1Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'" />
       <_XunitMtpV2Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'" />
       <_XunitMtpOffPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-off'" />
       <_MtpExtPkg Include="@(PackageReference)" Condition="$([System.String]::new('%(Identity)').StartsWith('Microsoft.Testing.Extensions'))" />
     </ItemGroup>
 
+    <!-- Skip xunit injection when other test frameworks are present -->
+    <PropertyGroup>
+      <SkipXunitInjection Condition="'@(_TUnitPkg)' != ''">true</SkipXunitInjection>
+      <SkipXunitInjection Condition="'@(_NUnitPkg)' != ''">true</SkipXunitInjection>
+      <SkipXunitInjection Condition="'@(_MSTestPkg)' != ''">true</SkipXunitInjection>
+    </PropertyGroup>
+
     <!-- Detect MTP usage (strict) - only EXPLICIT MTP signals -->
     <PropertyGroup Condition="'$(_UsesMTP)' != 'true'">
       <!-- TUnit is always MTP -->
       <_UsesMTP Condition="'@(_TUnitPkg)' != ''">true</_UsesMTP>
+      <_UsesTUnit Condition="'@(_TUnitPkg)' != ''">true</_UsesTUnit>
       <!-- xUnit v3 MTP packages (have their own MTP implementation, don't inject standard extensions) -->
       <_UsesMTP Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesMTP>
       <_UsesXunitV3Mtp Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesXunitV3Mtp>
@@ -81,7 +91,23 @@
       <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
 
-    <Message Text="ANcpLua.SDK Test Detection: _UsesMTP=$(_UsesMTP), UseMicrosoftTestingPlatform=$(UseMicrosoftTestingPlatform), OutputType=$(OutputType)" Importance="low"/>
+    <!-- Use item-based condition directly since property may not be updated in same target -->
+    <PropertyGroup Condition="'@(_XunitMtpV1Pkg)' != '' OR '@(_XunitMtpV2Pkg)' != ''">
+      <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)' == ''">--report-xunit-trx</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+
+    <!-- Inject MTP extensions for non-xunit MTP frameworks (TUnit, NUnit MTP, MSTest MTP) -->
+    <!-- xunit.v3.mtp has its own implementation, skip for those -->
+    <ItemGroup Condition="'@(_TUnitPkg)' != '' OR ('$(EnableNUnitRunner)' == 'true') OR ('$(EnableMSTestRunner)' == 'true')">
+      <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(CodeCoverageVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+    </ItemGroup>
+
+    <Message Text="ANcpLua.SDK Test Detection: _UsesMTP=$(_UsesMTP), _UsesXunitV3Mtp=$(_UsesXunitV3Mtp), _UsesTUnit=$(_UsesTUnit), SkipXunitInjection=$(SkipXunitInjection)" Importance="low"/>
   </Target>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -180,10 +206,10 @@
   </Target>
 
   <!-- Disable packages -->
-  <Target Name="Disable_SponsorLink" BeforeTargets="CoreCompile" Condition="$(Disable_SponsorLink) != 'false'">
+  <Target Name="Disable_SponsorLink" BeforeTargets="CoreCompile" Condition="'$(Disable_SponsorLink)' != 'false'">
     <ItemGroup>
-      <Analyzer Remove="@(Analyzer)" Condition="'%(FileName)' == 'DevLooped.SponsorLink' "/>
-      <Analyzer Remove="@(Analyzer)" Condition="'%(FileName)' == 'Moq.CodeAnalysis' "/>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'DevLooped.SponsorLink'"/>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'Moq.CodeAnalysis'"/>
     </ItemGroup>
   </Target>
 

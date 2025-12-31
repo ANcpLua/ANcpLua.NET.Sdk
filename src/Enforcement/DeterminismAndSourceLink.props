@@ -1,101 +1,93 @@
 <Project>
   <!--
-    ═══════════════════════════════════════════════════════════════════════════
-    Determinism & SourceLink Configuration
-    ═══════════════════════════════════════════════════════════════════════════
-
-    PROBLEM: Test harness creates projects in /tmp/ outside git repos.
-    Microsoft.Build.Tasks.Git errors: "Unable to locate repository"
-    SOLUTION: Detect git presence and disable git-dependent features if missing.
-    ═══════════════════════════════════════════════════════════════════════════
+    Determinism & git metadata wiring
+    - Always set deterministic defaults (portable PDB + snupkg)
+    - Compute git data at target execution time so temp folders (no .git) don't explode
   -->
 
-  <!-- ═════════════════════════════════════════════════════════════════════
-       PHASE 1: Always-on determinism settings (no git dependency)
-       ═════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup>
     <Deterministic>true</Deterministic>
     <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
     <DebugType>portable</DebugType>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedAllSources Condition="'$(EmbedAllSources)' == ''">true</EmbedAllSources>
+    <PublishRepositoryUrl Condition="'$(PublishRepositoryUrl)' == ''">true</PublishRepositoryUrl>
+    <IncludeSourceRevisionInInformationalVersion Condition="'$(IncludeSourceRevisionInInformationalVersion)' == ''">true</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
-  <!-- ═════════════════════════════════════════════════════════════════════
-       PHASE 2: Detect git repository presence
-       ═════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup>
-    <_GitRoot>$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', '.git'))</_GitRoot>
-    <_ANcpLuaInGitRepo Condition="'$(_GitRoot)' != ''">true</_ANcpLuaInGitRepo>
-    <_ANcpLuaInGitRepo Condition="'$(_GitRoot)' == ''">false</_ANcpLuaInGitRepo>
-  </PropertyGroup>
-
-  <!-- ═════════════════════════════════════════════════════════════════════
-       PHASE 3a: When IN a git repo - enable SourceLink and git features
-       ═════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
-    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">true</EnableSourceControlManagerQueries>
-    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">true</EnableSourceLink>
-    <EmbedAllSources>true</EmbedAllSources>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
-
-    <!-- Compute branch/commit metadata from git -->
-    <_GitConfigFile>$(_GitRoot)/.git/config</_GitConfigFile>
-    <_GitOriginUrl Condition="'$(_GitOriginUrl)' == '' and Exists('$(_GitConfigFile)')">$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(_GitConfigFile)')),'url\\s*=\\s*(?&lt;url&gt;.+)').Groups['url'].Value.Trim())</_GitOriginUrl>
-    <_GitHeadFile>$(_GitRoot)/.git/HEAD</_GitHeadFile>
-    <_GitHeadContent Condition="Exists('$(_GitHeadFile)')">$([System.String]::Copy($([System.IO.File]::ReadAllText('$(_GitHeadFile)'))).Trim())</_GitHeadContent>
-    <_GitHeadRef Condition="'$(_GitHeadContent)' != '' and $(_GitHeadContent.StartsWith('ref: '))">$([System.String]::Copy('$(_GitHeadContent)').Substring(5))</_GitHeadRef>
-    <_GitBranchRefFile Condition="'$(_GitHeadRef)' != ''">$(_GitRoot)/.git/$(_GitHeadRef)</_GitBranchRefFile>
-    <_GitCommitFromRef Condition="Exists('$(_GitBranchRefFile)')">$([System.String]::Copy($([System.IO.File]::ReadAllText('$(_GitBranchRefFile)'))).Trim())</_GitCommitFromRef>
-
-    <RepositoryType Condition="'$(RepositoryType)' == ''">git</RepositoryType>
-    <RepositoryUrl Condition="'$(RepositoryUrl)' == '' and '$(_GitOriginUrl)' != ''">$(_GitOriginUrl)</RepositoryUrl>
-    <RepositoryBranch Condition="'$(RepositoryBranch)' == '' and '$(_GitHeadRef)' != ''">$(_GitHeadRef)</RepositoryBranch>
-    <RepositoryCommit Condition="'$(RepositoryCommit)' == '' and '$(_GitCommitFromRef)' != ''">$(_GitCommitFromRef)</RepositoryCommit>
-    <RepositoryCommit Condition="'$(RepositoryCommit)' == '' and '$(_GitCommitFromRef)' == '' and '$(_GitHeadContent)' != ''">$(_GitHeadContent)</RepositoryCommit>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(_ANcpLuaInGitRepo)' == 'true' and '$(EnableSourceLink)' != 'false'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" IsImplicitlyDefined="true"/>
-  </ItemGroup>
-
-  <!-- ═════════════════════════════════════════════════════════════════════
-       PHASE 3b: When NOT in a git repo - disable all git-dependent features
-       ═════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' == 'false'">
-    <EnableSourceLink>false</EnableSourceLink>
-    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
-    <PublishRepositoryUrl>false</PublishRepositoryUrl>
-    <EmbedAllSources>false</EmbedAllSources>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-    <!-- Suppress git-related warnings -->
-    <NoWarn>$(NoWarn);NETSDK1018</NoWarn>
-  </PropertyGroup>
-
-  <!-- ═════════════════════════════════════════════════════════════════════
-       PHASE 4: Target for dynamic git metadata (only when in repo)
-       ═════════════════════════════════════════════════════════════════════ -->
-  <Target Name="_ANcpLuaComputeGitMetadata" BeforeTargets="InitializeSourceControlInformation;GenerateNuspec" Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
-    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; rev-parse --show-toplevel" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low" Condition="'$(_GitRoot)' == ''">
+  <Target Name="_ANcpLuaComputeGitMetadata" BeforeTargets="InitializeSourceControlInformation;GenerateNuspec">
+    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; rev-parse --show-toplevel"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          StandardOutputImportance="Low">
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitRootFromGit" />
     </Exec>
 
     <PropertyGroup>
       <_GitRoot Condition="'$(_GitRoot)' == '' and '$(_GitRootFromGit)' != ''">$([System.String]::Copy('$(_GitRootFromGit)').Trim())</_GitRoot>
+      <_ANcpLuaInGitRepo Condition="'$(_GitRoot)' != ''">true</_ANcpLuaInGitRepo>
+      <_ANcpLuaInGitRepo Condition="'$(_GitRoot)' == ''">false</_ANcpLuaInGitRepo>
     </PropertyGroup>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; config --get remote.origin.url" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="Low" Condition="'$(_GitRoot)' != ''">
-      <Output TaskParameter="ConsoleOutput" PropertyName="_GitOriginUrl" />
+    <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' == 'false'">
+      <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+      <EnableSourceLink>false</EnableSourceLink>
+      <NoWarn>$(NoWarn);NETSDK1018</NoWarn>
+    </PropertyGroup>
+
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; config --get remote.origin.url"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          StandardOutputImportance="Low"
+          Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitOriginUrlRaw" />
     </Exec>
 
-    <PropertyGroup>
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; symbolic-ref --quiet HEAD"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          StandardOutputImportance="Low"
+          Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchRefRaw" />
+    </Exec>
+
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse --abbrev-ref HEAD"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          StandardOutputImportance="Low"
+          Condition="'$(_ANcpLuaInGitRepo)' == 'true' and '$(_GitBranchRefRaw)' == ''">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchNameRaw" />
+    </Exec>
+
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse HEAD"
+          ConsoleToMSBuild="true"
+          IgnoreExitCode="true"
+          StandardOutputImportance="Low"
+          Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitCommitRaw" />
+    </Exec>
+
+    <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
+      <EnableSourceControlManagerQueries>true</EnableSourceControlManagerQueries>
+      <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">true</EnableSourceLink>
+      <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
       <RepositoryType Condition="'$(RepositoryType)' == ''">git</RepositoryType>
-      <RepositoryUrl Condition="'$(RepositoryUrl)' == '' and '$(_GitOriginUrl)' != ''">$([System.String]::Copy('$(_GitOriginUrl)').Trim())</RepositoryUrl>
+      <RepositoryUrl Condition="'$(RepositoryUrl)' == '' and '$(_GitOriginUrlRaw)' != ''">$([System.String]::Copy('$(_GitOriginUrlRaw)').Trim())</RepositoryUrl>
+
+      <_GitBranchRef>$([System.String]::Copy('$(_GitBranchRefRaw)').Trim())</_GitBranchRef>
+      <_GitBranchName Condition="'$(_GitBranchNameRaw)' != ''">$([System.String]::Copy('$(_GitBranchNameRaw)').Trim())</_GitBranchName>
+
+      <RepositoryBranch Condition="'$(RepositoryBranch)' == '' and '$(_GitBranchRef)' != ''">$(_GitBranchRef)</RepositoryBranch>
+      <RepositoryBranch Condition="'$(RepositoryBranch)' == '' and '$(_GitBranchRef)' == '' and '$(_GitBranchName)' != ''">refs/heads/$(_GitBranchName)</RepositoryBranch>
+      <RepositoryCommit Condition="'$(RepositoryCommit)' == '' and '$(_GitCommitRaw)' != ''">$([System.String]::Copy('$(_GitCommitRaw)').Trim())</RepositoryCommit>
     </PropertyGroup>
   </Target>
 
-  <Target Name="_ANcpLuaCopyRepositoryMetadata" AfterTargets="InitializeSourceControlInformation" Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
+  <Target Name="_ANcpLuaCopyRepositoryMetadata"
+          AfterTargets="InitializeSourceControlInformation"
+          Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
     <PropertyGroup>
       <RepositoryUrl Condition="'$(RepositoryUrl)' == '' and '$(ScmRepositoryUrl)' != ''">$(ScmRepositoryUrl)</RepositoryUrl>
       <RepositoryType Condition="'$(RepositoryType)' == '' and '$(ScmRepositoryUrl)' != ''">git</RepositoryType>

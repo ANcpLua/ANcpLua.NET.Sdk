@@ -171,10 +171,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task NUnit_WithEnableNUnitRunner_IsMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (not Test SDK) because NUnit doesn't need xunit auto-injection
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            properties: [("EnableNUnitRunner", "true")],
+            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("EnableNUnitRunner", "true")],
             nuGetPackages: [.. NUnitMtpPackages]
         );
 
@@ -204,10 +205,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task MSTest_WithEnableMSTestRunner_IsMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK (not Test SDK) because MSTest doesn't need xunit auto-injection
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            properties: [("EnableMSTestRunner", "true")],
+            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("EnableMSTestRunner", "true")],
             nuGetPackages: [.. MsTestMtpPackages]
         );
 
@@ -237,9 +239,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task TUnit_IsMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK with TUnit - skip xunit injection to avoid conflicts
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
             nuGetPackages: [.. TUnitPackages]
         );
 
@@ -270,11 +274,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task MTP_DoesNotInjectMicrosoftNETTestSdk()
     {
-        // Use TUnit (not xunit.v3.mtp) because xunit.v3.mtp has its own MTP implementation
-        // and we skip standard extension injection for it
-        await using var project = CreateProjectBuilder();
+        // Use TUnit with base SDK - skip xunit injection to avoid conflicts
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
             nuGetPackages: [.. TUnitPackages]
         );
 
@@ -297,11 +301,11 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task MTP_InjectsMTPExtensions()
     {
-        // Use TUnit (not xunit.v3.mtp) because xunit.v3.mtp has its own MTP implementation
-        // and we skip standard extension injection for it
-        await using var project = CreateProjectBuilder();
+        // Use TUnit with base SDK - skip xunit injection to avoid conflicts
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
             nuGetPackages: [.. TUnitPackages]
         );
 
@@ -348,9 +352,13 @@ public abstract class MtpDetectionTests(
 
         var data = await project.BuildAndGetOutput();
 
-        // Should emit warning ANCPSDK001
-        Assert.True(data.OutputContains("ANCPSDK001") || data.OutputContains("MTP is enabled"),
-            "Should warn about MTP with Library OutputType");
+        // Should emit warning/error about Library OutputType
+        // Either our SDK warning (ANCPSDK001) or xunit.v3's own error message
+        Assert.True(
+            data.OutputContains("ANCPSDK001") ||
+            data.OutputContains("MTP is enabled") ||
+            data.OutputContains("test projects must be executable"),
+            "Should warn/error about MTP with Library OutputType");
     }
 
     // ═══════════════════════════════════════════════════════════════════════

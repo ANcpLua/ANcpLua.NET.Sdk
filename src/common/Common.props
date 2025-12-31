@@ -2,6 +2,18 @@
   <Import Project="$(MSBuildThisFileDirectory)/ContinuousIntegrationBuild.props"/>
   <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.props"/>
 
+  <PropertyGroup Label="Git Detection">
+    <_ANcpLuaGitDir Condition="'$(_ANcpLuaGitDir)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', '.git'))</_ANcpLuaGitDir>
+    <_ANcpLuaInGitRepo Condition="'$(_ANcpLuaGitDir)' != ''">true</_ANcpLuaInGitRepo>
+    <_ANcpLuaInGitRepo Condition="'$(_ANcpLuaInGitRepo)' == ''">false</_ANcpLuaInGitRepo>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' != 'true'">
+    <EnableSourceLink>false</EnableSourceLink>
+    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
+    <!-- Don't set PublishRepositoryUrl to false - let default (true) apply -->
+  </PropertyGroup>
+
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <_IsANcpLuaProject>$(MSBuildProjectName.StartsWith('ANcpLua', StringComparison.OrdinalIgnoreCase))</_IsANcpLuaProject>
@@ -13,12 +25,15 @@
 
   <PropertyGroup>
     <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PublishRepositoryUrl Condition="'$(PublishRepositoryUrl)' == ''">true</PublishRepositoryUrl>
 
     <!-- Embed symbols containing Source Link in the main file (exe/dll) -->
     <DebugType>embedded</DebugType>
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <EmbedUntrackedSources Condition="'$(EmbedUntrackedSources)' == ''">true</EmbedUntrackedSources>
+    <IncludeSourceRevisionInInformationalVersion Condition="'$(IncludeSourceRevisionInInformationalVersion)' == ''">true</IncludeSourceRevisionInInformationalVersion>
+    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">true</EnableSourceControlManagerQueries>
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">true</EnableSourceLink>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
@@ -40,6 +55,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
     <NoWarn>$(NoWarn);CA1014</NoWarn>
+    <NoWarn>$(NoWarn);CA1050</NoWarn>
     <MSBuildTreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</MSBuildTreatWarningsAsErrors>
     <TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
     <EnforceCodeStyleInBuild Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</EnforceCodeStyleInBuild>
@@ -47,8 +63,6 @@
     <EnablePackageValidation Condition="'$(EnablePackageValidation)' == ''">true</EnablePackageValidation>
     <ManagePackageVersionsCentrally Condition="'$(ManagePackageVersionsCentrally)' == ''">true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled Condition="'$(CentralPackageTransitivePinningEnabled)' == ''">true</CentralPackageTransitivePinningEnabled>
-    <!-- EnableSourceLink and EnableSourceControlManagerQueries are set in DeterminismAndSourceLink.props
-         based on ContinuousIntegrationBuild to enable on CI and disable locally (temp directories) -->
   </PropertyGroup>
 
   <ItemDefinitionGroup>
@@ -67,6 +81,10 @@
   <PropertyGroup>
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
   </PropertyGroup>
+
+  <!-- NOTE: Microsoft.SourceLink.GitHub is NOT injected here.
+       .NET 8+ includes SourceLink by default. Since this SDK requires .NET 10+,
+       SourceLink is always available without a package reference. -->
 
   <ItemGroup>
     <!-- Shared injected test bases are packaged, not compiled -->
