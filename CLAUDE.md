@@ -280,6 +280,8 @@ Location, ISymbol, Compilation, SemanticModel, SyntaxNode
 
 ## Test Fixture Patterns (CRITICAL)
 
+**DO NOT suppress CA1050 globally in Common.props** - that's a cheat that hides real issues from SDK consumers.
+
 When creating test fixtures that generate C# code, **always include namespaces and XML docs**:
 
 ```csharp
