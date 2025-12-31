@@ -1,4 +1,16 @@
 <Project>
+  <!-- SDK-owned properties - centralized here, NOT in individual csproj files -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- CI-only: Enable SourceLink reproducibility -->
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
   <!--
     Centralize build output to artifacts/ for most projects.
     Exception: eng/ projects need local bin/obj for NuGet pack paths.

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Source generators need older Roslyn for broader IDE/SDK compatibility - opt out of CPM -->
     <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-    <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Version>$(ANcpSdkPackageVersion)</Version>
     <Description>Auto register services and map routes for ANcpSdk applications</Description>
 
@@ -18,13 +18,11 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <NoPackageAnalysis>true</NoPackageAnalysis>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <LangVersion>latest</LangVersion>
-    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <!-- Polyfills for netstandard2.0 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+  <ItemGroup>
     <!-- Language Features -->
     <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" Link="Polyfills/RequiredMemberAttribute.cs"/>
     <Compile Include="$(MSBuildThisFileDirectory)../LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" Link="Polyfills/CompilerFeatureRequiredAttribute.cs"/>

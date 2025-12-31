@@ -77,7 +77,7 @@ jobs:
     needs: [create_nuget, compute_version]
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v6
         with:
           name: nuget
           path: ${{ env.NUGET_DIRECTORY }}
@@ -85,6 +85,7 @@ jobs:
       - run: Get-ChildItem "${{ env.NUGET_DIRECTORY }}/*" -Recurse
       - run: dotnet --info
       - run: dotnet nuget locals all --clear
+      - run: dotnet msbuild -t:CheckEnforcement
       - run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --report-xunit-trx --report-github --results-directory test_results
         env:
             CI: true
@@ -105,7 +106,7 @@ jobs:
       - uses: actions/checkout@v6
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v6
         with:
           name: nuget
           path: ${{ env.NUGET_DIRECTORY }}

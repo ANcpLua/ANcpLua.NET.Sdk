@@ -1,0 +1,40 @@
+<!--
+  ANcpLua.NET.Sdk.Web.GlobalUsings.targets
+  Auto-generates GlobalUsings.g.cs for integration test projects
+-->
+<Project>
+
+  <!-- Auto-inject global usings for integration tests -->
+  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
+    
+    <!-- Core -->
+    <Using Include="System.Net.Http.Json" />
+    <Using Include="System.Text.Json" />
+    
+    <!-- Testing -->
+    <Using Include="Xunit" />
+    <Using Include="AwesomeAssertions" />
+    
+    <!-- ASP.NET Core Testing -->
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <Using Include="Microsoft.AspNetCore.TestHost" />
+    
+    <!-- DI -->
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.DependencyInjection.Extensions" />
+    
+  </ItemGroup>
+
+  <!-- For Playwright tests -->
+  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(UsePlaywright)' == 'true'">
+    <Using Include="Microsoft.Playwright" />
+  </ItemGroup>
+
+  <!-- For Testcontainers -->
+  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(UseTestcontainers)' == 'true'">
+    <Using Include="Testcontainers" />
+    <Using Include="Testcontainers.Builders" />
+  </ItemGroup>
+
+</Project>

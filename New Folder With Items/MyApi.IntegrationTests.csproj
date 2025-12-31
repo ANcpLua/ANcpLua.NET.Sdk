@@ -1,0 +1,9 @@
+<!-- 
+  This is all you need. SDK handles everything else.
+  No OutputType, no packages, no MTP config, no LangVersion, no Nullable.
+-->
+<Project Sdk="ANcpLua.NET.Sdk.Web">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MyApi\MyApi.csproj" />
+  </ItemGroup>
+</Project>

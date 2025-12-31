@@ -85,7 +85,7 @@ See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 13
 |-------------------------------|--------------------------------------------------------------|---------|
 | `InjectStringOrdinalComparer` | Injects internal `StringOrdinalComparer`                     | `false` |
 | `InjectFakeLogger`            | Injects `FakeLoggerExtensions` (requires `FakeLogCollector`) | `false` |
-| `InjectSourceGenHelpers`      | Roslyn source generator utilities ([details](eng/Extensions/SourceGen/README.md)) | `false` |
+| `InjectSourceGenHelpers`      | Roslyn source generator utilities ([details](https://github.com/ANcpLua/ANcpLua.NET.Sdk/blob/main/eng/Extensions/SourceGen/README.md)) | `false` |
 
 **SourceGen Helpers include:** `EquatableArray<T>`, `DiagnosticInfo`, `DiagnosticsExtensions`, `SymbolExtensions`, `SyntaxExtensions`, `SemanticModelExtensions`, `CompilationExtensions`, `SyntaxValueProvider` helpers, `EnumerableExtensions`, `FileExtensions`, `LocationInfo`, `EquatableMessageArgs`
 
@@ -132,6 +132,34 @@ When using `Microsoft.NET.Sdk.Web`, the SDK automatically adds Aspire 13.0-compa
 | **HTTP Resilience**   | Standard resilience handlers with retries and circuit breakers      |
 
 Opt-out: `<AutoRegisterServiceDefaults>false</AutoRegisterServiceDefaults>`
+
+## Repository Requirements
+
+This SDK enforces the following repository-level configurations:
+
+### Directory.Packages.props (Required)
+
+```xml
+<PropertyGroup>
+  <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+</PropertyGroup>
+```
+
+### Directory.Build.props (Recommended)
+
+```xml
+<PropertyGroup>
+  <LangVersion>latest</LangVersion>
+  <Nullable>enable</Nullable>
+  <Deterministic>true</Deterministic>
+</PropertyGroup>
+<PropertyGroup Condition="'$(CI)' == 'true'">
+  <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+</PropertyGroup>
+```
+
+**Note:** `LangVersion` and `Nullable` are SDK-owned properties. Place them in `Directory.Build.props`, NOT in individual csproj files.
 
 ## Running Tests
 

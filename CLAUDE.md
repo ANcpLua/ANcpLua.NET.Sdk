@@ -62,6 +62,7 @@ pwsh ./build.ps1 -Version 999.9.9  # Testing
 - uses: actions/checkout@v6
 - uses: actions/setup-dotnet@v5
 - uses: actions/upload-artifact@v6
+- uses: actions/download-artifact@v6
 ```
 
 ### gh CLI
@@ -242,6 +243,33 @@ record struct LocationInfo(string Path, TextSpan Span, LinePositionSpan LineSpan
 
 // ❌ Never cache
 Location, ISymbol, Compilation, SemanticModel, SyntaxNode
+```
+
+## SDK-Owned Properties (Anti-Patterns)
+
+**NEVER put these in individual csproj files - they belong in Directory.Build.props:**
+
+| Property | Centralized In | Reason |
+|----------|----------------|--------|
+| `LangVersion` | Directory.Build.props | SDK-owned, ensures consistency |
+| `Nullable` | Directory.Build.props | SDK-owned, ensures consistency |
+| `Deterministic` | Directory.Build.props | Required for reproducible builds |
+| `ContinuousIntegrationBuild` | Directory.Build.props (CI conditional) | Required for SourceLink |
+
+**Banned Packages:**
+
+| Package | Reason | Replacement |
+|---------|--------|-------------|
+| `Microsoft.NET.Test.Sdk` | VSTest legacy | `xunit.v3.mtp-v2` |
+| `FluentAssertions` | Abandoned | `AwesomeAssertions` |
+| `PolySharp` | Redundant | SDK provides polyfills |
+| `coverlet.*` | Redundant | MTP provides CodeCoverage |
+
+**Required CPM Configuration (Directory.Packages.props):**
+
+```xml
+<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
 ```
 
 ## Known Test Skips
