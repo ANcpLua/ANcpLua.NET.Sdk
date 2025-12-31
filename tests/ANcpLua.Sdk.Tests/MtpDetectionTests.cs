@@ -4,21 +4,13 @@ using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
 namespace ANcpLua.Sdk.Tests;
 
 /// <summary>
-///     Comprehensive test matrix for MTP (Microsoft Testing Platform) vs VSTest detection.
-///     Two separate concerns:
-///     1. IsTestProject = "this project contains tests" (broad detection)
-///     2. UseMicrosoftTestingPlatform = "uses MTP" (strict detection)
-///     MTP should ONLY be enabled for:
+///     Comprehensive test matrix for MTP (Microsoft Testing Platform) detection.
+///     All test projects use MTP - VSTest is deprecated on .NET 10+.
+///     SDK supports:
 ///     - TUnit (always MTP)
 ///     - xunit.v3.mtp-v1 / xunit.v3.mtp-v2 (explicit MTP)
-///     - Microsoft.Testing.Extensions.* packages
-///     - EnableNUnitRunner=true / EnableMSTestRunner=true (explicit opt-in)
-///     - UseMicrosoftTestingPlatform=true (explicit)
-///     MTP should NOT be enabled for:
-///     - Plain xunit.v3 (ambiguous)
-///     - NUnit alone (VSTest by default)
-///     - MSTest.TestFramework alone (VSTest by default)
-///     - xunit (v2, VSTest)
+///     - NUnit with EnableNUnitRunner=true (explicit opt-in)
+///     - MSTest with EnableMSTestRunner=true (explicit opt-in)
 /// </summary>
 public sealed class MtpDetectionNet100Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
     : MtpDetectionTests(fixture, testOutputHelper, NetSdkVersion.Net100);
@@ -29,29 +21,19 @@ public abstract class MtpDetectionTests(
     NetSdkVersion dotnetSdkVersion)
 {
     // Package references for each scenario - note: renovate will update these
-    // xUnit v2 uses xunit.runner.visualstudio 2.x (v3 runner has MTP deps that block VSTest on .NET 10)
-    private static readonly NuGetReference[] XUnit2Packages =
-        [new("xunit", "2.9.3"), new("xunit.runner.visualstudio", "2.8.2")];
-
-    private static readonly NuGetReference[] XUnit3PlainPackages =
-        [new("xunit.v3", "3.2.1")];
-
     private static readonly NuGetReference[] XUnit3MtpV1Packages =
         [new("xunit.v3.mtp-v1", "3.2.1")];
 
     private static readonly NuGetReference[] XUnit3MtpV2Packages =
         [new("xunit.v3.mtp-v2", "3.2.1")];
 
-    private static readonly NuGetReference[] XUnit3MtpOffPackages =
-        [new("xunit.v3.mtp-off", "3.2.1")];
-
-    private static readonly NuGetReference[] NUnitPackages =
+    private static readonly NuGetReference[] NUnitMtpPackages =
         [new("NUnit", "4.3.2"), new("NUnit3TestAdapter", "5.0.0")];
 
-    private static readonly NuGetReference[] MsTestPackages =
+    private static readonly NuGetReference[] MsTestMtpPackages =
         [new("MSTest.TestFramework", "3.8.3"), new("MSTest.TestAdapter", "3.8.3")];
 
-    private static readonly NuGetReference[] UnitPackages =
+    private static readonly NuGetReference[] TUnitPackages =
         [new("TUnit", "0.17.28")];
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkTestName)
@@ -62,117 +44,7 @@ public abstract class MtpDetectionTests(
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // A) xUnit v2 (classic VSTest)
-    // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=false/empty
-    // ═══════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public async Task XUnit2_IsVSTest_NotMTP()
-    {
-        // Use base SDK (SdkName) to test detection without MTP enforcement
-        // ANcpLua.NET.Sdk.Test unconditionally sets UseMicrosoftTestingPlatform=true
-        // InjectFakeLogger=false to avoid Microsoft.Extensions.Diagnostics.Testing v10+ which brings in MTP packages
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
-            nuGetPackages: [.. XUnit2Packages]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
-
-        var data = await project.BuildAndGetOutput();
-
-        // Assert test project detection (broad)
-        data.AssertMsBuildPropertyValue("IsTestProject", "true");
-
-        // Assert MTP is NOT enabled (VSTest path)
-        var useMtp = data.GetMsBuildPropertyValue("UseMicrosoftTestingPlatform");
-        Assert.True(string.IsNullOrEmpty(useMtp) || useMtp == "false",
-            $"UseMicrosoftTestingPlatform should be empty or false, got: {useMtp}");
-
-        // Note: We don't check OutputType here because MSBuild normalizes it and the project template sets it
-    }
-
-    [Fact]
-    public async Task XUnit2_TestRuns_WithVSTest()
-    {
-        // Skip on .NET 10: xUnit v2 + VSTest is not supported because:
-        // - Microsoft.NET.Test.Sdk v18+ (injected by SDK) brings in Microsoft.Testing.Platform.MSBuild
-        // - Microsoft.Testing.Platform.MSBuild errors on .NET 10 when VSTest mode is detected
-        // - This is a Microsoft ecosystem change, not an SDK bug
-        if (dotnetSdkVersion >= NetSdkVersion.Net100)
-            Assert.Skip("xUnit v2 + VSTest is not supported on .NET 10+ due to Microsoft.Testing.Platform.MSBuild incompatibility");
-
-        // Use base SDK (SdkName) instead of Test SDK (SdkTestName) because:
-        // - ANcpLua.NET.Sdk.Test enforces MTP unconditionally
-        // - xUnit v2 + VSTest is only supported with the base SDK
-        // - InjectFakeLogger=false to avoid Microsoft.Extensions.Diagnostics.Testing v10+ which brings in MTP packages
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
-            nuGetPackages: [.. XUnit2Packages]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void PassingTest() => Assert.True(true);
-                                    }
-                                    """);
-
-        var data = await project.TestAndGetOutput();
-        Assert.Equal(0, data.ExitCode);
-        Assert.True(data.OutputContains("Test Run Successful") || data.OutputContains("Passed:"),
-            "Test should pass using VSTest runner");
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // B) xUnit v3 "ambiguous" (plain xunit.v3)
-    // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=false/empty
-    // Plain xunit.v3 is ambiguous - SDK should NOT assume MTP
-    // ═══════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public async Task XUnit3Plain_IsTestProject_NotMTP()
-    {
-        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
-            nuGetPackages: [.. XUnit3PlainPackages]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
-
-        var data = await project.BuildAndGetOutput();
-
-        // Assert test project detection (broad)
-        data.AssertMsBuildPropertyValue("IsTestProject", "true");
-
-        // Assert MTP is NOT enabled (ambiguous - don't assume)
-        var useMtp = data.GetMsBuildPropertyValue("UseMicrosoftTestingPlatform");
-        Assert.True(string.IsNullOrEmpty(useMtp) || useMtp == "false",
-            $"Plain xunit.v3 should NOT trigger MTP detection, got: {useMtp}");
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // C) xUnit v3 + MTP v2 (explicit)
+    // A) xUnit v3 + MTP v2 (explicit)
     // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=true, OutputType=Exe
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -292,80 +164,7 @@ public abstract class MtpDetectionTests(
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // D) xUnit v3 + MTP OFF (explicit opt-out)
-    // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=false
-    // ═══════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public async Task XUnit3MtpOff_IsNotMTP()
-    {
-        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
-            nuGetPackages: [.. XUnit3MtpOffPackages]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
-
-        var data = await project.BuildAndGetOutput();
-
-        // Assert test project detection
-        data.AssertMsBuildPropertyValue("IsTestProject", "true");
-
-        // Assert MTP is explicitly DISABLED
-        var useMtp = data.GetMsBuildPropertyValue("UseMicrosoftTestingPlatform");
-        Assert.True(string.IsNullOrEmpty(useMtp) || useMtp == "false",
-            $"xunit.v3.mtp-off should force MTP off, got: {useMtp}");
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // E) NUnit classic (VSTest)
-    // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=false
-    // ═══════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public async Task NUnit_IsVSTest_NotMTP()
-    {
-        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
-            nuGetPackages: [.. NUnitPackages]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    using NUnit.Framework;
-
-                                    [TestFixture]
-                                    public class SampleTests
-                                    {
-                                        [Test]
-                                        public void Test1() => Assert.That(true, Is.True);
-                                    }
-                                    """);
-
-        var data = await project.BuildAndGetOutput();
-
-        // Assert test project detection (broad)
-        data.AssertMsBuildPropertyValue("IsTestProject", "true");
-
-        // Assert MTP is NOT enabled (NUnit uses VSTest by default)
-        var useMtp = data.GetMsBuildPropertyValue("UseMicrosoftTestingPlatform");
-        Assert.True(string.IsNullOrEmpty(useMtp) || useMtp == "false",
-            $"NUnit alone should NOT trigger MTP, got: {useMtp}");
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // F) NUnit with MTP (explicit opt-in via EnableNUnitRunner)
+    // B) NUnit with MTP (explicit opt-in via EnableNUnitRunner)
     // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=true
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -376,7 +175,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("EnableNUnitRunner", "true")],
-            nuGetPackages: [.. NUnitPackages]
+            nuGetPackages: [.. NUnitMtpPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -398,45 +197,7 @@ public abstract class MtpDetectionTests(
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // G) MSTest classic (VSTest)
-    // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=false
-    // ═══════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public async Task MSTest_IsVSTest_NotMTP()
-    {
-        // Use base SDK (SdkName) to test detection - Test SDK (SdkTestName) forces MTP unconditionally
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
-            nuGetPackages: [.. MsTestPackages]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-                                    [TestClass]
-                                    public class SampleTests
-                                    {
-                                        [TestMethod]
-                                        public void Test1() => Assert.IsTrue(true);
-                                    }
-                                    """);
-
-        var data = await project.BuildAndGetOutput();
-
-        // Assert test project detection (broad)
-        data.AssertMsBuildPropertyValue("IsTestProject", "true");
-
-        // Assert MTP is NOT enabled (MSTest uses VSTest by default)
-        var useMtp = data.GetMsBuildPropertyValue("UseMicrosoftTestingPlatform");
-        Assert.True(string.IsNullOrEmpty(useMtp) || useMtp == "false",
-            $"MSTest.TestFramework alone should NOT trigger MTP, got: {useMtp}");
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // H) MSTest with MTP (explicit opt-in via EnableMSTestRunner)
+    // C) MSTest with MTP (explicit opt-in via EnableMSTestRunner)
     // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=true
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -447,7 +208,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("EnableMSTestRunner", "true")],
-            nuGetPackages: [.. MsTestPackages]
+            nuGetPackages: [.. MsTestMtpPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -469,7 +230,7 @@ public abstract class MtpDetectionTests(
     }
 
     // ═══════════════════════════════════════════════════════════════════════
-    // I) TUnit (always MTP)
+    // D) TUnit (always MTP)
     // Expected: IsTestProject=true, UseMicrosoftTestingPlatform=true
     // ═══════════════════════════════════════════════════════════════════════
 
@@ -479,7 +240,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. UnitPackages]
+            nuGetPackages: [.. TUnitPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -507,34 +268,6 @@ public abstract class MtpDetectionTests(
     // ═══════════════════════════════════════════════════════════════════════
 
     [Fact]
-    public async Task VSTest_InjectsMicrosoftNETTestSdk()
-    {
-        // Use base SDK (SdkName) to test VSTest package injection
-        // ANcpLua.NET.Sdk.Test enforces MTP and doesn't inject Microsoft.NET.Test.Sdk
-        // InjectFakeLogger=false to avoid Microsoft.Extensions.Diagnostics.Testing v10+ which brings in MTP packages
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true"), ("InjectFakeLogger", "false")],
-            nuGetPackages: [.. XUnit2Packages]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
-
-        var data = await project.BuildAndGetOutput();
-
-        // VSTest projects should have Microsoft.NET.Test.Sdk injected
-        var items = data.GetMsBuildItems("PackageReference");
-        Assert.Contains(items, i => i.Contains("Microsoft.NET.Test.Sdk", StringComparison.OrdinalIgnoreCase));
-    }
-
-    [Fact]
     public async Task MTP_DoesNotInjectMicrosoftNETTestSdk()
     {
         // Use TUnit (not xunit.v3.mtp) because xunit.v3.mtp has its own MTP implementation
@@ -542,7 +275,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. UnitPackages]
+            nuGetPackages: [.. TUnitPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -569,7 +302,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. UnitPackages]
+            nuGetPackages: [.. TUnitPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -602,7 +335,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("UseMicrosoftTestingPlatform", "true"), ("OutputType", "Library")],
-            nuGetPackages: [.. XUnit2Packages]
+            nuGetPackages: [.. XUnit3MtpV2Packages]
         );
 
         project.AddFile("Tests.cs", """
@@ -631,7 +364,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("UseMicrosoftTestingPlatform", "true")],
-            nuGetPackages: [.. XUnit2Packages]
+            nuGetPackages: [.. XUnit3MtpV2Packages]
         );
 
         project.AddFile("Tests.cs", """
@@ -647,32 +380,5 @@ public abstract class MtpDetectionTests(
         // Explicit property should enable MTP
         data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
         data.AssertMsBuildPropertyValue("OutputType", "exe");
-    }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // MTP EXTENSION PACKAGE DETECTION
-    // ═══════════════════════════════════════════════════════════════════════
-
-    [Fact]
-    public async Task MTPExtensionPackage_TriggersMTPDetection()
-    {
-        await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. XUnit2Packages, new NuGetReference("Microsoft.Testing.Extensions.TrxReport", "2.0.2")]
-        );
-
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
-
-        var data = await project.BuildAndGetOutput();
-
-        // Having an MTP extension package should trigger MTP detection
-        data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
     }
 }

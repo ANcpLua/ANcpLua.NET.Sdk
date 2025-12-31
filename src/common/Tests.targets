@@ -6,32 +6,11 @@
     <EnableCodeCoverage Condition="'$(EnableCodeCoverage)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'">true</EnableCodeCoverage>
   </PropertyGroup>
 
-  <Target Name="DisableAnalyzerWhenRunningTests" BeforeTargets="VSTest;_MTPBuild" Condition="'$(OptimizeVsTestRun)' != 'false'">
+  <Target Name="DisableAnalyzerWhenRunningTests" BeforeTargets="_MTPBuild" Condition="'$(OptimizeMtpTestRun)' != 'false'">
     <PropertyGroup>
       <RunAnalyzers>false</RunAnalyzers>
     </PropertyGroup>
   </Target>
-
-  <!-- Legacy injection/CLI targets removed to enforce MTP-only via Testing.props -->
-
-  <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
-    <VSTestBlame>true</VSTestBlame>
-
-    <VSTestBlameCrash>true</VSTestBlameCrash>
-    <VSTestBlameCrashDumpType>mini</VSTestBlameCrashDumpType>
-
-    <VSTestBlameHang>true</VSTestBlameHang>
-    <VSTestBlameHangDumpType>mini</VSTestBlameHangDumpType>
-    <VSTestBlameHangTimeout>10min</VSTestBlameHangTimeout>
-
-    <VSTestCollect Condition="'$(EnableCodeCoverage)' == 'true'">Code Coverage</VSTestCollect>
-    <VSTestSetting Condition="'$(EnableCodeCoverage)' == 'true'">$(MSBuildThisFileDirectory)..\configuration\default.runsettings</VSTestSetting>
-  </PropertyGroup>
-
-  <PropertyGroup>
-    <VSTestLogger Condition="'$(VSTestLogger)' != ''">$(VSTestLogger);</VSTestLogger>
-    <VSTestLogger>$(VSTestLogger)trx;console%3bverbosity=normal</VSTestLogger>
-  </PropertyGroup>
 
   <!-- Add implicit using for xunit (via Target for correct timing - items require Target) -->
   <Target Name="_InjectXunitUsings" BeforeTargets="BeforeBuild;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(ImplicitUsings)' == 'enable'">
@@ -79,19 +58,8 @@
   <!-- GitHub Actions Test Reporting (via Target for correct timing) -->
   <Target Name="_InjectGitHubActionsLogger" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(_IsGitHubActions)' == 'true'">
     <!-- MTP: GitHubActionsTestLogger auto-registers -->
-    <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">
+    <ItemGroup>
       <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)" IsImplicitlyDefined="true"/>
-    </ItemGroup>
-
-    <!-- VSTest: GitHubActionsTestLogger with logger config -->
-    <PropertyGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
-      <VSTestLogger>$(VSTestLogger);GitHubActions</VSTestLogger>
-    </PropertyGroup>
-    <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
-      <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerVSTestVersion)" IsImplicitlyDefined="true">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      </PackageReference>
     </ItemGroup>
   </Target>
 
