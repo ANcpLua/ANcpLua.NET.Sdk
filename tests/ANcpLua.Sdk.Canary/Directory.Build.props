@@ -1,0 +1,10 @@
+<Project>
+  <!--
+    Canary simulates a consumer project with its own CPM configuration.
+    Override DirectoryPackagesPropsPath to use local file instead of root.
+  -->
+  <PropertyGroup>
+    <!-- Point to local Directory.Packages.props instead of walking up to root -->
+    <DirectoryPackagesPropsPath>$(MSBuildThisFileDirectory)Directory.Packages.props</DirectoryPackagesPropsPath>
+  </PropertyGroup>
+</Project>

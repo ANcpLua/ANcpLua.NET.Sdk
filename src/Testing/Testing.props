@@ -1,8 +1,8 @@
 <Project>
   <!-- Detect test project -->
   <PropertyGroup>
-    <IsTestProject Condition="'$(IsTestProject)' == '' and 
-      ($(MSBuildProjectName.EndsWith('.Tests')) or 
+    <IsTestProject Condition="'$(IsTestProject)' == '' and
+      ($(MSBuildProjectName.EndsWith('.Tests')) or
        $(MSBuildProjectName.EndsWith('.Test')) or
        $(MSBuildProjectDirectory.Contains('tests')))">true</IsTestProject>
   </PropertyGroup>
@@ -20,6 +20,8 @@
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
     <UseMicrosoftTestingPlatform>true</UseMicrosoftTestingPlatform>
+    <!-- xunit.v3.mtp uses native TRX option (auto-injected by this SDK) -->
+    <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)' == '' and '$(SkipXunitInjection)' != 'true'">--report-xunit-trx</TestingPlatformCommandLineArguments>
   </PropertyGroup>
 
   <!-- Integration test configuration -->
@@ -28,12 +30,16 @@
     <WarningsAsErrors>$(WarningsAsErrors);ASP0027</WarningsAsErrors>
   </PropertyGroup>
 
-  <!-- Auto-inject test packages -->
-  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
-    <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" IsImplicitlyDefined="true"/>
-    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(ParallelTestFrameworkVersion)" IsImplicitlyDefined="true"/>
-    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="true"/>
-    <PackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)" IsImplicitlyDefined="true">
+  <!-- Auto-inject xunit packages (set SkipXunitInjection=true if using TUnit/NUnit/MSTest) -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard' and '$(SkipXunitInjection)' != 'true'">
+    <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" VersionOverride="$(XunitMtpVersion)" IsImplicitlyDefined="false" />
+    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(ParallelTestFrameworkVersion)" VersionOverride="$(ParallelTestFrameworkVersion)" IsImplicitlyDefined="false" />
+  </ItemGroup>
+
+  <!-- AwesomeAssertions is useful for any test framework -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
+    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" VersionOverride="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="false" />
+    <PackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)" VersionOverride="$(AwesomeAssertionsAnalyzersVersion)" IsImplicitlyDefined="false">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -42,7 +48,7 @@
 
   <!-- Auto-inject integration test packages -->
   <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" VersionOverride="$(MvcTestingVersion)" />
   </ItemGroup>
 
   <!-- Auto-inject integration test base classes (only for integration test projects) -->
