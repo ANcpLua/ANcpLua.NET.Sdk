@@ -28,6 +28,11 @@ public abstract class SdkTests(
     NetSdkVersion dotnetSdkVersion,
     SdkImportStyle sdkImportStyle)
 {
+    private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
+    private readonly PackageFixture _fixture = fixture;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+    private readonly SdkImportStyle _sdkImportStyle = sdkImportStyle;
+
     // note: don't simplify names as they are used in the Renovate regex
     // All test projects use MTP (Microsoft Testing Platform) - VSTest is deprecated on .NET 10+
     private static readonly NuGetReference[] XUnitMtpReferences =
@@ -35,14 +40,15 @@ public abstract class SdkTests(
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkName)
     {
-        var builder = new ProjectBuilder(fixture, testOutputHelper, sdkImportStyle, defaultSdkName);
-        builder.SetDotnetSdkVersion(dotnetSdkVersion);
+        var builder = new ProjectBuilder(_fixture, _testOutputHelper, _sdkImportStyle, defaultSdkName);
+        builder.SetDotnetSdkVersion(_dotnetSdkVersion);
         return builder;
     }
 
     [Fact]
     public void PackageReferenceAreValid()
     {
+        // Verify SDK-injected packages have Version attribute for CPM compatibility
         var root = RepositoryRoot.Locate()["src"];
         var files = Directory.GetFiles(root, "*", SearchOption.AllDirectories).Select(FullPath.FromPath);
         foreach (var file in files)
@@ -54,9 +60,9 @@ public abstract class SdkTests(
                     .Where(static n => n.Parent?.Name.LocalName != "ItemDefinitionGroup");
                 foreach (var node in nodes)
                 {
-                    var attr = node.Attribute("IsImplicitlyDefined");
-                    if (attr is null || attr.Value != "true")
-                        Assert.Fail("Missing IsImplicitlyDefined=\"true\" on " + node);
+                    var versionAttr = node.Attribute("Version");
+                    if (versionAttr is null)
+                        Assert.Fail("Missing Version attribute on " + node);
                 }
             }
     }
@@ -149,7 +155,7 @@ public abstract class SdkTests(
     [Fact]
     public async Task CanOverrideLangVersionInDirectoryBuildProps()
     {
-        if (sdkImportStyle is SdkImportStyle.SdkElement)
+        if (_sdkImportStyle is SdkImportStyle.SdkElement)
             Assert.Skip("Directory.Build.props is not supported with SdkImportStyle.SdkElement");
 
         await using var project = CreateProjectBuilder();
@@ -206,7 +212,7 @@ public abstract class SdkTests(
         Assert.True(data.HasWarning("RS0030"));
 
         var files = data.GetBinLogFiles();
-        Assert.Contains(files, f => f.EndsWith("BannedSymbols.txt", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(files, static f => f.EndsWith("BannedSymbols.txt", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -244,7 +250,7 @@ public abstract class SdkTests(
         var files = data.GetBinLogFiles();
         foreach (var file in files) TestContext.Current.TestOutputHelper?.WriteLine("Binlog file: " + file);
 
-        Assert.Contains(files, f => f.EndsWith(".editorconfig", StringComparison.Ordinal));
+        Assert.Contains(files, static f => f.EndsWith(".editorconfig", StringComparison.Ordinal));
         Assert.Contains(files, f => f == localFile || f == "/private" + localFile); // macos may prefix it with /private
     }
 
@@ -578,7 +584,7 @@ public abstract class SdkTests(
     public async Task Pack_ReadmeFromAboveCurrentFolder_SearchReadmeFileAbove_True()
     {
         // Skip for SdkElement style - SourceLink has import order issues with nested <Sdk> elements
-        if (sdkImportStyle is SdkImportStyle.SdkElement)
+        if (_sdkImportStyle is SdkImportStyle.SdkElement)
             Assert.Skip("SourceLink fails to locate git repo with SdkImportStyle.SdkElement in subdirectory projects");
 
         await using var project = CreateProjectBuilder();
@@ -994,7 +1000,7 @@ public abstract class SdkTests(
 
         var expectedVersion = version;
         if (string.IsNullOrEmpty(expectedVersion))
-            expectedVersion = dotnetSdkVersion switch
+            expectedVersion = _dotnetSdkVersion switch
             {
                 NetSdkVersion.Net100 => "net10.0",
                 _ => throw new NotSupportedException()
