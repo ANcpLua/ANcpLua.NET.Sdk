@@ -1,0 +1,67 @@
+<Project>
+  <!-- Fail builds that violate SDK policy -->
+
+  <!-- BANNED: PolySharp -->
+  <Target Name="_EnforceNoPolySharp" BeforeTargets="ResolveReferences;Restore">
+    <ItemGroup>
+      <_PolySharpRefs Include="@(PackageReference)" Condition="'%(Identity)' == 'PolySharp'" />
+    </ItemGroup>
+    <Error Condition="'@(_PolySharpRefs)' != ''"
+           Text="POLICY: PolySharp is banned. SDK provides polyfills." />
+  </Target>
+
+  <!-- BANNED: PrivateAssets='all' (except analyzers/SourceLink) -->
+  <Target Name="_EnforceNoPrivateAssetsAll" BeforeTargets="ResolveReferences">
+    <ItemGroup>
+      <_BadPrivateAssets Include="@(PackageReference)" 
+        Condition="'%(PrivateAssets)' == 'all' and 
+                   !$([System.String]::new('%(Identity)').Contains('Analyzer')) and
+                   !$([System.String]::new('%(Identity)').Contains('SourceLink'))" />
+    </ItemGroup>
+    <Error Condition="'@(_BadPrivateAssets)' != ''"
+           Text="POLICY: PrivateAssets='all' banned on @(_BadPrivateAssets). Use transitive pinning." />
+  </Target>
+
+  <!-- BANNED: DisableTransitiveProjectReferences -->
+  <Target Name="_EnforceNoDisableTransitive" BeforeTargets="BeforeBuild">
+    <Error Condition="'$(DisableTransitiveProjectReferences)' == 'true'"
+           Text="POLICY: DisableTransitiveProjectReferences banned. Use CentralPackageTransitivePinningEnabled." />
+  </Target>
+
+  <!-- BANNED: Microsoft.NET.Test.Sdk -->
+  <Target Name="_EnforceNoVSTestSdk" BeforeTargets="ResolveReferences;Restore">
+    <ItemGroup>
+      <_VSTestSdk Include="@(PackageReference)" Condition="'%(Identity)' == 'Microsoft.NET.Test.Sdk'" />
+    </ItemGroup>
+    <Error Condition="'@(_VSTestSdk)' != ''"
+           Text="POLICY: Microsoft.NET.Test.Sdk banned. MTP is enforced via xunit.v3.mtp-v2." />
+  </Target>
+
+  <!-- BANNED: FluentAssertions -->
+  <Target Name="_EnforceNoFluentAssertions" BeforeTargets="ResolveReferences;Restore">
+    <ItemGroup>
+      <_FluentAssertions Include="@(PackageReference)" Condition="'%(Identity)' == 'FluentAssertions'" />
+    </ItemGroup>
+    <Error Condition="'@(_FluentAssertions)' != ''"
+           Text="POLICY: FluentAssertions banned. Use AwesomeAssertions." />
+  </Target>
+
+  <!-- ENFORCE: Central Package Management -->
+  <Target Name="_EnforceCPM" BeforeTargets="BeforeBuild">
+    <Error Condition="'$(ManagePackageVersionsCentrally)' != 'true'"
+           Text="POLICY: ManagePackageVersionsCentrally=true required in Directory.Packages.props" />
+    <Error Condition="'$(CentralPackageTransitivePinningEnabled)' != 'true'"
+           Text="POLICY: CentralPackageTransitivePinningEnabled=true required in Directory.Packages.props" />
+  </Target>
+
+  <!-- ENFORCE: .NET 10+ SDK -->
+  <Target Name="_EnforceNet10Sdk" BeforeTargets="BeforeBuild">
+    <Error Condition="$([MSBuild]::VersionLessThan('$(NETCoreSdkVersion)', '10.0.0'))"
+           Text="POLICY: .NET SDK 10.0.0+ required. Current: $(NETCoreSdkVersion)" />
+  </Target>
+
+  <!-- SINGLE TARGET: Run all enforcement -->
+  <Target Name="CheckEnforcement" 
+          DependsOnTargets="_EnforceNoPolySharp;_EnforceNoPrivateAssetsAll;_EnforceNoDisableTransitive;_EnforceNoVSTestSdk;_EnforceNoFluentAssertions;_EnforceCPM;_EnforceNet10Sdk" />
+
+</Project>

@@ -928,6 +928,42 @@ public abstract class SdkTests(
     }
 
     [Fact]
+    public async Task Web_InterceptsAreGeneratedForBuildInvocation()
+    {
+        await using var project = CreateProjectBuilder(SdkWebName);
+        project.AddCsprojFile(
+            rootSdk: "Microsoft.NET.Sdk.Web",
+            properties:
+            [
+                ("EmitCompilerGeneratedFiles", "true"),
+                ("CompilerGeneratedFilesOutputPath", "obj/Generated")
+            ]);
+
+        project.AddFile("Program.cs", """
+                                      using ANcpSdk.AspNetCore.ServiceDefaults;
+
+                                      var builder = WebApplication.CreateBuilder();
+                                      var app = builder.Build();
+                                      return app.Services.GetService<ANcpSdkServiceDefaultsOptions>() is not null ? 0 : 1;
+                                      """);
+
+        var data = await project.BuildAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
+        Assert.Equal(0, data.ExitCode);
+
+        var generatedFiles = Directory.GetFiles(
+            project.RootFolder,
+            "Intercepts.g.cs",
+            SearchOption.AllDirectories);
+        Assert.NotEmpty(generatedFiles);
+
+        var generatedSource = await File.ReadAllTextAsync(
+            generatedFiles[0],
+            TestContext.Current.CancellationToken);
+        Assert.Contains("Intercept_Build", generatedSource);
+        Assert.Contains("TryUseANcpSdkConventions", generatedSource);
+    }
+
+    [Fact]
     public async Task Web_ServiceDefaultsIsRegisteredAutomatically_Disabled()
     {
         await using var project = CreateProjectBuilder(SdkWebName);

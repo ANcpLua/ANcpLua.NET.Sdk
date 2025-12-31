@@ -155,6 +155,7 @@ public class PackageFixture : IAsyncLifetime
     public virtual async ValueTask DisposeAsync()
     {
         await _packageDirectory.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>
@@ -194,7 +195,7 @@ public class PackageFixture : IAsyncLifetime
 
             // Build package references XML
             var packageRefs = string.Join("\n        ",
-                ExternalPackages.Select(p => $"""<PackageReference Include="{p.Name}" Version="{p.Version}" />"""));
+                ExternalPackages.Select(static p => $"""<PackageReference Include="{p.Name}" Version="{p.Version}" />"""));
 
             // Create warmup project that references all external packages
             var csproj = $"""

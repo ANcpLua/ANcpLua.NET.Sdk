@@ -1,4 +1,13 @@
 <Solution>
+    <Folder Name="/Solution Items/">
+        <File Path=".editorconfig"/>
+        <File Path="Directory.Build.props"/>
+        <File Path="Directory.Packages.props"/>
+        <File Path="global.json"/>
+        <File Path="README.md"/>
+        <File Path="LICENSE.txt"/>
+        <File Path="build.ps1"/>
+    </Folder>
     <Folder Name="/src/">
         <Project Path="src/ANcpLua.NET.Sdk.csproj"/>
         <Project Path="src/ANcpLua.NET.Sdk.Web.csproj"/>
@@ -6,8 +15,7 @@
     </Folder>
     <Folder Name="/eng/">
         <Project Path="eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj"/>
-        <Project
-                Path="eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"/>
+        <Project Path="eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"/>
     </Folder>
     <Folder Name="/tests/">
         <Project Path="tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj"/>

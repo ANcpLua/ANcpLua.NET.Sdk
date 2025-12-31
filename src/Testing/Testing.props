@@ -1,0 +1,73 @@
+<Project>
+  <!-- Detect test project -->
+  <PropertyGroup>
+    <IsTestProject Condition="'$(IsTestProject)' == '' and 
+      ($(MSBuildProjectName.EndsWith('.Tests')) or 
+       $(MSBuildProjectName.EndsWith('.Test')) or
+       $(MSBuildProjectDirectory.Contains('tests')))">true</IsTestProject>
+  </PropertyGroup>
+
+  <!-- Detect integration test project -->
+  <PropertyGroup>
+    <_ReferencesWebProject Condition="@(ProjectReference->AnyHaveMetadataValue('Identity', '.Web.csproj')) or 
+                                      @(ProjectReference->AnyHaveMetadataValue('Identity', '.Api.csproj'))">true</_ReferencesWebProject>
+    <IsIntegrationTestProject Condition="'$(IsIntegrationTestProject)' == '' and 
+      ('$(_ReferencesWebProject)' == 'true' or 
+       $(MSBuildProjectDirectory.Contains('Integration')) or 
+       $(MSBuildProjectDirectory.Contains('E2E')))">true</IsIntegrationTestProject>
+  </PropertyGroup>
+
+  <!-- Test project configuration -->
+  <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
+    <OutputType>Exe</OutputType>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
+    <UseMicrosoftTestingPlatform>true</UseMicrosoftTestingPlatform>
+  </PropertyGroup>
+
+  <!-- Integration test configuration -->
+  <PropertyGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
+    <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+    <WarningsAsErrors>$(WarningsAsErrors);ASP0027</WarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Auto-inject test packages -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <PackageReference Include="xunit.v3.mtp-v2" />
+    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" />
+    <PackageReference Include="AwesomeAssertions" />
+    <PackageReference Include="AwesomeAssertions.Analyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" />
+  </ItemGroup>
+
+  <!-- Auto-inject integration test packages -->
+  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <!-- Auto-inject test base classes -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/IntegrationTestBase.cs" Link="__Generated__/IntegrationTestBase.cs" Visible="false" />
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/KestrelTestBase.cs" Link="__Generated__/KestrelTestBase.cs" Visible="false" />
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" Visible="false" />
+  </ItemGroup>
+
+  <!-- Auto-inject GlobalUsings for tests -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
+    <Using Include="System.Net.Http.Json" />
+    <Using Include="Xunit" />
+    <Using Include="AwesomeAssertions" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.DependencyInjection.Extensions" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
+    <Using Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <Using Include="Microsoft.AspNetCore.TestHost" />
+    <Using Include="Microsoft.AspNetCore.Hosting" />
+  </ItemGroup>
+
+</Project>

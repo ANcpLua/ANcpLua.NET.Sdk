@@ -12,45 +12,7 @@
     </PropertyGroup>
   </Target>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       MTP/VSTest Package Injection (via Target for correct timing)
-       Runs after _DetectTestFrameworksAndMTP to see package-based detection results
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <Target Name="_InjectTestingPackages" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP">
-    <!-- MTP v2 Extensions (NUnit, MSTest, TUnit - NOT xunit.v3 which has its own MTP implementation) -->
-    <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(_UsesXunitV3Mtp)' != 'true'">
-      <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(CodeCoverageVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-    </ItemGroup>
-
-    <!-- VSTest fallback (only when NOT using MTP) -->
-    <ItemGroup Condition="'$(UseMicrosoftTestingPlatform)' != 'true'">
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(TestSdkVersion)" IsImplicitlyDefined="true"/>
-    </ItemGroup>
-  </Target>
-
-  <!-- MTP CLI args must be set in a target AFTER detection to check _UsesXunitV3Mtp -->
-  <Target Name="_SetMTPCommandLineArgs" BeforeTargets="Build;VSTest" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(EnableDefaultTestSettings)' != 'false' AND '$(UseMicrosoftTestingPlatform)' == 'true'">
-    <!-- Standard MTP extensions (NOT xunit.v3 which has its own options) -->
-    <PropertyGroup Condition="'$(_UsesXunitV3Mtp)' != 'true'">
-      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-trx</TestingPlatformCommandLineArguments>
-      <TestingPlatformCommandLineArguments Condition="'$(EnableCodeCoverage)' == 'true'">$(TestingPlatformCommandLineArguments) --coverage</TestingPlatformCommandLineArguments>
-      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --crashdump --crashdump-type mini</TestingPlatformCommandLineArguments>
-      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --hangdump --hangdump-timeout 10m --hangdump-type mini</TestingPlatformCommandLineArguments>
-    </PropertyGroup>
-    <!-- xunit.v3 native MTP options -->
-    <PropertyGroup Condition="'$(_UsesXunitV3Mtp)' == 'true'">
-      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-xunit-trx</TestingPlatformCommandLineArguments>
-    </PropertyGroup>
-    <!-- Common options for all MTP -->
-    <PropertyGroup>
-      <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --minimum-expected-tests 1</TestingPlatformCommandLineArguments>
-    </PropertyGroup>
-  </Target>
+  <!-- Legacy injection/CLI targets removed to enforce MTP-only via Testing.props -->
 
   <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
     <VSTestBlame>true</VSTestBlame>

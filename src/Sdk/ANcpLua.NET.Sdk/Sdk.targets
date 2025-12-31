@@ -32,4 +32,7 @@
       Overwrite="true"
       Condition="'$(_RootClaudeMd)' != ''"/>
   </Target>
+
+  <!-- Analyzer pack layout enforcement -->
+  <Import Project="$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets" />
 </Project>

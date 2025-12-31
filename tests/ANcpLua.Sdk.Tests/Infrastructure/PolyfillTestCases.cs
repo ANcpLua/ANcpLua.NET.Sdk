@@ -75,18 +75,19 @@ public sealed class PolyfillCaseSerializer : IXunitSerializer
 public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
     where TMarker : IPolyfillMarker
 {
+    private readonly string _tfm = tfm;
     public string MarkerTypeName => typeof(TMarker).Name;
-    public string TargetFramework => tfm;
+    public string TargetFramework => _tfm;
 
     public async Task RunPositive(PackageFixture fixture, ITestOutputHelper output)
     {
         await using var project =
             new ProjectBuilder(fixture, output, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
-        var properties = new List<(string, string)>
+        var properties = new List<(string Name, string Value)>
         {
             (TMarker.InjectPropertyName, Val.True),
-            (Prop.TargetFramework, tfm),
+            (Name: Prop.TargetFramework, Value: _tfm),
             (Prop.OutputType, Val.Library)
         };
 
@@ -110,7 +111,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
                                       """);
 
         var result = await project.BuildAndGetOutput();
-        result.ShouldSucceed($"Build failed for {TMarker.InjectPropertyName} on {tfm}");
+        result.ShouldSucceed($"Build failed for {TMarker.InjectPropertyName} on {_tfm}");
     }
 
     public async Task RunNegative(PackageFixture fixture, ITestOutputHelper output)
@@ -120,9 +121,9 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
         await using var project =
             new ProjectBuilder(fixture, output, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
-        var properties = new List<(string, string)>
+        var properties = new List<(string Name, string Value)>
         {
-            (Prop.TargetFramework, tfm),
+            (Name: Prop.TargetFramework, Value: _tfm),
             (Prop.OutputType, Val.Library)
         };
 
@@ -156,7 +157,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 
         var result = await project.BuildAndGetOutput();
         result.ShouldFail(
-            $"Build succeeded for {TMarker.InjectPropertyName} on {tfm} when expected to fail without the flag");
+            $"Build succeeded for {TMarker.InjectPropertyName} on {_tfm} when expected to fail without the flag");
 
         Assert.True(
             result.OutputContains("CS0246") ||
@@ -170,6 +171,6 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 
     public override string ToString()
     {
-        return $"{typeof(TMarker).Name} → {tfm}";
+        return $"{typeof(TMarker).Name} → {_tfm}";
     }
 }

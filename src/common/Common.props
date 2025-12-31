@@ -38,7 +38,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest-all</AnalysisLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>14</LangVersion>
     <NoWarn>$(NoWarn);CA1014</NoWarn>
     <MSBuildTreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</MSBuildTreatWarningsAsErrors>
     <TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
@@ -59,6 +59,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Shared injected test bases are packaged, not compiled -->
+    <Compile Remove="$(MSBuildThisFileDirectory)..\Shared\*.cs" />
+    <None Include="$(MSBuildThisFileDirectory)..\Shared\*.cs" Pack="false" />
+
     <!-- Add all editorconfig files -->
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../configuration/*.editorconfig"/>
   </ItemGroup>

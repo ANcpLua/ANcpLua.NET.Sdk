@@ -25,7 +25,7 @@ public static class ANcpSdkServiceDefaults
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
-        return builder.Services.Any(service => service.ServiceType == typeof(ANcpSdkServiceDefaultsOptions))
+        return builder.Services.Any(static service => service.ServiceType == typeof(ANcpSdkServiceDefaultsOptions))
             ? builder
             : builder.UseANcpSdkConventions(configure);
     }
@@ -44,7 +44,10 @@ public static class ANcpSdkServiceDefaults
                 ValidateScopes = true
             }));
 
-        builder.Services.Configure<KestrelServerOptions>(serverOptions => { serverOptions.AddServerHeader = false; });
+        builder.Services.Configure<KestrelServerOptions>(static serverOptions =>
+        {
+            serverOptions.AddServerHeader = false;
+        });
 
         builder.Services.TryAddSingleton<IStartupFilter>(new ValidationStartupFilter());
         builder.Services.TryAddSingleton(options);
@@ -54,14 +57,14 @@ public static class ANcpSdkServiceDefaults
         builder.ConfigureOpenTelemetry(options);
         builder.AddDefaultHealthChecks();
 
-        if (options.OpenApi.Enabled) builder.Services.AddOpenApi(options.OpenApi.ConfigureOpenApi ?? (_ => { }));
+        if (options.OpenApi.Enabled) builder.Services.AddOpenApi(options.OpenApi.ConfigureOpenApi ?? (static _ => { }));
 
         builder.Services.AddServiceDiscovery();
-        builder.Services.ConfigureHttpClientDefaults(http =>
+        builder.Services.ConfigureHttpClientDefaults(static http =>
         {
             http.AddStandardResilienceHandler();
             http.AddServiceDiscovery();
-            http.ConfigureHttpClient((serviceProvider, client) =>
+            http.ConfigureHttpClient(static (serviceProvider, client) =>
             {
                 var hostEnvironment = serviceProvider.GetRequiredService<IHostEnvironment>();
                 client.DefaultRequestHeaders.UserAgent.Add(
@@ -128,10 +131,10 @@ public static class ANcpSdkServiceDefaults
             {
                 tracing
                     .AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation(aspNetCoreTraceInstrumentationOptions =>
+                    .AddAspNetCoreInstrumentation(static aspNetCoreTraceInstrumentationOptions =>
                     {
                         aspNetCoreTraceInstrumentationOptions.EnableAspNetCoreSignalRSupport = true;
-                        aspNetCoreTraceInstrumentationOptions.Filter = context =>
+                        aspNetCoreTraceInstrumentationOptions.Filter = static context =>
                             context.Request.Path != "/health" && context.Request.Path != "/alive";
                     })
                     .AddHttpClientInstrumentation()
@@ -150,7 +153,7 @@ public static class ANcpSdkServiceDefaults
         where TBuilder : IHostApplicationBuilder
     {
         builder.Services.AddHealthChecks()
-            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+            .AddCheck("self", static () => HealthCheckResult.Healthy(), ["live"]);
 
         return builder;
     }
@@ -192,7 +195,7 @@ public static class ANcpSdkServiceDefaults
         app.MapHealthChecks("/health");
         app.MapHealthChecks("/alive", new HealthCheckOptions
         {
-            Predicate = r => r.Tags.Contains("live")
+            Predicate = static r => r.Tags.Contains("live")
         });
 
         if (options.StaticAssets.Enabled)

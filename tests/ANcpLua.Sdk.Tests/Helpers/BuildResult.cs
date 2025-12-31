@@ -68,7 +68,7 @@ public sealed record BuildResult(
     public IReadOnlyCollection<string> GetBinLogFiles()
     {
         var build = GetBuild();
-        return [.. build.SourceFiles.Select(file => file.FullPath)];
+        return [.. build.SourceFiles.Select(static file => file.FullPath)];
     }
 
     public List<string> GetMsBuildItems(string name)
@@ -104,10 +104,7 @@ public sealed record BuildResult(
         if (target is null)
             return false;
 
-        if (target.Skipped)
-            return false;
-
-        return true;
+        return !target.Skipped;
     }
 
     /// <summary>Asserts the build succeeded (exit code 0)</summary>

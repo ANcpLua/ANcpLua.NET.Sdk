@@ -13,6 +13,13 @@
   <files>
     <file src="Sdk/ANcpLua.NET.Sdk.Test/Sdk.props" target="Sdk/Sdk.props"/>
     <file src="Sdk/ANcpLua.NET.Sdk.Test/Sdk.targets" target="Sdk/Sdk.targets"/>
+    <file src="Enforcement/Enforcement.props" target="Enforcement/"/>
+    <file src="Enforcement/DeterminismAndSourceLink.props" target="Enforcement/"/>
+    <file src="Testing/Testing.props" target="Testing/"/>
+    <file src="Shared/IntegrationTestBase.cs" target="Shared/"/>
+    <file src="Shared/KestrelTestBase.cs" target="Shared/"/>
+    <file src="Shared/FakeLoggerExtensions.cs" target="Shared/"/>
+    <file src="Packaging/AnalyzersPack.targets" target="Packaging/"/>
     <!-- Fully explicit file paths (NuGet globs unreliable on Windows) -->
     <file src="common/Common.props" target="common/"/>
     <file src="common/Common.targets" target="common/"/>

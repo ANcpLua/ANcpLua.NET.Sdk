@@ -8,8 +8,10 @@
     <Version>0.0.0-local</Version>
     <NuspecProperties>$(NuspecProperties);version=$(Version)</NuspecProperties>
     <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY);RepositoryCommit=$(GITHUB_SHA)</NuspecProperties>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Shared/*.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
   </ItemGroup>

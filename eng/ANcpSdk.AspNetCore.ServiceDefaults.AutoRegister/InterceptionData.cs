@@ -4,7 +4,7 @@ namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister;
 
 internal sealed class InterceptionData : IEquatable<InterceptionData?>
 {
-    public required string OrderKey { get; set; }
+    public required string OrderKey { get; init; }
     public required InterceptionMethodKind Kind { get; init; }
     public required InterceptableLocation InterceptableLocation { get; init; }
 
