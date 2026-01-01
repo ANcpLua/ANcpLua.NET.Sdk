@@ -1,4 +1,10 @@
 <Project>
+  <!-- Import Version.props for eng projects with CPM disabled.
+       When ManagePackageVersionsCentrally=false, NuGet skips Directory.Packages.props,
+       so we need this import for $(RoslynVersion) and other version variables.
+       MSB4011 warning for duplicate import is harmless - MSBuild ignores duplicates. -->
+  <Import Project="$(MSBuildThisFileDirectory)../src/common/Version.props"/>
+
   <PropertyGroup>
     <!-- Enable modern C# features for eng projects -->
     <LangVersion>latest</LangVersion>
