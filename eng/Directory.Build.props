@@ -1,7 +1,4 @@
 <Project>
-  <!-- Import shared version for consistency with SDK packages -->
-  <Import Project="../src/common/Version.props"/>
-
   <PropertyGroup>
     <!-- Enable modern C# features for eng projects -->
     <LangVersion>latest</LangVersion>
