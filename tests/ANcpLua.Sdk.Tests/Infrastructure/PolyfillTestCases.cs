@@ -75,9 +75,8 @@ public sealed class PolyfillCaseSerializer : IXunitSerializer
 public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
     where TMarker : IPolyfillMarker
 {
-    private readonly string _tfm = tfm;
     public string MarkerTypeName => typeof(TMarker).Name;
-    public string TargetFramework => _tfm;
+    public string TargetFramework { get; } = tfm;
 
     public async Task RunPositive(PackageFixture fixture, ITestOutputHelper output)
     {
@@ -87,7 +86,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
         var properties = new List<(string Name, string Value)>
         {
             (TMarker.InjectPropertyName, Val.True),
-            (Name: Prop.TargetFramework, Value: _tfm),
+            (Name: Prop.TargetFramework, Value: TargetFramework),
             (Prop.OutputType, Val.Library)
         };
 
@@ -111,7 +110,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
                                       """);
 
         var result = await project.BuildAndGetOutput();
-        result.ShouldSucceed($"Build failed for {TMarker.InjectPropertyName} on {_tfm}");
+        result.ShouldSucceed($"Build failed for {TMarker.InjectPropertyName} on {TargetFramework}");
     }
 
     public async Task RunNegative(PackageFixture fixture, ITestOutputHelper output)
@@ -123,7 +122,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 
         var properties = new List<(string Name, string Value)>
         {
-            (Name: Prop.TargetFramework, Value: _tfm),
+            (Name: Prop.TargetFramework, Value: TargetFramework),
             (Prop.OutputType, Val.Library)
         };
 
@@ -157,7 +156,7 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 
         var result = await project.BuildAndGetOutput();
         result.ShouldFail(
-            $"Build succeeded for {TMarker.InjectPropertyName} on {_tfm} when expected to fail without the flag");
+            $"Build succeeded for {TMarker.InjectPropertyName} on {TargetFramework} when expected to fail without the flag");
 
         Assert.True(
             result.OutputContains("CS0246") ||
@@ -171,6 +170,6 @@ public sealed class PolyfillCase<TMarker>(string tfm) : IPolyfillCase
 
     public override string ToString()
     {
-        return $"{typeof(TMarker).Name} → {_tfm}";
+        return $"{typeof(TMarker).Name} → {TargetFramework}";
     }
 }

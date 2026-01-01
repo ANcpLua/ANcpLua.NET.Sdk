@@ -12,19 +12,6 @@ namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister;
 [Generator]
 public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
 {
-    private static class TypeNames
-    {
-        public const string WebApplicationBuilder = "Microsoft.AspNetCore.Builder.WebApplicationBuilder";
-        public const string ServiceDefaults = "ANcpSdk.AspNetCore.ServiceDefaults.ANcpSdkServiceDefaults";
-    }
-
-    private static class TrackingNames
-    {
-        public const string BuildInvocations = nameof(BuildInvocations);
-        public const string ServiceDefaultsAvailable = nameof(ServiceDefaultsAvailable);
-        public const string InterceptionCandidates = nameof(InterceptionCandidates);
-    }
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         var hasServiceDefaults = context.CompilationProvider
@@ -144,5 +131,18 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
             return
                 $"{node.SyntaxTree.FilePath}:{lineSpan.StartLinePosition.Line}:{lineSpan.StartLinePosition.Character}";
         }
+    }
+
+    private static class TypeNames
+    {
+        public const string WebApplicationBuilder = "Microsoft.AspNetCore.Builder.WebApplicationBuilder";
+        public const string ServiceDefaults = "ANcpSdk.AspNetCore.ServiceDefaults.ANcpSdkServiceDefaults";
+    }
+
+    private static class TrackingNames
+    {
+        public const string BuildInvocations = nameof(BuildInvocations);
+        public const string ServiceDefaultsAvailable = nameof(ServiceDefaultsAvailable);
+        public const string InterceptionCandidates = nameof(InterceptionCandidates);
     }
 }

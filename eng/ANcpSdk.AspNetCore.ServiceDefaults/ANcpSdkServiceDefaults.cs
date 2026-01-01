@@ -5,8 +5,9 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -20,8 +21,28 @@ using OpenTelemetry.Trace;
 
 namespace ANcpSdk.AspNetCore.ServiceDefaults;
 
-public static class ANcpSdkServiceDefaults
+public static partial class ANcpSdkServiceDefaults
 {
+    private const string DevLogsScript = """
+                                         (function() {
+                                             const endpoint = '{{ROUTE}}';
+                                             const send = (level, args) => {
+                                                 try {
+                                                     fetch(endpoint, {
+                                                         method: 'POST',
+                                                         headers: { 'Content-Type': 'application/json' },
+                                                         body: JSON.stringify({ level, message: Array.from(args).map(String).join(' '), timestamp: new Date().toISOString() })
+                                                     }).catch(() => {});
+                                                 } catch {}
+                                             };
+                                             ['log', 'info', 'warn', 'error', 'debug', 'trace'].forEach(level => {
+                                                 const orig = console[level];
+                                                 console[level] = function(...args) { orig.apply(console, args); send(level, args); };
+                                             });
+                                             console.log('[DevLogs] Frontend logging bridge active');
+                                         })();
+                                         """;
+
     public static TBuilder TryUseANcpSdkConventions<TBuilder>(this TBuilder builder,
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
@@ -75,9 +96,9 @@ public static class ANcpSdkServiceDefaults
             });
         });
 
-        builder.Services.Configure<JsonOptions>(jsonOptions =>
+        builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(jsonOptions =>
             ConfigureJsonOptions(jsonOptions.JsonSerializerOptions, options));
-        builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(jsonOptions =>
+        builder.Services.Configure<JsonOptions>(jsonOptions =>
             ConfigureJsonOptions(jsonOptions.SerializerOptions, options));
 
         builder.Services.AddProblemDetails();
@@ -215,9 +236,9 @@ public static class ANcpSdkServiceDefaults
             app.MapDevLogsEndpoint(options);
     }
 
-    private static void MapDevLogsEndpoint(this WebApplication app, ANcpSdkServiceDefaultsOptions options)
+    private static void MapDevLogsEndpoint(this IEndpointRouteBuilder app, ANcpSdkServiceDefaultsOptions options)
     {
-        app.MapPost(options.DevLogs.RoutePattern, (DevLogEntry entry, ILogger<DevLogEntry> logger) =>
+        app.MapPost(options.DevLogs.RoutePattern, static (DevLogEntry entry, ILogger<DevLogEntry> logger) =>
         {
             var logLevel = entry.Level?.ToLowerInvariant() switch
             {
@@ -227,7 +248,7 @@ public static class ANcpSdkServiceDefaults
                 "trace" => LogLevel.Trace,
                 _ => LogLevel.Information
             };
-            logger.Log(logLevel, "[BROWSER] {Message}", entry.Message);
+            logger.LogBrowserMessage(logLevel, entry.Message ?? string.Empty);
             return Results.Ok();
         }).ExcludeFromDescription();
 
@@ -238,25 +259,8 @@ public static class ANcpSdkServiceDefaults
         }).ExcludeFromDescription();
     }
 
-    private const string DevLogsScript = """
-        (function() {
-            const endpoint = '{{ROUTE}}';
-            const send = (level, args) => {
-                try {
-                    fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ level, message: Array.from(args).map(String).join(' '), timestamp: new Date().toISOString() })
-                    }).catch(() => {});
-                } catch {}
-            };
-            ['log', 'info', 'warn', 'error', 'debug', 'trace'].forEach(level => {
-                const orig = console[level];
-                console[level] = function(...args) { orig.apply(console, args); send(level, args); };
-            });
-            console.log('[DevLogs] Frontend logging bridge active');
-        })();
-        """;
+    [LoggerMessage(Message = "[BROWSER] {Message}")]
+    private static partial void LogBrowserMessage(this ILogger logger, LogLevel level, string message);
 }
 
-internal sealed record DevLogEntry(string? Level, string? Message, DateTime? Timestamp);
+internal sealed record DevLogEntry(string? Level, string? Message);

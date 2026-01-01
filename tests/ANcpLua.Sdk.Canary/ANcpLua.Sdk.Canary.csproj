@@ -30,7 +30,7 @@
 
     <!-- Canary-specific: fail fast on any issue -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <WarningsAsErrors />
+    <WarningsAsErrors/>
 
     <!-- Diagnostics for debugging -->
     <ANcpLuaDiagnostics Condition="'$(ANcpLuaDiagnostics)' == ''">false</ANcpLuaDiagnostics>

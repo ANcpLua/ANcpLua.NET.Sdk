@@ -47,8 +47,6 @@ dotnet test tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 **Note:** xUnit v3 native MTP uses different options than standard MTP (TUnit, NUnit MTP, MSTest MTP).
 Standard MTP uses `--report-trx`, `--crashdump`, `--hangdump` - xUnit v3 does NOT support these.
 
-```
-
 ### Build & Pack
 
 ```bash
@@ -249,21 +247,21 @@ Location, ISymbol, Compilation, SemanticModel, SyntaxNode
 
 **NEVER put these in individual csproj files - they belong in Directory.Build.props:**
 
-| Property | Centralized In | Reason |
-|----------|----------------|--------|
-| `LangVersion` | Directory.Build.props | SDK-owned, ensures consistency |
-| `Nullable` | Directory.Build.props | SDK-owned, ensures consistency |
-| `Deterministic` | Directory.Build.props | Required for reproducible builds |
-| `ContinuousIntegrationBuild` | Directory.Build.props (CI conditional) | Required for SourceLink |
+| Property                     | Centralized In                         | Reason                           |
+|------------------------------|----------------------------------------|----------------------------------|
+| `LangVersion`                | Directory.Build.props                  | SDK-owned, ensures consistency   |
+| `Nullable`                   | Directory.Build.props                  | SDK-owned, ensures consistency   |
+| `Deterministic`              | Directory.Build.props                  | Required for reproducible builds |
+| `ContinuousIntegrationBuild` | Directory.Build.props (CI conditional) | Required for SourceLink          |
 
 **Banned Packages:**
 
-| Package | Reason | Replacement |
-|---------|--------|-------------|
-| `Microsoft.NET.Test.Sdk` | VSTest legacy | `xunit.v3.mtp-v2` |
-| `FluentAssertions` | Abandoned | `AwesomeAssertions` |
-| `PolySharp` | Redundant | SDK provides polyfills |
-| `coverlet.*` | Redundant | MTP provides CodeCoverage |
+| Package                  | Reason        | Replacement               |
+|--------------------------|---------------|---------------------------|
+| `Microsoft.NET.Test.Sdk` | VSTest legacy | `xunit.v3.mtp-v2`         |
+| `FluentAssertions`       | Abandoned     | `AwesomeAssertions`       |
+| `PolySharp`              | Redundant     | SDK provides polyfills    |
+| `coverlet.*`             | Redundant     | MTP provides CodeCoverage |
 
 **Required CPM Configuration (Directory.Packages.props):**
 
@@ -301,6 +299,7 @@ project.AddFile("sample.cs", "");
 ```
 
 **For library tests (no Main needed):**
+
 ```csharp
 project.AddCsprojFile([("OutputType", "Library")]);
 project.AddFile("sample.cs", """
@@ -312,12 +311,14 @@ project.AddFile("sample.cs", """
 ```
 
 **For exe tests:**
+
 ```csharp
 project.AddCsprojFile();  // defaults to exe
 project.AddFile("Program.cs", "System.Console.WriteLine();");  // top-level statements
 ```
 
 **MTP test projects must use correct SDK:**
+
 ```csharp
 // For TUnit/NUnit/MSTest - use base SDK, not Test SDK
 await using var project = CreateProjectBuilder(SdkName);
@@ -330,26 +331,30 @@ project.AddCsprojFile(
 
 ## DevLogs - Frontend Console Bridge
 
-**Purpose:** Captures browser `console.log/warn/error` and sends to server logs, enabling unified debugging for AI agents and developers.
+**Purpose:** Captures browser `console.log/warn/error` and sends to server logs, enabling unified debugging for AI
+agents and developers.
 
 **Behavior:**
+
 - Enabled by default in Development
 - Disabled in Production (unless `EnableInProduction = true`)
 - All frontend logs appear with `[BROWSER]` prefix
 
 **Endpoints (Development only):**
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/dev-logs.js` | GET | JavaScript shim for console capture |
-| `/api/dev-logs` | POST | Receives log entries from frontend |
+| Endpoint        | Method | Purpose                             |
+|-----------------|--------|-------------------------------------|
+| `/dev-logs.js`  | GET    | JavaScript shim for console capture |
+| `/api/dev-logs` | POST   | Receives log entries from frontend  |
 
 **Usage:**
+
 ```html
 <script src="/dev-logs.js"></script>
 ```
 
 **Configuration:**
+
 ```csharp
 builder.UseANcpSdkConventions(options =>
 {
@@ -360,10 +365,101 @@ builder.UseANcpSdkConventions(options =>
 ```
 
 **Server output:**
+
 ```
 info: DevLogEntry[0] [BROWSER] User clicked button
 warn: DevLogEntry[0] [BROWSER] Deprecated API called
 error: DevLogEntry[0] [BROWSER] Failed to fetch data
 ```
 
-**Why this matters for AI agents:** Instead of using browser MCP to debug frontend issues (burns tokens, slow), agents can just read server logs to see both frontend and backend issues in one place.
+**Why this matters for AI agents:** Instead of using browser MCP to debug frontend issues (burns tokens, slow), agents
+can just read server logs to see both frontend and backend issues in one place.
+
+---
+
+## ⛔ ABSOLUTE RULES — VIOLATION = STOP AND ASK HUMAN
+
+These rules exist because MSBuild XML has no schema enforcement and CI failures cascade unpredictably.
+**If you are about to violate any of these rules, STOP and ask the human first.**
+
+### Rule 1: Version.props is append-only
+
+- ✅ ADD new `<XxxVersion>` variables
+- ✅ UPDATE existing version numbers
+- ❌ NEVER delete variables
+- ❌ NEVER change file structure or imports
+- ❌ NEVER regenerate the entire file
+
+### Rule 2: No hardcoded versions in Directory.Packages.props
+
+```xml
+<!-- ❌ WRONG - hardcoded version -->
+<PackageVersion Include="Serilog" Version="4.3.0"/>
+
+<!-- ✅ RIGHT - variable reference -->
+<PackageVersion Include="Serilog" Version="$(SerilogVersion)"/>
+```
+
+The variable must be defined in `Version.props`.
+
+### Rule 3: Never reorder imports in .props/.targets files
+
+Import order is load-bearing. Changing order breaks variable resolution.
+
+```xml
+<!-- This order is INTENTIONAL - do not change -->
+<Import Project="Version.props"/>
+<Import Project="Directory.Packages.props"/>
+```
+
+### Rule 4: Banned patterns — never add these
+
+| Pattern                               | Why It's Banned                        |
+|---------------------------------------|----------------------------------------|
+| `RunAnalyzers=false`                  | Hides real problems, creates tech debt |
+| `Version="X.Y.Z"` in PackageReference | Bypasses CPM, causes version conflicts |
+| `NoWarn` for new warnings             | Masks issues instead of fixing them    |
+
+### Rule 5: One MSBuild file edit per session
+
+If you need to edit a `.props` or `.targets` file:
+
+1. Make the edit
+2. Run `dotnet build`
+3. Verify zero errors
+4. **Only then** edit another MSBuild file
+
+**Why:** MSBuild files have invisible dependencies. Editing multiple files before building causes cascading failures
+that are hard to diagnose.
+
+### Rule 6: CI workflow step order is sacred
+
+- `artifacts/` folder must exist before any step uses it as a NuGet source
+- `build.ps1` must run before tests
+- Never reorder workflow steps without understanding the dependency chain
+
+```yaml
+# ✅ CORRECT order
+- run: mkdir -p artifacts
+- run: pwsh ./build.ps1
+- run: dotnet test
+
+# ❌ WRONG - artifacts doesn't exist yet
+- run: dotnet restore  # Fails: local source doesn't exist
+- run: pwsh ./build.ps1
+```
+
+### Rule 7: Single agent only
+
+Do not run multiple Claude Code agents on this repository simultaneously.
+They will make conflicting edits and create ping-pong failures.
+
+### Rule 8: When in doubt, ask
+
+If you're unsure whether an edit violates these rules:
+
+1. **STOP**
+2. Explain what you want to do
+3. Wait for human confirmation
+
+**These rules override helpfulness.** It's better to ask and wait than to break CI.

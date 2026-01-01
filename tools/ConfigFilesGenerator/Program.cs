@@ -186,7 +186,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
             var metadata = await resource.GetMetadataAsync(package.Id, true, false, cache, NullLogger.Instance,
                 CancellationToken.None);
             var latestPackage = metadata.MaxBy(static m => m.Identity.Version)
-                ?? throw new InvalidOperationException($"No versions found for package '{package.Id}'");
+                                ?? throw new InvalidOperationException($"No versions found for package '{package.Id}'");
             version = latestPackage.Identity.Version;
         }
 
@@ -424,7 +424,7 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
         var metadata = await metadataResource.GetMetadataAsync(packageId, true, false, cache, NullLogger.Instance,
             CancellationToken.None);
         var latestPackage = metadata.MaxBy(static m => m.Identity.Version)
-            ?? throw new InvalidOperationException($"No versions found for package '{packageId}'");
+                            ?? throw new InvalidOperationException($"No versions found for package '{packageId}'");
         version = latestPackage.Identity.Version;
     }
 

@@ -8,10 +8,10 @@
   <Target Name="_InjectXunitUsings" BeforeTargets="BeforeBuild;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(ImplicitUsings)' == 'enable'">
     <!-- Filter xUnit packages using correct MSBuild syntax -->
     <ItemGroup>
-      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit'" />
-      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'" />
-      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'" />
-      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'" />
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit'"/>
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'"/>
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'"/>
+      <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'"/>
     </ItemGroup>
     <ItemGroup Condition="'@(_XunitUsings)' != ''">
       <Using Include="Xunit"/>

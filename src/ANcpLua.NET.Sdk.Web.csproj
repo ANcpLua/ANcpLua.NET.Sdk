@@ -10,7 +10,7 @@
     <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY);RepositoryCommit=$(GITHUB_SHA)</NuspecProperties>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Shared/*.cs" />
+    <Compile Remove="Shared/*.cs"/>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>

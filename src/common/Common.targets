@@ -47,13 +47,13 @@
 
     <!-- Filter test framework packages -->
     <ItemGroup>
-      <_TUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'TUnit'" />
-      <_NUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'NUnit'" />
-      <_MSTestPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'MSTest.TestFramework'" />
-      <_XunitMtpV1Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'" />
-      <_XunitMtpV2Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'" />
-      <_XunitMtpOffPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-off'" />
-      <_MtpExtPkg Include="@(PackageReference)" Condition="$([System.String]::new('%(Identity)').StartsWith('Microsoft.Testing.Extensions'))" />
+      <_TUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'TUnit'"/>
+      <_NUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'NUnit'"/>
+      <_MSTestPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'MSTest.TestFramework'"/>
+      <_XunitMtpV1Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'"/>
+      <_XunitMtpV2Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'"/>
+      <_XunitMtpOffPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-off'"/>
+      <_MtpExtPkg Include="@(PackageReference)" Condition="$([System.String]::new('%(Identity)').StartsWith('Microsoft.Testing.Extensions'))"/>
     </ItemGroup>
 
     <!-- Skip xunit injection when other test frameworks are present -->
@@ -132,10 +132,10 @@
   <ItemGroup Condition="'$(DisableVersionAnalyzer)' != 'true'">
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Packages.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Directory.Packages.props')"
-                     Visible="false" />
+                     Visible="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Packages.props`, `$(MSBuildProjectDirectory)`))' != ''"
-                     Visible="false" />
+                     Visible="false"/>
   </ItemGroup>
 
   <PropertyGroup>

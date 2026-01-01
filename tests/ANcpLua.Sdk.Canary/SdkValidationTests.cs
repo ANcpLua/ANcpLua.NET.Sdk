@@ -3,15 +3,13 @@
 
 #if NET10_0_OR_GREATER
 
-using Xunit;
-using AwesomeAssertions;
 using Microsoft.Shared.Diagnostics;
 
 namespace ANcpLua.Sdk.Canary;
 
 /// <summary>
-/// Fast validation tests that catch SDK packaging errors before CI.
-/// If these pass locally, the SDK package structure is correct.
+///     Fast validation tests that catch SDK packaging errors before CI.
+///     If these pass locally, the SDK package structure is correct.
 /// </summary>
 public class SdkStructureTests
 {
@@ -33,7 +31,7 @@ public class SdkStructureTests
 }
 
 /// <summary>
-/// Validates MTP detection and package injection.
+///     Validates MTP detection and package injection.
 /// </summary>
 public class MtpDetectionTests
 {
@@ -55,7 +53,7 @@ public class MtpDetectionTests
 }
 
 /// <summary>
-/// Validates C# language features work correctly.
+///     Validates C# language features work correctly.
 /// </summary>
 public class LanguageFeatureTests
 {
@@ -92,14 +90,14 @@ public class LanguageFeatureTests
 }
 
 /// <summary>
-/// Validates Throw helpers are injected.
+///     Validates Throw helpers are injected.
 /// </summary>
 public class ThrowHelperTests
 {
     [Fact]
     public void Throw_IfNull_Works()
     {
-        string? value = "not null";
+        var value = "not null";
         // This should NOT throw
         var action = () => Throw.IfNull(value);
         action.Should().NotThrow();

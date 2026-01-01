@@ -32,19 +32,19 @@
     <Error
       Code="AL0018"
       Text="Version.props not imported. All version variables must come from ANcpLua.NET.Sdk's Version.props. If using Sdk='ANcpLua.NET.Sdk', this should be automatic. Otherwise, import Version.props explicitly."
-      Condition="'$(RoslynVersion)' == ''" />
+      Condition="'$(RoslynVersion)' == ''"/>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
          AL0022: Validate xUnit v3 + .NET 10 uses correct package
          ═══════════════════════════════════════════════════════════════════════ -->
     <ItemGroup>
-      <_PlainXunitV3 Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'" />
+      <_PlainXunitV3 Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'"/>
     </ItemGroup>
 
     <Warning
       Code="AL0022"
       Text="xunit.v3 on .NET 10+ requires xunit.v3.mtp-v2 package. Plain xunit.v3 uses MTP v1 which is incompatible with .NET 10 SDK. Replace with xunit.v3.mtp-v2."
-      Condition="'@(_PlainXunitV3)' != '' AND '$(TargetFramework)' == 'net10.0'" />
+      Condition="'@(_PlainXunitV3)' != '' AND '$(TargetFramework)' == 'net10.0'"/>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
          AL0023: Validate MTP test projects have OutputType=Exe
@@ -52,7 +52,7 @@
     <Error
       Code="AL0023"
       Text="MTP test project must have OutputType=Exe. Current: $(OutputType). Microsoft Testing Platform requires executable test assemblies."
-      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' != 'Exe'" />
+      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' != 'Exe'"/>
 
   </Target>
 
@@ -64,26 +64,26 @@
           BeforeTargets="Build"
           Condition="'$(ReportVersionSource)' == 'true' OR '$(MSBuildVerbosity)' == 'diag'">
 
-    <Message Importance="high" Text="═══════════════════════════════════════════════════════════════════════════" />
-    <Message Importance="high" Text="ANcpLua.NET.Sdk Version Enforcement Report" />
-    <Message Importance="high" Text="═══════════════════════════════════════════════════════════════════════════" />
-    <Message Importance="high" Text="Project: $(MSBuildProjectName)" />
-    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────" />
-    <Message Importance="high" Text="Core Versions:" />
-    <Message Importance="high" Text="  RoslynVersion             = $(RoslynVersion)" />
-    <Message Importance="high" Text="  RoslynAnalyzersVersion    = $(RoslynAnalyzersVersion)" />
-    <Message Importance="high" Text="  AnalyzerTestingVersion    = $(AnalyzerTestingVersion)" />
-    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────" />
-    <Message Importance="high" Text="Testing Versions:" />
-    <Message Importance="high" Text="  XunitV3Version            = $(XunitV3Version)" />
-    <Message Importance="high" Text="  AwesomeAssertionsVersion  = $(AwesomeAssertionsVersion)" />
-    <Message Importance="high" Text="  MTPExtensionsVersion      = $(MTPExtensionsVersion)" />
-    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────" />
-    <Message Importance="high" Text="Framework Versions:" />
-    <Message Importance="high" Text="  MeziantouFrameworkVersion = $(MeziantouFrameworkVersion)" />
-    <Message Importance="high" Text="  MicrosoftExtensionsVersion= $(MicrosoftExtensionsVersion)" />
-    <Message Importance="high" Text="  OpenTelemetryVersion      = $(OpenTelemetryVersion)" />
-    <Message Importance="high" Text="══════════════════════════════════════════════════════════════════════════" />
+    <Message Importance="high" Text="═══════════════════════════════════════════════════════════════════════════"/>
+    <Message Importance="high" Text="ANcpLua.NET.Sdk Version Enforcement Report"/>
+    <Message Importance="high" Text="═══════════════════════════════════════════════════════════════════════════"/>
+    <Message Importance="high" Text="Project: $(MSBuildProjectName)"/>
+    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────"/>
+    <Message Importance="high" Text="Core Versions:"/>
+    <Message Importance="high" Text="  RoslynVersion             = $(RoslynVersion)"/>
+    <Message Importance="high" Text="  RoslynAnalyzersVersion    = $(RoslynAnalyzersVersion)"/>
+    <Message Importance="high" Text="  AnalyzerTestingVersion    = $(AnalyzerTestingVersion)"/>
+    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────"/>
+    <Message Importance="high" Text="Testing Versions:"/>
+    <Message Importance="high" Text="  XunitV3Version            = $(XunitV3Version)"/>
+    <Message Importance="high" Text="  AwesomeAssertionsVersion  = $(AwesomeAssertionsVersion)"/>
+    <Message Importance="high" Text="  MTPExtensionsVersion      = $(MTPExtensionsVersion)"/>
+    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────"/>
+    <Message Importance="high" Text="Framework Versions:"/>
+    <Message Importance="high" Text="  MeziantouFrameworkVersion = $(MeziantouFrameworkVersion)"/>
+    <Message Importance="high" Text="  MicrosoftExtensionsVersion= $(MicrosoftExtensionsVersion)"/>
+    <Message Importance="high" Text="  OpenTelemetryVersion      = $(OpenTelemetryVersion)"/>
+    <Message Importance="high" Text="══════════════════════════════════════════════════════════════════════════"/>
 
   </Target>
 

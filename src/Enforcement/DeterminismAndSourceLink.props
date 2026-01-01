@@ -21,7 +21,7 @@
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low">
-      <Output TaskParameter="ConsoleOutput" PropertyName="_GitRootFromGit" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitRootFromGit"/>
     </Exec>
 
     <PropertyGroup>
@@ -41,7 +41,7 @@
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
-      <Output TaskParameter="ConsoleOutput" PropertyName="_GitOriginUrlRaw" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitOriginUrlRaw"/>
     </Exec>
 
     <Exec Command="git -C &quot;$(_GitRoot)&quot; symbolic-ref --quiet HEAD"
@@ -49,7 +49,7 @@
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
-      <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchRefRaw" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchRefRaw"/>
     </Exec>
 
     <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse --abbrev-ref HEAD"
@@ -57,7 +57,7 @@
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true' and '$(_GitBranchRefRaw)' == ''">
-      <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchNameRaw" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchNameRaw"/>
     </Exec>
 
     <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse HEAD"
@@ -65,7 +65,7 @@
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
-      <Output TaskParameter="ConsoleOutput" PropertyName="_GitCommitRaw" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_GitCommitRaw"/>
     </Exec>
 
     <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' == 'true'">

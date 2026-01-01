@@ -3,7 +3,7 @@
 
 param(
     [string]$Version = "1.0.0",
-    [Parameter(ValueFromRemainingArguments=$true)]$RemainingArgs
+    [Parameter(ValueFromRemainingArguments = $true)]$RemainingArgs
 )
 
 $ErrorActionPreference = "Stop"
@@ -12,20 +12,24 @@ $ErrorActionPreference = "Stop"
 # SUBMODULE AUTO-SYNC - Keep Roslyn.Utilities up to date automatically
 # =============================================================================
 $SubmodulePath = "eng/submodules/Roslyn.Utilities"
-if (Test-Path $SubmodulePath) {
+if (Test-Path $SubmodulePath)
+{
     Write-Host "Checking Roslyn.Utilities submodule..." -ForegroundColor Cyan
 
     # Fetch latest from remote
-    git -C $SubmodulePath fetch origin main --quiet 2>$null
+    git -C $SubmodulePath fetch origin main --quiet 2> $null
 
     $LocalCommit = git -C $SubmodulePath rev-parse HEAD
-    $RemoteCommit = git -C $SubmodulePath rev-parse origin/main 2>$null
+    $RemoteCommit = git -C $SubmodulePath rev-parse origin/main 2> $null
 
-    if ($RemoteCommit -and $LocalCommit -ne $RemoteCommit) {
+    if ($RemoteCommit -and $LocalCommit -ne $RemoteCommit)
+    {
         Write-Host "Submodule is behind - auto-syncing..." -ForegroundColor Yellow
         git submodule update --remote $SubmodulePath
         Write-Host "Submodule updated to latest" -ForegroundColor Green
-    } else {
+    }
+    else
+    {
         Write-Host "Submodule is up to date" -ForegroundColor Green
     }
 }
@@ -34,7 +38,8 @@ if (Test-Path $SubmodulePath) {
 # TRANSFORM ROSLYN.UTILITIES - Regenerate embedded source files
 # =============================================================================
 $TransformScript = "eng/scripts/Transform-RoslynUtilities.ps1"
-if (Test-Path $TransformScript) {
+if (Test-Path $TransformScript)
+{
     Write-Host "Transforming Roslyn.Utilities source..." -ForegroundColor Cyan
     & $TransformScript
 }
@@ -217,4 +222,3 @@ dotnet build eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetC
 # Pack ServiceDefaults packages (required by SDK.Web)
 dotnet pack eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj -c Release -o artifacts --no-build "-p:Version=$Version"
 dotnet pack eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj -c Release -o artifacts --no-build "-p:Version=$Version"
-

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 using ANcpLua.Sdk.Tests.Helpers;
 using ANcpLua.Sdk.Tests.Infrastructure;
 using Meziantou.Framework;
@@ -59,7 +60,7 @@ public class PackageFixture : IAsyncLifetime
         // Update only the version in existing Version.props (preserve all other content)
         var versionPropsPath = repoRoot["src"] / "common" / "Version.props";
         var existingContent = await File.ReadAllTextAsync(versionPropsPath);
-        var updatedContent = System.Text.RegularExpressions.Regex.Replace(
+        var updatedContent = Regex.Replace(
             existingContent,
             @"<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>",
             $"<ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>");
@@ -163,7 +164,8 @@ public class PackageFixture : IAsyncLifetime
 
             // Build package references XML
             var packageRefs = string.Join("\n        ",
-                ExternalPackages.Select(static p => $"""<PackageReference Include="{p.Name}" Version="{p.Version}" />"""));
+                ExternalPackages.Select(static p =>
+                    $"""<PackageReference Include="{p.Name}" Version="{p.Version}" />"""));
 
             // Create warmup project that references all external packages
             var csproj = $"""

@@ -28,9 +28,9 @@
   <Target Name="_AncpLuaDetectCapabilities" BeforeTargets="BeforeBuild;ResolveProjectReferences">
     <!-- Filter capabilities into separate item groups -->
     <ItemGroup>
-      <_WebCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaWeb'" />
-      <_ApiCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaApi'" />
-      <_TestCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaTest'" />
+      <_WebCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaWeb'"/>
+      <_ApiCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaApi'"/>
+      <_TestCapabilities Include="@(ProjectCapability)" Condition="'%(Identity)' == 'AncpLuaTest'"/>
     </ItemGroup>
 
     <!-- Override properties based on capabilities -->
@@ -49,8 +49,8 @@
   <!-- Target for ProjectReference inspection (runs later when items resolved) -->
   <Target Name="_AncpLuaDetectReferences" BeforeTargets="ResolveProjectReferences">
     <ItemGroup>
-      <_WebRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Web.csproj'))" />
-      <_ApiRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Api.csproj'))" />
+      <_WebRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Web.csproj'))"/>
+      <_ApiRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Api.csproj'))"/>
     </ItemGroup>
 
     <PropertyGroup Condition="'@(_WebRefs)' != ''">

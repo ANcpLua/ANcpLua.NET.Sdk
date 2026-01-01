@@ -42,11 +42,13 @@ builder.UseANcpSdkConventions(options =>
 Captures browser `console.log/warn/error` and sends to server logs. Enabled by default in Development.
 
 **Add to your HTML** (only served in Development):
+
 ```html
 <script src="/dev-logs.js"></script>
 ```
 
 **All frontend logs appear in server output with `[BROWSER]` prefix:**
+
 ```
 info: DevLogEntry[0] [BROWSER] User clicked button
 warn: DevLogEntry[0] [BROWSER] Deprecated API called
@@ -54,6 +56,7 @@ error: DevLogEntry[0] [BROWSER] Failed to fetch data
 ```
 
 **Configuration:**
+
 ```csharp
 options.DevLogs.Enabled = true;           // Default: true
 options.DevLogs.RoutePattern = "/api/dev-logs"; // Default

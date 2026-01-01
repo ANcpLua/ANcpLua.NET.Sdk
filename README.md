@@ -60,13 +60,13 @@ Enforces best practices via `BannedSymbols.txt`:
 
 ### ANcpLua.Analyzers (Bundled)
 
-| Rule   | Severity | Description                                          |
-|--------|----------|------------------------------------------------------|
-| AL0001 | Error    | Prohibit reassignment of primary constructor params  |
-| AL0003 | Error    | Don't divide by constant zero                        |
-| AL0011 | Warning  | Avoid `lock` on non-Lock types (.NET 9+)             |
-| AL0012 | Warning  | Deprecated OTel semantic convention attribute        |
-| AL0013 | Info     | Missing telemetry schema URL                         |
+| Rule   | Severity | Description                                         |
+|--------|----------|-----------------------------------------------------|
+| AL0001 | Error    | Prohibit reassignment of primary constructor params |
+| AL0003 | Error    | Don't divide by constant zero                       |
+| AL0011 | Warning  | Avoid `lock` on non-Lock types (.NET 9+)            |
+| AL0012 | Warning  | Deprecated OTel semantic convention attribute       |
+| AL0013 | Info     | Missing telemetry schema URL                        |
 
 See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 16 rules.
 
@@ -81,26 +81,29 @@ See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 16
 
 ### Extensions (Opt-in)
 
-| Property                      | Description                                                  | Default |
-|-------------------------------|--------------------------------------------------------------|---------|
-| `InjectStringOrdinalComparer` | Injects internal `StringOrdinalComparer`                     | `false` |
-| `InjectFakeLogger`            | Injects `FakeLoggerExtensions` (requires `FakeLogCollector`) | `false` |
+| Property                      | Description                                                                                                                            | Default |
+|-------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|---------|
+| `InjectStringOrdinalComparer` | Injects internal `StringOrdinalComparer`                                                                                               | `false` |
+| `InjectFakeLogger`            | Injects `FakeLoggerExtensions` (requires `FakeLogCollector`)                                                                           | `false` |
 | `InjectSourceGenHelpers`      | Roslyn source generator utilities ([details](https://github.com/ANcpLua/ANcpLua.NET.Sdk/blob/main/eng/Extensions/SourceGen/README.md)) | `false` |
 
-**SourceGen Helpers include:** `EquatableArray<T>`, `DiagnosticInfo`, `DiagnosticsExtensions`, `SymbolExtensions`, `SyntaxExtensions`, `SemanticModelExtensions`, `CompilationExtensions`, `SyntaxValueProvider` helpers, `EnumerableExtensions`, `FileExtensions`, `LocationInfo`, `EquatableMessageArgs`
+**SourceGen Helpers include:** `EquatableArray<T>`, `DiagnosticInfo`, `DiagnosticsExtensions`, `SymbolExtensions`,
+`SyntaxExtensions`, `SemanticModelExtensions`, `CompilationExtensions`, `SyntaxValueProvider` helpers,
+`EnumerableExtensions`, `FileExtensions`, `LocationInfo`, `EquatableMessageArgs`
 
-> For analyzers, CLI tools, or test projects, use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead.
+> For analyzers, CLI tools, or test projects,
+> use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead.
 
 ### Analyzer Test Fixtures (Auto-Injected)
 
 Test projects with "Analyzer" in their name automatically receive:
 
-| Package                                        | Purpose                          |
-|------------------------------------------------|----------------------------------|
-| `Microsoft.CodeAnalysis.CSharp.Analyzer.Testing` | Analyzer test infrastructure   |
-| `Microsoft.CodeAnalysis.CSharp.CodeFix.Testing`  | Code fix test infrastructure   |
-| `Basic.Reference.Assemblies.Net100`              | .NET 10 reference assemblies   |
-| `Basic.Reference.Assemblies.NetStandard20`       | NetStandard 2.0 references     |
+| Package                                          | Purpose                      |
+|--------------------------------------------------|------------------------------|
+| `Microsoft.CodeAnalysis.CSharp.Analyzer.Testing` | Analyzer test infrastructure |
+| `Microsoft.CodeAnalysis.CSharp.CodeFix.Testing`  | Code fix test infrastructure |
+| `Basic.Reference.Assemblies.Net100`              | .NET 10 reference assemblies |
+| `Basic.Reference.Assemblies.NetStandard20`       | NetStandard 2.0 references   |
 
 **Base classes injected into `ANcpLua.Testing.Analyzers` namespace:**
 
@@ -161,13 +164,13 @@ public class MyConfigTests : CodeFixTestWithEditorConfig<MyAnalyzer, MyCodeFix> 
 
 When using `Microsoft.NET.Sdk.Web`, the SDK automatically adds Aspire 13.0-compatible service defaults:
 
-| Feature               | Description                                                         |
-|-----------------------|---------------------------------------------------------------------|
-| **OpenTelemetry**     | Logging, Metrics (ASP.NET, HTTP, Runtime), Tracing with OTLP export |
-| **Health Checks**     | `/health` (readiness) and `/alive` (liveness) endpoints             |
-| **Service Discovery** | Microsoft.Extensions.ServiceDiscovery enabled                       |
-| **HTTP Resilience**   | Standard resilience handlers with retries and circuit breakers      |
-| **DevLogs**           | Frontend console log bridge for unified debugging (Development only)|
+| Feature               | Description                                                          |
+|-----------------------|----------------------------------------------------------------------|
+| **OpenTelemetry**     | Logging, Metrics (ASP.NET, HTTP, Runtime), Tracing with OTLP export  |
+| **Health Checks**     | `/health` (readiness) and `/alive` (liveness) endpoints              |
+| **Service Discovery** | Microsoft.Extensions.ServiceDiscovery enabled                        |
+| **HTTP Resilience**   | Standard resilience handlers with retries and circuit breakers       |
+| **DevLogs**           | Frontend console log bridge for unified debugging (Development only) |
 
 Opt-out: `<AutoRegisterServiceDefaults>false</AutoRegisterServiceDefaults>`
 
@@ -176,17 +179,20 @@ Opt-out: `<AutoRegisterServiceDefaults>false</AutoRegisterServiceDefaults>`
 Captures browser `console.log/warn/error` and sends to server logs. Enabled by default in Development.
 
 **Add to your HTML** (only served in Development):
+
 ```html
 <script src="/dev-logs.js"></script>
 ```
 
 **All frontend logs appear in server output with `[BROWSER]` prefix:**
+
 ```
 info: DevLogEntry[0] [BROWSER] User clicked button
 error: DevLogEntry[0] [BROWSER] Failed to fetch data
 ```
 
 **Configuration:**
+
 ```csharp
 builder.UseANcpSdkConventions(options =>
 {
@@ -196,7 +202,8 @@ builder.UseANcpSdkConventions(options =>
 });
 ```
 
-**Why this matters:** AI agents can see frontend and backend logs in one place without using browser MCP (which burns tokens and is slow).
+**Why this matters:** AI agents can see frontend and backend logs in one place without using browser MCP (which burns
+tokens and is slow).
 
 ## Repository Requirements
 
@@ -224,7 +231,8 @@ This SDK enforces the following repository-level configurations:
 </PropertyGroup>
 ```
 
-**Note:** `LangVersion` and `Nullable` are SDK-owned properties. Place them in `Directory.Build.props`, NOT in individual csproj files.
+**Note:** `LangVersion` and `Nullable` are SDK-owned properties. Place them in `Directory.Build.props`, NOT in
+individual csproj files.
 
 ## Running Tests
 

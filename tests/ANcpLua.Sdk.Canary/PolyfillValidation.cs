@@ -2,7 +2,6 @@
 // Validates that polyfills compile correctly on legacy TFMs
 
 #if NETSTANDARD2_0
-
 using Microsoft.Shared.Diagnostics;
 
 namespace ANcpLua.Sdk.Canary;

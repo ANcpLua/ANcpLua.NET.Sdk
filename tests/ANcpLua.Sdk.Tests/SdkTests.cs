@@ -28,15 +28,15 @@ public abstract class SdkTests(
     NetSdkVersion dotnetSdkVersion,
     SdkImportStyle sdkImportStyle)
 {
-    private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
-    private readonly PackageFixture _fixture = fixture;
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
-    private readonly SdkImportStyle _sdkImportStyle = sdkImportStyle;
-
     // note: don't simplify names as they are used in the Renovate regex
     // All test projects use MTP (Microsoft Testing Platform) - VSTest is deprecated on .NET 10+
     private static readonly NuGetReference[] XUnitMtpReferences =
         [new("xunit.v3.mtp-v2", "3.2.1")];
+
+    private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
+    private readonly PackageFixture _fixture = fixture;
+    private readonly SdkImportStyle _sdkImportStyle = sdkImportStyle;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkName)
     {
@@ -73,11 +73,11 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile([("OutputType", "Library")]);
         project.AddFile("sample.cs", """
-            namespace TestProject;
+                                     namespace TestProject;
 
-            /// <summary>Sample class for SDK validation.</summary>
-            public class Sample { }
-            """);
+                                     /// <summary>Sample class for SDK validation.</summary>
+                                     public class Sample { }
+                                     """);
         var data = await project.BuildAndGetOutput();
         data.AssertMsBuildPropertyValue("LangVersion", "latest");
         data.AssertMsBuildPropertyValue("PublishRepositoryUrl", "true");
@@ -505,7 +505,7 @@ public abstract class SdkTests(
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
-        await AssertDebugInfoExists(outputFiles, isPackOutput: true);
+        await AssertDebugInfoExists(outputFiles, true);
         Assert.Contains(outputFiles, f => f.EndsWith(".xml", StringComparison.Ordinal));
     }
 
@@ -516,11 +516,11 @@ public abstract class SdkTests(
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile([("OutputType", "Library")]);
         project.AddFile("Class1.cs", """
-            namespace TestProject;
+                                     namespace TestProject;
 
-            /// <summary>Test class.</summary>
-            public class Class1 { }
-            """);
+                                     /// <summary>Test class.</summary>
+                                     public class Class1 { }
+                                     """);
 
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
         Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
@@ -534,7 +534,7 @@ public abstract class SdkTests(
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
-        await AssertDebugInfoExists(outputFiles, isPackOutput: true);
+        await AssertDebugInfoExists(outputFiles, true);
         Assert.Contains(outputFiles, f => f.EndsWith(".xml", StringComparison.Ordinal));
     }
 
@@ -545,11 +545,11 @@ public abstract class SdkTests(
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile([("OutputType", "Library")]);
         project.AddFile("Class1.cs", """
-            namespace TestProject;
+                                     namespace TestProject;
 
-            /// <summary>Test class.</summary>
-            public class Class1 { }
-            """);
+                                     /// <summary>Test class.</summary>
+                                     public class Class1 { }
+                                     """);
 
         var data = await project.PackAndGetOutput();
         Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
@@ -577,11 +577,11 @@ public abstract class SdkTests(
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile([("OutputType", "Library")]);
         project.AddFile("Class1.cs", """
-            namespace TestProject;
+                                     namespace TestProject;
 
-            /// <summary>Test class.</summary>
-            public class Class1 { }
-            """);
+                                     /// <summary>Test class.</summary>
+                                     public class Class1 { }
+                                     """);
         project.AddFile(readmeFileName, "sample");
 
         var data = await project.PackAndGetOutput(["--configuration", "Release"]);
@@ -613,11 +613,11 @@ public abstract class SdkTests(
             filename: "dir/Test.csproj",
             properties: [("SearchReadmeFileAbove", "true"), ("OutputType", "Library")]);
         project.AddFile("dir/Class1.cs", """
-            namespace TestProject;
+                                         namespace TestProject;
 
-            /// <summary>Test class.</summary>
-            public class Class1 { }
-            """);
+                                         /// <summary>Test class.</summary>
+                                         public class Class1 { }
+                                         """);
         project.AddFile("README.md", "sample");
 
         // Initialize git repository (required for SourceLink/Microsoft.Build.Tasks.Git)
@@ -647,11 +647,11 @@ public abstract class SdkTests(
         // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
         project.AddCsprojFile(filename: "dir/Test.csproj", properties: [("OutputType", "Library")]);
         project.AddFile("dir/Class1.cs", """
-            namespace TestProject;
+                                         namespace TestProject;
 
-            /// <summary>Test class.</summary>
-            public class Class1 { }
-            """);
+                                         /// <summary>Test class.</summary>
+                                         public class Class1 { }
+                                         """);
         project.AddFile("README.md", "sample");
 
         var data = await project.PackAndGetOutput(["dir", "--configuration", "Release"]);
@@ -1289,9 +1289,9 @@ public abstract class SdkTests(
     }
 
     /// <summary>
-    /// Verifies debug info exists. SDK uses DebugType=portable with snupkg symbol packages.
-    /// For build output: portable PDB file should exist alongside DLL.
-    /// For pack output (nupkg extraction): PDB is in snupkg, not in main package.
+    ///     Verifies debug info exists. SDK uses DebugType=portable with snupkg symbol packages.
+    ///     For build output: portable PDB file should exist alongside DLL.
+    ///     For pack output (nupkg extraction): PDB is in snupkg, not in main package.
     /// </summary>
     private static async Task AssertDebugInfoExists(string[] outputFiles, bool isPackOutput = false)
     {
@@ -1301,11 +1301,9 @@ public abstract class SdkTests(
         var debug = peReader.ReadDebugDirectory();
 
         if (isPackOutput)
-        {
             // For pack output, PDB is in .snupkg (not in main .nupkg)
             // Just verify the DLL has debug directory entries pointing to portable PDB
             Assert.Contains(debug, entry => entry.Type == DebugDirectoryEntryType.CodeView);
-        }
         else
         {
             // For build output, portable PDB file should exist

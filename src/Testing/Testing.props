@@ -4,21 +4,24 @@
     <IsTestProject Condition="'$(IsTestProject)' == '' and
       ($(MSBuildProjectName.EndsWith('.Tests')) or
        $(MSBuildProjectName.EndsWith('.Test')) or
-       $(MSBuildProjectDirectory.Contains('tests')))">true</IsTestProject>
+       $(MSBuildProjectDirectory.Contains('tests')))">true
+    </IsTestProject>
   </PropertyGroup>
 
   <!-- Detect integration test project (directory-based, evaluated at property time) -->
   <PropertyGroup>
     <IsIntegrationTestProject Condition="'$(IsIntegrationTestProject)' == '' and
       ($(MSBuildProjectDirectory.Contains('Integration')) or
-       $(MSBuildProjectDirectory.Contains('E2E')))">true</IsIntegrationTestProject>
+       $(MSBuildProjectDirectory.Contains('E2E')))">true
+    </IsIntegrationTestProject>
   </PropertyGroup>
 
   <!-- Detect analyzer test project (name or reference-based) -->
   <PropertyGroup>
     <IsAnalyzerTestProject Condition="'$(IsAnalyzerTestProject)' == '' and
       ($(MSBuildProjectName.Contains('Analyzers')) or
-       $(MSBuildProjectName.Contains('Analyzer')))">true</IsAnalyzerTestProject>
+       $(MSBuildProjectName.Contains('Analyzer')))">true
+    </IsAnalyzerTestProject>
   </PropertyGroup>
 
   <!-- Test project configuration -->
@@ -39,13 +42,13 @@
 
   <!-- Auto-inject xunit packages (set SkipXunitInjection=true if using TUnit/NUnit/MSTest) -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard' and '$(SkipXunitInjection)' != 'true'">
-    <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" VersionOverride="$(XunitMtpVersion)" IsImplicitlyDefined="false" />
-    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(ParallelTestFrameworkVersion)" VersionOverride="$(ParallelTestFrameworkVersion)" IsImplicitlyDefined="false" />
+    <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" VersionOverride="$(XunitMtpVersion)" IsImplicitlyDefined="false"/>
+    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(ParallelTestFrameworkVersion)" VersionOverride="$(ParallelTestFrameworkVersion)" IsImplicitlyDefined="false"/>
   </ItemGroup>
 
   <!-- AwesomeAssertions is useful for any test framework -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
-    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" VersionOverride="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="false" />
+    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" VersionOverride="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="false"/>
     <PackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)" VersionOverride="$(AwesomeAssertionsAnalyzersVersion)" IsImplicitlyDefined="false">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
@@ -55,45 +58,45 @@
 
   <!-- Auto-inject integration test packages -->
   <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" VersionOverride="$(MvcTestingVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" VersionOverride="$(MvcTestingVersion)"/>
   </ItemGroup>
 
   <!-- Auto-inject integration test base classes (only for integration test projects) -->
   <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/IntegrationTestBase.cs" Link="__Generated__/IntegrationTestBase.cs" Visible="false" />
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/KestrelTestBase.cs" Link="__Generated__/KestrelTestBase.cs" Visible="false" />
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" Visible="false" />
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/IntegrationTestBase.cs" Link="__Generated__/IntegrationTestBase.cs" Visible="false"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/KestrelTestBase.cs" Link="__Generated__/KestrelTestBase.cs" Visible="false"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" Visible="false"/>
   </ItemGroup>
 
   <!-- Auto-inject analyzer test packages -->
   <ItemGroup Condition="'$(IsAnalyzerTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)" />
-    <PackageReference Include="Basic.Reference.Assemblies.Net100" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)" />
-    <PackageReference Include="Basic.Reference.Assemblies.NetStandard20" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)"/>
+    <PackageReference Include="Basic.Reference.Assemblies.Net100" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)"/>
+    <PackageReference Include="Basic.Reference.Assemblies.NetStandard20" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)"/>
   </ItemGroup>
 
   <!-- Auto-inject analyzer test base classes (set InjectAnalyzerTestFixtures=false to disable) -->
   <ItemGroup Condition="'$(IsAnalyzerTestProject)' == 'true' and '$(InjectAnalyzerTestFixtures)' != 'false'">
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/AnalyzerTest.cs" Link="__Generated__/AnalyzerTest.cs" Visible="false" />
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTest.cs" Link="__Generated__/CodeFixTest.cs" Visible="false" />
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTestWithEditorConfig.cs" Link="__Generated__/CodeFixTestWithEditorConfig.cs" Visible="false" />
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/AnalyzerTest.cs" Link="__Generated__/AnalyzerTest.cs" Visible="false"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTest.cs" Link="__Generated__/CodeFixTest.cs" Visible="false"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTestWithEditorConfig.cs" Link="__Generated__/CodeFixTestWithEditorConfig.cs" Visible="false"/>
   </ItemGroup>
 
   <!-- Auto-inject GlobalUsings for tests -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
-    <Using Include="Xunit" />
-    <Using Include="AwesomeAssertions" />
+    <Using Include="Xunit"/>
+    <Using Include="AwesomeAssertions"/>
   </ItemGroup>
 
   <!-- Auto-inject GlobalUsings for integration tests (includes ASP.NET Core packages) -->
   <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
-    <Using Include="System.Net.Http.Json" />
-    <Using Include="Microsoft.Extensions.DependencyInjection" />
-    <Using Include="Microsoft.Extensions.DependencyInjection.Extensions" />
-    <Using Include="Microsoft.AspNetCore.Mvc.Testing" />
-    <Using Include="Microsoft.AspNetCore.TestHost" />
-    <Using Include="Microsoft.AspNetCore.Hosting" />
+    <Using Include="System.Net.Http.Json"/>
+    <Using Include="Microsoft.Extensions.DependencyInjection"/>
+    <Using Include="Microsoft.Extensions.DependencyInjection.Extensions"/>
+    <Using Include="Microsoft.AspNetCore.Mvc.Testing"/>
+    <Using Include="Microsoft.AspNetCore.TestHost"/>
+    <Using Include="Microsoft.AspNetCore.Hosting"/>
   </ItemGroup>
 
   <!--
@@ -102,7 +105,7 @@
   -->
   <Target Name="_AncpLuaDetectIntegrationTestReferences" BeforeTargets="BeforeBuild;ResolveProjectReferences">
     <ItemGroup>
-      <_WebApiRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Web.csproj')) or $([System.String]::new('%(Identity)').EndsWith('.Api.csproj'))" />
+      <_WebApiRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Web.csproj')) or $([System.String]::new('%(Identity)').EndsWith('.Api.csproj'))"/>
     </ItemGroup>
 
     <PropertyGroup Condition="'@(_WebApiRefs)' != '' and '$(IsIntegrationTestProject)' != 'true'">

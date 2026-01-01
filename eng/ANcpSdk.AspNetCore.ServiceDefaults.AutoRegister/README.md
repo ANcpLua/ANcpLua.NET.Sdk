@@ -1,4 +1,4 @@
- # ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister
+# ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister
 
 Roslyn source generator that auto-injects service defaults into ASP.NET Core applications.
 
