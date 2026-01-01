@@ -123,6 +123,21 @@
   <Import Project="$(MSBuildThisFileDirectory)/Tests.targets" Condition="'$(IsTestProject)' == 'true'"/>
   <Import Project="$(MSBuildThisFileDirectory)/Npm.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)/../Enforcement/VersionEnforcement.targets"/>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       ADDITIONAL FILES FOR ANALYZERS
+       Expose .props files to analyzers for version management validation
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <ItemGroup Condition="'$(DisableVersionAnalyzer)' != 'true'">
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Packages.props"
+                     Condition="Exists('$(MSBuildProjectDirectory)/Directory.Packages.props')"
+                     Visible="false" />
+    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
+                     Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND
+                                '$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))' != ''"
+                     Visible="false" />
+  </ItemGroup>
 
   <PropertyGroup>
     <!-- SBOM generation: enabled on CI builds, disabled locally (user can override) -->

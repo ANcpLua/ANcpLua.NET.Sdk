@@ -41,4 +41,17 @@
     <AwesomeAssertionsAnalyzersVersion>9.0.8</AwesomeAssertionsAnalyzersVersion>
     <MvcTestingVersion>10.0.1</MvcTestingVersion>
   </PropertyGroup>
+
+  <PropertyGroup Label="Roslyn">
+    <RoslynVersion>4.11.0</RoslynVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="ASP.NET Core / Extensions">
+    <AspNetCoreVersion>10.0.0</AspNetCoreVersion>
+    <MicrosoftExtensionsVersion>10.0.0</MicrosoftExtensionsVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Label="OpenTelemetry">
+    <OpenTelemetryVersion>1.12.0</OpenTelemetryVersion>
+  </PropertyGroup>
 </Project>

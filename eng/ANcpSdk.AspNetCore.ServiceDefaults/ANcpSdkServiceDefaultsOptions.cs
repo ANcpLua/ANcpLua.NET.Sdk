@@ -15,4 +15,5 @@ public sealed class ANcpSdkServiceDefaultsOptions
     public ANcpSdkAntiForgeryConfiguration AntiForgery { get; } = new();
     public ANcpSdkStaticAssetsConfiguration StaticAssets { get; } = new();
     public ANcpSdkForwardedHeadersConfiguration ForwardedHeaders { get; } = new();
+    public ANcpSdkDevLogsConfiguration DevLogs { get; } = new();
 }

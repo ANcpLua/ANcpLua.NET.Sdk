@@ -9,7 +9,7 @@ Guidance for Claude Code when working with this repository.
 - Banned API enforcement (RS0030) + ANcpLua.Analyzers (AL0001-AL0016)
 - Polyfills for modern .NET features on legacy TFMs
 - Embedded source helpers (Throw.IfNull, SourceGen utilities)
-- ASP.NET Core service defaults (OpenTelemetry, Health Checks, Resilience)
+- ASP.NET Core service defaults (OpenTelemetry, Health Checks, Resilience, DevLogs)
 
 **Current Version:** 1.3.15
 
@@ -327,3 +327,43 @@ project.AddCsprojFile(
     nuGetPackages: [.. TUnitPackages]
 );
 ```
+
+## DevLogs - Frontend Console Bridge
+
+**Purpose:** Captures browser `console.log/warn/error` and sends to server logs, enabling unified debugging for AI agents and developers.
+
+**Behavior:**
+- Enabled by default in Development
+- Disabled in Production (unless `EnableInProduction = true`)
+- All frontend logs appear with `[BROWSER]` prefix
+
+**Endpoints (Development only):**
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/dev-logs.js` | GET | JavaScript shim for console capture |
+| `/api/dev-logs` | POST | Receives log entries from frontend |
+
+**Usage:**
+```html
+<script src="/dev-logs.js"></script>
+```
+
+**Configuration:**
+```csharp
+builder.UseANcpSdkConventions(options =>
+{
+    options.DevLogs.Enabled = true;           // Default: true
+    options.DevLogs.RoutePattern = "/api/dev-logs"; // Default
+    options.DevLogs.EnableInProduction = false;     // Default: false
+});
+```
+
+**Server output:**
+```
+info: DevLogEntry[0] [BROWSER] User clicked button
+warn: DevLogEntry[0] [BROWSER] Deprecated API called
+error: DevLogEntry[0] [BROWSER] Failed to fetch data
+```
+
+**Why this matters for AI agents:** Instead of using browser MCP to debug frontend issues (burns tokens, slow), agents can just read server logs to see both frontend and backend issues in one place.

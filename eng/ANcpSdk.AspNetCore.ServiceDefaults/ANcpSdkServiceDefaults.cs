@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -209,5 +210,53 @@ public static class ANcpSdkServiceDefaults
         }
 
         if (options.OpenApi.Enabled) app.MapOpenApi(options.OpenApi.RoutePattern).CacheOutput();
+
+        if (options.DevLogs.Enabled && (app.Environment.IsDevelopment() || options.DevLogs.EnableInProduction))
+            app.MapDevLogsEndpoint(options);
     }
+
+    private static void MapDevLogsEndpoint(this WebApplication app, ANcpSdkServiceDefaultsOptions options)
+    {
+        app.MapPost(options.DevLogs.RoutePattern, (DevLogEntry entry, ILogger<DevLogEntry> logger) =>
+        {
+            var logLevel = entry.Level?.ToLowerInvariant() switch
+            {
+                "error" => LogLevel.Error,
+                "warn" or "warning" => LogLevel.Warning,
+                "debug" => LogLevel.Debug,
+                "trace" => LogLevel.Trace,
+                _ => LogLevel.Information
+            };
+            logger.Log(logLevel, "[BROWSER] {Message}", entry.Message);
+            return Results.Ok();
+        }).ExcludeFromDescription();
+
+        app.MapGet("/dev-logs.js", () =>
+        {
+            var script = DevLogsScript.Replace("{{ROUTE}}", options.DevLogs.RoutePattern);
+            return Results.Content(script, "application/javascript");
+        }).ExcludeFromDescription();
+    }
+
+    private const string DevLogsScript = """
+        (function() {
+            const endpoint = '{{ROUTE}}';
+            const send = (level, args) => {
+                try {
+                    fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ level, message: Array.from(args).map(String).join(' '), timestamp: new Date().toISOString() })
+                    }).catch(() => {});
+                } catch {}
+            };
+            ['log', 'info', 'warn', 'error', 'debug', 'trace'].forEach(level => {
+                const orig = console[level];
+                console[level] = function(...args) { orig.apply(console, args); send(level, args); };
+            });
+            console.log('[DevLogs] Frontend logging bridge active');
+        })();
+        """;
 }
+
+internal sealed record DevLogEntry(string? Level, string? Message, DateTime? Timestamp);

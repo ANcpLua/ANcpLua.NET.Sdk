@@ -21,14 +21,14 @@ internal static class PolyfillValidation
         var arr = new[] { 1, 2, 3, 4, 5 };
 
         // Index from start
-        var first = arr[0];
+        _ = arr[0];
 
         // Index from end (requires polyfill)
-        var last = arr[^1];
+        _ = arr[^1];
 
         // Index type usage
         System.Index idx = ^2;
-        var secondLast = arr[idx];
+        _ = arr[idx];
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -62,7 +62,7 @@ internal static class PolyfillValidation
     // ═══════════════════════════════════════════════════════════════════════
     public static void ValidateInitAccessor()
     {
-        var test = new InitPropertyTest { Value = "test" };
+        _ = new InitPropertyTest { Value = "test" };
     }
 
     // ═══════════════════════════════════════════════════════════════════════
@@ -70,7 +70,7 @@ internal static class PolyfillValidation
     // ═══════════════════════════════════════════════════════════════════════
     public static void ValidateRequiredMember()
     {
-        var test = new RequiredMemberTest { Name = "test" };
+        _ = new RequiredMemberTest { Name = "test" };
     }
 
     // ═══════════════════════════════════════════════════════════════════════

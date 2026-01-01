@@ -1,69 +1,81 @@
 <Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    ANcpLua.NET.Sdk - Directory.Packages.props
+    ═══════════════════════════════════════════════════════════════════════════
+
+    All version variables are defined in src/common/Version.props.
+    This file only declares WHICH packages are used, not their versions.
+  -->
+
+  <!-- Import centralized versions (this SDK owns Version.props) -->
+  <!-- Conditional to avoid double-import from eng/Directory.Build.props -->
+  <Import Project="$(MSBuildThisFileDirectory)src/common/Version.props" Condition="'$(RoslynVersion)' == ''"/>
+
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
     <NoWarn>$(NoWarn);NU1507</NoWarn>
   </PropertyGroup>
 
-  <!-- Microsoft.CodeAnalysis - Workspaces pulls in Common + CSharp transitively -->
+  <!-- Roslyn - Workspaces pulls in Common + CSharp transitively -->
   <ItemGroup Label="Roslyn">
-    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0"/>
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="5.0.0"/>
-    <!-- NO Common, VisualBasic - they're redundant or unused -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="$(RoslynAnalyzersVersion)"/>
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)"/>
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(RoslynVersion)"/>
   </ItemGroup>
 
   <!-- Microsoft.Extensions -->
   <ItemGroup Label="Microsoft.Extensions">
-    <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.1"/>
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1"/>
-    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.1"/>
-    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.1"/>
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.1"/>
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Telemetry" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="10.1.0"/>
-    <PackageVersion Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.1"/>
+    <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="$(MicrosoftExtensionsVersion)"/>
+    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspNetCoreVersion)"/>
+    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspNetCoreVersion)"/>
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="$(MicrosoftBclAsyncInterfacesVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="$(MicrosoftExtensionsVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(MicrosoftExtensionsVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(AspNetCoreVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(MicrosoftExtensionsVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(AspNetCoreVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="$(MicrosoftExtensionsVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.Telemetry" Version="$(MicrosoftExtensionsVersion)"/>
+    <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="$(MicrosoftExtensionsVersion)"/>
+    <PackageVersion Include="Microsoft.Deployment.DotNet.Releases" Version="$(MicrosoftDeploymentDotNetReleasesVersion)"/>
   </ItemGroup>
 
   <!-- Meziantou -->
   <ItemGroup Label="Meziantou">
-    <PackageVersion Include="Meziantou.Framework" Version="5.0.7"/>
-    <PackageVersion Include="Meziantou.Framework.DependencyScanning" Version="2.0.5"/>
-    <PackageVersion Include="Meziantou.Framework.FullPath" Version="1.1.12"/>
-    <PackageVersion Include="Meziantou.Framework.TemporaryDirectory" Version="1.0.30"/>
-    <PackageVersion Include="Meziantou.Framework.Threading" Version="2.0.3"/>
-    <PackageVersion Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="1.0.6"/>
+    <PackageVersion Include="Meziantou.Framework" Version="$(MeziantouFrameworkVersion)"/>
+    <PackageVersion Include="Meziantou.Framework.DependencyScanning" Version="$(MeziantouDependencyScanningVersion)"/>
+    <PackageVersion Include="Meziantou.Framework.FullPath" Version="$(MeziantouFullPathVersion)"/>
+    <PackageVersion Include="Meziantou.Framework.TemporaryDirectory" Version="$(MeziantouTemporaryDirectoryVersion)"/>
+    <PackageVersion Include="Meziantou.Framework.Threading" Version="$(MeziantouThreadingVersion)"/>
+    <PackageVersion Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(MeziantouParallelTestFrameworkVersion)"/>
   </ItemGroup>
 
   <!-- Testing -->
   <ItemGroup Label="Testing">
-    <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.1"/>
-    <PackageVersion Include="GitHubActionsTestLogger" Version="3.0.1"/>
-    <PackageVersion Include="AwesomeAssertions" Version="9.3.0"/>
-    <PackageVersion Include="AwesomeAssertions.Analyzers" Version="9.0.8"/>
+    <PackageVersion Include="xunit.v3.mtp-v2" Version="$(XunitV3Version)"/>
+    <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsTestLoggerVersion)"/>
+    <PackageVersion Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)"/>
+    <PackageVersion Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)"/>
   </ItemGroup>
 
   <!-- Build/Tools -->
   <ItemGroup Label="Build">
-    <PackageVersion Include="Basic.Reference.Assemblies.Net100" Version="1.8.4"/>
-    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.3.113"/>
-    <PackageVersion Include="NuGet.Protocol" Version="7.0.1"/>
-    <PackageVersion Include="NuGet.Packaging" Version="7.0.1"/>
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net100" Version="$(BasicReferenceAssembliesVersion)"/>
+    <PackageVersion Include="MSBuild.StructuredLogger" Version="$(MSBuildStructuredLoggerVersion)"/>
+    <PackageVersion Include="NuGet.Protocol" Version="$(NuGetVersion)"/>
+    <PackageVersion Include="NuGet.Packaging" Version="$(NuGetVersion)"/>
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkVersion)"/>
   </ItemGroup>
 
   <!-- OpenTelemetry -->
   <ItemGroup Label="OpenTelemetry">
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.14.0"/>
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.14.0"/>
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.14.0"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.14.0"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.14.0"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.14.0"/>
+    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="$(OpenTelemetryVersion)"/>
+    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)"/>
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)"/>
+    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryVersion)"/>
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryVersion)"/>
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="$(OpenTelemetryVersion)"/>
   </ItemGroup>
 </Project>

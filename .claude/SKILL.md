@@ -1,217 +1,208 @@
 ---
-name: sdk-integration-testing-net10
+name: ci-systemic-analyzer
 description: |
-  .NET 10 SDK-driven integration testing infrastructure. Use when:
-  (1) Setting up integration tests with zero boilerplate
-  (2) SDK auto-injects WebApplicationFactory + MTP v2 configuration
-  (3) Questions about automatic Program.cs visibility in .NET 10
-  (4) ASP0027 analyzer fires (redundant Program declaration)
-  (5) UseKestrel() + StartServer() for real HTTP stack
-  (6) Migrating test infrastructure to .NET 10 LTS (2026-ready)
+  Systemic CI/CD failure pattern analysis for MSBuild SDK and NuGet package projects.
+
+  TRIGGERS (activate this skill when user provides):
+  - GitHub Actions workflow URLs showing repeated failures
+  - Commit history with back-and-forth fixes
+  - "CI keeps failing", "why does CI break every SDK change"
+  - Pattern of: SDK change → CI fail → fix → different CI fail → repeat
+  - Request for root cause analysis across multiple runs
+
+  NOT for:
+  - Single one-off CI failure (use msbuild-nuget-master instead)
+  - Simple "what broke" questions
+
+  What it does:
+  - Correlates failures across workflow runs (not just latest)
+  - Identifies architectural flaws causing cascading failures
+  - Maps SDK ↔ CI coupling violations
+  - Produces isolation strategy to prevent recurrence
 ---
 
-```yaml
-metadata:
-  target: ".NET 10 LTS (2026-ready)"
-  philosophy: "SDK owns everything, zero manual configuration"
-  last_updated: "2025-12-31"
+# CI Systemic Failure Analyzer
 
-ecosystem:
-  runtime:
-    dotnet:
-      version: "10"
-      lts: true
-      lts_since: "2025-11-11"
-      target_framework: "net10.0"
-    csharp:
-      version: "14"
+## Mental Model: Failure Cascades
 
-packages:
-  testing:
-    xunit.v3.mtp-v2:
-      version: "3.2.1"
-      purpose: "xUnit v3 with MTP v2 adapter"
-    Meziantou.Xunit.v3.ParallelTestFramework:
-      version: "1.0.6"
-      purpose: "Parallel test execution"
-    GitHubActionsTestLogger:
-      version: "3.0.1"
-      purpose: "CI test output formatting"
-    Microsoft.Extensions.Diagnostics.Testing:
-      version: "10.1.0"
-      purpose: "FakeLogger, FakeTimeProvider"
-    AwesomeAssertions:
-      version: "9.3.0"
-      purpose: "Fluent assertions (Apache 2.0 fork)"
-    AwesomeAssertions.Analyzers:
-      version: "9.0.8"
-      purpose: "Best practices analyzers"
-
-  integration_testing:
-    Microsoft.AspNetCore.Mvc.Testing:
-      version: "10.0.1"
-      purpose: "WebApplicationFactory"
-      injected_when: "Test project references *.Web.csproj"
-
-sdk_design:
-  principle: "Test projects use ANcpLua.NET.Sdk, NOT ANcpLua.NET.Sdk.Web"
-
-  detection_heuristics:
-    is_test_project:
-      - "Folder path contains 'Tests' or 'Test'"
-      - "Project name ends with '.Tests' or '.Test'"
-      - "Has PackageReference to xunit.*"
-    is_integration_test:
-      - "ProjectReference to *.Web.csproj or *.Api.csproj"
-      - "Folder path contains 'Integration' or 'E2E'"
-      - "Has PackageReference to Mvc.Testing"
-
-  auto_injection:
-    all_test_projects:
-      properties:
-        OutputType: "Exe"
-        TestingPlatformDotnetTestSupport: "true"
-        UseMicrosoftTestingPlatformRunner: "true"
-      packages:
-        - "xunit.v3.mtp-v2"
-        - "Meziantou.Xunit.v3.ParallelTestFramework"
-
-    integration_test_projects:
-      packages:
-        - "Microsoft.AspNetCore.Mvc.Testing"
-      properties:
-        NoDefaultLaunchSettingsFile: "true"
-
-net10_automatic_behavior:
-  program_visibility:
-    description: "Source generator makes Program public automatically"
-    result: "WebApplicationFactory<Program> works without declaration"
-    analyzer:
-      id: "ASP0027"
-      severity: "error"
-      message: "Remove redundant public partial class Program { }"
-
-  banned_patterns:
-    - pattern: "public partial class Program { }"
-      reason: "Redundant in .NET 10"
-      analyzer_id: "ASP0027"
-    - pattern: "InternalsVisibleTo.*Program"
-      reason: "Program is public by default"
-    - pattern: "Microsoft.NET.Test.Sdk"
-      reason: "MTP replaces VSTest"
-    - pattern: "FluentAssertions"
-      reason: "Use AwesomeAssertions"
-
-webapplicationfactory:
-  testserver:
-    method: "CreateClient()"
-    use_when: "Basic HTTP assertions"
-
-  real_kestrel:
-    method: "UseKestrel(0) + StartServer()"
-    use_when:
-      - "SSE streaming"
-      - "WebSockets"
-      - "HTTP/2"
-      - "Playwright/Selenium"
-    pattern: |
-      await using var app = factory
-          .UseKestrel(0)
-          .StartServer();
-
-      using var client = app.CreateClient();
-
-mtp_cli:
-  net10_native: true
-  separator_required: false
-  examples:
-    all_tests: "dotnet test"
-    filter_method: "dotnet test --filter-method \"*Pattern*\""
-    filter_class: "dotnet test --filter-class \"ClassName\""
-    list_tests: "dotnet test --list-tests"
-    trx_report: "dotnet test --report-trx"
-
-csproj_templates:
-  unit_tests: |
-    <!-- Unit tests - no web reference -->
-    <Project Sdk="ANcpLua.NET.Sdk">
-      <ItemGroup>
-        <ProjectReference Include="..\..\src\MyLib\MyLib.csproj" />
-      </ItemGroup>
-    </Project>
-
-  integration_tests: |
-    <!-- Integration tests - references web project -->
-    <!-- SDK auto-injects Mvc.Testing -->
-    <Project Sdk="ANcpLua.NET.Sdk">
-      <ItemGroup>
-        <ProjectReference Include="..\..\src\MyApi\MyApi.csproj" />
-      </ItemGroup>
-    </Project>
-
-test_patterns:
-  standard: |
-    public sealed class ApiTests(WebApplicationFactory<Program> factory)
-        : IClassFixture<WebApplicationFactory<Program>>
-    {
-        [Fact]
-        public async Task Get_ReturnsSuccess()
-        {
-            var client = factory.CreateClient();
-            var response = await client.GetAsync("/api/values");
-            response.Should().BeSuccessful();
-        }
-    }
-
-  real_kestrel: |
-    [Fact]
-    public async Task Sse_Streams()
-    {
-        await using var app = factory
-            .UseKestrel(0)
-            .StartServer();
-
-        using var client = app.CreateClient();
-        await using var stream = await client.GetStreamAsync("/events");
-    }
-
-  custom_factory: |
-    public sealed class CustomFactory : WebApplicationFactory<Program>
-    {
-        protected override void ConfigureWebHost(IWebHostBuilder builder)
-        {
-            builder.ConfigureTestServices(services =>
-            {
-                services.RemoveAll<IEmailService>();
-                services.AddSingleton<IEmailService, FakeEmailService>();
-            });
-        }
-    }
-
-troubleshooting:
-  asp0027:
-    error: "ASP0027"
-    fix: "Delete public partial class Program { }"
-
-  type_load_exception:
-    error: "Could not load type 'IDataConsumer'"
-    cause: "xunit.v3 instead of xunit.v3.mtp-v2"
-    fix: "Switch to xunit.v3.mtp-v2"
-
-  exit_code_5:
-    error: "Exit code 5"
-    cause: "VSTest CLI syntax"
-    fix: "Use --filter-method not --filter"
-
-ground_truth:
-  must_not_claim:
-    - ".NET 10 is preview"
-    - "public partial class Program { } is required"
-    - "Use -- separator with dotnet test"
-    - "Test projects need Microsoft.NET.Sdk.Web"
-  must_assert:
-    - ".NET 10 is LTS"
-    - "Program visibility is automatic"
-    - "Test projects use ANcpLua.NET.Sdk (not Web)"
-    - "MTP is native (no separator)"
 ```
+SDK Change → Build Logic Changes → CI Assumptions Break → Symptom Fix → New SDK Assumption Breaks → Repeat
+     ↓              ↓                     ↓                    ↓
+  props/targets   Import order       Version/TFM/Path      Partial fix
+  Shared code     Pack timing        coupling exposed      introduces
+  Package refs    Restore behavior                         new coupling
+```
+
+**The trap**: Fixing symptoms creates NEW coupling. Each fix adds implicit assumptions.
+
+## Analysis Protocol
+
+### Phase 1: Gather Evidence (Don't Skip)
+
+```bash
+# 1. Fetch recent workflow runs
+gh run list --limit 20 --json conclusion,headBranch,startedAt,url,displayTitle
+
+# 2. Get commit history correlation
+git log --oneline --since="2 weeks ago" | head -30
+
+# 3. Map failures to commits
+gh run list --status failure --limit 10 --json headSha,url,displayTitle
+```
+
+**What to look for:**
+- Same error appearing → disappearing → reappearing (yo-yo pattern)
+- Fixes that reference previous fixes ("revert", "undo", "try different")
+- Commits touching same files repeatedly
+- Error migration: NU1xxx → MSBxxx → CS8xxx → NU1xxx
+
+### Phase 2: Classify Failure Pattern
+
+| Pattern | Signature | Root Cause Category |
+|---------|-----------|---------------------|
+| **Yo-yo** | Error A fixed → Error B → Fix B breaks A | Coupling violation |
+| **Cascade** | One change → 3+ different errors | Missing boundary |
+| **Environment drift** | Works local, fails CI | Implicit state dependency |
+| **Order sensitivity** | Fails on first build, passes on rebuild | Import order / cache |
+| **TFM whack-a-mole** | Fix net10 → break netstandard2.0 | Polyfill injection |
+
+### Phase 3: Root Cause Categories
+
+#### Category A: SDK ↔ Consumer Coupling
+
+**Symptoms:**
+- SDK .props/.targets assume consumer state
+- Consumer .csproj assumes SDK internal structure
+- Canary tests break when SDK internals change
+
+**Fix pattern:**
+```xml
+<!-- BAD: SDK assumes consumer has CPM -->
+<PackageReference Include="X" Version="$(SomeVersion)" IsImplicitlyDefined="true"/>
+
+<!-- GOOD: SDK provides both version AND override capability -->
+<PackageReference Include="X" Version="$(XVersion)" VersionOverride="$(XVersion)" />
+```
+
+#### Category B: Resolution Timing Violations
+
+**Symptoms:**
+- Works in IDE, fails in CLI
+- Works on rebuild, fails on clean build
+- "Version not specified" after restore succeeds
+
+**Root cause:** MSBuild SDK versions resolve at parse time, PackageReference at restore time.
+
+**Fix pattern:**
+```
+global.json → SDK version (parse time)
+nuget.config → PackageReference sources (restore time)
+```
+
+Never reference `$(Version)` or computed properties in `msbuild-sdks` block.
+
+#### Category C: Multi-TFM Polyfill Leakage
+
+**Symptoms:**
+- net10.0 builds fine, netstandard2.0 fails
+- Missing `IsExternalInit`, `RequiredMemberAttribute`
+- `_NeedsPolyfills=true` but `InjectPolyfills=false`
+
+**Root cause:** Polyfill injection condition doesn't match detection condition.
+
+**Fix pattern:**
+```xml
+<!-- Detection and injection MUST use same condition -->
+<PropertyGroup>
+  <_NeedsPolyfills Condition="'$(TargetFramework)' == 'netstandard2.0'">true</_NeedsPolyfills>
+</PropertyGroup>
+
+<ItemGroup Condition="'$(_NeedsPolyfills)' == 'true'">
+  <Compile Include="$(PolyfillPath)*.cs" />
+</ItemGroup>
+```
+
+#### Category D: Cache/State Pollution
+
+**Symptoms:**
+- CI passes → same commit fails → passes again
+- "Works after clearing NuGet cache"
+- Different results on self-hosted vs GitHub runners
+
+**Fix pattern:**
+```yaml
+# CI must be hermetic
+- name: Clear NuGet caches
+  run: dotnet nuget locals all --clear
+
+- name: Restore with --force
+  run: dotnet restore --force
+```
+
+### Phase 4: Isolation Strategy
+
+**Goal:** SDK changes CANNOT cascade into CI failures.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  Layer 0: Global Config (nuget.config, global.json)    │
+│  - IMMUTABLE unless explicitly versioned               │
+├─────────────────────────────────────────────────────────┤
+│  Layer 1: SDK Package                                  │
+│  - Self-contained (no external version references)     │
+│  - Published version pinned in Layer 0                 │
+├─────────────────────────────────────────────────────────┤
+│  Layer 2: SDK Canary                                   │
+│  - Simulates EXTERNAL consumer                         │
+│  - Own NuGet.config, own Directory.Packages.props      │
+│  - CPM DISABLED (tests SDK's version injection)        │
+├─────────────────────────────────────────────────────────┤
+│  Layer 3: Main Solution                                │
+│  - Uses SDK via Layer 0's pinned version               │
+│  - CPM ENABLED                                         │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Isolation rules:**
+1. Canary MUST NOT inherit any config from main solution
+2. SDK MUST NOT reference main solution's CPM versions
+3. CI MUST build layers in order: 0 → 1 → 2 → 3
+4. Each layer failure STOPS build (no partial success)
+
+## Output Format
+
+When activated, produce this analysis:
+
+```markdown
+## Systemic CI Failure Analysis
+
+### Failure Pattern Detected
+[Yo-yo | Cascade | Environment drift | Order sensitivity | TFM whack-a-mole]
+
+### Evidence (from workflow history)
+- Run #X (date): [Error A]
+- Run #Y (date): [Error B after "fixing" A]
+- Run #Z (date): [Error A returns]
+- Commit correlation: [list commits touching same area]
+
+### Root Cause Category
+[A | B | C | D] - [description]
+
+### Why Current Approach Fails
+[Explain the coupling/assumption that causes cascading failures]
+
+### Isolation Strategy
+[Specific changes to break the cascade]
+
+### Verification Checklist
+- [ ] SDK builds independently
+- [ ] Canary builds with SDK changes without inheriting main config
+- [ ] Main solution builds with published SDK version
+- [ ] CI matrix covers: clean build, rebuild, each TFM
+```
+
+## References
+
+- **Failure Patterns**: See `references/failure-patterns.md`
+- **Isolation Templates**: See `references/isolation-templates.md`
+- **CI Workflow Patterns**: See `references/ci-workflows.md`

@@ -91,6 +91,43 @@ See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 16
 
 > For analyzers, CLI tools, or test projects, use [ANcpLua.Roslyn.Utilities](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) NuGet package instead.
 
+### Analyzer Test Fixtures (Auto-Injected)
+
+Test projects with "Analyzer" in their name automatically receive:
+
+| Package                                        | Purpose                          |
+|------------------------------------------------|----------------------------------|
+| `Microsoft.CodeAnalysis.CSharp.Analyzer.Testing` | Analyzer test infrastructure   |
+| `Microsoft.CodeAnalysis.CSharp.CodeFix.Testing`  | Code fix test infrastructure   |
+| `Basic.Reference.Assemblies.Net100`              | .NET 10 reference assemblies   |
+| `Basic.Reference.Assemblies.NetStandard20`       | NetStandard 2.0 references     |
+
+**Base classes injected into `ANcpLua.Testing.Analyzers` namespace:**
+
+```csharp
+// Analyzer tests
+public class MyAnalyzerTests : AnalyzerTest<MyAnalyzer> {
+    [Fact]
+    public async Task Test() => await VerifyAsync("source code...");
+}
+
+// Code fix tests
+public class MyCodeFixTests : CodeFixTest<MyAnalyzer, MyCodeFix> {
+    [Fact]
+    public async Task Test() => await VerifyAsync("source", "fixed");
+}
+
+// Code fix with EditorConfig
+public class MyConfigTests : CodeFixTestWithEditorConfig<MyAnalyzer, MyCodeFix> {
+    [Fact]
+    public async Task Test() => await VerifyAsync(
+        source, fixed,
+        editorConfig: new() { ["my_option"] = "value" });
+}
+```
+
+**Opt-out:** `<InjectAnalyzerTestFixtures>false</InjectAnalyzerTestFixtures>`
+
 ### Polyfills (Opt-in for Legacy TFMs)
 
 | Property                                | Description                                                     | Default |
@@ -130,8 +167,36 @@ When using `Microsoft.NET.Sdk.Web`, the SDK automatically adds Aspire 13.0-compa
 | **Health Checks**     | `/health` (readiness) and `/alive` (liveness) endpoints             |
 | **Service Discovery** | Microsoft.Extensions.ServiceDiscovery enabled                       |
 | **HTTP Resilience**   | Standard resilience handlers with retries and circuit breakers      |
+| **DevLogs**           | Frontend console log bridge for unified debugging (Development only)|
 
 Opt-out: `<AutoRegisterServiceDefaults>false</AutoRegisterServiceDefaults>`
+
+### DevLogs - Frontend Console Bridge
+
+Captures browser `console.log/warn/error` and sends to server logs. Enabled by default in Development.
+
+**Add to your HTML** (only served in Development):
+```html
+<script src="/dev-logs.js"></script>
+```
+
+**All frontend logs appear in server output with `[BROWSER]` prefix:**
+```
+info: DevLogEntry[0] [BROWSER] User clicked button
+error: DevLogEntry[0] [BROWSER] Failed to fetch data
+```
+
+**Configuration:**
+```csharp
+builder.UseANcpSdkConventions(options =>
+{
+    options.DevLogs.Enabled = true;           // Default: true
+    options.DevLogs.RoutePattern = "/api/dev-logs"; // Default
+    options.DevLogs.EnableInProduction = false;     // Default: false
+});
+```
+
+**Why this matters:** AI agents can see frontend and backend logs in one place without using browser MCP (which burns tokens and is slow).
 
 ## Repository Requirements
 

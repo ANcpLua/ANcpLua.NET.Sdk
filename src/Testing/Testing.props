@@ -14,6 +14,13 @@
        $(MSBuildProjectDirectory.Contains('E2E')))">true</IsIntegrationTestProject>
   </PropertyGroup>
 
+  <!-- Detect analyzer test project (name or reference-based) -->
+  <PropertyGroup>
+    <IsAnalyzerTestProject Condition="'$(IsAnalyzerTestProject)' == '' and
+      ($(MSBuildProjectName.Contains('Analyzers')) or
+       $(MSBuildProjectName.Contains('Analyzer')))">true</IsAnalyzerTestProject>
+  </PropertyGroup>
+
   <!-- Test project configuration -->
   <PropertyGroup Condition="'$(IsTestProject)' == 'true'">
     <OutputType>Exe</OutputType>
@@ -56,6 +63,21 @@
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/IntegrationTestBase.cs" Link="__Generated__/IntegrationTestBase.cs" Visible="false" />
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/KestrelTestBase.cs" Link="__Generated__/KestrelTestBase.cs" Visible="false" />
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" Visible="false" />
+  </ItemGroup>
+
+  <!-- Auto-inject analyzer test packages -->
+  <ItemGroup Condition="'$(IsAnalyzerTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)" />
+    <PackageReference Include="Basic.Reference.Assemblies.Net100" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)" />
+    <PackageReference Include="Basic.Reference.Assemblies.NetStandard20" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)" />
+  </ItemGroup>
+
+  <!-- Auto-inject analyzer test base classes (set InjectAnalyzerTestFixtures=false to disable) -->
+  <ItemGroup Condition="'$(IsAnalyzerTestProject)' == 'true' and '$(InjectAnalyzerTestFixtures)' != 'false'">
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/AnalyzerTest.cs" Link="__Generated__/AnalyzerTest.cs" Visible="false" />
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTest.cs" Link="__Generated__/CodeFixTest.cs" Visible="false" />
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTestWithEditorConfig.cs" Link="__Generated__/CodeFixTestWithEditorConfig.cs" Visible="false" />
   </ItemGroup>
 
   <!-- Auto-inject GlobalUsings for tests -->

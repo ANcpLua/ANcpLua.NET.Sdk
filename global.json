@@ -3,6 +3,9 @@
     "rollForward": "latestMinor",
     "version": "10.0.100"
   },
+  "msbuild-sdks": {
+    "ANcpLua.NET.Sdk.Test": "999.9.9"
+  },
   "test": {
     "runner": "Microsoft.Testing.Platform"
   }
