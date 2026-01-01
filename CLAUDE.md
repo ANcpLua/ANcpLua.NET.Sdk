@@ -1,465 +1,147 @@
 # CLAUDE.md
 
-Guidance for Claude Code when working with this repository.
-
-## Project Overview
-
-**ANcpLua.NET.Sdk** is an opinionated MSBuild SDK providing better developer experience than plain Microsoft.NET.Sdk:
-
-- Banned API enforcement (RS0030) + ANcpLua.Analyzers (AL0001-AL0016)
-- Polyfills for modern .NET features on legacy TFMs
-- Embedded source helpers (Throw.IfNull, SourceGen utilities)
-- ASP.NET Core service defaults (OpenTelemetry, Health Checks, Resilience, DevLogs)
-
-**Current Version:** 1.3.15
-
-## CLI Commands (READ THIS FIRST)
-
-### dotnet test
-
-**This test project uses MTP (xunit.v3.mtp-v2), NOT VSTest.**
+## Quick Reference
 
 ```bash
-# ✅ MTP syntax (this repo)
+# Build & Pack
+pwsh ./build.ps1 -Version 1.3.15
+
+# Test (MTP, not VSTest)
 dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
-dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --treenode-filter "/**/SomeTest"
-dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --report-trx
 
-# ❌ VSTest syntax (DOES NOT WORK with MTP)
-dotnet test --filter "FullyQualifiedName~SomeTest"
-dotnet test --logger "trx"
+# Filter tests
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-method "*SomeTest*"
 
-# ❌ Missing --project flag
-dotnet test tests/ANcpLua.Sdk.Tests/
-dotnet test tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
+# Lint MSBuild files
+./scripts/lint-dotnet.sh .
 ```
 
-**MTP vs VSTest option mapping:**
+## SDK Usage
 
-| VSTest                                  | xUnit v3 MTP                                |
-|-----------------------------------------|---------------------------------------------|
-| `--filter "FullyQualifiedName~Foo"`     | `--filter-method "*Foo*"`                   |
-| `--filter "ClassName~Bar"`              | `--filter-class "*Bar*"`                    |
-| `--logger "trx"`                        | `--report-xunit-trx`                        |
-| `--logger "console;verbosity=detailed"` | `--output Detailed`                         |
-| `-v detailed`                           | N/A (MSBuild verbosity, not test verbosity) |
+```xml
+<!-- Library/Console/Worker -->
+<Project Sdk="ANcpLua.NET.Sdk/1.3.15" />
 
-**Note:** xUnit v3 native MTP uses different options than standard MTP (TUnit, NUnit MTP, MSTest MTP).
-Standard MTP uses `--report-trx`, `--crashdump`, `--hangdump` - xUnit v3 does NOT support these.
+<!-- Web API (auto-registers ServiceDefaults) -->
+<Project Sdk="ANcpLua.NET.Sdk.Web/1.3.15" />
 
-### Build & Pack
-
-```bash
-pwsh ./build.ps1 -Version 1.3.0    # Release
-pwsh ./build.ps1 -Version 999.9.9  # Testing
+<!-- Tests (auto-injects xunit, assertions, fixtures) -->
+<Project Sdk="ANcpLua.NET.Sdk.Test/1.3.15" />
 ```
 
-### GitHub Actions Versions (Dec 2025)
+## What Gets Auto-Injected
 
-```yaml
-- uses: actions/checkout@v6
-- uses: actions/setup-dotnet@v5
-- uses: actions/upload-artifact@v6
-- uses: actions/download-artifact@v6
+| SDK | Auto-Injected |
+|-----|---------------|
+| Base | Throw.IfNull, BannedSymbols, Polyfills |
+| Web | OpenTelemetry, HealthChecks, Resilience, DevLogs |
+| Test | xunit.v3.mtp-v2, AwesomeAssertions, FakeLogger |
+
+**Integration tests** (detected by `Integration/` or `E2E/` folder, or refs `.Web`/`.Api`):
+→ Microsoft.AspNetCore.Mvc.Testing + base classes
+
+**Analyzer tests** (detected by `*Analyzer*` name):
+→ Analyzer.Testing + CodeFix.Testing + fixtures
+
+**GitHub Actions** (detected by `GITHUB_ACTIONS=true`):
+→ GitHubActionsTestLogger
+
+## Samples (Use These as Reference)
+
+| What | Sample File |
+|------|-------------|
+| Test fixture setup | `tests/ANcpLua.Sdk.Tests/Helpers/ProjectBuilder.cs` |
+| Build result parsing | `tests/ANcpLua.Sdk.Tests/Helpers/BuildResult.cs` |
+| Integration test base | `eng/Shared/IntegrationTestBase.cs` |
+| Analyzer test fixture | `eng/Shared/AnalyzerTest.cs` |
+| FakeLogger extensions | `eng/Extensions/FakeLogger/FakeLoggerExtensions.cs` |
+| Banned APIs list | `src/configuration/BannedSymbols.txt` |
+| MTP detection logic | `src/common/MtpDetection.targets` |
+| Test injection logic | `src/Testing/Testing.props` |
+
+## Opt-In Features
+
+```xml
+<PropertyGroup>
+  <InjectSourceGenHelpers>true</InjectSourceGenHelpers>   <!-- Roslyn utilities -->
+  <InjectXunitLogger>true</InjectXunitLogger>             <!-- ITestOutputHelper → ILogger -->
+  <InjectCompilerHelper>true</InjectCompilerHelper>       <!-- Source generator testing -->
+  <SkipXunitInjection>true</SkipXunitInjection>           <!-- For TUnit/NUnit/MSTest -->
+</PropertyGroup>
 ```
-
-### gh CLI
-
-```bash
-gh workflow run <workflow>.yml
-gh run watch
-gh run download <run-id> --name <artifact-name>
-```
-
-## Package Ecosystem
-
-```
-ANcpLua.Roslyn.Utilities (NuGet, netstandard2.0)
-         │
-         ├──► ANcpLua.Roslyn.Utilities.Testing (net10.0)
-         │
-         └──► ANcpLua.NET.Sdk (embeds source)
-                    │
-                    ├──► ANcpLua.NET.Sdk.Web
-                    └──► ANcpLua.NET.Sdk.Test
-```
-
-| Package                    | Purpose                                      |
-|----------------------------|----------------------------------------------|
-| `ANcpLua.NET.Sdk`          | Base SDK for libraries, console, workers     |
-| `ANcpLua.NET.Sdk.Web`      | Web SDK with auto-registered ServiceDefaults |
-| `ANcpLua.NET.Sdk.Test`     | Test SDK with xUnit configuration            |
-| `ANcpLua.Analyzers`        | Code analyzers (AL0001-AL0016)               |
-| `ANcpLua.Roslyn.Utilities` | Single source for Roslyn utilities           |
 
 ## Directory Structure
 
 ```
-src/
-├── Sdk/ANcpLua.NET.Sdk/       # SDK entry points
-├── common/
-│   ├── Common.targets         # Main injection logic
-│   ├── LegacySupport.targets  # Polyfill + SourceGen injection
-│   ├── Tests.targets          # Test project configuration
-│   └── Version.props          # Auto-generated by build.ps1
-└── configuration/
-    └── BannedSymbols.txt
-
-eng/
-├── ANcpSdk.AspNetCore.ServiceDefaults/
-├── Extensions/
-│   ├── SourceGen/             # Embedded Roslyn helpers
-│   ├── Comparers/             # StringOrdinalComparer
-│   └── FakeLogger/            # Test helpers
-├── Shared/Throw/              # Guard clauses
-└── LegacySupport/             # Polyfills
-
-tests/ANcpLua.Sdk.Tests/
-├── Helpers/                   # PackageFixture, ProjectBuilder, BuildResult
-└── Infrastructure/            # TestInfrastructure, PolyfillTestCases
+src/Sdk/           → SDK entry points (Sdk.props, Sdk.targets)
+src/common/        → Shared MSBuild logic (Version.props, Tests.targets)
+src/Testing/       → Test project detection & injection
+eng/Shared/        → Embedded source files (fixtures, helpers)
+eng/Extensions/    → FakeLogger, SourceGen helpers
+tests/             → SDK validation tests
 ```
-
-## Automation (Zero Manual Steps)
-
-| Automation       | Trigger       | What Happens                |
-|------------------|---------------|-----------------------------|
-| Submodule sync   | `build.ps1`   | Auto-syncs Roslyn.Utilities |
-| Source transform | `build.ps1`   | Regenerates embedded source |
-| Dependabot       | Daily/Weekly  | Creates PRs for updates     |
-| NuGet publish    | Tag push `v*` | Publishes to nuget.org      |
-
-**build.ps1 does everything:** submodule sync, transform, clean, version props, pack.
-
-## Test Infrastructure
-
-### Test Classes (SdkTests.cs)
-
-Tests run 3x due to inheritance:
-
-- `Sdk100RootTests` → `SdkImportStyle.ProjectElement`
-- `Sdk100InnerTests` → `SdkImportStyle.SdkElement`
-- `Sdk100DirectoryBuildPropsTests` → `SdkImportStyle.SdkElementDirectoryBuildProps`
-
-### Key Files
-
-| File                    | Purpose                                         |
-|-------------------------|-------------------------------------------------|
-| `PackageFixture.cs`     | Assembly fixture, packs SDK before tests        |
-| `ProjectBuilder.cs`     | Creates temp projects, runs dotnet commands     |
-| `BuildResult.cs`        | Parses binlog, SARIF, checks MSBuild properties |
-| `TestInfrastructure.cs` | Constants, polyfill definitions                 |
-
-## Test Project vs MTP Detection
-
-**Two separate concerns:**
-
-### 1. IsTestProject (broad)
-
-Triggers: Any test framework package (xunit, xunit.v3, NUnit, MSTest, TUnit)
-
-Users must set `IsTestProject=true` explicitly in csproj.
-
-### 2. UseMicrosoftTestingPlatform (strict)
-
-**MTP signals:**
-
-- `TUnit` package (always MTP)
-- `xunit.v3.mtp-v1` / `xunit.v3.mtp-v2`
-- `Microsoft.Testing.Extensions.*` packages
-- `EnableNUnitRunner=true` / `EnableMSTestRunner=true`
-- `UseMicrosoftTestingPlatform=true`
-
-**NOT MTP (VSTest by default):**
-
-- Plain `xunit.v3`
-- `NUnit` alone
-- `MSTest.TestFramework` alone
-- `xunit` (v2)
-
-### Injected Packages
-
-| Condition       | Injected                                                       |
-|-----------------|----------------------------------------------------------------|
-| MTP             | CrashDump, HangDump, CodeCoverage, TrxReport, HotReload, Retry |
-| VSTest          | Microsoft.NET.Test.Sdk                                         |
-| GitHub + MTP    | GitHubActionsTestLogger 3.x                                    |
-| GitHub + VSTest | GitHubActionsTestLogger 2.4.1                                  |
-
-## MSBuild Properties
-
-### Auto-Enabled
-
-| Property                      | Description            |
-|-------------------------------|------------------------|
-| `InjectSharedThrow`           | Throw.IfNull() helpers |
-| `IncludeDefaultBannedSymbols` | RS0030 banned symbols  |
-| `BanNewtonsoftJsonSymbols`    | Ban Newtonsoft.Json    |
-
-### Opt-In
-
-| Property                      | Description                     |
-|-------------------------------|---------------------------------|
-| `InjectSourceGenHelpers`      | Roslyn utilities for generators |
-| `InjectStringOrdinalComparer` | StringOrdinalComparer           |
-| `InjectFakeLogger`            | FakeLoggerExtensions            |
-| `InjectLockPolyfill`          | System.Threading.Lock           |
-| `InjectTimeProviderPolyfill`  | System.TimeProvider             |
-
-## SourceGen Helpers
-
-Source generators can't reference NuGet at runtime — must embed as source.
-
-**Submodule:** `eng/submodules/Roslyn.Utilities/`
-
-**Transform:** `pwsh eng/scripts/Transform-RoslynUtilities.ps1`
-
-| Original                             | Transformed                     |
-|--------------------------------------|---------------------------------|
-| `namespace ANcpLua.Roslyn.Utilities` | `namespace ANcpLua.SourceGen`   |
-| `public static class`                | `internal static class`         |
-| (none)                               | `#if ANCPLUA_SOURCEGEN_HELPERS` |
-
-**Output:** `eng/.generated/SourceGen/` (gitignored)
-
-## Critical Patterns
-
-### Value Equality for Caching
-
-```csharp
-// ✅ Correct
-IncrementalValuesProvider<EquatableArray<T>>
-
-// ❌ Wrong - reference equality breaks caching
-IncrementalValuesProvider<ImmutableArray<T>>
-```
-
-### Cache-Safe Diagnostics
-
-```csharp
-// ✅ Extract primitives
-record struct LocationInfo(string Path, TextSpan Span, LinePositionSpan LineSpan);
-
-// ❌ Never cache
-Location, ISymbol, Compilation, SemanticModel, SyntaxNode
-```
-
-## SDK-Owned Properties (Anti-Patterns)
-
-**NEVER put these in individual csproj files - they belong in Directory.Build.props:**
-
-| Property                     | Centralized In                         | Reason                           |
-|------------------------------|----------------------------------------|----------------------------------|
-| `LangVersion`                | Directory.Build.props                  | SDK-owned, ensures consistency   |
-| `Nullable`                   | Directory.Build.props                  | SDK-owned, ensures consistency   |
-| `Deterministic`              | Directory.Build.props                  | Required for reproducible builds |
-| `ContinuousIntegrationBuild` | Directory.Build.props (CI conditional) | Required for SourceLink          |
-
-**Banned Packages:**
-
-| Package                  | Reason        | Replacement               |
-|--------------------------|---------------|---------------------------|
-| `Microsoft.NET.Test.Sdk` | VSTest legacy | `xunit.v3.mtp-v2`         |
-| `FluentAssertions`       | Abandoned     | `AwesomeAssertions`       |
-| `PolySharp`              | Redundant     | SDK provides polyfills    |
-| `coverlet.*`             | Redundant     | MTP provides CodeCoverage |
-
-**Required CPM Configuration (Directory.Packages.props):**
-
-```xml
-<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-```
-
-## Known Test Skips
-
-| Test                                          | Platform               | Reason                                                        |
-|-----------------------------------------------|------------------------|---------------------------------------------------------------|
-| `CanOverrideLangVersionInDirectoryBuildProps` | All (SdkElement style) | MSBuild import order — covered by DirectoryBuildProps variant |
-
-## Test Fixture Patterns (CRITICAL)
-
-**DO NOT suppress CA1050 globally in Common.props** - that's a cheat that hides real issues from SDK consumers.
-
-When creating test fixtures that generate C# code, **always include namespaces and XML docs**:
-
-```csharp
-// ✅ CORRECT - includes namespace and XML doc
-project.AddFile("Class1.cs", """
-    namespace TestProject;
-
-    /// <summary>Test class.</summary>
-    public class Class1 { }
-    """);
-
-// ❌ WRONG - CA1050 error: Declare types in namespaces
-project.AddFile("Class1.cs", "public class Class1 { }");
-
-// ❌ WRONG - empty file with OutputType=exe causes CS5001 (no Main)
-project.AddFile("sample.cs", "");
-```
-
-**For library tests (no Main needed):**
-
-```csharp
-project.AddCsprojFile([("OutputType", "Library")]);
-project.AddFile("sample.cs", """
-    namespace TestProject;
-
-    /// <summary>Sample class for SDK validation.</summary>
-    public class Sample { }
-    """);
-```
-
-**For exe tests:**
-
-```csharp
-project.AddCsprojFile();  // defaults to exe
-project.AddFile("Program.cs", "System.Console.WriteLine();");  // top-level statements
-```
-
-**MTP test projects must use correct SDK:**
-
-```csharp
-// For TUnit/NUnit/MSTest - use base SDK, not Test SDK
-await using var project = CreateProjectBuilder(SdkName);
-project.AddCsprojFile(
-    filename: "Sample.Tests.csproj",
-    properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
-    nuGetPackages: [.. TUnitPackages]
-);
-```
-
-## DevLogs - Frontend Console Bridge
-
-**Purpose:** Captures browser `console.log/warn/error` and sends to server logs, enabling unified debugging for AI
-agents and developers.
-
-**Behavior:**
-
-- Enabled by default in Development
-- Disabled in Production (unless `EnableInProduction = true`)
-- All frontend logs appear with `[BROWSER]` prefix
-
-**Endpoints (Development only):**
-
-| Endpoint        | Method | Purpose                             |
-|-----------------|--------|-------------------------------------|
-| `/dev-logs.js`  | GET    | JavaScript shim for console capture |
-| `/api/dev-logs` | POST   | Receives log entries from frontend  |
-
-**Usage:**
-
-```html
-<script src="/dev-logs.js"></script>
-```
-
-**Configuration:**
-
-```csharp
-builder.UseANcpSdkConventions(options =>
-{
-    options.DevLogs.Enabled = true;           // Default: true
-    options.DevLogs.RoutePattern = "/api/dev-logs"; // Default
-    options.DevLogs.EnableInProduction = false;     // Default: false
-});
-```
-
-**Server output:**
-
-```
-info: DevLogEntry[0] [BROWSER] User clicked button
-warn: DevLogEntry[0] [BROWSER] Deprecated API called
-error: DevLogEntry[0] [BROWSER] Failed to fetch data
-```
-
-**Why this matters for AI agents:** Instead of using browser MCP to debug frontend issues (burns tokens, slow), agents
-can just read server logs to see both frontend and backend issues in one place.
 
 ---
 
-## ⛔ ABSOLUTE RULES — VIOLATION = STOP AND ASK HUMAN
+## MSBuild Linter (Auto-Enforced)
 
-These rules exist because MSBuild XML has no schema enforcement and CI failures cascade unpredictably.
-**If you are about to violate any of these rules, STOP and ask the human first.**
+The linter runs automatically after editing `.props`, `.targets`, `.csproj` files.
 
-### Rule 1: Version.props is append-only
+**Rules:**
+- **A**: No hardcoded versions in Directory.Packages.props
+- **B**: Version.props single owner (Directory.Packages.props)
+- **G**: No inline `Version="X.Y.Z"` in PackageReference
 
-- ✅ ADD new `<XxxVersion>` variables
-- ✅ UPDATE existing version numbers
-- ❌ NEVER delete variables
-- ❌ NEVER change file structure or imports
-- ❌ NEVER regenerate the entire file
+**Manual run:** `./scripts/lint-dotnet.sh .`
 
-### Rule 2: No hardcoded versions in Directory.Packages.props
+---
 
+## Absolute Rules
+
+### 1. Version.props is append-only
+Add/update variables only. Never delete or restructure.
+
+### 2. Use CPM variables
 ```xml
-<!-- ❌ WRONG - hardcoded version -->
-<PackageVersion Include="Serilog" Version="4.3.0"/>
-
-<!-- ✅ RIGHT - variable reference -->
-<PackageVersion Include="Serilog" Version="$(SerilogVersion)"/>
+<!-- ❌ --> <PackageVersion Include="Serilog" Version="4.3.0"/>
+<!-- ✅ --> <PackageVersion Include="Serilog" Version="$(SerilogVersion)"/>
 ```
 
-The variable must be defined in `Version.props`.
+### 3. Never reorder imports
+Import order in `.props`/`.targets` is load-bearing.
 
-### Rule 3: Never reorder imports in .props/.targets files
+### 4. One MSBuild file per edit
+Edit → Build → Verify → Then edit another.
 
-Import order is load-bearing. Changing order breaks variable resolution.
+### 5. Banned patterns
+- `RunAnalyzers=false`
+- `Version="X.Y.Z"` in PackageReference
+- `NoWarn` for new warnings
 
-```xml
-<!-- This order is INTENTIONAL - do not change -->
-<Import Project="Version.props"/>
-<Import Project="Directory.Packages.props"/>
-```
+### 6. When in doubt, ask
+These rules override helpfulness. Ask before breaking them.
 
-### Rule 4: Banned patterns — never add these
+---
 
-| Pattern                               | Why It's Banned                        |
-|---------------------------------------|----------------------------------------|
-| `RunAnalyzers=false`                  | Hides real problems, creates tech debt |
-| `Version="X.Y.Z"` in PackageReference | Bypasses CPM, causes version conflicts |
-| `NoWarn` for new warnings             | Masks issues instead of fixing them    |
+## MTP vs VSTest
 
-### Rule 5: One MSBuild file edit per session
+This repo uses **MTP** (xunit.v3.mtp-v2). VSTest syntax doesn't work.
 
-If you need to edit a `.props` or `.targets` file:
+| VSTest | MTP |
+|--------|-----|
+| `--filter "Name~Foo"` | `--filter-method "*Foo*"` |
+| `--logger "trx"` | `--report-xunit-trx` |
 
-1. Make the edit
-2. Run `dotnet build`
-3. Verify zero errors
-4. **Only then** edit another MSBuild file
+---
 
-**Why:** MSBuild files have invisible dependencies. Editing multiple files before building causes cascading failures
-that are hard to diagnose.
-
-### Rule 6: CI workflow step order is sacred
-
-- `artifacts/` folder must exist before any step uses it as a NuGet source
-- `build.ps1` must run before tests
-- Never reorder workflow steps without understanding the dependency chain
+## CI Workflow
 
 ```yaml
-# ✅ CORRECT order
+- uses: actions/checkout@v6
+- uses: actions/setup-dotnet@v5
 - run: mkdir -p artifacts
-- run: pwsh ./build.ps1
-- run: dotnet test
-
-# ❌ WRONG - artifacts doesn't exist yet
-- run: dotnet restore  # Fails: local source doesn't exist
-- run: pwsh ./build.ps1
+- run: pwsh ./build.ps1 -Version ${{ version }}
+- run: dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 ```
 
-### Rule 7: Single agent only
-
-Do not run multiple Claude Code agents on this repository simultaneously.
-They will make conflicting edits and create ping-pong failures.
-
-### Rule 8: When in doubt, ask
-
-If you're unsure whether an edit violates these rules:
-
-1. **STOP**
-2. Explain what you want to do
-3. Wait for human confirmation
-
-**These rules override helpfulness.** It's better to ask and wait than to break CI.
+Order matters. `artifacts/` must exist before restore.
