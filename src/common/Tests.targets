@@ -6,8 +6,11 @@
     <EnableCodeCoverage Condition="'$(EnableCodeCoverage)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'">true</EnableCodeCoverage>
   </PropertyGroup>
 
-  <!-- Disable analyzers only during test execution (dotnet test), not during build -->
-  <!-- Generated files excluded via GeneratedFiles.editorconfig -->
+  <!-- Disable analyzers for Microsoft.Testing.Platform test projects unless explicitly opted out -->
+  <PropertyGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OptimizeMtpTestRun)' != 'false'">
+    <RunAnalyzers>false</RunAnalyzers>
+  </PropertyGroup>
+
   <Target Name="DisableAnalyzerWhenRunningTests" BeforeTargets="_MTPBuild" Condition="'$(OptimizeMtpTestRun)' != 'false'">
     <PropertyGroup>
       <RunAnalyzers>false</RunAnalyzers>
