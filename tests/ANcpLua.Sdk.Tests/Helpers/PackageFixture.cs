@@ -56,55 +56,15 @@ public class PackageFixture : IAsyncLifetime
 
         var repoRoot = RepositoryRoot.Locate();
 
-        // Generate Version.props before packing (same as build.ps1 does)
+        // Update only the version in existing Version.props (preserve all other content)
         var versionPropsPath = repoRoot["src"] / "common" / "Version.props";
-        var versionPropsContent = $"""
-                                   <Project>
-                                     <!--
-                                       This file is auto-generated during build.
-                                       DO NOT EDIT MANUALLY - changes will be overwritten.
+        var existingContent = await File.ReadAllTextAsync(versionPropsPath);
+        var updatedContent = System.Text.RegularExpressions.Regex.Replace(
+            existingContent,
+            @"<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>",
+            $"<ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>");
+        await File.WriteAllTextAsync(versionPropsPath, updatedContent);
 
-                                       The version is set by build.ps1 based on the computed package version.
-                                       This ensures all SDK packages reference the same version.
-                                     -->
-                                     <PropertyGroup>
-                                     <ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>
-                                   </PropertyGroup>
-
-                                     <!--
-                                       Centralized package versions for SDK-injected dependencies.
-                                       Single source of truth - change once, propagate everywhere.
-                                     -->
-                                     <PropertyGroup Label="MTP Extensions">
-                                       <MTPExtensionsVersion>2.0.2</MTPExtensionsVersion>
-                                       <CodeCoverageVersion>18.1.0</CodeCoverageVersion>
-                                       <TestSdkVersion>18.0.1</TestSdkVersion>
-                                       <DiagnosticsTestingVersion>10.0.0</DiagnosticsTestingVersion>
-                                       <GitHubActionsLoggerMTPVersion>3.0.1</GitHubActionsLoggerMTPVersion>
-                                       <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
-                                     </PropertyGroup>
-
-                                     <PropertyGroup Label="Analyzers">
-                                       <ANcpLuaAnalyzersVersion>1.0.4</ANcpLuaAnalyzersVersion>
-                                       <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
-                                       <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
-                                     </PropertyGroup>
-
-                                     <PropertyGroup Label="Legacy Polyfills">
-                                       <BclAsyncInterfacesVersion>6.0.0</BclAsyncInterfacesVersion>
-                                       <TasksExtensionsVersion>4.5.4</TasksExtensionsVersion>
-                                     </PropertyGroup>
-
-                                     <PropertyGroup Label="Test Packages">
-                                       <XunitMtpVersion>3.2.1</XunitMtpVersion>
-                                       <ParallelTestFrameworkVersion>1.0.6</ParallelTestFrameworkVersion>
-                                       <AwesomeAssertionsVersion>9.3.0</AwesomeAssertionsVersion>
-                                       <AwesomeAssertionsAnalyzersVersion>9.0.8</AwesomeAssertionsAnalyzersVersion>
-                                       <MvcTestingVersion>10.0.1</MvcTestingVersion>
-                                     </PropertyGroup>
-                                   </Project>
-                                   """;
-        await File.WriteAllTextAsync(versionPropsPath, versionPropsContent);
         var buildFiles = Directory
             .GetFiles(repoRoot["src"], "*.csproj")
             .Select(FullPath.FromPath)

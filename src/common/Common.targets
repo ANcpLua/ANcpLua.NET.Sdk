@@ -134,8 +134,7 @@
                      Condition="Exists('$(MSBuildProjectDirectory)/Directory.Packages.props')"
                      Visible="false" />
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
-                     Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND
-                                '$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))' != ''"
+                     Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Packages.props`, `$(MSBuildProjectDirectory)`))' != ''"
                      Visible="false" />
   </ItemGroup>
 

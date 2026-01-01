@@ -15,10 +15,14 @@
     <file src="Sdk/ANcpLua.NET.Sdk/Sdk.targets" target="Sdk/Sdk.targets"/>
     <file src="Enforcement/Enforcement.props" target="Enforcement/"/>
     <file src="Enforcement/DeterminismAndSourceLink.props" target="Enforcement/"/>
+    <file src="Enforcement/VersionEnforcement.targets" target="Enforcement/"/>
     <file src="Testing/Testing.props" target="Testing/"/>
     <file src="Shared/IntegrationTestBase.cs" target="Shared/"/>
     <file src="Shared/KestrelTestBase.cs" target="Shared/"/>
     <file src="Shared/FakeLoggerExtensions.cs" target="Shared/"/>
+    <file src="Shared/AnalyzerTest.cs" target="Shared/"/>
+    <file src="Shared/CodeFixTest.cs" target="Shared/"/>
+    <file src="Shared/CodeFixTestWithEditorConfig.cs" target="Shared/"/>
     <file src="Packaging/AnalyzersPack.targets" target="Packaging/"/>
     <!-- Fully explicit file paths (NuGet globs unreliable on Windows) -->
     <file src="common/Common.props" target="common/"/>

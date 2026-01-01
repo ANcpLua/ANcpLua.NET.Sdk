@@ -1,21 +1,8 @@
 <Project>
-  <!-- When running dotnet test, disable analyzers to compile faster and get feedback earlier -->
-  <!-- This assume that most CI uses an actual dotnet build/publish/pack in parallel of dotnet test -->
   <PropertyGroup>
     <IsPackable>false</IsPackable>
     <EnableCodeCoverage Condition="'$(EnableCodeCoverage)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'">true</EnableCodeCoverage>
   </PropertyGroup>
-
-  <!-- Disable analyzers for Microsoft.Testing.Platform test projects unless explicitly opted out -->
-  <PropertyGroup Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OptimizeMtpTestRun)' != 'false'">
-    <RunAnalyzers>false</RunAnalyzers>
-  </PropertyGroup>
-
-  <Target Name="DisableAnalyzerWhenRunningTests" BeforeTargets="_MTPBuild" Condition="'$(OptimizeMtpTestRun)' != 'false'">
-    <PropertyGroup>
-      <RunAnalyzers>false</RunAnalyzers>
-    </PropertyGroup>
-  </Target>
 
   <!-- Add implicit using for xunit (via Target for correct timing - items require Target) -->
   <Target Name="_InjectXunitUsings" BeforeTargets="BeforeBuild;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(ImplicitUsings)' == 'enable'">
