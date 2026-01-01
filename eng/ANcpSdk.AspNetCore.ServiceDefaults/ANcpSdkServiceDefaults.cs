@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Json;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -96,9 +96,9 @@ public static partial class ANcpSdkServiceDefaults
             });
         });
 
-        builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(jsonOptions =>
-            ConfigureJsonOptions(jsonOptions.JsonSerializerOptions, options));
         builder.Services.Configure<JsonOptions>(jsonOptions =>
+            ConfigureJsonOptions(jsonOptions.JsonSerializerOptions, options));
+        builder.Services.Configure<Microsoft.AspNetCore.Http.Json.JsonOptions>(jsonOptions =>
             ConfigureJsonOptions(jsonOptions.SerializerOptions, options));
 
         builder.Services.AddProblemDetails();
