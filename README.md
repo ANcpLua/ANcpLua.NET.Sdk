@@ -68,7 +68,7 @@ Enforces best practices via `BannedSymbols.txt`:
 | AL0012 | Warning  | Deprecated OTel semantic convention attribute        |
 | AL0013 | Info     | Missing telemetry schema URL                         |
 
-See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 13 rules.
+See [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers) for all 16 rules.
 
 ### Extensions (Auto-Enabled by Default)
 
