@@ -1,0 +1,39 @@
+#!/bin/bash
+# Architecture Lint Pre-commit Hook
+# Prevents commits with Version.props/CPM violations
+
+set -e
+
+echo "🔍 Running architecture lint..."
+
+# Check if ancplua-lint tool is installed
+if command -v ancplua-lint &> /dev/null; then
+    ancplua-lint . --format compact
+    EXIT_CODE=$?
+elif [ -f "./tools/ANcpLua.Lint/ANcpLua.Lint.csproj" ]; then
+    # Run from source if tool not installed globally
+    dotnet run --project ./tools/ANcpLua.Lint/ANcpLua.Lint.csproj -- . --format compact
+    EXIT_CODE=$?
+elif [ -f "$HOME/.claude/plugins/dotnet-architecture-lint/scripts/lint-dotnet.sh" ]; then
+    # Fallback to Claude plugin bash script
+    bash "$HOME/.claude/plugins/dotnet-architecture-lint/scripts/lint-dotnet.sh" .
+    EXIT_CODE=$?
+else
+    echo "⚠️  No linter found. Skipping architecture check."
+    echo "   Install: dotnet tool install --global ANcpLua.Lint"
+    exit 0
+fi
+
+if [ $EXIT_CODE -ne 0 ]; then
+    echo ""
+    echo "❌ Architecture violations found. Fix before committing."
+    echo ""
+    echo "Rules:"
+    echo "  RULE_A: Use \$(VariableName) in Directory.Packages.props, not hardcoded versions"
+    echo "  RULE_B: Only Directory.Packages.props or eng/Directory.Build.props may import Version.props"
+    echo "  RULE_C: Version.props must be a symlink in consumer repos"
+    echo "  RULE_G: Use CPM, not inline PackageReference versions"
+    exit 1
+fi
+
+echo "✅ Architecture lint passed"

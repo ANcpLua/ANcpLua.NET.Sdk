@@ -1,0 +1,44 @@
+<!--
+  ArchitectureLint.targets
+
+  MSBuild targets for running architecture lint checks during build.
+  Add to your Directory.Build.targets or import manually.
+
+  Properties:
+    - ArchitectureLintEnabled: Enable/disable (default: true)
+    - ArchitectureLintTreatWarningsAsErrors: Fail build on violations (default: false)
+    - ArchitectureLintSkipRules: Semicolon-separated rules to skip (e.g., "A;C")
+-->
+<Project>
+
+  <PropertyGroup>
+    <ArchitectureLintEnabled Condition="'$(ArchitectureLintEnabled)' == ''">true</ArchitectureLintEnabled>
+    <ArchitectureLintTreatWarningsAsErrors Condition="'$(ArchitectureLintTreatWarningsAsErrors)' == ''">false</ArchitectureLintTreatWarningsAsErrors>
+    <ArchitectureLintSkipRules Condition="'$(ArchitectureLintSkipRules)' == ''"></ArchitectureLintSkipRules>
+  </PropertyGroup>
+
+  <UsingTask
+    TaskName="ANcpLua.NET.Sdk.ArchitectureLint.ArchitectureLintTask"
+    AssemblyFile="$(MSBuildThisFileDirectory)../lib/netstandard2.0/ArchitectureLint.dll"
+    Condition="Exists('$(MSBuildThisFileDirectory)../lib/netstandard2.0/ArchitectureLint.dll')" />
+
+  <!-- Run before Build to catch issues early -->
+  <Target Name="ArchitectureLint"
+          BeforeTargets="Build"
+          Condition="'$(ArchitectureLintEnabled)' == 'true' AND '$(DesignTimeBuild)' != 'true'">
+
+    <ArchitectureLintTask
+      RootDirectory="$(MSBuildProjectDirectory)"
+      TreatWarningsAsErrors="$(ArchitectureLintTreatWarningsAsErrors)"
+      SkipRules="$(ArchitectureLintSkipRules)">
+      <Output TaskParameter="ViolationCount" PropertyName="_ArchitectureLintViolations" />
+    </ArchitectureLintTask>
+
+    <Message
+      Importance="high"
+      Text="ArchitectureLint: $(_ArchitectureLintViolations) violation(s) found."
+      Condition="'$(_ArchitectureLintViolations)' != '0'" />
+
+  </Target>
+
+</Project>
