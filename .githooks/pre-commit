@@ -6,21 +6,14 @@ set -e
 
 echo "🔍 Running architecture lint..."
 
-# Check if ancplua-lint tool is installed
-if command -v ancplua-lint &> /dev/null; then
-    ancplua-lint . --format compact
-    EXIT_CODE=$?
-elif [ -f "./tools/ANcpLua.Lint/ANcpLua.Lint.csproj" ]; then
-    # Run from source if tool not installed globally
-    dotnet run --project ./tools/ANcpLua.Lint/ANcpLua.Lint.csproj -- . --format compact
-    EXIT_CODE=$?
-elif [ -f "$HOME/.claude/plugins/dotnet-architecture-lint/scripts/lint-dotnet.sh" ]; then
-    # Fallback to Claude plugin bash script
-    bash "$HOME/.claude/plugins/dotnet-architecture-lint/scripts/lint-dotnet.sh" .
+# Use the repo's bash script
+SCRIPT_DIR="$(git rev-parse --show-toplevel)/scripts/lint-dotnet.sh"
+
+if [ -f "$SCRIPT_DIR" ]; then
+    bash "$SCRIPT_DIR" "$(git rev-parse --show-toplevel)"
     EXIT_CODE=$?
 else
-    echo "⚠️  No linter found. Skipping architecture check."
-    echo "   Install: dotnet tool install --global ANcpLua.Lint"
+    echo "⚠️  scripts/lint-dotnet.sh not found. Skipping."
     exit 0
 fi
 
