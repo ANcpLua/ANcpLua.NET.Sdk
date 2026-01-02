@@ -1,6 +1,15 @@
 name: Architecture Lint
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.props'
+      - '**/*.targets'
+      - '**/*.csproj'
+      - 'global.json'
+      - 'nuget.config'
+      - 'scripts/lint-dotnet.sh'
   pull_request:
     branches: [main]
     paths:
@@ -9,6 +18,7 @@ on:
       - '**/*.csproj'
       - 'global.json'
       - 'nuget.config'
+      - 'scripts/lint-dotnet.sh'
 
 jobs:
   lint:
@@ -18,14 +28,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-
       - name: Run Architecture Lint
-        run: |
-          dotnet run --project tools/ANcpLua.Lint/ANcpLua.Lint.csproj -- . --format github
+        run: ./scripts/lint-dotnet.sh .
 
       - name: Summary
         if: failure()
