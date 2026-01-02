@@ -83,10 +83,14 @@
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTestWithEditorConfig.cs" Link="__Generated__/CodeFixTestWithEditorConfig.cs" Visible="false"/>
   </ItemGroup>
 
-  <!-- Auto-inject GlobalUsings for tests -->
+  <!-- Auto-inject GlobalUsings for tests (AwesomeAssertions works with any framework) -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
-    <Using Include="Xunit"/>
     <Using Include="AwesomeAssertions"/>
+  </ItemGroup>
+
+  <!-- Only inject Xunit global using when not skipped (TUnit/NUnit/MSTest users set SkipXunitInjection=true) -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable' and '$(SkipXunitInjection)' != 'true'">
+    <Using Include="Xunit"/>
   </ItemGroup>
 
   <!-- Auto-inject GlobalUsings for integration tests (includes ASP.NET Core packages) -->

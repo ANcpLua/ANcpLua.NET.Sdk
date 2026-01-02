@@ -12,9 +12,9 @@ M:System.ArgumentNullException.ThrowIfNull(System.Object,System.String)
 M:System.ArgumentException.ThrowIfNullOrEmpty(System.String,System.String)
 M:System.ArgumentException.ThrowIfNullOrWhiteSpace(System.String,System.String)
 
-# Collections - use List<T>.Exists/Find
-M:System.Linq.Enumerable.Any``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})
-M:System.Linq.Enumerable.FirstOrDefault``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.Boolean})
+# NOTE: Any()/FirstOrDefault() with predicate were banned to encourage List<T>.Exists/Find,
+# but xunit.v3 source generator uses Any() in its auto-generated entry point, making it
+# incompatible with this SDK. Removed to allow xunit.v3 support.
 
 # NOT banned: SemaphoreSlim (valid for async), lock keyword (can't ban)
 P:System.IO.FileSystemInfo.CreationTime;Use CreationTimeUtc instead

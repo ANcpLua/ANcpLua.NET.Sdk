@@ -57,36 +57,25 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
         result.ShouldSucceed().ShouldHaveWarning(RS0030);
     }
 
+    // NOTE: Enumerable.Any() and Enumerable.FirstOrDefault() with predicates were previously banned
+    // to encourage using List<T>.Exists/Find, but this broke compatibility with xunit.v3 which
+    // uses Any() in its auto-generated entry point. See BannedSymbols.txt for details.
+
     [Fact]
-    public async Task Enumerable_Any_With_Predicate_Is_Banned()
+    public async Task Enumerable_Any_With_Predicate_Is_Not_Banned()
     {
+        // Any() with predicate is allowed since xunit.v3 source generator uses it
         var result = await QuickBuild("""
                                       using System.Collections.Generic;
                                       using System.Linq;
                                       namespace Consumer;
-                                      internal class BannedUsage
+                                      internal class AllowedUsage
                                       {
                                           public bool HasEven(List<int> numbers) => numbers.Any(n => n % 2 == 0);
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldHaveWarning(RS0030);
-    }
-
-    [Fact]
-    public async Task Enumerable_FirstOrDefault_With_Predicate_Is_Banned()
-    {
-        var result = await QuickBuild("""
-                                      using System.Collections.Generic;
-                                      using System.Linq;
-                                      namespace Consumer;
-                                      internal class BannedUsage
-                                      {
-                                          public int? FindEven(List<int> numbers) => numbers.FirstOrDefault(n => n % 2 == 0);
-                                      }
-                                      """);
-
-        result.ShouldSucceed().ShouldHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldNotHaveWarning(RS0030);
     }
 
     [Fact]

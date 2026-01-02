@@ -726,14 +726,16 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder(SdkTestName);
         project.AddCsprojFile(filename: "Sample.Tests.csproj");
 
+        // Use namespace to avoid CA1050 error (TreatWarningsAsErrors on GH Actions)
+        // Use AwesomeAssertions instead of xUnit Assert to avoid FAA0002 note
         project.AddFile("Program.cs", """
+                                      namespace Sample.Tests;
+
+                                      /// <summary>Sample test class.</summary>
                                       public class Tests
                                       {
                                           [Fact]
-                                          public void Test1()
-                                          {
-                                              Assert.True(true);
-                                          }
+                                          public void Test1() => true.Should().BeTrue();
                                       }
                                       """);
 
@@ -753,14 +755,16 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder(SdkTestName);
         project.AddCsprojFile(filename: "Sample.Tests.csproj");
 
+        // Use namespace to avoid CA1050 warning
+        // Use AwesomeAssertions instead of xUnit Assert for consistency with FAA0002
         project.AddFile("Program.cs", """
+                                      namespace Sample.Tests;
+
+                                      /// <summary>Sample test class.</summary>
                                       public class Tests
                                       {
                                           [Fact]
-                                          public void Test1()
-                                          {
-                                              Assert.True(true);
-                                          }
+                                          public void Test1() => true.Should().BeTrue();
                                       }
                                       """);
 

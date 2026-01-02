@@ -34,7 +34,7 @@ public abstract class MtpDetectionTests(
         [new("MSTest.TestFramework", "3.8.3"), new("MSTest.TestAdapter", "3.8.3")];
 
     private static readonly NuGetReference[] TUnitPackages =
-        [new("TUnit", "0.17.28")];
+        [new("TUnit", "0.18.0")];
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkTestName)
     {
@@ -247,13 +247,14 @@ public abstract class MtpDetectionTests(
             nuGetPackages: [.. TUnitPackages]
         );
 
+        // TUnit 0.18+ requires await on assertions
         project.AddFile("Tests.cs", """
                                     using TUnit.Core;
 
                                     public class SampleTests
                                     {
                                         [Test]
-                                        public void Test1() => Assert.That(true).IsTrue();
+                                        public async Task Test1() => await Assert.That(true).IsTrue();
                                     }
                                     """);
 
@@ -282,12 +283,13 @@ public abstract class MtpDetectionTests(
             nuGetPackages: [.. TUnitPackages]
         );
 
+        // TUnit 0.18+ requires await on assertions
         project.AddFile("Tests.cs", """
                                     using TUnit.Core;
                                     public class SampleTests
                                     {
                                         [Test]
-                                        public void Test1() => Assert.That(true).IsTrue();
+                                        public async Task Test1() => await Assert.That(true).IsTrue();
                                     }
                                     """);
 
@@ -309,12 +311,13 @@ public abstract class MtpDetectionTests(
             nuGetPackages: [.. TUnitPackages]
         );
 
+        // TUnit 0.18+ requires await on assertions
         project.AddFile("Tests.cs", """
                                     using TUnit.Core;
                                     public class SampleTests
                                     {
                                         [Test]
-                                        public void Test1() => Assert.That(true).IsTrue();
+                                        public async Task Test1() => await Assert.That(true).IsTrue();
                                     }
                                     """);
 
