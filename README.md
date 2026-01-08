@@ -12,11 +12,13 @@ Opinionated MSBuild SDK for .NET projects.
 // global.json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "*",
-    "ANcpLua.NET.Sdk.Web": "*"
+    "ANcpLua.NET.Sdk": "1.5.1",
+    "ANcpLua.NET.Sdk.Web": "1.5.1"
   }
 }
 ```
+
+> **Tip:** Use [Dependabot](https://docs.github.com/en/code-security/dependabot) to auto-update SDK versions.
 
 ```xml
 <!-- Library/Console/Worker -->
