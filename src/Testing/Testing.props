@@ -61,8 +61,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" VersionOverride="$(MvcTestingVersion)"/>
   </ItemGroup>
 
-  <!-- Auto-inject integration test base classes (only for integration test projects) -->
-  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true'">
+  <!-- Auto-inject integration test base classes (set InjectIntegrationTestFixtures=false to disable) -->
+  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(InjectIntegrationTestFixtures)' != 'false'">
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/IntegrationTestBase.cs" Link="__Generated__/IntegrationTestBase.cs" Visible="false"/>
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/KestrelTestBase.cs" Link="__Generated__/KestrelTestBase.cs" Visible="false"/>
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" Visible="false"/>

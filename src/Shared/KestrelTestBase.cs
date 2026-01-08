@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Testing;
+using Microsoft.Extensions.Diagnostics.Testing;
 using Xunit;
 
 namespace ANcpLua.Testing;
@@ -21,10 +21,10 @@ public abstract class KestrelTestBase<TProgram> : IAsyncLifetime
 {
     private readonly WebApplicationFactory<TProgram> _baseFactory;
     private WebApplicationFactory<TProgram>? _startedFactory;
-    
+
     protected HttpClient Client { get; private set; } = null!;
     protected FakeLogCollector Logs { get; } = new();
-    protected Uri BaseAddress => _startedFactory?.ClientOptions.BaseAddress 
+    protected Uri BaseAddress => _startedFactory?.ClientOptions.BaseAddress
         ?? throw new InvalidOperationException("Server not started");
 
     protected KestrelTestBase(WebApplicationFactory<TProgram> factory)
@@ -40,7 +40,7 @@ public abstract class KestrelTestBase<TProgram> : IAsyncLifetime
         services.AddFakeLogging(options => options.OutputSink = Logs);
     }
 
-    public virtual Task InitializeAsync()
+    public virtual ValueTask InitializeAsync()
     {
         _startedFactory = _baseFactory.UseKestrel(0);
         _startedFactory.StartServer();
@@ -48,10 +48,10 @@ public abstract class KestrelTestBase<TProgram> : IAsyncLifetime
         {
             AllowAutoRedirect = false
         });
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
-    public virtual async Task DisposeAsync()
+    public virtual async ValueTask DisposeAsync()
     {
         Client?.Dispose();
         if (_startedFactory is not null)

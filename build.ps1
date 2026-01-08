@@ -140,9 +140,9 @@ $VersionPropsContent = @"
        ANALYZERS (SDK-injected)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Analyzers">
-    <ANcpLuaAnalyzersVersion>1.0.4</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>1.5.1</ANcpLuaAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
-    <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
+    <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════

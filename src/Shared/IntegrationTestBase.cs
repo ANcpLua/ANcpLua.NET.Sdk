@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Testing;
+using Microsoft.Extensions.Diagnostics.Testing;
 using Xunit;
 
 namespace ANcpLua.Testing;
@@ -20,7 +20,7 @@ public abstract class IntegrationTestBase<TProgram> : IClassFixture<WebApplicati
     where TProgram : class
 {
     private WebApplicationFactory<TProgram>? _factory;
-    
+
     protected WebApplicationFactory<TProgram> Factory => _factory!;
     protected HttpClient Client { get; private set; } = null!;
     protected FakeLogCollector Logs { get; } = new();
@@ -38,15 +38,15 @@ public abstract class IntegrationTestBase<TProgram> : IClassFixture<WebApplicati
         services.AddFakeLogging(options => options.OutputSink = Logs);
     }
 
-    public virtual Task InitializeAsync()
+    public virtual ValueTask InitializeAsync()
     {
         Client = Factory.CreateClient();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 
-    public virtual Task DisposeAsync()
+    public virtual ValueTask DisposeAsync()
     {
         Client?.Dispose();
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }
