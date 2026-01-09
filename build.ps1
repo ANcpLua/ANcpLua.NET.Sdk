@@ -143,6 +143,7 @@ $VersionPropsContent = @"
     <ANcpLuaAnalyzersVersion>1.5.1</ANcpLuaAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
+    <JonSkeetAnalyzersVersion>1.0.0-beta.6</JonSkeetAnalyzersVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
