@@ -1,6 +1,6 @@
 # CLAUDE.md - ANcpLua.NET.Sdk
 
-MSBuild SDK for opinionated .NET project configuration.
+Custom MSBuild SDK providing opinionated defaults, polyfills, and analyzers for .NET projects.
 
 ## 🏗️ Ecosystem Position
 
@@ -18,86 +18,78 @@ LAYER 3: qyl, other projects       ← END USERS
 
 | Property | Value |
 |----------|-------|
-| **Upstream dependencies** | ANcpLua.Roslyn.Utilities.Sources |
-| **Downstream consumers** | ANcpLua.Analyzers, qyl, all SDK consumers |
-| **Version.props** | SOURCE - all versions defined here |
-| **Auto-sync** | SENDS to Analyzers (symlink/copy) |
+| **Upstream dependencies** | ANcpLua.Roslyn.Utilities.Sources 1.5.1 |
+| **Downstream consumers** | ANcpLua.Analyzers, qyl, all SDK users |
+| **Version.props** | SOURCE (canonical) |
+| **Auto-sync** | SENDS to Analyzers via GitHub Action |
 
 ---
 
 ## Build Commands
 
 ```bash
-# Build SDK
-./build.ps1
+# Build
+dotnet build
+
+# Pack (creates NuGet packages)
+pwsh ./build.ps1 -Version 1.3.30
 
 # Test
-dotnet test tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
-
-# Pack (creates .nupkg in artifacts/)
-./build.ps1 -Pack
+dotnet test
 ```
 
-## Structure
+## Published Packages
+
+| Package | Description |
+|---------|-------------|
+| `ANcpLua.NET.Sdk` | Main SDK (`Sdk="ANcpLua.NET.Sdk"`) |
+| `ANcpLua.NET.Sdk.Test` | Test projects with xUnit v3 MTP |
+| `ANcpLua.NET.Sdk.Web` | Web projects with ASP.NET Core |
+
+## Key Files
 
 ```
 src/
-  common/           # Shared props/targets
-    Version.props   # ⭐ SINGLE SOURCE OF TRUTH for all versions
-    Common.props    # Core SDK behavior
-  Enforcement/      # Determinism, SourceLink
-  Shared/           # Polyfills, shared code
-tests/
-  ANcpLua.Sdk.Tests/      # SDK behavior tests
-  ANcpLua.Sdk.Canary/     # Integration tests
+├── common/
+│   ├── Version.props          ← SOURCE OF TRUTH for all versions
+│   ├── Common.props           ← LangVersion, Nullable, Analyzers
+│   ├── Common.targets         ← Analyzer package injection
+│   ├── LegacySupport.props    ← Polyfill switches
+│   ├── LegacySupport.targets  ← Polyfill file injection
+│   ├── Shared.props           ← Utility switches
+│   └── BannedSymbols.txt      ← API enforcement
+├── Sdk/
+│   ├── Sdk.props              ← SDK entry point
+│   └── Sdk.targets
+└── Testing/
+    └── Testing.props          ← xUnit v3 MTP auto-injection
 ```
 
-## Key Features
+## Features Provided to Consumers
 
-- Auto-injects ANcpLua.Analyzers
-- Central Package Management (CPM) support
-- Polyfills for netstandard2.0 (StringExtensions, etc.)
-- Deterministic builds + SourceLink
-- MTP (Microsoft Testing Platform) auto-detection
+- **Polyfills:** Index/Range, IsExternalInit, StringExtensions (netstandard2.0)
+- **Analyzers:** ANcpLua.Analyzers, Meziantou.Analyzer, BannedApiAnalyzers
+- **BannedSymbols:** DateTime.Now, Newtonsoft.Json, object locks
+- **LangVersion:** Forces `latest`
+- **Nullable:** Enabled by default
+- **Deterministic:** Reproducible builds
 
-## Banned APIs (enforced by BannedApiAnalyzers)
+## Version.props Auto-Sync
 
-See `src/Enforcement/BannedSymbols.txt` for full list.
-Use `TimeProvider` instead of legacy time APIs.
-Use `System.Text.Json` instead of Newtonsoft.
+When `src/common/Version.props` changes:
+1. GitHub Action triggers
+2. PR created in ANcpLua.Analyzers
+3. Merge updates Analyzers versions
 
-## Version.props Variables
+**Workflow:** `.github/workflows/sync-versions.yml`
 
-All package versions are centralized in `src/common/Version.props`:
+## NuGet Feeds
 
 ```xml
-<RoslynVersion>5.0.0</RoslynVersion>
-<XunitV3Version>3.2.1</XunitV3Version>
-<AwesomeAssertionsVersion>9.3.0</AwesomeAssertionsVersion>
-<!-- ... etc -->
+<packageSources>
+  <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  <add key="dotnet-tools" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" />
+</packageSources>
 ```
 
-Downstream repos (Analyzers) should copy/symlink this file.
-
-## ⚠️ Common CI Errors
-
-### SDK Version Not Found
-```
-error: Unable to find package ANcpLua.NET.Sdk with version (= X.X.X)
-```
-
-**Cause:** global.json references SDK version not yet published to NuGet.
-
-**Fix Options:**
-1. **Downgrade:** Change global.json to latest published version
-2. **Publish:** Tag and push in SDK repo: `git tag vX.X.X && git push --tags`
-
-**Prevention:** Always publish SDK BEFORE syncing version to downstream repos.
-
-### Release Order (CRITICAL!)
-```
-1. Roslyn.Utilities → publish to NuGet
-2. SDK → update Version.props → publish to NuGet
-3. THEN sync Version.props to Analyzers
-4. Analyzers → can now build
-```
+The `dotnet-tools` feed is required for beta versions of `Microsoft.CodeAnalysis.Testing`.
