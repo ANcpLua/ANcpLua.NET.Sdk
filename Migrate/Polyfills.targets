@@ -1,0 +1,176 @@
+<Project>
+  <!--
+    ANcpLua.NET.Sdk - Polyfills File Injection
+    ==========================================
+    
+    Injects polyfill source files based on properties from Polyfills.props.
+    All files are compiled as internal and hidden from Solution Explorer.
+    
+    Package structure (what nuspec creates):
+      shared/
+      ├── Polyfills/
+      │   ├── DiagnosticAttributes/NullableAttributes.cs
+      │   ├── Diagnostics/StackTraceHiddenAttribute.cs
+      │   ├── Exceptions/UnreachableException.cs
+      │   ├── Experimental/ExperimentalAttribute.cs
+      │   ├── IndexRange/{Index,Range}.cs
+      │   ├── LanguageFeatures/*.cs
+      │   ├── NullabilityAttributes/MemberNotNullAttributes.cs
+      │   ├── StringExtensions/StringExtensions.cs
+      │   ├── TimeProvider/TimeProvider.cs
+      │   ├── TrimAttributes/*.cs
+      │   ├── DiagnosticClasses.cs
+      │   ├── Lock.cs
+      │   └── TrimAttributes.cs
+      ├── Throw/Throw.cs
+      └── Extensions/...
+  -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PATH CONFIGURATION
+       $(MSBuildThisFileDirectory) = common/ in the installed package
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <_ANcpLuaPolyfillsRoot>$(MSBuildThisFileDirectory)..\shared\Polyfills\</_ANcpLuaPolyfillsRoot>
+    <_ANcpLuaSharedRoot>$(MSBuildThisFileDirectory)..\shared\</_ANcpLuaSharedRoot>
+    <_ANcpLuaPolyfillLinkBase>__Generated__\Polyfills</_ANcpLuaPolyfillLinkBase>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       LANGUAGE FEATURE POLYFILLS
+       Enable C# syntax features on older TFMs
+       ═══════════════════════════════════════════════════════════════════════ -->
+  
+  <!-- IsExternalInit - enables 'init' accessors and records (C# 9) -->
+  <ItemGroup Condition="'$(InjectIsExternalInitPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)LanguageFeatures\IsExternalInit.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\IsExternalInit.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- Index/Range - enables array slicing syntax [1..^1] (C# 8) -->
+  <ItemGroup Condition="'$(InjectIndexRangePolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)IndexRange\Index.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\Index.cs" 
+             Visible="false" />
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)IndexRange\Range.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\Range.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- CallerArgumentExpression - enables [CallerArgumentExpression] (C# 10) -->
+  <ItemGroup Condition="'$(InjectCallerArgumentExpressionPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)LanguageFeatures\CallerArgumentExpressionAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\CallerArgumentExpressionAttribute.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- RequiredMember + CompilerFeatureRequired - enables 'required' modifier (C# 11) -->
+  <ItemGroup Condition="'$(InjectRequiredMemberPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)LanguageFeatures\RequiredMemberAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\RequiredMemberAttribute.cs" 
+             Visible="false" />
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)LanguageFeatures\CompilerFeatureRequiredAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\CompilerFeatureRequiredAttribute.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- ParamCollection - enables params collections (C# 13) -->
+  <ItemGroup Condition="'$(InjectParamCollectionPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)LanguageFeatures\ParamCollectionAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\ParamCollectionAttribute.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       BCL EXTENSION POLYFILLS
+       Runtime features backported to older TFMs
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Lock - System.Threading.Lock (.NET 9) -->
+  <ItemGroup Condition="'$(InjectLockPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)Lock.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\Lock.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- TimeProvider - System.TimeProvider (.NET 8) -->
+  <ItemGroup Condition="'$(InjectTimeProviderPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)TimeProvider\TimeProvider.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\TimeProvider.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- UnreachableException - System.Diagnostics.UnreachableException (.NET 7) -->
+  <ItemGroup Condition="'$(InjectUnreachableExceptionPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)Exceptions\UnreachableException.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\UnreachableException.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       ANALYZER COMPLIANCE POLYFILLS
+       Satisfy CA* analyzer rules on older TFMs
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- StringExtensions - CA1307/CA2249 (Contains/Replace with StringComparison) -->
+  <ItemGroup Condition="'$(InjectStringExtensionsPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)StringExtensions\StringExtensions.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\StringExtensions.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- NullabilityAttributes - MemberNotNull, MemberNotNullWhen (.NET 5) -->
+  <ItemGroup Condition="'$(InjectNullabilityAttributesPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)DiagnosticAttributes\NullableAttributes.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\NullableAttributes.cs" 
+             Visible="false" />
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)NullabilityAttributes\MemberNotNullAttributes.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\MemberNotNullAttributes.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- StackTraceHidden - [StackTraceHidden] (.NET 6) -->
+  <ItemGroup Condition="'$(InjectStackTraceHiddenPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)Diagnostics\StackTraceHiddenAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\StackTraceHiddenAttribute.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- TrimAttributes - [DynamicallyAccessedMembers], [RequiresUnreferencedCode] (.NET 5) -->
+  <ItemGroup Condition="'$(InjectTrimAttributesPolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)TrimAttributes\DynamicallyAccessedMemberTypes.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\DynamicallyAccessedMemberTypes.cs" 
+             Visible="false" />
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)TrimAttributes\DynamicallyAccessedMembersAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\DynamicallyAccessedMembersAttribute.cs" 
+             Visible="false" />
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)TrimAttributes\RequiresDynamicCodeAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\RequiresDynamicCodeAttribute.cs" 
+             Visible="false" />
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)TrimAttributes\RequiresUnreferencedCodeAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\RequiresUnreferencedCodeAttribute.cs" 
+             Visible="false" />
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)TrimAttributes\UnconditionalSuppressMessageAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\UnconditionalSuppressMessageAttribute.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- ExperimentalAttribute - [Experimental] (.NET 8) -->
+  <ItemGroup Condition="'$(InjectExperimentalAttributePolyfill)' == 'true'">
+    <Compile Include="$(_ANcpLuaPolyfillsRoot)Experimental\ExperimentalAttribute.cs" 
+             Link="$(_ANcpLuaPolyfillLinkBase)\ExperimentalAttribute.cs" 
+             Visible="false" />
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SHARED UTILITIES (non-polyfills)
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- Throw.cs - Guard clauses (always available, controlled by InjectSharedThrow) -->
+  <ItemGroup Condition="'$(InjectSharedThrow)' == 'true'">
+    <Compile Include="$(_ANcpLuaSharedRoot)Throw\Throw.cs" 
+             Link="__Generated__\Throw.cs" 
+             Visible="false" />
+  </ItemGroup>
+</Project>

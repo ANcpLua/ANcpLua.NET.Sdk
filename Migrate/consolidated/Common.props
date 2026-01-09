@@ -1,0 +1,63 @@
+<Project>
+  <!--
+    ANcpLua.NET.Sdk - Common Properties
+    ====================================
+    
+    Base properties imported by all projects using the SDK.
+    Import order:
+      1. Polyfills.props  - TFM detection, polyfill switches
+      2. Shared.props     - Utility switches (Throw, Extensions)
+      3. This file        - Common project settings
+  -->
+
+  <!-- Import polyfill and shared configuration -->
+  <Import Project="$(MSBuildThisFileDirectory)Polyfills.props" />
+  <Import Project="$(MSBuildThisFileDirectory)Shared.props" />
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       COMMON PROJECT SETTINGS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       EDITORCONFIG IMPORTS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <_ANcpLuaConfigRoot>$(MSBuildThisFileDirectory)..\configuration\</_ANcpLuaConfigRoot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Include="$(_ANcpLuaConfigRoot)Analyzers.editorconfig" />
+    <EditorConfigFiles Include="$(_ANcpLuaConfigRoot)CodingStyle.editorconfig" />
+    <EditorConfigFiles Include="$(_ANcpLuaConfigRoot)NamingConvention.editorconfig" />
+    <EditorConfigFiles Include="$(_ANcpLuaConfigRoot)Analyzer.Meziantou.Analyzer.editorconfig" />
+    <EditorConfigFiles Include="$(_ANcpLuaConfigRoot)Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" />
+    <EditorConfigFiles Include="$(_ANcpLuaConfigRoot)Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" />
+    <EditorConfigFiles Include="$(_ANcpLuaConfigRoot)Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" />
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       BANNED API ANALYZER
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <ItemGroup>
+    <AdditionalFiles Include="$(_ANcpLuaConfigRoot)BannedSymbols.txt" />
+    <AdditionalFiles Include="$(_ANcpLuaConfigRoot)BannedSymbols.NewtonsoftJson.txt" />
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       COMMON SUPPRESSIONS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- NU1507: CPM version pinning - intentional -->
+    <!-- CS1573/CS1591: XML doc warnings - handled by editorconfig -->
+    <!-- CA1014: CLSCompliant - not needed for modern .NET -->
+    <NoWarn>$(NoWarn);NU1507;CS1573;CS1591;CA1014</NoWarn>
+  </PropertyGroup>
+</Project>

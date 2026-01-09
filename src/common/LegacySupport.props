@@ -15,6 +15,8 @@
     <InjectUnreachableExceptionOnLegacy>   - UnreachableException (< net7.0)
     <InjectExperimentalAttributeOnLegacy>  - ExperimentalAttribute (< net8.0)
     <InjectIndexRangeOnLegacy>             - Index/Range structs (< net5.0)
+    <InjectStringExtensionsPolyfill>       - String.Contains/Replace with StringComparison (< netcoreapp2.1)
+                                             Fixes CA1307 and CA2249 on netstandard2.0
 
   EXTENSIONS (Utility types):
     <InjectSharedThrow>                    - Guard clause utilities (all TFMs)
@@ -45,6 +47,7 @@
     <InjectStackTraceHiddenOnLegacy Condition="'$(InjectStackTraceHiddenOnLegacy)' == ''">false</InjectStackTraceHiddenOnLegacy>
     <InjectLockPolyfill Condition="'$(InjectLockPolyfill)' == ''">false</InjectLockPolyfill>
     <InjectTimeProviderPolyfill Condition="'$(InjectTimeProviderPolyfill)' == ''">false</InjectTimeProviderPolyfill>
+    <InjectStringExtensionsPolyfill Condition="'$(InjectStringExtensionsPolyfill)' == ''">false</InjectStringExtensionsPolyfill>
 
     <!-- ANcpLua Polyfills - default to false - opt-in -->
     <InjectANcpLuaDiagnosticsPolyfills Condition="'$(InjectANcpLuaDiagnosticsPolyfills)' == ''">false</InjectANcpLuaDiagnosticsPolyfills>
@@ -115,40 +118,9 @@
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        BUNDLE EXPANSION
+       NOTE: Moved to LegacySupport.targets to run AFTER project PropertyGroups
+       This ensures user-set properties like InjectAllPolyfillsOnLegacy=true
+       are available when the bundle expansion is evaluated.
        ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Condition="'$(InjectAllPolyfillsOnLegacy)' == 'true'">
-    <InjectTrimAttributesOnLegacy>true</InjectTrimAttributesOnLegacy>
-    <InjectNullabilityAttributesOnLegacy>true</InjectNullabilityAttributesOnLegacy>
-    <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
-    <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
-    <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
-    <InjectCompilerFeatureRequiredOnLegacy>true</InjectCompilerFeatureRequiredOnLegacy>
-    <InjectUnreachableExceptionOnLegacy>true</InjectUnreachableExceptionOnLegacy>
-    <InjectExperimentalAttributeOnLegacy>true</InjectExperimentalAttributeOnLegacy>
-    <InjectIndexRangeOnLegacy>true</InjectIndexRangeOnLegacy>
-    <InjectStackTraceHiddenOnLegacy>true</InjectStackTraceHiddenOnLegacy>
-    <InjectLockPolyfill>true</InjectLockPolyfill>
-    <InjectTimeProviderPolyfill>true</InjectTimeProviderPolyfill>
-    <InjectANcpLuaDiagnosticsPolyfills>true</InjectANcpLuaDiagnosticsPolyfills>
-    <InjectANcpLuaExceptionPolyfills>true</InjectANcpLuaExceptionPolyfills>
-    <InjectANcpLuaExperimentalPolyfills>true</InjectANcpLuaExperimentalPolyfills>
-    <InjectANcpLuaIndexRangePolyfills>true</InjectANcpLuaIndexRangePolyfills>
-    <InjectANcpLuaLanguageFeaturesPolyfills>true</InjectANcpLuaLanguageFeaturesPolyfills>
-    <InjectANcpLuaNullabilityPolyfills>true</InjectANcpLuaNullabilityPolyfills>
-    <InjectANcpLuaRangePolyfill>true</InjectANcpLuaRangePolyfill>
-    <InjectANcpLuaTimeProviderPolyfill>true</InjectANcpLuaTimeProviderPolyfill>
-    <InjectANcpLuaTrimAttributesPolyfills>true</InjectANcpLuaTrimAttributesPolyfills>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(InjectAllExtensions)' == 'true'">
-    <InjectSharedThrow>true</InjectSharedThrow>
-    <InjectSourceGenHelpers>true</InjectSourceGenHelpers>
-    <InjectCommonComparers>true</InjectCommonComparers>
-    <EnableANcpLuaExtensions>true</EnableANcpLuaExtensions>
-    <EnableANcpLuaSharedResources>true</EnableANcpLuaSharedResources>
-    <EnableANcpLuaSharedWorkflows>true</EnableANcpLuaSharedWorkflows>
-    <InjectANcpLuaIntegrationTestHelpers>true</InjectANcpLuaIntegrationTestHelpers>
-  </PropertyGroup>
-
 
 </Project>

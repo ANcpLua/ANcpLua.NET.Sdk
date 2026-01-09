@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>ANcpLua.NET.Sdk</id>
+    <version>$version$</version>
+    <authors>ANcpLua</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ANcpLua SDK for .NET projects - Modern defaults, polyfills, analyzers</description>
+    <readme>README.md</readme>
+    <license type="expression">MIT</license>
+    <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$"/>
+    <tags>sdk msbuild analyzers polyfills netstandard</tags>
+  </metadata>
+  <files>
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SDK ENTRY POINTS
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="Sdk/ANcpLua.NET.Sdk/Sdk.props" target="Sdk/Sdk.props"/>
+    <file src="Sdk/ANcpLua.NET.Sdk/Sdk.targets" target="Sdk/Sdk.targets"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         COMMON (core props/targets)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="common/Common.props" target="common/"/>
+    <file src="common/Common.targets" target="common/"/>
+    <file src="common/Version.props" target="common/"/>
+    <file src="common/ContinuousIntegrationBuild.props" target="common/"/>
+    
+    <!-- Polyfills (NEW - consolidated system) -->
+    <file src="common/Polyfills.props" target="common/"/>
+    <file src="common/Polyfills.targets" target="common/"/>
+    
+    <!-- Shared utilities -->
+    <file src="common/Shared.props" target="common/"/>
+    <file src="common/Shared.targets" target="common/"/>
+    
+    <!-- LegacySupport (DEPRECATED - forwards to Polyfills) -->
+    <file src="common/LegacySupport.props" target="common/"/>
+    <file src="common/LegacySupport.targets" target="common/"/>
+    
+    <!-- Other targets -->
+    <file src="common/Npm.targets" target="common/"/>
+    <file src="common/Tests.targets" target="common/"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         ENFORCEMENT
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="Enforcement/Enforcement.props" target="Enforcement/"/>
+    <file src="Enforcement/DeterminismAndSourceLink.props" target="Enforcement/"/>
+    <file src="Enforcement/VersionEnforcement.targets" target="Enforcement/"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         TESTING
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="Testing/Testing.props" target="Testing/"/>
+    <file src="Shared/IntegrationTestBase.cs" target="Shared/"/>
+    <file src="Shared/KestrelTestBase.cs" target="Shared/"/>
+    <file src="Shared/FakeLoggerExtensions.cs" target="Shared/"/>
+    <file src="Shared/AnalyzerTest.cs" target="Shared/"/>
+    <file src="Shared/CodeFixTest.cs" target="Shared/"/>
+    <file src="Shared/CodeFixTestWithEditorConfig.cs" target="Shared/"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         PACKAGING
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="Packaging/AnalyzersPack.targets" target="Packaging/"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         CONFIGURATION (editorconfig, banned symbols)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="configuration/Analyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Meziantou.Analyzer.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="configuration/"/>
+    <file src="configuration/CodingStyle.editorconfig" target="configuration/"/>
+    <file src="configuration/NamingConvention.editorconfig" target="configuration/"/>
+    <file src="configuration/BannedSymbols.txt" target="configuration/"/>
+    <file src="configuration/BannedSymbols.NewtonsoftJson.txt" target="configuration/"/>
+    <file src="configuration/default.runsettings" target="configuration/"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SHARED POLYFILLS (source files)
+         Target structure matches what Polyfills.targets expects:
+           shared/Polyfills/<Category>/<File>.cs
+         ═══════════════════════════════════════════════════════════════════════ -->
+    
+    <!-- Language Features -->
+    <file src="../eng/LegacySupport/IsExternalInit/IsExternalInit.cs" 
+          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs"
+          target="shared/Polyfills/LanguageFeatures/"/>
+    
+    <!-- Index/Range -->
+    <file src="../eng/LegacySupport/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
+    <file src="../eng/LegacySupport/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
+    
+    <!-- BCL Extensions -->
+    <file src="../eng/LegacySupport/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
+    <file src="../eng/LegacySupport/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
+    <file src="../eng/MSBuild/Polyfills/Lock.cs" target="shared/Polyfills/"/>
+    
+    <!-- Analyzer Compliance -->
+    <file src="../eng/LegacySupport/StringExtensions/StringExtensions.cs" target="shared/Polyfills/StringExtensions/"/>
+    <file src="../eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs"
+          target="shared/Polyfills/DiagnosticAttributes/"/>
+    <file src="../eng/LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs"
+          target="shared/Polyfills/NullabilityAttributes/"/>
+    <file src="../eng/LegacySupport/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
+    <file src="../eng/LegacySupport/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
+    
+    <!-- Trim Attributes -->
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMemberTypes.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresDynamicCodeAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresUnreferencedCodeAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/UnconditionalSuppressMessageAttribute.cs"
+          target="shared/Polyfills/TrimAttributes/"/>
+    
+    <!-- Legacy root-level polyfills (for backward compat) -->
+    <file src="../eng/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/Polyfills/"/>
+    <file src="../eng/MSBuild/Polyfills/TrimAttributes.cs" target="shared/Polyfills/"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         SHARED UTILITIES (non-polyfill source files)
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="../eng/Shared/Throw/Throw.cs" target="shared/Throw/"/>
+    <file src="../eng/Shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
+    <file src="../eng/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
+    <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
+    <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         ROOT FILES
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <file src="../LICENSE.txt" target=""/>
+    <file src="../README.md" target=""/>
+  </files>
+</package>

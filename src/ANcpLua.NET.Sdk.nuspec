@@ -75,6 +75,7 @@
     <file src="../eng/LegacySupport/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
     <file src="../eng/LegacySupport/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
     <file src="../eng/LegacySupport/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
+    <file src="../eng/LegacySupport/StringExtensions/StringExtensions.cs" target="shared/Polyfills/StringExtensions/"/>
 
     <!-- Polyfills from MSBuild/Polyfills (root level files) -->
     <file src="../eng/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/Polyfills/"/>
