@@ -51,9 +51,12 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task XUnit3MtpV2_IsMTP()
     {
-        await using var project = CreateProjectBuilder();
+        // Use base SDK and manually add xunit to test MTP detection
+        // (Test SDK auto-injects xunit which would cause duplicates)
+        await using var project = CreateProjectBuilder(SdkName);
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
+            properties: [("IsTestProject", "true")],
             nuGetPackages: [.. XUnit3MtpV2Packages]
         );
 

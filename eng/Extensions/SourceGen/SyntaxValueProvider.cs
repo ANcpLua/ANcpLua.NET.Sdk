@@ -1,12 +1,12 @@
 // Copyright (c) ANcpLua. All rights reserved.
 // Licensed under the MIT License.
+// Extends ANcpLua.Roslyn.Utilities with SDK-specific helpers
 
-#if ANCPLUA_SOURCEGEN_HELPERS
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace ANcpLua.SourceGen;
+namespace ANcpLua.Roslyn.Utilities;
 
 /// <summary>
 /// Extension methods for <see cref="SyntaxValueProvider"/> to simplify common patterns.
@@ -84,5 +84,3 @@ internal static class SyntaxValueProviderExtensions
         return false;
     }
 }
-
-#endif

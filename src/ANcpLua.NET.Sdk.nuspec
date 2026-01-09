@@ -86,11 +86,7 @@
     <file src="../eng/Shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
     <file src="../eng/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
     <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
-    <!-- SourceGen files from Roslyn.Utilities (transformed) -->
-    <file src="../eng/.generated/SourceGen/*.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/.generated/SourceGen/Models/*.cs" target="shared/Extensions/SourceGen/Models/"/>
-
-    <!-- SDK-specific SourceGen files -->
+    <!-- SDK-specific SourceGen extensions (base utilities come from ANcpLua.Roslyn.Utilities.Sources NuGet package) -->
     <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
 

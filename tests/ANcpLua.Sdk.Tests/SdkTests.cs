@@ -484,6 +484,7 @@ public abstract class SdkTests(
         project.AddFile("Program.cs", "Console.WriteLine();");
 
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
+        data.ShouldSucceed();
 
         var outputFiles = Directory.GetFiles(project.RootFolder / "bin", "*", SearchOption.AllDirectories);
         await AssertDebugInfoExists(outputFiles);

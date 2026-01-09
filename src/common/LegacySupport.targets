@@ -160,13 +160,14 @@
 
   <!-- ─────────────────────────────────────────────────────────────────────────
        SOURCE GENERATOR HELPERS
-       EquatableArray<T>, DiagnosticInfo, LocationInfo, CompilationExtensions, etc.
+       Base utilities (EquatableArray<T>, DiagnosticInfo, etc.) from source-only package
+       SDK-specific extensions (DiagnosticsExtensions, SyntaxValueProvider) embedded in SDK
        ───────────────────────────────────────────────────────────────────────── -->
-  <PropertyGroup Condition="'$(InjectSourceGenHelpers)' == 'true'">
-    <DefineConstants>$(DefineConstants);ANCPLUA_SOURCEGEN_HELPERS</DefineConstants>
-  </PropertyGroup>
   <ItemGroup Condition="'$(InjectSourceGenHelpers)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/*.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
+    <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesSourcesVersion)" PrivateAssets="all" IsImplicitlyDefined="true"/>
+    <!-- SDK-specific extensions that build on ANcpLua.Roslyn.Utilities -->
+    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/DiagnosticsExtensions.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/SyntaxValueProvider.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────

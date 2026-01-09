@@ -1,9 +1,9 @@
 // ANcpLua.NET.Sdk - Source Generator Helpers
+// Extends ANcpLua.Roslyn.Utilities with SDK-specific helpers
 
-#if ANCPLUA_SOURCEGEN_HELPERS
 using Microsoft.CodeAnalysis;
 
-namespace ANcpLua.SourceGen;
+namespace ANcpLua.Roslyn.Utilities;
 
 /// <summary>
 /// Extension methods for reporting diagnostics in incremental generators.
@@ -25,5 +25,3 @@ internal static class DiagnosticsExtensions
         });
     }
 }
-
-#endif

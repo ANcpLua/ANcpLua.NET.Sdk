@@ -9,42 +9,6 @@ param(
 $ErrorActionPreference = "Stop"
 
 # =============================================================================
-# SUBMODULE AUTO-SYNC - Keep Roslyn.Utilities up to date automatically
-# =============================================================================
-$SubmodulePath = "eng/submodules/Roslyn.Utilities"
-if (Test-Path $SubmodulePath)
-{
-    Write-Host "Checking Roslyn.Utilities submodule..." -ForegroundColor Cyan
-
-    # Fetch latest from remote
-    git -C $SubmodulePath fetch origin main --quiet 2> $null
-
-    $LocalCommit = git -C $SubmodulePath rev-parse HEAD
-    $RemoteCommit = git -C $SubmodulePath rev-parse origin/main 2> $null
-
-    if ($RemoteCommit -and $LocalCommit -ne $RemoteCommit)
-    {
-        Write-Host "Submodule is behind - auto-syncing..." -ForegroundColor Yellow
-        git submodule update --remote $SubmodulePath
-        Write-Host "Submodule updated to latest" -ForegroundColor Green
-    }
-    else
-    {
-        Write-Host "Submodule is up to date" -ForegroundColor Green
-    }
-}
-
-# =============================================================================
-# TRANSFORM ROSLYN.UTILITIES - Regenerate embedded source files
-# =============================================================================
-$TransformScript = "eng/scripts/Transform-RoslynUtilities.ps1"
-if (Test-Path $TransformScript)
-{
-    Write-Host "Transforming Roslyn.Utilities source..." -ForegroundColor Cyan
-    & $TransformScript
-}
-
-# =============================================================================
 # VERSION INFO
 # =============================================================================
 Write-Host "Building version: $Version" -ForegroundColor Cyan
@@ -80,6 +44,13 @@ $VersionPropsContent = @"
   <PropertyGroup Label="Roslyn">
     <RoslynVersion>5.0.0</RoslynVersion>
     <RoslynAnalyzersVersion>3.11.0</RoslynAnalyzersVersion>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       ROSLYN.UTILITIES.SOURCES (Source-only package for generators)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup Label="Roslyn.Utilities.Sources">
+    <ANcpLuaRoslynUtilitiesSourcesVersion>1.0.0</ANcpLuaRoslynUtilitiesSourcesVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
