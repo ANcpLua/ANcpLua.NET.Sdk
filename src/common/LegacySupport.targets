@@ -142,6 +142,7 @@
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectSharedThrow)' == 'true'">
     <Compile Include="$(_SharedSourcePath)Throw/Throw.cs" LinkBase="Shared/Throw" Visible="false"/>
+    <Using Include="Microsoft.Shared.Diagnostics"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────

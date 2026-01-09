@@ -9,7 +9,6 @@ Opinionated MSBuild SDK for .NET projects.
 ## Quick Start
 
 ```json
-// global.json
 {
   "msbuild-sdks": {
     "ANcpLua.NET.Sdk": "1.5.1",

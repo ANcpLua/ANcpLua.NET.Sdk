@@ -281,3 +281,6 @@ Desktop.ini
 *.swp
 *.swo
 *.tmp
+
+# Test output
+test_results/

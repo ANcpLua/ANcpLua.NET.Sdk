@@ -52,7 +52,7 @@
     <Error
       Code="AL0023"
       Text="MTP test project must have OutputType=Exe. Current: $(OutputType). Microsoft Testing Platform requires executable test assemblies."
-      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' != 'Exe'"/>
+      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' != 'Exe' AND '$(IsTestProject)' != 'false'"/>
 
   </Target>
 

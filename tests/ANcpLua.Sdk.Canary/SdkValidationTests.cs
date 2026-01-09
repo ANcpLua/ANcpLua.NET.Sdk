@@ -3,6 +3,7 @@
 
 #if NET10_0_OR_GREATER
 
+using AwesomeAssertions.Numeric;
 using Microsoft.Shared.Diagnostics;
 
 namespace ANcpLua.Sdk.Canary;
@@ -45,10 +46,10 @@ public class MtpDetectionTests
     public void AwesomeAssertions_Available()
     {
         // Validates AwesomeAssertions package injection
-        var value = 42;
-        value.Should().Be(42);
-        value.Should().BeGreaterThan(0);
-        value.Should().BeLessThan(100);
+        const int Value = 42;
+        Value.Should().Be(42);
+        Value.Should().BePositive();
+        Value.Should().BeLessThan(100);
     }
 }
 
@@ -86,7 +87,7 @@ public class LanguageFeatureTests
         result.Should().Be("matched");
     }
 
-    private record TestRecord(string Value);
+    private sealed record TestRecord(string Value);
 }
 
 /// <summary>
@@ -114,7 +115,7 @@ public class ThrowHelperTests
     [Fact]
     public void Throw_IfNullOrEmpty_Works()
     {
-        var action = () => Throw.IfNullOrEmpty("valid");
+        var action = static () => Throw.IfNullOrEmpty("valid");
         action.Should().NotThrow();
     }
 }
