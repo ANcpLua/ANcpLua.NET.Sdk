@@ -1,0 +1,27 @@
+name: Sync Version.props
+on:
+  push:
+    branches: [main]
+    paths: ['src/common/Version.props']
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: sdk
+      - uses: actions/checkout@v4
+        with:
+          repository: ANcpLua/ANcpLua.Analyzers
+          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          path: analyzers
+      - run: cp sdk/src/common/Version.props analyzers/Version.props
+      - uses: peter-evans/create-pull-request@v6
+        with:
+          path: analyzers
+          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          branch: auto/sync-version-props
+          title: 'chore: sync Version.props from SDK'
+          delete-branch: true
