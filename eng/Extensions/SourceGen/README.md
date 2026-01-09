@@ -4,14 +4,14 @@ Roslyn symbol extensions and helpers for Source Generators.
 
 ## Architecture
 
-The SDK embeds source files for source generators from **two sources**:
+The SDK provides source generator helpers from **two sources**:
 
-| Source | Files | Purpose |
-|--------|-------|---------|
-| `eng/.generated/SourceGen/` | ~27 files | From `ANcpLua.Roslyn.Utilities` submodule (auto-transformed) |
-| `eng/Extensions/SourceGen/` | 2 files | SDK-specific extensions |
+| Source | Purpose |
+|--------|---------|
+| `ANcpLua.Roslyn.Utilities.Sources` NuGet | Core utilities (~27 files) - embedded as internal types |
+| `eng/Extensions/SourceGen/` | SDK-specific extensions (2 files) |
 
-### Why This Architecture?
+### Why Source-Only Packages?
 
 Source generators **cannot easily reference external NuGet packages** at design-time. The Roslyn compiler loads generators in a constrained environment where package dependencies often fail to resolve.
 
@@ -19,22 +19,8 @@ Source generators **cannot easily reference external NuGet packages** at design-
 
 | Use Case | Distribution | Why |
 |----------|--------------|-----|
-| Source generator projects | **SDK embedded** (`InjectSourceGenHelpers`) | Generators can't easily use NuGet packages |
+| Source generator projects | **Source-only package** (`InjectSourceGenHelpers`) | Generators can't easily use NuGet packages |
 | Analyzers, CLI tools, tests | **ANcpLua.Roslyn.Utilities** NuGet package | Normal projects can reference packages |
-
-### Build Flow
-
-```
-eng/submodules/Roslyn.Utilities/          # Source of truth (git submodule)
-        ↓
-eng/scripts/Transform-RoslynUtilities.ps1  # Transforms namespace + adds #if guard
-        ↓
-eng/.generated/SourceGen/                  # Transformed files (gitignored)
-        ↓
-build.ps1 → dotnet pack                    # Packages into SDK nupkg
-        ↓
-shared/Extensions/SourceGen/               # In the published nupkg
-```
 
 ## Usage
 
@@ -47,14 +33,15 @@ To use these helpers in your source generator project:
 ```
 
 This will:
-1. Define the `ANCPLUA_SOURCEGEN_HELPERS` constant
-2. Include all SourceGen helper files from the SDK
+1. Reference `ANcpLua.Roslyn.Utilities.Sources` package (embeds as internal types)
+2. Include SDK-specific extension files
+3. Define the `ANCPLUA_SOURCEGEN_HELPERS` constant
 
 ## What Gets Injected
 
 When `InjectSourceGenHelpers=true`, you get access to:
 
-### From Roslyn.Utilities (auto-transformed)
+### From ANcpLua.Roslyn.Utilities.Sources
 
 - `EquatableArray<T>` - Cache-safe array wrapper for incremental generators
 - `DiagnosticFlow` - Fluent diagnostic reporting
@@ -71,17 +58,7 @@ When `InjectSourceGenHelpers=true`, you get access to:
 - `DiagnosticsExtensions.cs` - Additional diagnostic helpers
 - `SyntaxValueProvider.cs` - Custom syntax providers
 
-## For SDK Maintainers
+## Related Packages
 
-To update the Roslyn.Utilities files:
-
-```bash
-# Update submodule to latest
-git submodule update --remote eng/submodules/Roslyn.Utilities
-
-# Rebuild (transform runs automatically)
-pwsh build.ps1 -Version 999.9.9
-```
-
-For everything else (analyzers, CLI tools, tests), reference the NuGet package:
-[`ANcpLua.Roslyn.Utilities`](https://nuget.org/packages/ANcpLua.Roslyn.Utilities)
+- [`ANcpLua.Roslyn.Utilities`](https://nuget.org/packages/ANcpLua.Roslyn.Utilities) - For analyzers, CLI tools, tests
+- [`ANcpLua.Roslyn.Utilities.Sources`](https://nuget.org/packages/ANcpLua.Roslyn.Utilities.Sources) - Source-only for generators
