@@ -38,7 +38,9 @@
     <Nullable>enable</Nullable>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn> <!-- Remove warning for undocumented members -->
+    <!-- CS1573: Parameter has no XML doc comment - SDK internals don't require full docs
+         CS1591: Missing XML comment - generated/internal code doesn't need docs -->
+    <NoWarn>$(NoWarn);CS1573;CS1591</NoWarn>
 
     <!--
         Disabling static graph restore due to a bug related to NuGetAuditSuppress.
@@ -54,6 +56,7 @@
     <AnalysisLevel>latest-all</AnalysisLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
+    <!-- CA1014: Mark assemblies with CLSCompliant - not relevant for modern .NET 10+ projects -->
     <NoWarn>$(NoWarn);CA1014</NoWarn>
     <MSBuildTreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</MSBuildTreatWarningsAsErrors>
     <TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>

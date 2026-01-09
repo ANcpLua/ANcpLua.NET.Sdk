@@ -3,8 +3,11 @@
 
 #if NET10_0_OR_GREATER
 
+using System;
+using AwesomeAssertions;
 using AwesomeAssertions.Numeric;
 using Microsoft.Shared.Diagnostics;
+using Xunit;
 
 namespace ANcpLua.Sdk.Canary;
 
@@ -98,9 +101,9 @@ public class ThrowHelperTests
     [Fact]
     public void Throw_IfNull_Works()
     {
-        var value = "not null";
+        const string Value = "not null";
         // This should NOT throw
-        var action = () => Throw.IfNull(value);
+        var action = static () => Throw.IfNull(Value);
         action.Should().NotThrow();
     }
 

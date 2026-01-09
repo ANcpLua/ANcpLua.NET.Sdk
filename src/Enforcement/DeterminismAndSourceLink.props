@@ -33,6 +33,7 @@
     <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' == 'false'">
       <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
       <EnableSourceLink>false</EnableSourceLink>
+      <!-- NETSDK1018: Duplicate PackageReference - occurs in non-git temp folders during pack -->
       <NoWarn>$(NoWarn);NETSDK1018</NoWarn>
     </PropertyGroup>
 

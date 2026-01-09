@@ -56,8 +56,5 @@ static FullPath GetRootFolderPath()
         path = path.Parent;
     }
 
-    if (path.IsEmpty)
-        throw new InvalidOperationException("Cannot find the root folder");
-
-    return path;
+    return path.IsEmpty ? throw new InvalidOperationException("Cannot find the root folder") : path;
 }

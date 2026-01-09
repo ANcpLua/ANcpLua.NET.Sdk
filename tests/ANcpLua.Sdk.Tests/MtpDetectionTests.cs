@@ -21,19 +21,19 @@ public abstract class MtpDetectionTests(
     NetSdkVersion dotnetSdkVersion)
 {
     // Package references for each scenario - note: renovate will update these
-    private static readonly NuGetReference[] XUnit3MtpV1Packages =
+    private static readonly NuGetReference[] _xUnit3MtpV1Packages =
         [new("xunit.v3.mtp-v1", "3.2.1")];
 
-    private static readonly NuGetReference[] XUnit3MtpV2Packages =
+    private static readonly NuGetReference[] _xUnit3MtpV2Packages =
         [new("xunit.v3.mtp-v2", "3.2.1")];
 
-    private static readonly NuGetReference[] NUnitMtpPackages =
+    private static readonly NuGetReference[] _nUnitMtpPackages =
         [new("NUnit", "4.3.2"), new("NUnit3TestAdapter", "5.0.0")];
 
-    private static readonly NuGetReference[] MsTestMtpPackages =
+    private static readonly NuGetReference[] _msTestMtpPackages =
         [new("MSTest.TestFramework", "3.8.3"), new("MSTest.TestAdapter", "3.8.3")];
 
-    private static readonly NuGetReference[] TUnitPackages =
+    private static readonly NuGetReference[] _tUnitPackages =
         [new("TUnit", "0.18.0")];
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkTestName)
@@ -57,7 +57,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("IsTestProject", "true")],
-            nuGetPackages: [.. XUnit3MtpV2Packages]
+            nuGetPackages: [.. _xUnit3MtpV2Packages]
         );
 
         project.AddFile("Tests.cs", """
@@ -91,7 +91,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. XUnit3MtpV2Packages]
+            nuGetPackages: [.. _xUnit3MtpV2Packages]
         );
 
         project.AddFile("Tests.cs", """
@@ -121,7 +121,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. XUnit3MtpV2Packages]
+            nuGetPackages: [.. _xUnit3MtpV2Packages]
         );
 
         project.AddFile("Tests.cs", """
@@ -148,7 +148,7 @@ public abstract class MtpDetectionTests(
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. XUnit3MtpV1Packages]
+            nuGetPackages: [.. _xUnit3MtpV1Packages]
         );
 
         project.AddFile("Tests.cs", """
@@ -179,7 +179,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("EnableNUnitRunner", "true")],
-            nuGetPackages: [.. NUnitMtpPackages]
+            nuGetPackages: [.. _nUnitMtpPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -213,7 +213,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("EnableMSTestRunner", "true")],
-            nuGetPackages: [.. MsTestMtpPackages]
+            nuGetPackages: [.. _msTestMtpPackages]
         );
 
         project.AddFile("Tests.cs", """
@@ -247,7 +247,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
-            nuGetPackages: [.. TUnitPackages]
+            nuGetPackages: [.. _tUnitPackages]
         );
 
         // TUnit 0.18+ requires await on assertions
@@ -283,7 +283,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
-            nuGetPackages: [.. TUnitPackages]
+            nuGetPackages: [.. _tUnitPackages]
         );
 
         // TUnit 0.18+ requires await on assertions
@@ -311,7 +311,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
-            nuGetPackages: [.. TUnitPackages]
+            nuGetPackages: [.. _tUnitPackages]
         );
 
         // TUnit 0.18+ requires await on assertions
@@ -345,7 +345,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("UseMicrosoftTestingPlatform", "true"), ("OutputType", "Library")],
-            nuGetPackages: [.. XUnit3MtpV2Packages]
+            nuGetPackages: [.. _xUnit3MtpV2Packages]
         );
 
         project.AddFile("Tests.cs", """
@@ -378,7 +378,7 @@ public abstract class MtpDetectionTests(
         project.AddCsprojFile(
             filename: "Sample.Tests.csproj",
             properties: [("UseMicrosoftTestingPlatform", "true")],
-            nuGetPackages: [.. XUnit3MtpV2Packages]
+            nuGetPackages: [.. _xUnit3MtpV2Packages]
         );
 
         project.AddFile("Tests.cs", """

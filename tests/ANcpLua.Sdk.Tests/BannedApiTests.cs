@@ -6,7 +6,7 @@ namespace ANcpLua.Sdk.Tests;
 public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
     : SdkTestBase(fixture, testOutputHelper)
 {
-    private const string RS0030 = "RS0030";
+    private const string Rs0030 = "RS0030";
 
     [Fact]
     public async Task ArgumentNullException_ThrowIfNull_Is_Banned()
@@ -22,7 +22,7 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldHaveWarning(Rs0030);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldHaveWarning(Rs0030);
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldHaveWarning(Rs0030);
     }
 
     // NOTE: Enumerable.Any() and Enumerable.FirstOrDefault() with predicates were previously banned
@@ -75,7 +75,7 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldNotHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldNotHaveWarning(Rs0030);
     }
 
     [Fact]
@@ -90,7 +90,7 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldNotHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldNotHaveWarning(Rs0030);
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldNotHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldNotHaveWarning(Rs0030);
     }
 
     [Fact]
@@ -120,6 +120,6 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
                                       }
                                       """);
 
-        result.ShouldSucceed().ShouldNotHaveWarning(RS0030);
+        result.ShouldSucceed().ShouldNotHaveWarning(Rs0030);
     }
 }
