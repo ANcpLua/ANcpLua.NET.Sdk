@@ -1,3 +1,4 @@
+
 # CLAUDE.md - ANcpLua.Sdk.Canary
 
 Fast SDK validation in <10 seconds - catches packaging errors before waiting 30min for full CI.

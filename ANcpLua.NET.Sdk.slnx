@@ -1,8 +1,4 @@
 <Solution>
-    <Folder Name="/migrate/">
-        <File Path="Migrate.md" />
-        <Project Path="Migrate/Migrate.csproj" />
-    </Folder>
     <Folder Name="/Solution Items/">
         <File Path=".editorconfig" />
         <File Path="Directory.Build.props" />
