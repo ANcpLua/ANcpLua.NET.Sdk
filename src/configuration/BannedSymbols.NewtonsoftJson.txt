@@ -1,10 +1,21 @@
 # Banned symbols from Newtonsoft.Json
-N:Newtonsoft
-N:Newtonsoft.Json
-N:Newtonsoft.Json.Bson
-N:Newtonsoft.Json.Converters
-N:Newtonsoft.Json.Linq
-N:Newtonsoft.Json.Linq.JsonPath
-N:Newtonsoft.Json.Schema
-N:Newtonsoft.Json.Serialization
-N:Newtonsoft.Json.Utilities
+# Note: Using T: (type) bans instead of N: (namespace) bans because
+# namespace banning requires BannedApiAnalyzers 3.11+ (only in preview)
+# The SDK uses stable 3.3.4 which only supports T:/M:/P:/F:/E: syntax
+
+# Main entry points
+T:Newtonsoft.Json.JsonConvert;Use System.Text.Json.JsonSerializer instead
+T:Newtonsoft.Json.JsonSerializer;Use System.Text.Json.JsonSerializer instead
+
+# Reader/Writer types
+T:Newtonsoft.Json.JsonReader;Use System.Text.Json.Utf8JsonReader instead
+T:Newtonsoft.Json.JsonWriter;Use System.Text.Json.Utf8JsonWriter instead
+T:Newtonsoft.Json.JsonTextReader;Use System.Text.Json.Utf8JsonReader instead
+T:Newtonsoft.Json.JsonTextWriter;Use System.Text.Json.Utf8JsonWriter instead
+
+# LINQ to JSON types (most common from Newtonsoft.Json.Linq)
+T:Newtonsoft.Json.Linq.JObject;Use System.Text.Json.Nodes.JsonObject instead
+T:Newtonsoft.Json.Linq.JArray;Use System.Text.Json.Nodes.JsonArray instead
+T:Newtonsoft.Json.Linq.JToken;Use System.Text.Json.Nodes.JsonNode instead
+T:Newtonsoft.Json.Linq.JValue;Use System.Text.Json.Nodes.JsonValue instead
+T:Newtonsoft.Json.Linq.JProperty;Use System.Text.Json.Nodes.JsonNode instead
