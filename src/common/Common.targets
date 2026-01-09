@@ -163,24 +163,52 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- ANcpLua.Analyzers - skip when building the analyzer itself to avoid cycle -->
-    <PackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)" IsImplicitlyDefined="true"
+  <!--
+    SDK-injected analyzer packages.
+    For CPM consumers: Version comes from Directory.Packages.props (PackageVersion entries).
+    For non-CPM consumers: Version comes from SDK's Version.props variables.
+  -->
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
+    <!-- Non-CPM: SDK provides versions -->
+    <PackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)"
                       Condition="'$(PackageId)' != 'ANcpLua.Analyzers'">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="Microsoft.Sbom.Targets" Version="$(SbomTargetsVersion)" IsImplicitlyDefined="true">
+    <PackageReference Include="Microsoft.Sbom.Targets" Version="$(SbomTargetsVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="$(BannedApiAnalyzersVersion)" IsImplicitlyDefined="true">
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="$(BannedApiAnalyzersVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="JonSkeet.RoslynAnalyzers" Version="$(JonSkeetAnalyzersVersion)" IsImplicitlyDefined="true">
+    <PackageReference Include="JonSkeet.RoslynAnalyzers" Version="$(JonSkeetAnalyzersVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
+    <!-- CPM: Consumer's Directory.Packages.props provides versions via PackageVersion entries -->
+    <PackageReference Include="ANcpLua.Analyzers"
+                      Condition="'$(PackageId)' != 'ANcpLua.Analyzers'">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="Microsoft.Sbom.Targets">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="JonSkeet.RoslynAnalyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
