@@ -40,6 +40,7 @@
     <file src="configuration/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="configuration/"/>
     <file src="configuration/CodingStyle.editorconfig" target="configuration/"/>
     <file src="configuration/NamingConvention.editorconfig" target="configuration/"/>
+    <file src="configuration/GeneratedFiles.editorconfig" target="configuration/"/>
     <file src="configuration/BannedSymbols.txt" target="configuration/"/>
     <file src="configuration/BannedSymbols.NewtonsoftJson.txt" target="configuration/"/>
     <file src="configuration/default.runsettings" target="configuration/"/>
