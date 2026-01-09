@@ -103,7 +103,7 @@ if [ "$BUILD_ONLY" = false ]; then
     echo "► Running canary tests..."
     
     # Run tests (net10.0 only - netstandard2.0 has no test runner)
-    if ! dotnet test "$PROJECT" -f net10.0 --no-build -c Release --nologo -v:q 2>&1; then
+    if ! dotnet test --project "$PROJECT" -f net10.0 --no-build -c Release 2>&1; then
         print_error "Tests failed"
     fi
     
