@@ -6,8 +6,7 @@ SDK test projects.
 
 ```
 tests/
-├── ANcpLua.Sdk.Tests/    # Full SDK behavior tests (~100 tests)
-└── ANcpLua.Sdk.Canary/   # Fast smoke tests (<10s)
+└── ANcpLua.Sdk.Tests/    # Full SDK behavior tests (~300 tests)
 ```
 
 ## Commands
@@ -16,23 +15,21 @@ tests/
 # Full test suite
 dotnet test
 
-# Canary only (fast validation)
-./tests/ANcpLua.Sdk.Canary/canary.sh
-
 # Specific test project
 dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
+
+# With filter (MTP syntax)
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-method "*BannedApi*"
 ```
 
 ## Test Strategy
 
 | Suite | Time | Purpose |
 |-------|------|---------|
-| Canary | <10s | Catch SDK packaging errors early |
-| Sdk.Tests | ~2min | Full SDK behavior validation |
+| Sdk.Tests | ~2-16min | Full SDK behavior validation |
 
 ## Workflow
 
 1. Make SDK changes
-2. Run canary (`./tests/ANcpLua.Sdk.Canary/canary.sh`)
-3. If canary passes, run full suite (`dotnet test`)
-4. If canary fails, debug with `--binlog`
+2. Run full suite (`dotnet test`)
+3. If fails, debug with `--binlog`
