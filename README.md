@@ -8,16 +8,17 @@ Opinionated MSBuild SDK for .NET projects.
 
 ## Quick Start
 
+Add to `global.json` (check [NuGet](https://www.nuget.org/packages/ANcpLua.NET.Sdk/) for latest version):
+
 ```json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "*",
-    "ANcpLua.NET.Sdk.Web": "*"
+    "ANcpLua.NET.Sdk": "1.3.31"
   }
 }
 ```
 
-> **Tip:** Use [Dependabot](https://docs.github.com/en/code-security/dependabot) to auto-update SDK versions. Wildcard (`*`) resolves to the latest stable release.
+> **Tip:** Use [Dependabot](https://docs.github.com/en/code-security/dependabot) or [Renovate](https://docs.renovatebot.com/) to auto-update SDK versions.
 
 ```xml
 <!-- Library/Console/Worker -->

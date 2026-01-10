@@ -18,7 +18,7 @@ LAYER 3: qyl, other projects       ← END USERS
 
 | Property | Value |
 |----------|-------|
-| **Upstream dependencies** | ANcpLua.Roslyn.Utilities.Sources 1.5.1 |
+| **Upstream dependencies** | ANcpLua.Roslyn.Utilities.Sources (see Directory.Packages.props) |
 | **Downstream consumers** | ANcpLua.Analyzers, qyl, all SDK users |
 | **Version.props** | SOURCE (canonical) |
 | **Auto-sync** | SENDS to Analyzers via GitHub Action |
@@ -32,7 +32,7 @@ LAYER 3: qyl, other projects       ← END USERS
 dotnet build
 
 # Pack (creates NuGet packages)
-pwsh ./build.ps1 -Version 1.3.30
+pwsh ./build.ps1 -Version <major.minor.patch>
 
 # Test
 dotnet test
