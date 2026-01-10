@@ -4,9 +4,9 @@ using ANcpLua.Sdk.Tests.Infrastructure;
 namespace ANcpLua.Sdk.Tests;
 
 /// <summary>
-/// Tests for JonSkeet.RoslynAnalyzers injection via SDK.
-/// JS0001/JS0002: Record 'with' operator safety diagnostics.
-/// Note: The analyzer is beta and diagnostic tests are fragile.
+///     Tests for JonSkeet.RoslynAnalyzers injection via SDK.
+///     JS0001/JS0002: Record 'with' operator safety diagnostics.
+///     Note: The analyzer is beta and diagnostic tests are fragile.
 /// </summary>
 public class JonSkeetAnalyzerTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
     : SdkTestBase(fixture, testOutputHelper)

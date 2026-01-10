@@ -18,7 +18,8 @@ Add to `global.json` (check [NuGet](https://www.nuget.org/packages/ANcpLua.NET.S
 }
 ```
 
-> **Tip:** Use [Dependabot](https://docs.github.com/en/code-security/dependabot) or [Renovate](https://docs.renovatebot.com/) to auto-update SDK versions.
+> **Tip:** Use [Dependabot](https://docs.github.com/en/code-security/dependabot)
+> or [Renovate](https://docs.renovatebot.com/) to auto-update SDK versions.
 
 ```xml
 <!-- Library/Console/Worker -->
@@ -31,12 +32,14 @@ Add to `global.json` (check [NuGet](https://www.nuget.org/packages/ANcpLua.NET.S
 ## What You Get
 
 **Base SDK:**
+
 - Banned API enforcement (`DateTime.Now` → `TimeProvider`, etc.)
 - Custom analyzers via [ANcpLua.Analyzers](https://nuget.org/packages/ANcpLua.Analyzers)
 - `Throw.IfNull()` guard clauses
 - CLAUDE.md generation for AI assistants
 
 **Web SDK adds:**
+
 - OpenTelemetry (logging, metrics, tracing with OTLP)
 - Health endpoints (`/health`, `/alive`)
 - HTTP resilience (retries, circuit breakers)

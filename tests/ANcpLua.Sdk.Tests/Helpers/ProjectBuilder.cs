@@ -383,9 +383,9 @@ public sealed class ProjectBuilder : IAsyncDisposable
         const int maxRetries = 5;
         for (var retry = 0; retry < maxRetries && result.ExitCode is not 0; retry++)
             if (result.Output.Any(static line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
-                                          line.Text.Contains(
-                                              "The project file may be invalid or missing targets required for restore",
-                                              StringComparison.Ordinal)))
+                                                 line.Text.Contains(
+                                                     "The project file may be invalid or missing targets required for restore",
+                                                     StringComparison.Ordinal)))
             {
                 _testOutputHelper.WriteLine(
                     $"SDK resolution or restore error detected, retrying ({retry + 1}/{maxRetries})...");
@@ -396,7 +396,9 @@ public sealed class ProjectBuilder : IAsyncDisposable
                 result = await psi.RunAsTaskAsync();
             }
             else
+            {
                 break;
+            }
 
         _testOutputHelper.WriteLine("Process exit code: " + result.ExitCode);
         _testOutputHelper.WriteLine(XmlSanitizer.SanitizeForXml(result.Output.ToString()));
@@ -412,7 +414,9 @@ public sealed class ProjectBuilder : IAsyncDisposable
                                             sarif!.AllResults().Select(static r => r.ToString()))));
         }
         else
+        {
             _testOutputHelper.WriteLine("Sarif file not found: " + sarifPath);
+        }
 
         var binlogContent = await File.ReadAllBytesAsync(_directory.FullPath / "msbuild.binlog");
         TestContext.Current.AddAttachment($"msbuild{_buildCount}.binlog", binlogContent);

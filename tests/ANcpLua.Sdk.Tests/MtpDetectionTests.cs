@@ -300,7 +300,8 @@ public abstract class MtpDetectionTests(
 
         // MTP projects should NOT have Microsoft.NET.Test.Sdk
         var items = data.GetMsBuildItems("PackageReference");
-        Assert.DoesNotContain(items, static i => i.Contains("Microsoft.NET.Test.Sdk", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items,
+            static i => i.Contains("Microsoft.NET.Test.Sdk", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

@@ -775,7 +775,8 @@ public abstract class SdkTests(
         Assert.Equal(0, data.ExitCode);
         // Verify GitHubActionsTestLogger is NOT injected when not on GitHub Actions
         var items = data.GetMsBuildItems("PackageReference");
-        Assert.DoesNotContain(items, static i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items,
+            static i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1308,7 +1309,9 @@ public abstract class SdkTests(
         if (isPackOutput)
             // For pack output, PDB is in .snupkg (not in main .nupkg)
             // Just verify the DLL has debug directory entries pointing to portable PDB
+        {
             Assert.Contains(debug, static entry => entry.Type == DebugDirectoryEntryType.CodeView);
+        }
         else
         {
             // For build output, portable PDB file should exist
