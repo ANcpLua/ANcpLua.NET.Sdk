@@ -7,15 +7,16 @@ namespace ANcpLua.Sdk.Tests.Infrastructure;
 /// </summary>
 public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper output)
 {
-    protected PackageFixture Fixture => fixture;
-    protected ITestOutputHelper Output => output;
+    protected PackageFixture Fixture { get; } = fixture;
+
+    protected ITestOutputHelper Output { get; } = output;
 
     /// <summary>Creates a new ProjectBuilder with default settings</summary>
     protected ProjectBuilder CreateProject(
         SdkImportStyle style = SdkImportStyle.SdkElement,
         string sdk = PackageFixture.SdkName)
     {
-        return new ProjectBuilder(fixture, output, style, sdk);
+        return new ProjectBuilder(Fixture, Output, style, sdk);
     }
 
     /// <summary>Quick build helper for simple test cases</summary>

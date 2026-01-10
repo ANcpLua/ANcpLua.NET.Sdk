@@ -48,7 +48,7 @@ public abstract class SdkTests(
     [Fact]
     public void PackageReferenceAreValid()
     {
-        // Verify SDK-injected packages have Version attribute for CPM compatibility
+        // Verify SDK-injected packages have Version attribute for non-CPM compatibility
         var root = RepositoryRoot.Locate()["src"];
         var files = Directory.GetFiles(root, "*", SearchOption.AllDirectories).Select(FullPath.FromPath);
         foreach (var file in files)
@@ -56,8 +56,10 @@ public abstract class SdkTests(
             {
                 var doc = XDocument.Load(file);
                 // Skip PackageReferences inside ItemDefinitionGroup (they set defaults, not actual references)
+                // Skip PackageReferences inside CPM ItemGroup (CPM consumers provide versions via Directory.Packages.props)
                 var nodes = doc.Descendants("PackageReference")
-                    .Where(static n => n.Parent?.Name.LocalName != "ItemDefinitionGroup");
+                    .Where(static n => n.Parent?.Name.LocalName != "ItemDefinitionGroup")
+                    .Where(static n => !IsCpmItemGroup(n.Parent));
                 foreach (var node in nodes)
                 {
                     var versionAttr = node.Attribute("Version");
@@ -65,6 +67,14 @@ public abstract class SdkTests(
                         Assert.Fail("Missing Version attribute on " + node);
                 }
             }
+
+        static bool IsCpmItemGroup(XElement? parent)
+        {
+            if (parent?.Name.LocalName != "ItemGroup")
+                return false;
+            var condition = parent.Attribute("Condition")?.Value;
+            return condition?.Contains("ManagePackageVersionsCentrally") == true;
+        }
     }
 
     [Fact]
