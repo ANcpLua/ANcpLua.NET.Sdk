@@ -270,6 +270,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
                                <OutputType>exe</OutputType>
                                <ErrorLog>{SarifFileName},version=2.1</ErrorLog>
                                <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+                               <ANcpLuaSdkSkipCPMEnforcement>true</ANcpLuaSdkSkipCPMEnforcement>
                            </PropertyGroup>
                            {propertiesElement}
                            {packagesElement}

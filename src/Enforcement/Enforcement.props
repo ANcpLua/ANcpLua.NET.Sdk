@@ -40,7 +40,9 @@
   </Target>
 
   <!-- ENFORCE: Central Package Management -->
-  <Target Name="_EnforceCPM" BeforeTargets="BeforeBuild">
+  <!-- Set ANcpLuaSdkSkipCPMEnforcement=true to opt-out (for SDK tests) -->
+  <Target Name="_EnforceCPM" BeforeTargets="BeforeBuild"
+          Condition="'$(ANcpLuaSdkSkipCPMEnforcement)' != 'true'">
     <Error Condition="'$(ManagePackageVersionsCentrally)' != 'true'"
            Text="POLICY: ManagePackageVersionsCentrally=true required in Directory.Packages.props"/>
     <Error Condition="'$(CentralPackageTransitivePinningEnabled)' != 'true'"
