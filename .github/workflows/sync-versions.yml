@@ -19,9 +19,15 @@ jobs:
           path: analyzers
       - run: cp sdk/src/common/Version.props analyzers/Version.props
       - uses: peter-evans/create-pull-request@v6
+        id: cpr
         with:
           path: analyzers
           token: ${{ secrets.CROSS_REPO_TOKEN }}
           branch: auto/sync-version-props
           title: 'chore: sync Version.props from SDK'
           delete-branch: true
+      - name: Enable auto-merge
+        if: steps.cpr.outputs.pull-request-number
+        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --repo ANcpLua/ANcpLua.Analyzers --squash --auto
+        env:
+          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
