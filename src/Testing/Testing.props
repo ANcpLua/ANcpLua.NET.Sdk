@@ -76,12 +76,7 @@
     <PackageReference Include="Basic.Reference.Assemblies.NetStandard20" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)"/>
   </ItemGroup>
 
-  <!-- Auto-inject analyzer test base classes (set InjectAnalyzerTestFixtures=false to disable) -->
-  <ItemGroup Condition="'$(IsAnalyzerTestProject)' == 'true' and '$(InjectAnalyzerTestFixtures)' != 'false'">
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/AnalyzerTest.cs" Link="__Generated__/AnalyzerTest.cs" Visible="false"/>
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTest.cs" Link="__Generated__/CodeFixTest.cs" Visible="false"/>
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/CodeFixTestWithEditorConfig.cs" Link="__Generated__/CodeFixTestWithEditorConfig.cs" Visible="false"/>
-  </ItemGroup>
+  <!-- Analyzer test fixtures now provided by ANcpLua.Roslyn.Utilities.Testing package -->
 
   <!-- Auto-inject GlobalUsings for tests (AwesomeAssertions works with any framework) -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
