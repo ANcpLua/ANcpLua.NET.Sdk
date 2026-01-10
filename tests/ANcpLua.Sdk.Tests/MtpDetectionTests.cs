@@ -107,11 +107,11 @@ public abstract class MtpDetectionTests(
         // xunit.v3.mtp should NOT have Microsoft.Testing.Extensions injected
         var items = data.GetMsBuildItems("PackageReference");
         Assert.DoesNotContain(items,
-            i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
+            static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(items,
-            i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
+            static i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(items,
-            i => i.Contains("Microsoft.Testing.Extensions.HangDump", StringComparison.OrdinalIgnoreCase));
+            static i => i.Contains("Microsoft.Testing.Extensions.HangDump", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -300,7 +300,7 @@ public abstract class MtpDetectionTests(
 
         // MTP projects should NOT have Microsoft.NET.Test.Sdk
         var items = data.GetMsBuildItems("PackageReference");
-        Assert.DoesNotContain(items, i => i.Contains("Microsoft.NET.Test.Sdk", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items, static i => i.Contains("Microsoft.NET.Test.Sdk", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -329,9 +329,9 @@ public abstract class MtpDetectionTests(
         // MTP projects should have MTP extensions injected (except xunit.v3.mtp which has its own implementation)
         var items = data.GetMsBuildItems("PackageReference");
         Assert.Contains(items,
-            i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
+            static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(items,
-            i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
+            static i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
     }
 
     // ═══════════════════════════════════════════════════════════════════════

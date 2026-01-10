@@ -269,6 +269,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
                            <PropertyGroup>
                                <OutputType>exe</OutputType>
                                <ErrorLog>{SarifFileName},version=2.1</ErrorLog>
+                               <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
                            </PropertyGroup>
                            {propertiesElement}
                            {packagesElement}
@@ -381,7 +382,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
         // Retry up to 5 times if MSB4236 error occurs (SDK resolution issue)
         const int maxRetries = 5;
         for (var retry = 0; retry < maxRetries && result.ExitCode is not 0; retry++)
-            if (result.Output.Any(line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
+            if (result.Output.Any(static line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
                                           line.Text.Contains(
                                               "The project file may be invalid or missing targets required for restore",
                                               StringComparison.Ordinal)))
@@ -408,7 +409,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
             sarif = JsonSerializer.Deserialize<SarifFile>(bytes);
             _testOutputHelper.WriteLine("Sarif result:\n" +
                                         XmlSanitizer.SanitizeForXml(string.Join("\n",
-                                            sarif!.AllResults().Select(r => r.ToString()))));
+                                            sarif!.AllResults().Select(static r => r.ToString()))));
         }
         else
             _testOutputHelper.WriteLine("Sarif file not found: " + sarifPath);
@@ -422,7 +423,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
             TestContext.Current.AddAttachment(vstestdiagPath.Name, XmlSanitizer.SanitizeForXml(vstestDiagContent));
         }
 
-        if (result.Output.Any(line => line.Text.Contains("Could not resolve SDK")))
+        if (result.Output.Any(static line => line.Text.Contains("Could not resolve SDK")))
             Assert.Fail("The SDK cannot be found, expected version: " + _fixture.Version);
 
         return new BuildResult(result.ExitCode, result.Output, sarif, binlogContent);
@@ -484,7 +485,7 @@ internal static class XmlSanitizer
             return text ?? string.Empty;
 
         // Fast path: check if any invalid characters exist
-        var hasInvalidChars = text.Any(ch => !IsValidXmlChar(ch));
+        var hasInvalidChars = text.Any(static ch => !IsValidXmlChar(ch));
 
         return !hasInvalidChars
             ? text

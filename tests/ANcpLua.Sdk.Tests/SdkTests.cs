@@ -121,7 +121,7 @@ public abstract class SdkTests(
         var nupkgFile = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         await using var archive = await ZipFile.OpenReadAsync(nupkgFile, TestContext.Current.CancellationToken);
         Assert.Contains(archive.Entries,
-            e => e.FullName.EndsWith("manifest.spdx.json", StringComparison.OrdinalIgnoreCase));
+            static e => e.FullName.EndsWith("manifest.spdx.json", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -500,14 +500,14 @@ public abstract class SdkTests(
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         // Filter to only .nupkg files (excluding .snupkg symbol packages)
-        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
         await AssertDebugInfoExists(outputFiles, true);
-        Assert.Contains(outputFiles, f => f.EndsWith(".xml", StringComparison.Ordinal));
+        Assert.Contains(outputFiles, static f => f.EndsWith(".xml", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -529,14 +529,14 @@ public abstract class SdkTests(
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         // Filter to only .nupkg files (excluding .snupkg symbol packages)
-        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
         await AssertDebugInfoExists(outputFiles, true);
-        Assert.Contains(outputFiles, f => f.EndsWith(".xml", StringComparison.Ordinal));
+        Assert.Contains(outputFiles, static f => f.EndsWith(".xml", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -558,13 +558,13 @@ public abstract class SdkTests(
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         // Filter to only .nupkg files (excluding .snupkg symbol packages)
-        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
 
         var outputFiles = Directory.GetFiles(extractedPath, "*", SearchOption.AllDirectories);
-        Assert.Contains(outputFiles, f => f.EndsWith(".xml", StringComparison.Ordinal));
+        Assert.Contains(outputFiles, static f => f.EndsWith(".xml", StringComparison.Ordinal));
     }
 
     [Theory]
@@ -591,7 +591,7 @@ public abstract class SdkTests(
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
         // Filter to only .nupkg files (excluding .snupkg symbol packages)
-        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
@@ -632,7 +632,7 @@ public abstract class SdkTests(
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
         // Filter to only .nupkg files (excluding .snupkg symbol packages)
-        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
@@ -661,7 +661,7 @@ public abstract class SdkTests(
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
         // Filter to only .nupkg files (excluding .snupkg symbol packages)
-        var nupkgFiles = files.Where(f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
+        var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
         await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
@@ -746,7 +746,7 @@ public abstract class SdkTests(
         Assert.Equal(0, data.ExitCode);
         // Verify GitHubActionsTestLogger is injected on GitHub Actions
         var items = data.GetMsBuildItems("PackageReference");
-        Assert.Contains(items, i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(items, static i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -775,7 +775,7 @@ public abstract class SdkTests(
         Assert.Equal(0, data.ExitCode);
         // Verify GitHubActionsTestLogger is NOT injected when not on GitHub Actions
         var items = data.GetMsBuildItems("PackageReference");
-        Assert.DoesNotContain(items, i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items, static i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -1089,7 +1089,7 @@ public abstract class SdkTests(
         Assert.True(File.Exists(project.RootFolder / "package-lock.json"));
         Assert.True(File.Exists(project.RootFolder / "node_modules" / ".npm-install-stamp"));
         var files = data.GetBinLogFiles();
-        Assert.Contains(files, f => f.EndsWith("package-lock.json", StringComparison.Ordinal));
+        Assert.Contains(files, static f => f.EndsWith("package-lock.json", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -1300,7 +1300,7 @@ public abstract class SdkTests(
     /// </summary>
     private static async Task AssertDebugInfoExists(string[] outputFiles, bool isPackOutput = false)
     {
-        var dllPath = outputFiles.Single(f => f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase));
+        var dllPath = outputFiles.Single(static f => f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase));
         await using var stream = File.OpenRead(dllPath);
         var peReader = new PEReader(stream);
         var debug = peReader.ReadDebugDirectory();
@@ -1308,12 +1308,12 @@ public abstract class SdkTests(
         if (isPackOutput)
             // For pack output, PDB is in .snupkg (not in main .nupkg)
             // Just verify the DLL has debug directory entries pointing to portable PDB
-            Assert.Contains(debug, entry => entry.Type == DebugDirectoryEntryType.CodeView);
+            Assert.Contains(debug, static entry => entry.Type == DebugDirectoryEntryType.CodeView);
         else
         {
             // For build output, portable PDB file should exist
-            Assert.Contains(outputFiles, f => f.EndsWith(".pdb", StringComparison.OrdinalIgnoreCase));
-            Assert.Contains(debug, entry => entry.Type == DebugDirectoryEntryType.CodeView);
+            Assert.Contains(outputFiles, static f => f.EndsWith(".pdb", StringComparison.OrdinalIgnoreCase));
+            Assert.Contains(debug, static entry => entry.Type == DebugDirectoryEntryType.CodeView);
         }
     }
 }

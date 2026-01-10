@@ -161,120 +161,86 @@ public static class PolyfillActivationCode
 public readonly record struct PolyfillDefinition(
     string InjectionProperty,
     string RepositoryPath,
-    string FullyQualifiedTypeName,
-    string ActivationCode,
     string MinimumTargetFramework)
 {
     public static readonly PolyfillDefinition Lock = new(
         InjectionPropertyNames.Lock,
         RepositoryPaths.LockPolyfill,
-        PolyfillTypeNames.Lock,
-        PolyfillActivationCode.Lock,
         Tfm.Net80);
 
     public static readonly PolyfillDefinition TimeProvider = new(
         InjectionPropertyNames.TimeProvider,
         RepositoryPaths.TimeProviderPolyfill,
-        PolyfillTypeNames.TimeProvider,
-        PolyfillActivationCode.TimeProvider,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition IndexRange = new(
         InjectionPropertyNames.IndexRange,
         RepositoryPaths.IndexPolyfill,
-        PolyfillTypeNames.Index,
-        PolyfillActivationCode.Index,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition IsExternalInit = new(
         InjectionPropertyNames.IsExternalInit,
         RepositoryPaths.IsExternalInitPolyfill,
-        PolyfillTypeNames.IsExternalInit,
-        PolyfillActivationCode.IsExternalInit,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition RequiredMember = new(
         InjectionPropertyNames.RequiredMember,
         RepositoryPaths.RequiredMemberPolyfill,
-        PolyfillTypeNames.RequiredMemberAttribute,
-        PolyfillActivationCode.RequiredMember,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition CompilerFeatureRequired = new(
         InjectionPropertyNames.CompilerFeatureRequired,
         RepositoryPaths.CompilerFeatureRequiredPolyfill,
-        PolyfillTypeNames.CompilerFeatureRequiredAttribute,
-        PolyfillActivationCode.CompilerFeatureRequired,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition CallerArgumentExpression = new(
         InjectionPropertyNames.CallerArgumentExpression,
         RepositoryPaths.CallerArgumentExpressionPolyfill,
-        PolyfillTypeNames.CallerArgumentExpressionAttribute,
-        PolyfillActivationCode.CallerArgumentExpression,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition ParamCollection = new(
         InjectionPropertyNames.ParamCollection,
         RepositoryPaths.ParamCollectionPolyfill,
-        PolyfillTypeNames.ParamCollectionAttribute,
-        PolyfillActivationCode.ParamCollection,
         Tfm.Net80);
 
     public static readonly PolyfillDefinition UnreachableException = new(
         InjectionPropertyNames.UnreachableException,
         RepositoryPaths.UnreachableExceptionPolyfill,
-        PolyfillTypeNames.UnreachableException,
-        PolyfillActivationCode.UnreachableException,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition StackTraceHidden = new(
         InjectionPropertyNames.StackTraceHidden,
         RepositoryPaths.StackTraceHiddenPolyfill,
-        PolyfillTypeNames.StackTraceHiddenAttribute,
-        PolyfillActivationCode.StackTraceHidden,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition NullableAttributes = new(
         InjectionPropertyNames.NullableAttributes,
         RepositoryPaths.NullableAttributesPolyfill,
-        PolyfillTypeNames.AllowNullAttribute,
-        PolyfillActivationCode.AllowNull,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition TrimAttributes = new(
         InjectionPropertyNames.TrimAttributes,
         RepositoryPaths.TrimAttributesPolyfill,
-        PolyfillTypeNames.DynamicallyAccessedMembersAttribute,
-        PolyfillActivationCode.DynamicallyAccessedMembers,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition ExperimentalAttribute = new(
         InjectionPropertyNames.ExperimentalAttribute,
         RepositoryPaths.ExperimentalAttributePolyfill,
-        PolyfillTypeNames.ExperimentalAttribute,
-        PolyfillActivationCode.Experimental,
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition Throw = new(
         InjectionPropertyNames.Throw,
         RepositoryPaths.ThrowHelper,
-        "Microsoft.Shared.Diagnostics.Throw",
-        "_ = Microsoft.Shared.Diagnostics.Throw.IfNull((object?)null);",
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition StringOrdinalComparer = new(
         InjectionPropertyNames.StringOrdinalComparer,
         RepositoryPaths.StringOrdinalComparer,
-        "ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer",
-        "_ = ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer.Instance;",
         Tfm.NetStandard20);
 
     public static readonly PolyfillDefinition DiagnosticClasses = new(
         InjectionPropertyNames.DiagnosticClasses,
         RepositoryPaths.DiagnosticClassesPolyfill,
-        "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute",
-        "_ = typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute);",
         Tfm.NetStandard20);
 
     public static ImmutableArray<PolyfillDefinition> All =>
@@ -374,7 +340,7 @@ public sealed class MsBuildPropertyBuilder : Dictionary<string, string?>
 
     public (string Name, string Value)[] ToPropertyArray()
     {
-        return this.Where(kv => kv.Value is not null).Select(kv => (kv.Key, kv.Value!)).ToArray();
+        return this.Where(static kv => kv.Value is not null).Select(static kv => (kv.Key, kv.Value!)).ToArray();
     }
 
     public static MsBuildPropertyBuilder FromXmlSnippets(params string[] xmlSnippets)

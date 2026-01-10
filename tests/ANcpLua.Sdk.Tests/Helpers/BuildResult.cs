@@ -35,7 +35,7 @@ public sealed record BuildResult(
 
     public bool HasError()
     {
-        return SarifFile?.AllResults().Any(r => r.Level == "error") ?? false;
+        return SarifFile?.AllResults().Any(static r => r.Level == "error") ?? false;
     }
 
     public bool HasError(string ruleId)
@@ -45,7 +45,7 @@ public sealed record BuildResult(
 
     public bool HasWarning()
     {
-        return SarifFile?.AllResults().Any(r => r.Level == "warning") ?? false;
+        return SarifFile?.AllResults().Any(static r => r.Level == "warning") ?? false;
     }
 
     public bool HasWarning(string ruleId)
@@ -185,7 +185,7 @@ public class SarifFile
 
     public IEnumerable<SarifFileRunResult> AllResults()
     {
-        return Runs?.SelectMany(r => r.Results ?? []) ?? [];
+        return Runs?.SelectMany(static r => r.Results ?? []) ?? [];
     }
 }
 

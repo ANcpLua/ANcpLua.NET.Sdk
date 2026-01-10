@@ -34,7 +34,7 @@ public static class DotNetSdkHelpers
             var product = products.Single(a => a.ProductName == ".NET" && a.ProductVersion == versionString);
             var releases = await product.GetReleasesAsync();
             var latestRelease = releases.Single(r => r.Version == product.LatestReleaseVersion);
-            var latestSdk = latestRelease.Sdks.MaxBy(sdk => sdk.Version);
+            var latestSdk = latestRelease.Sdks.MaxBy(static sdk => sdk.Version);
 
             var runtimeIdentifier = RuntimeInformation.RuntimeIdentifier;
             var file = latestSdk!.Files.Single(file =>

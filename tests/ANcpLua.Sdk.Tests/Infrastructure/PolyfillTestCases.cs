@@ -24,22 +24,22 @@ public sealed class PolyfillCaseSerializer : IXunitSerializer
     private static readonly FrozenDictionary<string, Func<string, IPolyfillCase>> Factories =
         new Dictionary<string, Func<string, IPolyfillCase>>
         {
-            [nameof(TrimAttributesFile)] = tfm => new PolyfillCase<TrimAttributesFile>(tfm),
-            [nameof(NullabilityAttributesFile)] = tfm => new PolyfillCase<NullabilityAttributesFile>(tfm),
-            [nameof(IsExternalInitFile)] = tfm => new PolyfillCase<IsExternalInitFile>(tfm),
-            [nameof(RequiredMemberFile)] = tfm => new PolyfillCase<RequiredMemberFile>(tfm),
-            [nameof(CompilerFeatureRequiredFile)] = tfm => new PolyfillCase<CompilerFeatureRequiredFile>(tfm),
-            [nameof(CallerArgumentExpressionFile)] = tfm => new PolyfillCase<CallerArgumentExpressionFile>(tfm),
-            [nameof(UnreachableExceptionFile)] = tfm => new PolyfillCase<UnreachableExceptionFile>(tfm),
-            [nameof(ExperimentalAttributeFile)] = tfm => new PolyfillCase<ExperimentalAttributeFile>(tfm),
-            [nameof(IndexRangeFile)] = tfm => new PolyfillCase<IndexRangeFile>(tfm),
-            [nameof(ParamCollectionFile)] = tfm => new PolyfillCase<ParamCollectionFile>(tfm),
-            [nameof(StackTraceHiddenFile)] = tfm => new PolyfillCase<StackTraceHiddenFile>(tfm),
-            [nameof(LockFile)] = tfm => new PolyfillCase<LockFile>(tfm),
-            [nameof(TimeProviderFile)] = tfm => new PolyfillCase<TimeProviderFile>(tfm),
-            [nameof(ThrowFile)] = tfm => new PolyfillCase<ThrowFile>(tfm),
-            [nameof(StringOrdinalComparerFile)] = tfm => new PolyfillCase<StringOrdinalComparerFile>(tfm),
-            [nameof(DiagnosticClassesFile)] = tfm => new PolyfillCase<DiagnosticClassesFile>(tfm)
+            [nameof(TrimAttributesFile)] = static tfm => new PolyfillCase<TrimAttributesFile>(tfm),
+            [nameof(NullabilityAttributesFile)] = static tfm => new PolyfillCase<NullabilityAttributesFile>(tfm),
+            [nameof(IsExternalInitFile)] = static tfm => new PolyfillCase<IsExternalInitFile>(tfm),
+            [nameof(RequiredMemberFile)] = static tfm => new PolyfillCase<RequiredMemberFile>(tfm),
+            [nameof(CompilerFeatureRequiredFile)] = static tfm => new PolyfillCase<CompilerFeatureRequiredFile>(tfm),
+            [nameof(CallerArgumentExpressionFile)] = static tfm => new PolyfillCase<CallerArgumentExpressionFile>(tfm),
+            [nameof(UnreachableExceptionFile)] = static tfm => new PolyfillCase<UnreachableExceptionFile>(tfm),
+            [nameof(ExperimentalAttributeFile)] = static tfm => new PolyfillCase<ExperimentalAttributeFile>(tfm),
+            [nameof(IndexRangeFile)] = static tfm => new PolyfillCase<IndexRangeFile>(tfm),
+            [nameof(ParamCollectionFile)] = static tfm => new PolyfillCase<ParamCollectionFile>(tfm),
+            [nameof(StackTraceHiddenFile)] = static tfm => new PolyfillCase<StackTraceHiddenFile>(tfm),
+            [nameof(LockFile)] = static tfm => new PolyfillCase<LockFile>(tfm),
+            [nameof(TimeProviderFile)] = static tfm => new PolyfillCase<TimeProviderFile>(tfm),
+            [nameof(ThrowFile)] = static tfm => new PolyfillCase<ThrowFile>(tfm),
+            [nameof(StringOrdinalComparerFile)] = static tfm => new PolyfillCase<StringOrdinalComparerFile>(tfm),
+            [nameof(DiagnosticClassesFile)] = static tfm => new PolyfillCase<DiagnosticClassesFile>(tfm)
         }.ToFrozenDictionary();
 
     public bool IsSerializable(Type type, object? value, [NotNullWhen(false)] out string? failureReason)
