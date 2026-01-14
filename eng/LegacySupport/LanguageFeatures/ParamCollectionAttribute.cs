@@ -9,15 +9,46 @@ using System.Diagnostics.CodeAnalysis;
 namespace System.Runtime.CompilerServices
 {
     /// <summary>
-    ///     Indicates that a method will allow a variable number of arguments in its invocation.
+    ///     Backport of <see cref="ParamCollectionAttribute"/> for .NET 8 and earlier.
     /// </summary>
     /// <remarks>
-    ///     This attribute is required for C# 13 params collections feature on older TFMs.
+    ///     <para>
+    ///         This type is only defined on older target frameworks and is automatically
+    ///         available on .NET 9+ through the standard library.
+    ///     </para>
+    ///     <para>
+    ///         The C# 13 compiler uses this attribute to enable the "params collections" feature,
+    ///         which allows <c>params</c> to work with any collection type, not just arrays.
+    ///         This includes <see cref="System.Span{T}"/>, <see cref="System.ReadOnlySpan{T}"/>,
+    ///         and types implementing <see cref="System.Collections.Generic.IEnumerable{T}"/>.
+    ///     </para>
     /// </remarks>
+    /// <example>
+    ///     <code>
+    ///     // C# 13 params collections - works with Span, List, etc.:
+    ///     public void Process(params ReadOnlySpan&lt;int&gt; values) { }
+    ///     public void Log(params IEnumerable&lt;string&gt; messages) { }
+    ///
+    ///     // Called just like traditional params:
+    ///     Process(1, 2, 3);
+    ///     Log("Hello", "World");
+    ///     </code>
+    /// </example>
     [AttributeUsage(AttributeTargets.Parameter)]
     [ExcludeFromCodeCoverage]
     internal sealed class ParamCollectionAttribute : Attribute
     {
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="ParamCollectionAttribute"/> class.
+        /// </summary>
+        /// <remarks>
+        ///     This constructor is called implicitly by the C# compiler when generating
+        ///     IL for methods with <c>params</c> collection parameters. It is not intended
+        ///     to be called directly from user code.
+        /// </remarks>
+        public ParamCollectionAttribute()
+        {
+        }
     }
 }
 
