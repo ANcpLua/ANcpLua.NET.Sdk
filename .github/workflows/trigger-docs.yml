@@ -14,7 +14,14 @@ jobs:
         run: |
           gh api repos/ANcpLua/ANcpLua.io/dispatches \
             --method POST \
-            -f event_type=docs-update \
-            -f 'client_payload={"source":"ANcpLua.NET.Sdk","ref":"${{ github.ref }}"}'
+            --input - <<EOF
+          {
+            "event_type": "docs-update",
+            "client_payload": {
+              "source": "ANcpLua.NET.Sdk",
+              "ref": "${{ github.ref }}"
+            }
+          }
+          EOF
         env:
           GH_TOKEN: ${{ secrets.DOCS_TRIGGER_PAT }}
