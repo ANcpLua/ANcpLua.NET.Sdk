@@ -5,11 +5,14 @@ namespace ANcpLua.Sdk.Tests;
 
 public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
 {
+    private readonly PackageFixture _fixture = fixture;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+
     [Fact]
     public async Task ClaudeBrain_Generates_File_When_Enabled()
     {
         await using var project =
-            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         // 1. Setup Root CLAUDE.md
         project.AddFile("CLAUDE.md", "This is the root brain.");
@@ -43,7 +46,7 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
     public async Task ClaudeBrain_Does_Not_Generate_By_Default()
     {
         await using var project =
-            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         project.AddFile("CLAUDE.md", "Root brain");
 
@@ -64,7 +67,7 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
     public async Task ClaudeBrain_Does_Not_Overwrite_Existing()
     {
         await using var project =
-            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         project.AddFile("CLAUDE.md", "Root brain");
 

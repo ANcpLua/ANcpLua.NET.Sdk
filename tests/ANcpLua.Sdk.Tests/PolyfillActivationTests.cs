@@ -5,6 +5,9 @@ namespace ANcpLua.Sdk.Tests;
 
 public class PolyfillActivationTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
 {
+    private readonly PackageFixture _fixture = fixture;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+
     public static TheoryData<IPolyfillCase> PolyfillCases =>
     [
         new PolyfillCase<TrimAttributesFile>(TargetFrameworks.NetStandard20),
@@ -29,13 +32,13 @@ public class PolyfillActivationTests(PackageFixture fixture, ITestOutputHelper t
     [MemberData(nameof(PolyfillCases))]
     public async Task Polyfill_Activation_Positive(IPolyfillCase testCase)
     {
-        await testCase.RunPositive(fixture, testOutputHelper);
+        await testCase.RunPositive(_fixture, _testOutputHelper);
     }
 
     [Theory]
     [MemberData(nameof(PolyfillCases))]
     public async Task Polyfill_Activation_Negative(IPolyfillCase testCase)
     {
-        await testCase.RunNegative(fixture, testOutputHelper);
+        await testCase.RunNegative(_fixture, _testOutputHelper);
     }
 }

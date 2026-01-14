@@ -11,6 +11,9 @@ namespace ANcpLua.Sdk.Tests;
 /// </summary>
 public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
 {
+    private readonly PackageFixture _fixture = fixture;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+
     /// <summary>
     ///     Tests that all language feature polyfills work together (required, init, Index).
     ///     Note: Range slicing (arr[1..3]) requires GetSubArray which isn't available on netstandard2.0
@@ -19,7 +22,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
     public async Task LanguageFeaturePolyfills_AllTogether_BuildsSuccessfully()
     {
         await using var project =
-            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         project.AddCsprojFile([
             (MsBuildProperties.TargetFramework, TargetFrameworks.NetStandard20),
@@ -73,7 +76,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
     public async Task ThrowAndTimeProvider_Together_BuildsSuccessfully()
     {
         await using var project =
-            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         project.AddCsprojFile([
             (MsBuildProperties.TargetFramework, TargetFrameworks.NetStandard20),
@@ -118,7 +121,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
     public async Task AllCommonPolyfills_RealisticService_BuildsSuccessfully()
     {
         await using var project =
-            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         project.AddCsprojFile([
             (MsBuildProperties.TargetFramework, TargetFrameworks.NetStandard20),
@@ -177,7 +180,7 @@ public class PolyfillCombinationTests(PackageFixture fixture, ITestOutputHelper 
     public async Task NullableAndCallerExpression_Together_BuildsSuccessfully()
     {
         await using var project =
-            new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
         project.AddCsprojFile([
             (MsBuildProperties.TargetFramework, TargetFrameworks.NetStandard20),

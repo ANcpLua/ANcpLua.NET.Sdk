@@ -6,9 +6,12 @@ namespace ANcpLua.Sdk.Tests;
 
 public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
 {
+    private readonly PackageFixture _fixture = fixture;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
+
     private ProjectBuilder CreateProjectBuilder()
     {
-        return new ProjectBuilder(fixture, testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+        return new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
     }
 
     [Theory]
