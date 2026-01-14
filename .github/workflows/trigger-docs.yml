@@ -2,6 +2,10 @@ name: Trigger Docs Rebuild
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - 'eng/**'
+      - 'README.md'
   release:
     types: [published]
   workflow_dispatch:
@@ -10,16 +14,17 @@ jobs:
   trigger:
     runs-on: ubuntu-latest
     steps:
-      - name: Trigger docs rebuild on ANcpLua.io
+      - name: Trigger Mintlify docs rebuild
         run: |
-          gh api repos/ANcpLua/ANcpLua.io/dispatches \
+          gh api repos/ANcpLua/docs/dispatches \
             --method POST \
             --input - <<EOF
           {
-            "event_type": "docs-update",
+            "event_type": "sdk-release",
             "client_payload": {
               "source": "ANcpLua.NET.Sdk",
-              "ref": "${{ github.ref }}"
+              "ref": "${{ github.ref }}",
+              "sha": "${{ github.sha }}"
             }
           }
           EOF
