@@ -1,0 +1,20 @@
+name: Trigger Docs Rebuild
+on:
+  push:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger docs rebuild on ANcpLua.io
+        run: |
+          gh api repos/ANcpLua/ANcpLua.io/dispatches \
+            --method POST \
+            -f event_type=docs-update \
+            -f 'client_payload={"source":"ANcpLua.NET.Sdk","ref":"${{ github.ref }}"}'
+        env:
+          GH_TOKEN: ${{ secrets.DOCS_TRIGGER_PAT }}
