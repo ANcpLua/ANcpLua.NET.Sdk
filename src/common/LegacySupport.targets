@@ -73,7 +73,7 @@
     <_SharedSourcePath>$(MSBuildThisFileDirectory)../shared/</_SharedSourcePath>
   </PropertyGroup>
 
-  <Target Name="DebugLegacySupport" BeforeTargets="CoreCompile">
+  <Target Name="DebugLegacySupport" BeforeTargets="CoreCompile" Condition="'$(ANcpLuaDebugLegacySupport)' == 'true'">
     <Message Importance="High" Text="LegacySupport: InjectANcpLuaLanguageFeaturesPolyfills = $(InjectANcpLuaLanguageFeaturesPolyfills)"/>
     <Message Importance="High" Text="LegacySupport: _NeedsNet5Polyfills = $(_NeedsNet5Polyfills)"/>
     <Message Importance="High" Text="LegacySupport: _SharedSourcePath = $(_SharedSourcePath)"/>
