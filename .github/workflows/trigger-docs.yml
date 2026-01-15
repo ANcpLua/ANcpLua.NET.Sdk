@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Trigger Mintlify docs rebuild
         run: |
-          gh api repos/ANcpLua/mintlify-docs/dispatches \
+          gh api repos/ANcpLua/ancplua-docs/dispatches \
             --method POST \
             --input - <<EOF
           {
