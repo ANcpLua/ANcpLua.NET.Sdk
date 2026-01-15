@@ -11,7 +11,8 @@
   </PropertyGroup>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
-  <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'"/>
+  <!-- Always import Common.props (CustomBeforeDirectoryBuildProps only works with Directory.Build.props) -->
+  <Import Project="$(MSBuildThisFileDirectory)../common/Common.props"/>
 
   <!-- Enforcement and determinism/SourceLink -->
   <Import Project="$(MSBuildThisFileDirectory)../Enforcement/Enforcement.props"/>
