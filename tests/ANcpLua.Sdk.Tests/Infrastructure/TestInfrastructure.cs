@@ -165,7 +165,7 @@ public readonly record struct PolyfillDefinition(
         Tfm.NetStandard20,
         "_ = typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute);",
         "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute",
-        HasNegativeTest: false);
+        false);
 
     public static ImmutableArray<PolyfillDefinition> All =>
     [
@@ -180,10 +180,7 @@ public readonly record struct PolyfillDefinition(
 
 public readonly record struct RepositoryRoot
 {
-    private RepositoryRoot(FullPath path)
-    {
-        FullPath = path;
-    }
+    private RepositoryRoot(FullPath path) => FullPath = path;
 
     public FullPath FullPath { get; }
 

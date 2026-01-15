@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 namespace System;
 
 /// <summary>
-///     Backport of <see cref="Range"/> for .NET Standard 2.0 and .NET Framework.
+///     Backport of <see cref="Range" /> for .NET Standard 2.0 and .NET Framework.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -17,8 +17,8 @@ namespace System;
 ///         available on .NET Core 3.0+ and .NET Standard 2.1+ through the standard library.
 ///     </para>
 ///     <para>
-///         A <see cref="Range"/> represents a contiguous region within a collection, defined by
-///         a start and end <see cref="Index"/>. This enables the C# range syntax: <c>array[1..^1]</c>
+///         A <see cref="Range" /> represents a contiguous region within a collection, defined by
+///         a start and end <see cref="Index" />. This enables the C# range syntax: <c>array[1..^1]</c>
 ///         to get all elements except the first and last.
 ///     </para>
 ///     <para>
@@ -53,7 +53,7 @@ internal readonly struct Range : IEquatable<Range>
     public Index End { get; }
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Range"/> struct with the specified start and end indices.
+    ///     Initializes a new instance of the <see cref="Range" /> struct with the specified start and end indices.
     /// </summary>
     /// <param name="start">The inclusive start index of the range.</param>
     /// <param name="end">The exclusive end index of the range.</param>
@@ -61,8 +61,15 @@ internal readonly struct Range : IEquatable<Range>
     ///     <para>
     ///         Both indices can be "from start" or "from end" indices. For example:
     ///         <list type="bullet">
-    ///             <item><description><c>new Range(1, 3)</c> - elements at indices 1 and 2</description></item>
-    ///             <item><description><c>new Range(Index.FromEnd(3), Index.FromEnd(1))</c> - third-to-last through second-to-last</description></item>
+    ///             <item>
+    ///                 <description><c>new Range(1, 3)</c> - elements at indices 1 and 2</description>
+    ///             </item>
+    ///             <item>
+    ///                 <description>
+    ///                     <c>new Range(Index.FromEnd(3), Index.FromEnd(1))</c> - third-to-last through
+    ///                     second-to-last
+    ///                 </description>
+    ///             </item>
     ///         </list>
     ///     </para>
     /// </remarks>
@@ -73,22 +80,13 @@ internal readonly struct Range : IEquatable<Range>
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        return obj is Range other && other.Start.Equals(Start) && other.End.Equals(End);
-    }
+    public override bool Equals(object? obj) => obj is Range other && other.Start.Equals(Start) && other.End.Equals(End);
 
     /// <inheritdoc />
-    public bool Equals(Range other)
-    {
-        return other.Start.Equals(Start) && other.End.Equals(End);
-    }
+    public bool Equals(Range other) => other.Start.Equals(Start) && other.End.Equals(End);
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return Start.GetHashCode() * 31 + End.GetHashCode();
-    }
+    public override int GetHashCode() => Start.GetHashCode() * 31 + End.GetHashCode();
 
     /// <summary>
     ///     Returns the string representation of this range in C# syntax.
@@ -96,35 +94,26 @@ internal readonly struct Range : IEquatable<Range>
     /// <returns>
     ///     A string in the format <c>start..end</c> (e.g., "0..5", "^3..^1").
     /// </returns>
-    public override string ToString()
-    {
-        return Start + ".." + End;
-    }
+    public override string ToString() => Start + ".." + End;
 
     /// <summary>
     ///     Creates a range starting at the specified index and ending at the end of the collection.
     /// </summary>
     /// <param name="start">The inclusive start index.</param>
-    /// <returns>A <see cref="Range"/> equivalent to <c>start..</c> in C# syntax.</returns>
-    public static Range StartAt(Index start)
-    {
-        return new Range(start, Index.End);
-    }
+    /// <returns>A <see cref="Range" /> equivalent to <c>start..</c> in C# syntax.</returns>
+    public static Range StartAt(Index start) => new(start, Index.End);
 
     /// <summary>
     ///     Creates a range starting at the beginning and ending at the specified index.
     /// </summary>
     /// <param name="end">The exclusive end index.</param>
-    /// <returns>A <see cref="Range"/> equivalent to <c>..end</c> in C# syntax.</returns>
-    public static Range EndAt(Index end)
-    {
-        return new Range(Index.Start, end);
-    }
+    /// <returns>A <see cref="Range" /> equivalent to <c>..end</c> in C# syntax.</returns>
+    public static Range EndAt(Index end) => new(Index.Start, end);
 
     /// <summary>
     ///     Gets a range representing the entire collection.
     /// </summary>
-    /// <value>A <see cref="Range"/> equivalent to <c>..</c> in C# syntax (from start to end).</value>
+    /// <value>A <see cref="Range" /> equivalent to <c>..</c> in C# syntax (from start to end).</value>
     public static Range All => new(Index.Start, Index.End);
 
     /// <summary>
@@ -134,8 +123,12 @@ internal readonly struct Range : IEquatable<Range>
     /// <returns>
     ///     A tuple containing:
     ///     <list type="bullet">
-    ///         <item><description><c>Offset</c> - The zero-based starting position in the collection.</description></item>
-    ///         <item><description><c>Length</c> - The number of elements in the range.</description></item>
+    ///         <item>
+    ///             <description><c>Offset</c> - The zero-based starting position in the collection.</description>
+    ///         </item>
+    ///         <item>
+    ///             <description><c>Length</c> - The number of elements in the range.</description>
+    ///         </item>
     ///     </list>
     /// </returns>
     /// <exception cref="ArgumentOutOfRangeException">

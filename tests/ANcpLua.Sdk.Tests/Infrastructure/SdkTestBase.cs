@@ -14,10 +14,8 @@ public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper outp
     /// <summary>Creates a new ProjectBuilder with default settings</summary>
     protected ProjectBuilder CreateProject(
         SdkImportStyle style = SdkImportStyle.SdkElement,
-        string sdk = PackageFixture.SdkName)
-    {
-        return new ProjectBuilder(Fixture, Output, style, sdk);
-    }
+        string sdk = PackageFixture.SdkName) =>
+        new(Fixture, Output, style, sdk);
 
     /// <summary>Quick build helper for simple test cases</summary>
     protected async Task<BuildResult> QuickBuild(
@@ -38,10 +36,8 @@ public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper outp
     protected async Task<BuildResult> BuildLibrary(
         string code,
         string tfm = Tfm.Net100,
-        params (string Key, string Value)[] extraProps)
-    {
-        return await QuickBuild(code, tfm, extraProps);
-    }
+        params (string Key, string Value)[] extraProps) =>
+        await QuickBuild(code, tfm, extraProps);
 
     /// <summary>Quick build helper with exe output type</summary>
     protected async Task<BuildResult> BuildExe(

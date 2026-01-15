@@ -14,6 +14,8 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
     private readonly PackageFixture _fixture = fixture;
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
+    private ProjectBuilder CreateProjectBuilder() => new(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+
     #region Individual Polyfill Activation Tests
 
     public static TheoryData<PolyfillDefinition> AllPolyfills => PolyfillTestDataSource.ActivationMatrix();
@@ -98,7 +100,7 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
             result.OutputContains("CS0234") || // Type or namespace does not exist in namespace
             result.OutputContains("CS0518") || // Predefined type not defined
             result.OutputContains("CS1513") || // } expected
-            result.OutputContains("CS1022"),   // Type or namespace definition expected
+            result.OutputContains("CS1022"), // Type or namespace definition expected
             $"Expected compilation error for missing type {polyfill.ExpectedType}. Output: {result.ProcessOutput}");
     }
 
@@ -110,8 +112,10 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
     [
         new PolyfillScenario(
             "Language Features (required, init, Index)",
-            [Prop.InjectRequiredMemberOnLegacy, Prop.InjectCompilerFeatureRequiredOnLegacy,
-             Prop.InjectIsExternalInitOnLegacy, Prop.InjectIndexRangeOnLegacy],
+            [
+                Prop.InjectRequiredMemberOnLegacy, Prop.InjectCompilerFeatureRequiredOnLegacy,
+                Prop.InjectIsExternalInitOnLegacy, Prop.InjectIndexRangeOnLegacy
+            ],
             """
             var arr = new[] { 1, 2, 3, 4, 5 };
             var last = arr[^1];
@@ -120,13 +124,13 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
             _ = person.Name;
             _ = last + first;
             """,
-            AdditionalCode: """
-                            internal class Person
-                            {
-                                public required string Name { get; init; }
-                                public int Age { get; init; }
-                            }
-                            """),
+            """
+            internal class Person
+            {
+                public required string Name { get; init; }
+                public int Age { get; init; }
+            }
+            """),
 
         new PolyfillScenario(
             "Throw + TimeProvider",
@@ -139,39 +143,41 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
 
         new PolyfillScenario(
             "Realistic Service (Throw + Nullable + Caller + Init + UnreachableException)",
-            [Prop.InjectSharedThrow, Prop.InjectNullabilityAttributesOnLegacy,
-             Prop.InjectCallerAttributesOnLegacy, Prop.InjectIsExternalInitOnLegacy,
-             Prop.InjectUnreachableExceptionOnLegacy],
+            [
+                Prop.InjectSharedThrow, Prop.InjectNullabilityAttributesOnLegacy,
+                Prop.InjectCallerAttributesOnLegacy, Prop.InjectIsExternalInitOnLegacy,
+                Prop.InjectUnreachableExceptionOnLegacy
+            ],
             """
             var options = new ServiceOptions { ConnectionString = "test", Timeout = 30 };
             var service = new RealisticService(options);
             _ = service.GetConnection();
             """,
-            AdditionalCode: """
-                            internal record ServiceOptions
-                            {
-                                public string ConnectionString { get; init; } = "";
-                                public int Timeout { get; init; } = 30;
-                            }
+            """
+            internal record ServiceOptions
+            {
+                public string ConnectionString { get; init; } = "";
+                public int Timeout { get; init; } = 30;
+            }
 
-                            internal class RealisticService
-                            {
-                                private readonly ServiceOptions _options;
+            internal class RealisticService
+            {
+                private readonly ServiceOptions _options;
 
-                                public RealisticService(ServiceOptions options)
-                                {
-                                    _options = Microsoft.Shared.Diagnostics.Throw.IfNull(options);
-                                    Microsoft.Shared.Diagnostics.Throw.IfNullOrWhitespace(options.ConnectionString);
-                                    Microsoft.Shared.Diagnostics.Throw.IfLessThan(options.Timeout, 1);
-                                }
+                public RealisticService(ServiceOptions options)
+                {
+                    _options = Microsoft.Shared.Diagnostics.Throw.IfNull(options);
+                    Microsoft.Shared.Diagnostics.Throw.IfNullOrWhitespace(options.ConnectionString);
+                    Microsoft.Shared.Diagnostics.Throw.IfLessThan(options.Timeout, 1);
+                }
 
-                                [return: System.Diagnostics.CodeAnalysis.NotNull]
-                                public string GetConnection()
-                                {
-                                    return _options.ConnectionString ?? throw new System.Diagnostics.UnreachableException();
-                                }
-                            }
-                            """),
+                [return: System.Diagnostics.CodeAnalysis.NotNull]
+                public string GetConnection()
+                {
+                    return _options.ConnectionString ?? throw new System.Diagnostics.UnreachableException();
+                }
+            }
+            """),
 
         new PolyfillScenario(
             "Nullable + CallerExpression",
@@ -181,18 +187,18 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
             Validator.ThrowIfNull(input);
             System.Console.WriteLine(input.Length);
             """,
-            AdditionalCode: """
-                            internal static class Validator
-                            {
-                                public static void ThrowIfNull(
-                                    [System.Diagnostics.CodeAnalysis.NotNull] object? value,
-                                    [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(value))] string? paramName = null)
-                                {
-                                    if (value is null)
-                                        throw new System.ArgumentNullException(paramName);
-                                }
-                            }
-                            """)
+            """
+            internal static class Validator
+            {
+                public static void ThrowIfNull(
+                    [System.Diagnostics.CodeAnalysis.NotNull] object? value,
+                    [System.Runtime.CompilerServices.CallerArgumentExpression(nameof(value))] string? paramName = null)
+                {
+                    if (value is null)
+                        throw new System.ArgumentNullException(paramName);
+                }
+            }
+            """)
     ];
 
     [Theory]
@@ -233,11 +239,6 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
     }
 
     #endregion
-
-    private ProjectBuilder CreateProjectBuilder()
-    {
-        return new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
-    }
 }
 
 /// <summary>

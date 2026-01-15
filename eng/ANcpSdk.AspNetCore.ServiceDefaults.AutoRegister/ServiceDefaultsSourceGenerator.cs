@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -9,10 +10,10 @@ using Microsoft.CodeAnalysis.Text;
 namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister;
 
 /// <summary>
-/// Intercepts WebApplicationBuilder.Build() calls to auto-register ANcpSdk service defaults.
+///     Intercepts WebApplicationBuilder.Build() calls to auto-register ANcpSdk service defaults.
 /// </summary>
 /// <remarks>
-/// See: https://github.com/dotnet/roslyn/blob/main/docs/features/interceptors.md
+///     See: https://github.com/dotnet/roslyn/blob/main/docs/features/interceptors.md
 /// </remarks>
 [Generator]
 public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
@@ -35,30 +36,16 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
             EmitInterceptors);
     }
 
-    #region Pipeline Predicates
+    private static bool HasServiceDefaultsType(Compilation compilation, CancellationToken _) => compilation.GetTypeByMetadataName(MetadataNames.ServiceDefaultsClass) is not null;
 
-    private static bool HasServiceDefaultsType(Compilation compilation, CancellationToken _)
-    {
-        return compilation.GetTypeByMetadataName(MetadataNames.ServiceDefaultsClass) is not null;
-    }
-
-    private static bool IsPotentialBuildCall(SyntaxNode node, CancellationToken _)
-    {
-        return node.IsKind(SyntaxKind.InvocationExpression);
-    }
+    private static bool IsPotentialBuildCall(SyntaxNode node, CancellationToken _) => node.IsKind(SyntaxKind.InvocationExpression);
 
     private static ImmutableArray<InterceptionData> AsSingletonOrEmpty(
         InterceptionData? item,
-        CancellationToken _)
-    {
-        return item is { } data
+        CancellationToken _) =>
+        item is { } data
             ? [data]
             : [];
-    }
-
-    #endregion
-
-    #region Semantic Transform
 
     private static InterceptionData? TransformToBuildInterception(
         GeneratorSyntaxContext context,
@@ -71,22 +58,20 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
             return null;
 
         var interceptLocation = GetInterceptableLocation(context, cancellationToken);
-        if (interceptLocation is null)
-            return null;
-
-        return CreateInterceptionData(context.Node, interceptLocation);
+        return interceptLocation is null ? null : CreateInterceptionData(context.Node, interceptLocation);
     }
 
     private static bool TryGetBuildInvocation(
         GeneratorSyntaxContext context,
         CancellationToken cancellationToken,
-        out IInvocationOperation invocation)
+        [NotNullWhen(true)] out IInvocationOperation? invocation)
     {
-        invocation = null!;
-
         if (context.SemanticModel.GetOperation(context.Node, cancellationToken)
             is not IInvocationOperation op)
+        {
+            invocation = null;
             return false;
+        }
 
         invocation = op;
         return true;
@@ -107,24 +92,20 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
 
     private static InterceptableLocation? GetInterceptableLocation(
         GeneratorSyntaxContext context,
-        CancellationToken cancellationToken)
-    {
-        return context.SemanticModel.GetInterceptableLocation(
+        CancellationToken cancellationToken) =>
+        context.SemanticModel.GetInterceptableLocation(
             (InvocationExpressionSyntax)context.Node,
             cancellationToken);
-    }
 
     private static InterceptionData CreateInterceptionData(
         SyntaxNode node,
-        InterceptableLocation location)
-    {
-        return new InterceptionData
+        InterceptableLocation location) =>
+        new()
         {
             OrderKey = FormatLocationKey(node),
             Kind = InterceptionMethodKind.Build,
             InterceptableLocation = location
         };
-    }
 
     private static string FormatLocationKey(SyntaxNode node)
     {
@@ -132,10 +113,6 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         var start = span.StartLinePosition;
         return $"{node.SyntaxTree.FilePath}:{start.Line}:{start.Character}";
     }
-
-    #endregion
-
-    #region Code Generation
 
     private static void EmitInterceptors(
         SourceProductionContext context,
@@ -189,9 +166,7 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         foreach (var candidate in orderedCandidates)
         {
             if (candidate.Kind is InterceptionMethodKind.Build)
-            {
                 AppendBuildInterceptor(sb, candidate, index);
-            }
 
             index++;
         }
@@ -206,27 +181,23 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         var interceptAttribute = candidate.InterceptableLocation.GetInterceptsLocationAttributeSyntax();
 
         sb.AppendLine($$"""
-                // Intercepted call at {{displayLocation}}
-                {{interceptAttribute}}
-                public static global::{{MetadataNames.WebApplication}} {{MethodNames.InterceptBuildPrefix}}{{index}}(
-                    this global::{{MetadataNames.WebApplicationBuilder}} builder)
-                {
-                    builder.{{MethodNames.TryUseConventions}}();
-                    var app = builder.{{MethodNames.Build}}();
-                    app.{{MethodNames.MapDefaultEndpoints}}();
-                    return app;
-                }
-        """);
+                                // Intercepted call at {{displayLocation}}
+                                {{interceptAttribute}}
+                                public static global::{{MetadataNames.WebApplication}} {{MethodNames.InterceptBuildPrefix}}{{index}}(
+                                    this global::{{MetadataNames.WebApplicationBuilder}} builder)
+                                {
+                                    builder.{{MethodNames.TryUseConventions}}();
+                                    var app = builder.{{MethodNames.Build}}();
+                                    app.{{MethodNames.MapDefaultEndpoints}}();
+                                    return app;
+                                }
+                        """);
     }
 
     private static void AppendInterceptorsClassClose(StringBuilder sb)
     {
         sb.AppendLine(SourceTemplates.InterceptorsNamespaceClose);
     }
-
-    #endregion
-
-    #region Constants
 
     /// <summary>Fully-qualified metadata names for type lookups.</summary>
     private static class MetadataNames
@@ -266,27 +237,25 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         public const string PragmaDisable = "#pragma warning disable";
 
         public const string InterceptsLocationAttribute = """
-            namespace System.Runtime.CompilerServices
-            {
-                [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = true)]
-                file sealed class InterceptsLocationAttribute(int version, string data) : global::System.Attribute;
-            }
-            """;
+                                                          namespace System.Runtime.CompilerServices
+                                                          {
+                                                              [global::System.AttributeUsage(global::System.AttributeTargets.Method, AllowMultiple = true)]
+                                                              file sealed class InterceptsLocationAttribute(int version, string data) : global::System.Attribute;
+                                                          }
+                                                          """;
 
         public const string InterceptorsNamespaceOpen = """
-            namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister
-            {
-                using ANcpSdk.AspNetCore.ServiceDefaults;
+                                                        namespace ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister
+                                                        {
+                                                            using ANcpSdk.AspNetCore.ServiceDefaults;
 
-                file static partial class Interceptors
-                {
-            """;
+                                                            file static partial class Interceptors
+                                                            {
+                                                        """;
 
         public const string InterceptorsNamespaceClose = """
-                }
-            }
-            """;
+                                                             }
+                                                         }
+                                                         """;
     }
-
-    #endregion
 }

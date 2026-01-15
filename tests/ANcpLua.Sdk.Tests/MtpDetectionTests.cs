@@ -20,10 +20,6 @@ public abstract class MtpDetectionTests(
     ITestOutputHelper testOutputHelper,
     NetSdkVersion dotnetSdkVersion)
 {
-    private readonly PackageFixture _fixture = fixture;
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
-    private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
-
     // Package references for each scenario - note: renovate will update these
     private static readonly NuGetReference[] _xUnit3MtpV1Packages =
         [new("xunit.v3.mtp-v1", "3.2.1")];
@@ -39,6 +35,10 @@ public abstract class MtpDetectionTests(
 
     private static readonly NuGetReference[] _tUnitPackages =
         [new("TUnit", "0.18.0")];
+
+    private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
+    private readonly PackageFixture _fixture = fixture;
+    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
     private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkTestName)
     {

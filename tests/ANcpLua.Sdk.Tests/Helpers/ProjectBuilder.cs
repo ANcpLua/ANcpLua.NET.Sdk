@@ -99,10 +99,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
         await _directory.DisposeAsync();
     }
 
-    public string? GetGitHubStepSummaryContent()
-    {
-        return File.Exists(_githubStepSummaryFile) ? File.ReadAllText(_githubStepSummaryFile) : null;
-    }
+    public string? GetGitHubStepSummaryContent() => File.Exists(_githubStepSummaryFile) ? File.ReadAllText(_githubStepSummaryFile) : null;
 
     public FullPath AddFile(string relativePath, string content)
     {
@@ -217,10 +214,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
         return await BuildAndGetOutput(buildArguments, environmentVariables);
     }
 
-    private string GetSdkElementContent(string sdkName)
-    {
-        return $"""<Sdk Name="{sdkName}" Version="{_fixture.Version}" />""";
-    }
+    private string GetSdkElementContent(string sdkName) => $"""<Sdk Name="{sdkName}" Version="{_fixture.Version}" />""";
 
     public void AddDirectoryBuildPropsFile(string postSdkContent, string preSdkContent = "", string? sdkName = null)
     {
@@ -285,41 +279,29 @@ public sealed class ProjectBuilder : IAsyncDisposable
     }
 
     public Task<BuildResult> BuildAndGetOutput(string[]? buildArguments = null,
-        (string Name, string Value)[]? environmentVariables = null)
-    {
-        return ExecuteDotnetCommandAndGetOutput("build", buildArguments, environmentVariables);
-    }
+        (string Name, string Value)[]? environmentVariables = null) =>
+        ExecuteDotnetCommandAndGetOutput("build", buildArguments, environmentVariables);
 
 
     public Task<BuildResult> RestoreAndGetOutput(string[]? buildArguments = null,
-        (string Name, string Value)[]? environmentVariables = null)
-    {
-        return ExecuteDotnetCommandAndGetOutput("restore", buildArguments, environmentVariables);
-    }
+        (string Name, string Value)[]? environmentVariables = null) =>
+        ExecuteDotnetCommandAndGetOutput("restore", buildArguments, environmentVariables);
 
     public Task<BuildResult> CleanAndGetOutput(string[]? buildArguments = null,
-        (string Name, string Value)[]? environmentVariables = null)
-    {
-        return ExecuteDotnetCommandAndGetOutput("clean", buildArguments, environmentVariables);
-    }
+        (string Name, string Value)[]? environmentVariables = null) =>
+        ExecuteDotnetCommandAndGetOutput("clean", buildArguments, environmentVariables);
 
     public Task<BuildResult> PackAndGetOutput(string[]? buildArguments = null,
-        (string Name, string Value)[]? environmentVariables = null)
-    {
-        return ExecuteDotnetCommandAndGetOutput("pack", buildArguments, environmentVariables);
-    }
+        (string Name, string Value)[]? environmentVariables = null) =>
+        ExecuteDotnetCommandAndGetOutput("pack", buildArguments, environmentVariables);
 
     public Task<BuildResult> RunAndGetOutput(string[]? buildArguments = null,
-        (string Name, string Value)[]? environmentVariables = null)
-    {
-        return ExecuteDotnetCommandAndGetOutput("run", ["--", .. buildArguments ?? []], environmentVariables);
-    }
+        (string Name, string Value)[]? environmentVariables = null) =>
+        ExecuteDotnetCommandAndGetOutput("run", ["--", .. buildArguments ?? []], environmentVariables);
 
     public Task<BuildResult> TestAndGetOutput(string[]? buildArguments = null,
-        (string Name, string Value)[]? environmentVariables = null)
-    {
-        return ExecuteDotnetCommandAndGetOutput("test", buildArguments, environmentVariables);
-    }
+        (string Name, string Value)[]? environmentVariables = null) =>
+        ExecuteDotnetCommandAndGetOutput("test", buildArguments, environmentVariables);
 
     public async Task<BuildResult> ExecuteDotnetCommandAndGetOutput(string command, string[]? buildArguments = null,
         (string Name, string Value)[]? environmentVariables = null)
@@ -397,9 +379,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
                 result = await psi.RunAsTaskAsync();
             }
             else
-            {
                 break;
-            }
 
         _testOutputHelper.WriteLine("Process exit code: " + result.ExitCode);
         _testOutputHelper.WriteLine(XmlSanitizer.SanitizeForXml(result.Output.ToString()));
@@ -415,9 +395,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
                                             sarif!.AllResults().Select(static r => r.ToString()))));
         }
         else
-        {
             _testOutputHelper.WriteLine("Sarif file not found: " + sarifPath);
-        }
 
         var binlogContent = await File.ReadAllBytesAsync(_directory.FullPath / "msbuild.binlog");
         TestContext.Current.AddAttachment($"msbuild{_buildCount}.binlog", binlogContent);
@@ -499,15 +477,13 @@ internal static class XmlSanitizer
             new string(text.Where(IsValidXmlChar).ToArray());
     }
 
-    private static bool IsValidXmlChar(char ch)
-    {
+    private static bool IsValidXmlChar(char ch) =>
         // XML 1.0 valid characters:
         // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD]
         // Note: Surrogate pairs (#x10000-#x10FFFF) are handled by .NET as two chars
-        return ch == 0x9 ||
-               ch == 0xA ||
-               ch == 0xD ||
-               (ch >= 0x20 && ch <= 0xD7FF) ||
-               (ch >= 0xE000 && ch <= 0xFFFD);
-    }
+        ch == 0x9 ||
+        ch == 0xA ||
+        ch == 0xD ||
+        ch >= 0x20 && ch <= 0xD7FF ||
+        ch >= 0xE000 && ch <= 0xFFFD;
 }

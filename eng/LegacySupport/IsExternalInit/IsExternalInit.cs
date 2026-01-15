@@ -4,7 +4,7 @@
 namespace System.Runtime.CompilerServices;
 
 /// <summary>
-///     Backport of <see cref="IsExternalInit"/> for .NET Standard 2.0/2.1 and .NET Framework.
+///     Backport of <see cref="IsExternalInit" /> for .NET Standard 2.0/2.1 and .NET Framework.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -14,8 +14,12 @@ namespace System.Runtime.CompilerServices;
 ///     <para>
 ///         The C# compiler requires this type to exist when using C# 9+ features such as:
 ///         <list type="bullet">
-///             <item><description>Init-only properties (<c>init</c> accessor)</description></item>
-///             <item><description>Record types (<c>record class</c> and <c>record struct</c>)</description></item>
+///             <item>
+///                 <description>Init-only properties (<c>init</c> accessor)</description>
+///             </item>
+///             <item>
+///                 <description>Record types (<c>record class</c> and <c>record struct</c>)</description>
+///             </item>
 ///         </list>
 ///     </para>
 ///     <para>
@@ -30,7 +34,7 @@ namespace System.Runtime.CompilerServices;
 ///     {
 ///         public string Name { get; init; }
 ///     }
-///
+/// 
 ///     // Records also require this type:
 ///     public record Point(int X, int Y);
 ///     </code>

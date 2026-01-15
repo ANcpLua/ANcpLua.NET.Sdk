@@ -197,20 +197,14 @@ public class SarifFileRunResult
 
     [JsonPropertyName("message")] public SarifFileRunResultMessage? Message { get; set; }
 
-    public override string ToString()
-    {
-        return $"{Level}:{RuleId} {Message}";
-    }
+    public override string ToString() => $"{Level}:{RuleId} {Message}";
 }
 
 public class SarifFileRunResultMessage
 {
     [JsonPropertyName("text")] public string? Text { get; set; }
 
-    public override string ToString()
-    {
-        return Text ?? "";
-    }
+    public override string ToString() => Text ?? "";
 }
 
 public class SarifFileRun

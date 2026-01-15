@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 namespace System;
 
 /// <summary>
-///     Backport of <see cref="Index"/> for .NET Standard 2.0 and .NET Framework.
+///     Backport of <see cref="Index" /> for .NET Standard 2.0 and .NET Framework.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -17,7 +17,7 @@ namespace System;
 ///         available on .NET Core 3.0+ and .NET Standard 2.1+ through the standard library.
 ///     </para>
 ///     <para>
-///         An <see cref="Index"/> represents a position in a collection, either from the start
+///         An <see cref="Index" /> represents a position in a collection, either from the start
 ///         (non-negative) or from the end (using the <c>^</c> operator in C#). This enables
 ///         the range and index syntax: <c>array[^1]</c> for the last element.
 ///     </para>
@@ -40,7 +40,7 @@ internal readonly struct Index : IEquatable<Index>
     private readonly int _value;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Index"/> struct.
+    ///     Initializes a new instance of the <see cref="Index" /> struct.
     /// </summary>
     /// <param name="value">
     ///     The index value. Must be non-negative.
@@ -50,12 +50,12 @@ internal readonly struct Index : IEquatable<Index>
     ///     If <c>false</c> (default), the index counts from the start (e.g., <c>0</c> is the first element).
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     Thrown when <paramref name="value"/> is negative.
+    ///     Thrown when <paramref name="value" /> is negative.
     /// </exception>
     /// <remarks>
     ///     <para>
-    ///         When <paramref name="fromEnd"/> is <c>true</c>, a value of <c>1</c> refers to the last element,
-    ///         <c>2</c> to the second-to-last, and so on. A value of <c>0</c> with <paramref name="fromEnd"/>
+    ///         When <paramref name="fromEnd" /> is <c>true</c>, a value of <c>1</c> refers to the last element,
+    ///         <c>2</c> to the second-to-last, and so on. A value of <c>0</c> with <paramref name="fromEnd" />
     ///         set to <c>true</c> represents the position immediately after the last element.
     ///     </para>
     /// </remarks>
@@ -67,28 +67,25 @@ internal readonly struct Index : IEquatable<Index>
         _value = fromEnd ? ~value : value;
     }
 
-    private Index(int value)
-    {
-        _value = value;
-    }
+    private Index(int value) => _value = value;
 
     /// <summary>
-    ///     Gets an <see cref="Index"/> pointing to the first element (index 0).
+    ///     Gets an <see cref="Index" /> pointing to the first element (index 0).
     /// </summary>
     public static Index Start => new(0);
 
     /// <summary>
-    ///     Gets an <see cref="Index"/> pointing to the position after the last element (<c>^0</c>).
+    ///     Gets an <see cref="Index" /> pointing to the position after the last element (<c>^0</c>).
     /// </summary>
     public static Index End => new(~0);
 
     /// <summary>
-    ///     Creates an <see cref="Index"/> from the start of a collection.
+    ///     Creates an <see cref="Index" /> from the start of a collection.
     /// </summary>
     /// <param name="value">The zero-based index from the start. Must be non-negative.</param>
-    /// <returns>An <see cref="Index"/> representing the specified position from the start.</returns>
+    /// <returns>An <see cref="Index" /> representing the specified position from the start.</returns>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     Thrown when <paramref name="value"/> is negative.
+    ///     Thrown when <paramref name="value" /> is negative.
     /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Index FromStart(int value)
@@ -98,15 +95,15 @@ internal readonly struct Index : IEquatable<Index>
     }
 
     /// <summary>
-    ///     Creates an <see cref="Index"/> from the end of a collection.
+    ///     Creates an <see cref="Index" /> from the end of a collection.
     /// </summary>
     /// <param name="value">
     ///     The index from the end. A value of <c>1</c> refers to the last element,
     ///     <c>2</c> to the second-to-last, and so on. Must be non-negative.
     /// </param>
-    /// <returns>An <see cref="Index"/> representing the specified position from the end.</returns>
+    /// <returns>An <see cref="Index" /> representing the specified position from the end.</returns>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     Thrown when <paramref name="value"/> is negative.
+    ///     Thrown when <paramref name="value" /> is negative.
     /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Index FromEnd(int value)
@@ -124,7 +121,7 @@ internal readonly struct Index : IEquatable<Index>
     ///     Gets a value indicating whether this index counts from the end of the collection.
     /// </summary>
     /// <value>
-    ///     <c>true</c> if this index was created with <c>fromEnd: true</c> or via <see cref="FromEnd"/>;
+    ///     <c>true</c> if this index was created with <c>fromEnd: true</c> or via <see cref="FromEnd" />;
     ///     otherwise, <c>false</c>.
     /// </value>
     public bool IsFromEnd => _value < 0;
@@ -138,7 +135,7 @@ internal readonly struct Index : IEquatable<Index>
     /// </returns>
     /// <remarks>
     ///     <para>
-    ///         For a "from start" index, this simply returns the <see cref="Value"/>.
+    ///         For a "from start" index, this simply returns the <see cref="Value" />.
     ///         For a "from end" index, this computes <c>length - Value</c>.
     ///     </para>
     ///     <para>
@@ -150,7 +147,7 @@ internal readonly struct Index : IEquatable<Index>
     ///     <code>
     ///     var fromStart = new Index(2);       // index 2
     ///     var fromEnd = new Index(1, true);   // ^1 (last element)
-    ///
+    /// 
     ///     int length = 5;
     ///     fromStart.GetOffset(length); // returns 2
     ///     fromEnd.GetOffset(length);   // returns 4 (5 - 1)
@@ -165,32 +162,20 @@ internal readonly struct Index : IEquatable<Index>
     }
 
     /// <inheritdoc />
-    public override bool Equals(object? obj)
-    {
-        return obj is Index other && _value == other._value;
-    }
+    public override bool Equals(object? obj) => obj is Index other && _value == other._value;
 
     /// <inheritdoc />
-    public bool Equals(Index other)
-    {
-        return _value == other._value;
-    }
+    public bool Equals(Index other) => _value == other._value;
 
     /// <inheritdoc />
-    public override int GetHashCode()
-    {
-        return _value;
-    }
+    public override int GetHashCode() => _value;
 
     /// <summary>
-    ///     Implicitly converts an <see cref="int"/> to an <see cref="Index"/> from the start.
+    ///     Implicitly converts an <see cref="int" /> to an <see cref="Index" /> from the start.
     /// </summary>
     /// <param name="value">The integer index value.</param>
-    /// <returns>An <see cref="Index"/> equivalent to <c>Index.FromStart(value)</c>.</returns>
-    public static implicit operator Index(int value)
-    {
-        return FromStart(value);
-    }
+    /// <returns>An <see cref="Index" /> equivalent to <c>Index.FromStart(value)</c>.</returns>
+    public static implicit operator Index(int value) => FromStart(value);
 
     /// <summary>
     ///     Returns a string representation of this index.
@@ -199,9 +184,6 @@ internal readonly struct Index : IEquatable<Index>
     ///     For "from end" indices, returns <c>^N</c> (e.g., "^1").
     ///     For "from start" indices, returns the numeric value (e.g., "0").
     /// </returns>
-    public override string ToString()
-    {
-        return IsFromEnd ? "^" + Value : ((uint)Value).ToString();
-    }
+    public override string ToString() => IsFromEnd ? "^" + Value : ((uint)Value).ToString();
 }
 #endif

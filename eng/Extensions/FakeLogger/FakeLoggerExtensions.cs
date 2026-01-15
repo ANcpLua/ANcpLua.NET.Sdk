@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging.Testing;
 namespace ANcpLua.Extensions.FakeLogger;
 
 /// <summary>
-///     Extension methods for <see cref="FakeLogCollector"/> to simplify log assertions in tests.
+///     Extension methods for <see cref="FakeLogCollector" /> to simplify log assertions in tests.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -17,9 +17,9 @@ public static class FakeLoggerExtensions
     /// <summary>
     ///     Retrieves all collected log entries as a single formatted string.
     /// </summary>
-    /// <param name="source">The <see cref="FakeLogCollector"/> containing the log records.</param>
+    /// <param name="source">The <see cref="FakeLogCollector" /> containing the log records.</param>
     /// <param name="formatter">
-    ///     An optional function to format each <see cref="FakeLogRecord"/>.
+    ///     An optional function to format each <see cref="FakeLogRecord" />.
     ///     If <c>null</c>, defaults to "{Level} - {Message}" format.
     /// </param>
     /// <returns>
@@ -47,7 +47,7 @@ public static class FakeLoggerExtensions
     /// <summary>
     ///     Asynchronously waits for a log condition to be satisfied within a specified timeout.
     /// </summary>
-    /// <param name="source">The <see cref="FakeLogCollector"/> to monitor.</param>
+    /// <param name="source">The <see cref="FakeLogCollector" /> to monitor.</param>
     /// <param name="condition">
     ///     A predicate that receives the current snapshot of log records and returns <c>true</c>
     ///     when the expected condition is met.
@@ -100,7 +100,7 @@ public static class FakeLoggerExtensions
     /// <summary>
     ///     Asynchronously waits until a specified number of log entries matching a predicate have been collected.
     /// </summary>
-    /// <param name="source">The <see cref="FakeLogCollector"/> to monitor.</param>
+    /// <param name="source">The <see cref="FakeLogCollector" /> to monitor.</param>
     /// <param name="predicate">A function to test each log record for a match.</param>
     /// <param name="expectedCount">The minimum number of matching log entries to wait for.</param>
     /// <param name="timeout">
@@ -108,12 +108,12 @@ public static class FakeLoggerExtensions
     /// </param>
     /// <param name="cancellationToken">A token to cancel the wait operation.</param>
     /// <returns>
-    ///     <c>true</c> if at least <paramref name="expectedCount"/> matching entries were found
+    ///     <c>true</c> if at least <paramref name="expectedCount" /> matching entries were found
     ///     within the timeout; otherwise, <c>false</c>.
     /// </returns>
     /// <remarks>
     ///     <para>
-    ///         This is a convenience wrapper around <see cref="WaitForLogAsync"/> for the common
+    ///         This is a convenience wrapper around <see cref="WaitForLogAsync" /> for the common
     ///         pattern of waiting for a specific number of log entries.
     ///     </para>
     /// </remarks>

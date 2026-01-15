@@ -79,6 +79,6 @@ Optional injections:
 | Add new injectable extension | Create folder in `eng/Extensions/`, add switch in `Shared.props`, add conditional in `Shared.targets` |
 | Modify ServiceDefaults | See `eng/ANcpSdk.AspNetCore.ServiceDefaults/` and `eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/` |
 
-## External Documentation
+## Documentation
 
-Full reference: https://ancplua.io/content/sdk/
+Full reference: https://ancplua.io/sdk/overview

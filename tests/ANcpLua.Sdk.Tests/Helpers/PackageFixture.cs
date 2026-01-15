@@ -75,9 +75,8 @@ public class PackageFixture : IAsyncLifetime
         // These need to be built first because they have IncludeBuildOutput=false and manually include the Release DLL
         var engProjects = new[]
         {
-            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj",
-            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" /
-            "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"
+            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj", repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" /
+                                                                                                                  "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"
         };
 
         // Build eng projects first (they need explicit build due to IncludeBuildOutput=false)

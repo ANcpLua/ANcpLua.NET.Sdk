@@ -17,22 +17,22 @@ src/
 
 ## SDK Packages
 
-| Package | Base SDK | Purpose |
-|---------|----------|---------|
-| ANcpLua.NET.Sdk | Microsoft.NET.Sdk | Standard .NET projects |
-| ANcpLua.NET.Sdk.Web | Microsoft.NET.Sdk.Web | ASP.NET Core projects |
-| ANcpLua.NET.Sdk.Test | Microsoft.NET.Sdk | Test projects (xUnit v3 MTP) |
+| Package              | Base SDK              | Purpose                      |
+|----------------------|-----------------------|------------------------------|
+| ANcpLua.NET.Sdk      | Microsoft.NET.Sdk     | Standard .NET projects       |
+| ANcpLua.NET.Sdk.Web  | Microsoft.NET.Sdk.Web | ASP.NET Core projects        |
+| ANcpLua.NET.Sdk.Test | Microsoft.NET.Sdk     | Test projects (xUnit v3 MTP) |
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `common/Version.props` | **SOURCE OF TRUTH** for all package versions |
-| `common/Common.props` | LangVersion, Nullable, analyzer injection switches |
-| `common/Common.targets` | Package injection, CLAUDE.md generation |
-| `common/LegacySupport.props` | Polyfill switches (InjectIndexRange, etc.) |
-| `common/LegacySupport.targets` | Conditional polyfill file injection |
-| `configuration/BannedSymbols.txt` | Legacy time APIs, object locks, etc. |
+| File                              | Purpose                                            |
+|-----------------------------------|----------------------------------------------------|
+| `common/Version.props`            | **SOURCE OF TRUTH** for all package versions       |
+| `common/Common.props`             | LangVersion, Nullable, analyzer injection switches |
+| `common/Common.targets`           | Package injection, CLAUDE.md generation            |
+| `common/LegacySupport.props`      | Polyfill switches (InjectIndexRange, etc.)         |
+| `common/LegacySupport.targets`    | Conditional polyfill file injection                |
+| `configuration/BannedSymbols.txt` | Legacy time APIs, object locks, etc.               |
 
 ## Build Flow
 

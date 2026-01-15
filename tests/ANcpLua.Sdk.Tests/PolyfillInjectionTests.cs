@@ -9,10 +9,7 @@ public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper te
     private readonly PackageFixture _fixture = fixture;
     private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
-    private ProjectBuilder CreateProjectBuilder()
-    {
-        return new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
-    }
+    private ProjectBuilder CreateProjectBuilder() => new(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
     [Theory]
     [MemberData(nameof(PolyfillTestDataSource.InjectionMatrix), MemberType = typeof(PolyfillTestDataSource))]
@@ -24,9 +21,7 @@ public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper te
         // Enable the polyfill property
         var properties = new[]
         {
-            (polyfill.InjectionProperty, Val.True),
-            (Prop.TargetFramework, tfm),
-            (Prop.OutputType, Val.Library)
+            (polyfill.InjectionProperty, Val.True), (Prop.TargetFramework, tfm), (Prop.OutputType, Val.Library)
         };
 
         // Inject a custom target to dump Compile items

@@ -1319,9 +1319,7 @@ public abstract class SdkTests(
         if (isPackOutput)
             // For pack output, PDB is in .snupkg (not in main .nupkg)
             // Just verify the DLL has debug directory entries pointing to portable PDB
-        {
             Assert.Contains(debug, static entry => entry.Type == DebugDirectoryEntryType.CodeView);
-        }
         else
         {
             // For build output, portable PDB file should exist
