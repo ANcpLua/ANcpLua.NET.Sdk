@@ -20,9 +20,9 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
         // 2. Add Project in a subfolder (to test relative path resolution)
         project.AddCsprojFile(
             [
-                (MsBuildProperties.TargetFramework, TargetFrameworks.Net100),
-                (MsBuildProperties.OutputType, MsBuildValues.Library),
-                ("GenerateClaudeMd", "true") // Must explicitly enable
+                (Prop.TargetFramework, Tfm.Net100),
+                (Prop.OutputType, Val.Library),
+                ("GenerateClaudeMd", Val.True) // Explicit enable (test projects lack Directory.Build.props)
             ],
             filename: "src/MyLibrary/MyLibrary.csproj");
 
@@ -52,8 +52,8 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
 
         project.AddCsprojFile(
             [
-                (MsBuildProperties.TargetFramework, TargetFrameworks.Net100)
-                // Default is false
+                (Prop.TargetFramework, Tfm.Net100)
+                // GenerateClaudeMd defaults to empty (requires Directory.Build.props for Common.props import)
             ],
             filename: "src/MyLibrary/MyLibrary.csproj");
 
@@ -76,7 +76,7 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
 
         project.AddCsprojFile(
             [
-                (MsBuildProperties.TargetFramework, TargetFrameworks.Net100)
+                (Prop.TargetFramework, Tfm.Net100)
             ],
             filename: "src/MyLibrary/MyLibrary.csproj");
 

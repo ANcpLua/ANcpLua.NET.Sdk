@@ -4,59 +4,7 @@ using Meziantou.Framework;
 
 namespace ANcpLua.Sdk.Tests.Infrastructure;
 
-// Legacy aliases for backwards compatibility - use Tfm, Prop, Val, Item, Attr instead
-public static class TargetFrameworks
-{
-    public const string NetStandard20 = Tfm.NetStandard20;
-    public const string Net80 = Tfm.Net80;
-    public const string Net100 = Tfm.Net100;
-}
-
-public static class MsBuildProperties
-{
-    public const string TargetFramework = Prop.TargetFramework;
-    public const string TargetFrameworks = Prop.TargetFrameworks;
-    public const string OutputType = Prop.OutputType;
-    public const string Nullable = Prop.Nullable;
-    public const string ImplicitUsings = Prop.ImplicitUsings;
-    public const string LangVersion = Prop.LangVersion;
-    public const string TreatWarningsAsErrors = Prop.TreatWarningsAsErrors;
-    public const string IsPackable = Prop.IsPackable;
-    public const string GenerateDocumentationFile = Prop.GenerateDocumentationFile;
-    public const string ManagePackageVersionsCentrally = Prop.ManagePackageVersionsCentrally;
-}
-
-public static class MsBuildItems
-{
-    public const string PackageReference = Item.PackageReference;
-    public const string PackageVersion = Item.PackageVersion;
-    public const string ProjectReference = Item.ProjectReference;
-    public const string Compile = Item.Compile;
-    public const string Content = Item.Content;
-    public const string None = Item.None;
-    public const string EmbeddedResource = Item.EmbeddedResource;
-}
-
-public static class MsBuildAttributes
-{
-    public const string Include = Attr.Include;
-    public const string Version = Attr.Version;
-    public const string PrivateAssets = Attr.PrivateAssets;
-    public const string Condition = Attr.Condition;
-}
-
-public static class MsBuildValues
-{
-    public const string Exe = Val.Exe;
-    public const string Library = Val.Library;
-    public const string Enable = Val.Enable;
-    public const string Disable = Val.Disable;
-    public const string True = Val.True;
-    public const string False = Val.False;
-    public const string Latest = Val.Latest;
-    public const string Preview = Val.Preview;
-}
-
+/// <summary>Repository paths for polyfill source files.</summary>
 public static class RepositoryPaths
 {
     public const string DirectoryBuildProps = "Directory.Build.props";
@@ -87,169 +35,147 @@ public static class RepositoryPaths
     public const string ExperimentalAttributePolyfill = "eng/LegacySupport/Experimental/ExperimentalAttribute.cs";
 }
 
-public static class InjectionPropertyNames
-{
-    public const string Throw = Prop.InjectSharedThrow;
-    public const string StringOrdinalComparer = Prop.InjectStringOrdinalComparer;
-    public const string Lock = Prop.InjectLockPolyfill;
-    public const string TimeProvider = Prop.InjectTimeProviderPolyfill;
-    public const string IndexRange = Prop.InjectIndexRangeOnLegacy;
-    public const string IsExternalInit = Prop.InjectIsExternalInitOnLegacy;
-    public const string RequiredMember = Prop.InjectRequiredMemberOnLegacy;
-    public const string CompilerFeatureRequired = Prop.InjectCompilerFeatureRequiredOnLegacy;
-    public const string CallerArgumentExpression = Prop.InjectCallerAttributesOnLegacy;
-    public const string ParamCollection = Prop.InjectParamCollectionOnLegacy;
-    public const string UnreachableException = Prop.InjectUnreachableExceptionOnLegacy;
-    public const string StackTraceHidden = Prop.InjectStackTraceHiddenOnLegacy;
-    public const string NullableAttributes = Prop.InjectNullabilityAttributesOnLegacy;
-    public const string TrimAttributes = Prop.InjectTrimAttributesOnLegacy;
-    public const string ExperimentalAttribute = Prop.InjectExperimentalAttributeOnLegacy;
-    public const string DiagnosticClasses = Prop.InjectDiagnosticClassesOnLegacy;
-}
-
-public static class PolyfillTypeNames
-{
-    public const string Lock = "System.Threading.Lock";
-    public const string TimeProvider = "System.TimeProvider";
-    public const string Index = "System.Index";
-    public const string Range = "System.Range";
-    public const string IsExternalInit = "System.Runtime.CompilerServices.IsExternalInit";
-    public const string RequiredMemberAttribute = "System.Runtime.CompilerServices.RequiredMemberAttribute";
-
-    public const string CompilerFeatureRequiredAttribute =
-        "System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute";
-
-    public const string CallerArgumentExpressionAttribute =
-        "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute";
-
-    public const string ParamCollectionAttribute = "System.Runtime.CompilerServices.ParamCollectionAttribute";
-    public const string UnreachableException = "System.Diagnostics.UnreachableException";
-    public const string StackTraceHiddenAttribute = "System.Diagnostics.StackTraceHiddenAttribute";
-    public const string AllowNullAttribute = "System.Diagnostics.CodeAnalysis.AllowNullAttribute";
-
-    public const string DynamicallyAccessedMembersAttribute =
-        "System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembersAttribute";
-
-    public const string ExperimentalAttribute = "System.Diagnostics.CodeAnalysis.ExperimentalAttribute";
-}
-
-public static class PolyfillActivationCode
-{
-    public const string Lock = "_ = new System.Threading.Lock();";
-    public const string TimeProvider = "_ = typeof(System.TimeProvider);";
-    public const string Index = "_ = new System.Index(1);";
-    public const string IsExternalInit = "_ = typeof(System.Runtime.CompilerServices.IsExternalInit);";
-    public const string RequiredMember = "_ = typeof(System.Runtime.CompilerServices.RequiredMemberAttribute);";
-
-    public const string CompilerFeatureRequired =
-        "_ = typeof(System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute);";
-
-    public const string CallerArgumentExpression =
-        "_ = typeof(System.Runtime.CompilerServices.CallerArgumentExpressionAttribute);";
-
-    public const string ParamCollection = "_ = typeof(System.Runtime.CompilerServices.ParamCollectionAttribute);";
-    public const string UnreachableException = "_ = new System.Diagnostics.UnreachableException();";
-    public const string StackTraceHidden = "_ = typeof(System.Diagnostics.StackTraceHiddenAttribute);";
-    public const string AllowNull = "_ = typeof(System.Diagnostics.CodeAnalysis.AllowNullAttribute);";
-
-    public const string DynamicallyAccessedMembers =
-        "_ = typeof(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembersAttribute);";
-
-    public const string Experimental = "_ = typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute);";
-}
-
+/// <summary>
+///     Single source of truth for polyfill test data.
+///     No serializer needed - xUnit v3 handles record structs natively.
+/// </summary>
 public readonly record struct PolyfillDefinition(
     string InjectionProperty,
     string RepositoryPath,
-    string MinimumTargetFramework)
+    string MinimumTargetFramework,
+    string ActivationCode,
+    string ExpectedType,
+    bool HasNegativeTest = true,
+    bool RequiresLangVersionLatest = false,
+    bool DisablesSharedThrowForNegative = false)
 {
     public static readonly PolyfillDefinition Lock = new(
-        InjectionPropertyNames.Lock,
+        Prop.InjectLockPolyfill,
         RepositoryPaths.LockPolyfill,
-        Tfm.Net80);
+        Tfm.Net80,
+        "_ = new System.Threading.Lock();",
+        "System.Threading.Lock");
 
     public static readonly PolyfillDefinition TimeProvider = new(
-        InjectionPropertyNames.TimeProvider,
+        Prop.InjectTimeProviderPolyfill,
         RepositoryPaths.TimeProviderPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.TimeProvider);",
+        "System.TimeProvider");
 
     public static readonly PolyfillDefinition IndexRange = new(
-        InjectionPropertyNames.IndexRange,
+        Prop.InjectIndexRangeOnLegacy,
         RepositoryPaths.IndexPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = new System.Index(1);",
+        "System.Index");
 
     public static readonly PolyfillDefinition IsExternalInit = new(
-        InjectionPropertyNames.IsExternalInit,
+        Prop.InjectIsExternalInitOnLegacy,
         RepositoryPaths.IsExternalInitPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Runtime.CompilerServices.IsExternalInit);",
+        "System.Runtime.CompilerServices.IsExternalInit");
 
     public static readonly PolyfillDefinition RequiredMember = new(
-        InjectionPropertyNames.RequiredMember,
+        Prop.InjectRequiredMemberOnLegacy,
         RepositoryPaths.RequiredMemberPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Runtime.CompilerServices.RequiredMemberAttribute);",
+        "System.Runtime.CompilerServices.RequiredMemberAttribute",
+        RequiresLangVersionLatest: true);
 
     public static readonly PolyfillDefinition CompilerFeatureRequired = new(
-        InjectionPropertyNames.CompilerFeatureRequired,
+        Prop.InjectCompilerFeatureRequiredOnLegacy,
         RepositoryPaths.CompilerFeatureRequiredPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute);",
+        "System.Runtime.CompilerServices.CompilerFeatureRequiredAttribute",
+        RequiresLangVersionLatest: true);
 
     public static readonly PolyfillDefinition CallerArgumentExpression = new(
-        InjectionPropertyNames.CallerArgumentExpression,
+        Prop.InjectCallerAttributesOnLegacy,
         RepositoryPaths.CallerArgumentExpressionPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Runtime.CompilerServices.CallerArgumentExpressionAttribute);",
+        "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute",
+        DisablesSharedThrowForNegative: true);
 
     public static readonly PolyfillDefinition ParamCollection = new(
-        InjectionPropertyNames.ParamCollection,
+        Prop.InjectParamCollectionOnLegacy,
         RepositoryPaths.ParamCollectionPolyfill,
-        Tfm.Net80);
+        Tfm.Net80,
+        "_ = typeof(System.Runtime.CompilerServices.ParamCollectionAttribute);",
+        "System.Runtime.CompilerServices.ParamCollectionAttribute");
 
     public static readonly PolyfillDefinition UnreachableException = new(
-        InjectionPropertyNames.UnreachableException,
+        Prop.InjectUnreachableExceptionOnLegacy,
         RepositoryPaths.UnreachableExceptionPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = new System.Diagnostics.UnreachableException();",
+        "System.Diagnostics.UnreachableException");
 
     public static readonly PolyfillDefinition StackTraceHidden = new(
-        InjectionPropertyNames.StackTraceHidden,
+        Prop.InjectStackTraceHiddenOnLegacy,
         RepositoryPaths.StackTraceHiddenPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Diagnostics.StackTraceHiddenAttribute);",
+        "System.Diagnostics.StackTraceHiddenAttribute");
 
     public static readonly PolyfillDefinition NullableAttributes = new(
-        InjectionPropertyNames.NullableAttributes,
+        Prop.InjectNullabilityAttributesOnLegacy,
         RepositoryPaths.NullableAttributesPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Diagnostics.CodeAnalysis.AllowNullAttribute);",
+        "System.Diagnostics.CodeAnalysis.AllowNullAttribute",
+        DisablesSharedThrowForNegative: true);
 
     public static readonly PolyfillDefinition TrimAttributes = new(
-        InjectionPropertyNames.TrimAttributes,
+        Prop.InjectTrimAttributesOnLegacy,
         RepositoryPaths.TrimAttributesPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembersAttribute);",
+        "System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembersAttribute");
 
     public static readonly PolyfillDefinition ExperimentalAttribute = new(
-        InjectionPropertyNames.ExperimentalAttribute,
+        Prop.InjectExperimentalAttributeOnLegacy,
         RepositoryPaths.ExperimentalAttributePolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Diagnostics.CodeAnalysis.ExperimentalAttribute);",
+        "System.Diagnostics.CodeAnalysis.ExperimentalAttribute");
 
     public static readonly PolyfillDefinition Throw = new(
-        InjectionPropertyNames.Throw,
+        Prop.InjectSharedThrow,
         RepositoryPaths.ThrowHelper,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = Microsoft.Shared.Diagnostics.Throw.IfNull((object?)null);",
+        "Microsoft.Shared.Diagnostics.Throw",
+        DisablesSharedThrowForNegative: true);
 
     public static readonly PolyfillDefinition StringOrdinalComparer = new(
-        InjectionPropertyNames.StringOrdinalComparer,
+        Prop.InjectStringOrdinalComparer,
         RepositoryPaths.StringOrdinalComparer,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer.Instance;",
+        "ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer");
 
     public static readonly PolyfillDefinition DiagnosticClasses = new(
-        InjectionPropertyNames.DiagnosticClasses,
+        Prop.InjectDiagnosticClassesOnLegacy,
         RepositoryPaths.DiagnosticClassesPolyfill,
-        Tfm.NetStandard20);
+        Tfm.NetStandard20,
+        "_ = typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute);",
+        "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute",
+        HasNegativeTest: false);
 
     public static ImmutableArray<PolyfillDefinition> All =>
     [
-        Lock, TimeProvider, IndexRange, IsExternalInit,
-        RequiredMember, CompilerFeatureRequired, CallerArgumentExpression, ParamCollection,
-        UnreachableException, StackTraceHidden, NullableAttributes, TrimAttributes, ExperimentalAttribute,
-        Throw, StringOrdinalComparer, DiagnosticClasses
+        TrimAttributes, NullableAttributes, IsExternalInit, RequiredMember,
+        CompilerFeatureRequired, CallerArgumentExpression, UnreachableException, ExperimentalAttribute,
+        IndexRange, ParamCollection, StackTraceHidden, Lock,
+        TimeProvider, Throw, StringOrdinalComparer, DiagnosticClasses
     ];
+
+    public override string ToString() => $"{Path.GetFileNameWithoutExtension(RepositoryPath)} → {MinimumTargetFramework}";
 }
 
 public readonly record struct RepositoryRoot
@@ -277,23 +203,14 @@ public readonly record struct RepositoryRoot
         }
     }
 
-    public static implicit operator FullPath(RepositoryRoot root)
-    {
-        return root.FullPath;
-    }
+    public static implicit operator FullPath(RepositoryRoot root) => root.FullPath;
 
-    public static implicit operator string(RepositoryRoot root)
-    {
-        return root.FullPath;
-    }
+    public static implicit operator string(RepositoryRoot root) => root.FullPath;
 }
 
 public sealed class MsBuildPropertyBuilder : Dictionary<string, string?>
 {
-    public static MsBuildPropertyBuilder Create()
-    {
-        return new MsBuildPropertyBuilder();
-    }
+    public static MsBuildPropertyBuilder Create() => new();
 
     public MsBuildPropertyBuilder Set(string property, string? value)
     {
@@ -301,47 +218,26 @@ public sealed class MsBuildPropertyBuilder : Dictionary<string, string?>
         return this;
     }
 
-    public MsBuildPropertyBuilder WithTargetFramework(string tfm)
-    {
-        return Set(MsBuildProperties.TargetFramework, tfm);
-    }
+    public MsBuildPropertyBuilder WithTargetFramework(string tfm) => Set(Prop.TargetFramework, tfm);
 
-    public MsBuildPropertyBuilder WithLangVersion(string version)
-    {
-        return Set(MsBuildProperties.LangVersion, version);
-    }
+    public MsBuildPropertyBuilder WithLangVersion(string version) => Set(Prop.LangVersion, version);
 
-    public MsBuildPropertyBuilder WithOutputType(string type)
-    {
-        return Set(MsBuildProperties.OutputType, type);
-    }
+    public MsBuildPropertyBuilder WithOutputType(string type) => Set(Prop.OutputType, type);
 
-    public MsBuildPropertyBuilder WithNullable(bool enable = true)
-    {
-        return Set(MsBuildProperties.Nullable, enable ? MsBuildValues.Enable : MsBuildValues.Disable);
-    }
+    public MsBuildPropertyBuilder WithNullable(bool enable = true) =>
+        Set(Prop.Nullable, enable ? Val.Enable : Val.Disable);
 
-    public MsBuildPropertyBuilder Enable(string property)
-    {
-        return Set(property, MsBuildValues.True);
-    }
+    public MsBuildPropertyBuilder Enable(string property) => Set(property, Val.True);
 
-    public MsBuildPropertyBuilder Disable(string property)
-    {
-        return Set(property, MsBuildValues.False);
-    }
+    public MsBuildPropertyBuilder Disable(string property) => Set(property, Val.False);
 
-    public MsBuildPropertyBuilder ForPolyfill(PolyfillDefinition polyfill, string? targetFrameworkOverride = null)
-    {
-        return WithTargetFramework(targetFrameworkOverride ?? polyfill.MinimumTargetFramework)
-            .WithOutputType(MsBuildValues.Library)
+    public MsBuildPropertyBuilder ForPolyfill(PolyfillDefinition polyfill, string? targetFrameworkOverride = null) =>
+        WithTargetFramework(targetFrameworkOverride ?? polyfill.MinimumTargetFramework)
+            .WithOutputType(Val.Library)
             .Enable(polyfill.InjectionProperty);
-    }
 
-    public (string Name, string Value)[] ToPropertyArray()
-    {
-        return this.Where(static kv => kv.Value is not null).Select(static kv => (kv.Key, kv.Value!)).ToArray();
-    }
+    public (string Name, string Value)[] ToPropertyArray() =>
+        this.Where(static kv => kv.Value is not null).Select(static kv => (kv.Key, kv.Value!)).ToArray();
 
     public static MsBuildPropertyBuilder FromXmlSnippets(params string[] xmlSnippets)
     {
@@ -359,25 +255,13 @@ public sealed class MsBuildPropertyBuilder : Dictionary<string, string?>
 
 public static class XmlSnippetBuilder
 {
-    public static string TargetFramework(string tfm)
-    {
-        return $"<{MsBuildProperties.TargetFramework}>{tfm}</{MsBuildProperties.TargetFramework}>";
-    }
+    public static string TargetFramework(string tfm) => $"<{Prop.TargetFramework}>{tfm}</{Prop.TargetFramework}>";
 
-    public static string LangVersion(string version)
-    {
-        return $"<{MsBuildProperties.LangVersion}>{version}</{MsBuildProperties.LangVersion}>";
-    }
+    public static string LangVersion(string version) => $"<{Prop.LangVersion}>{version}</{Prop.LangVersion}>";
 
-    public static string OutputType(string type)
-    {
-        return $"<{MsBuildProperties.OutputType}>{type}</{MsBuildProperties.OutputType}>";
-    }
+    public static string OutputType(string type) => $"<{Prop.OutputType}>{type}</{Prop.OutputType}>";
 
-    public static string Property(string name, string value)
-    {
-        return $"<{name}>{value}</{name}>";
-    }
+    public static string Property(string name, string value) => $"<{name}>{value}</{name}>";
 }
 
 public static class PolyfillTestDataSource
@@ -404,8 +288,7 @@ public static class PolyfillTestDataSource
             data.Add(polyfill, polyfill.MinimumTargetFramework, true);
 
             var isExtension =
-                polyfill.InjectionProperty is InjectionPropertyNames.Throw
-                    or InjectionPropertyNames.StringOrdinalComparer;
+                polyfill.InjectionProperty is Prop.InjectSharedThrow or Prop.InjectStringOrdinalComparer;
 
             data.Add(polyfill, Tfm.Net100, isExtension);
         }
@@ -420,150 +303,6 @@ public static class PolyfillTestDataSource
             data.Add(polyfill);
         return data;
     }
-}
-
-public interface IInjectedFile
-{
-    static abstract string RepoRelativePath { get; }
-    static abstract string InjectPropertyName { get; }
-}
-
-public interface IPolyfillMarker : IInjectedFile
-{
-    static abstract string ExpectedType { get; }
-    static abstract string ActivationSnippet { get; }
-}
-
-public sealed class ThrowFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.ThrowHelper;
-    public static string InjectPropertyName => InjectionPropertyNames.Throw;
-    public static string ExpectedType => "Microsoft.Shared.Diagnostics.Throw";
-    public static string ActivationSnippet => "_ = Microsoft.Shared.Diagnostics.Throw.IfNull((object?)null);";
-}
-
-public sealed class StringOrdinalComparerFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.StringOrdinalComparer;
-    public static string InjectPropertyName => InjectionPropertyNames.StringOrdinalComparer;
-    public static string ExpectedType => "ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer";
-
-    public static string ActivationSnippet =>
-        "_ = ANcpLua.NET.Sdk.Shared.Extensions.Comparers.StringOrdinalComparer.Instance;";
-}
-
-public sealed class DiagnosticClassesFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.DiagnosticClassesPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.DiagnosticClasses;
-    public static string ExpectedType => "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute";
-
-    public static string ActivationSnippet =>
-        "_ = typeof(System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute);";
-}
-
-public sealed class LockFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.LockPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.Lock;
-    public static string ExpectedType => PolyfillTypeNames.Lock;
-    public static string ActivationSnippet => PolyfillActivationCode.Lock;
-}
-
-public sealed class TimeProviderFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.TimeProviderPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.TimeProvider;
-    public static string ExpectedType => PolyfillTypeNames.TimeProvider;
-    public static string ActivationSnippet => PolyfillActivationCode.TimeProvider;
-}
-
-public sealed class IndexRangeFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.IndexPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.IndexRange;
-    public static string ExpectedType => PolyfillTypeNames.Index;
-    public static string ActivationSnippet => PolyfillActivationCode.Index;
-}
-
-public sealed class IsExternalInitFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.IsExternalInitPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.IsExternalInit;
-    public static string ExpectedType => PolyfillTypeNames.IsExternalInit;
-    public static string ActivationSnippet => PolyfillActivationCode.IsExternalInit;
-}
-
-public sealed class RequiredMemberFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.RequiredMemberPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.RequiredMember;
-    public static string ExpectedType => PolyfillTypeNames.RequiredMemberAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.RequiredMember;
-}
-
-public sealed class CompilerFeatureRequiredFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.CompilerFeatureRequiredPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.CompilerFeatureRequired;
-    public static string ExpectedType => PolyfillTypeNames.CompilerFeatureRequiredAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.CompilerFeatureRequired;
-}
-
-public sealed class CallerArgumentExpressionFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.CallerArgumentExpressionPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.CallerArgumentExpression;
-    public static string ExpectedType => PolyfillTypeNames.CallerArgumentExpressionAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.CallerArgumentExpression;
-}
-
-public sealed class ParamCollectionFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.ParamCollectionPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.ParamCollection;
-    public static string ExpectedType => PolyfillTypeNames.ParamCollectionAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.ParamCollection;
-}
-
-public sealed class UnreachableExceptionFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.UnreachableExceptionPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.UnreachableException;
-    public static string ExpectedType => PolyfillTypeNames.UnreachableException;
-    public static string ActivationSnippet => PolyfillActivationCode.UnreachableException;
-}
-
-public sealed class StackTraceHiddenFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.StackTraceHiddenPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.StackTraceHidden;
-    public static string ExpectedType => PolyfillTypeNames.StackTraceHiddenAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.StackTraceHidden;
-}
-
-public sealed class NullabilityAttributesFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.NullableAttributesPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.NullableAttributes;
-    public static string ExpectedType => PolyfillTypeNames.AllowNullAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.AllowNull;
-}
-
-public sealed class TrimAttributesFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.TrimAttributesPolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.TrimAttributes;
-    public static string ExpectedType => PolyfillTypeNames.DynamicallyAccessedMembersAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.DynamicallyAccessedMembers;
-}
-
-public sealed class ExperimentalAttributeFile : IPolyfillMarker
-{
-    public static string RepoRelativePath => RepositoryPaths.ExperimentalAttributePolyfill;
-    public static string InjectPropertyName => InjectionPropertyNames.ExperimentalAttribute;
-    public static string ExpectedType => PolyfillTypeNames.ExperimentalAttribute;
-    public static string ActivationSnippet => PolyfillActivationCode.Experimental;
 }
 
 // ============================================================================

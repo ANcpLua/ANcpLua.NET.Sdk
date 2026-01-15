@@ -1,7 +1,7 @@
 {
   "sdk": {
     "rollForward": "latestMinor",
-    "version": "10.0.102"
+    "version": "10.0.100"
   },
   "msbuild-sdks": {
     "ANcpLua.NET.Sdk.Test": "0.0.0-local"

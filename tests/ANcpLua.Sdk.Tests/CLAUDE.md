@@ -8,11 +8,14 @@ Full SDK behavior test suite validating all SDK features.
 # Run all tests
 dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 
-# Run with filter (MTP syntax)
+# Run with filter (xUnit v3 MTP syntax)
 dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-method "*BannedApi*"
 
 # Run specific test class
-dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-type "Sdk100RootTests"
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-class "*Sdk100RootTests"
+
+# Run polyfill tests only
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-class "*PolyfillTests"
 ```
 
 ## Test Architecture
@@ -37,9 +40,8 @@ result.AssertSuccess();
 | Sdk100DirectoryBuildPropsTests | net10.0 with SDK in Directory.Build.props                         |
 | BannedApiTests                 | BannedApiAnalyzers enforcement                                    |
 | MtpDetectionTests              | Microsoft Testing Platform auto-detection                         |
-| PolyfillInjectionTests         | netstandard2.0 polyfill validation                                |
-| PolyfillActivationTests        | Polyfill property activation                                      |
-| PolyfillCombinationTests       | Multi-polyfill interactions                                       |
+| PolyfillInjectionTests         | netstandard2.0 polyfill injection path validation                 |
+| PolyfillTests                  | Polyfill activation, negative tests, and multi-polyfill combos    |
 | FakeLoggerExtensionsTests      | FakeLogger test helpers                                           |
 | ClaudeBrainTests               | CLAUDE.md generation                                              |
 | JonSkeetAnalyzerTests          | Jon Skeet's NodaTime analyzer validation                          |

@@ -24,9 +24,9 @@ public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper te
         // Enable the polyfill property
         var properties = new[]
         {
-            (polyfill.InjectionProperty, MsBuildValues.True),
-            (MsBuildProperties.TargetFramework, tfm),
-            (MsBuildProperties.OutputType, MsBuildValues.Library)
+            (polyfill.InjectionProperty, Val.True),
+            (Prop.TargetFramework, tfm),
+            (Prop.OutputType, Val.Library)
         };
 
         // Inject a custom target to dump Compile items
