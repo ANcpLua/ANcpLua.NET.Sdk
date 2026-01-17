@@ -24,6 +24,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- Shared source files -->
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)../Shared/DbSystemMappings.cs" Link="Shared/DbSystemMappings.cs"/>
+  </ItemGroup>
+
   <!-- Polyfills for netstandard2.0 -->
   <ItemGroup>
     <!-- Language Features -->

@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using System.Xml.Linq;
 using Meziantou.Framework;
 
@@ -52,7 +52,7 @@ public readonly record struct PolyfillDefinition(
     public static readonly PolyfillDefinition Lock = new(
         Prop.InjectLockPolyfill,
         RepositoryPaths.LockPolyfill,
-        Tfm.Net80,
+        Tfm.NetStandard20,
         "_ = new System.Threading.Lock();",
         "System.Threading.Lock");
 
@@ -104,7 +104,7 @@ public readonly record struct PolyfillDefinition(
     public static readonly PolyfillDefinition ParamCollection = new(
         Prop.InjectParamCollectionOnLegacy,
         RepositoryPaths.ParamCollectionPolyfill,
-        Tfm.Net80,
+        Tfm.NetStandard20,
         "_ = typeof(System.Runtime.CompilerServices.ParamCollectionAttribute);",
         "System.Runtime.CompilerServices.ParamCollectionAttribute");
 
@@ -233,9 +233,6 @@ public sealed class MsBuildPropertyBuilder : Dictionary<string, string?>
             .WithOutputType(Val.Library)
             .Enable(polyfill.InjectionProperty);
 
-    public (string Name, string Value)[] ToPropertyArray() =>
-        this.Where(static kv => kv.Value is not null).Select(static kv => (kv.Key, kv.Value!)).ToArray();
-
     public static MsBuildPropertyBuilder FromXmlSnippets(params string[] xmlSnippets)
     {
         var builder = Create();
@@ -302,15 +299,6 @@ public static class PolyfillTestDataSource
     }
 }
 
-// ============================================================================
-// CRITICAL: ALL SDK BRANDING STRINGS MUST COME FROM HERE
-//
-// DO NOT hardcode "randomanme", "wellknownname",  names anywhere.
-// This file is the SINGLE SOURCE OF TRUTH for all branding.
-//
-// History: 7 hours lost debugging because of hardcoded legacy names (2025-12-16)
-// ============================================================================
-
 /// <summary>
 ///     Single source of truth for all SDK branding strings.
 ///     NEVER hardcode these values - always reference this class.
@@ -319,10 +307,6 @@ public static class SdkBrandingConstants
 {
     public const string Author = "ANcpLua";
     public const string SdkMetadataKey = "ANcpLua.Sdk.Name";
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // LEGACY NAMES - FOR DETECTION/MIGRATION ONLY - DO NOT USE IN NEW CODE!
-    // ═══════════════════════════════════════════════════════════════════════
 
     /// <summary>
     ///     Legacy names that should NEVER appear in code. Used for validation only.

@@ -1,4 +1,4 @@
-using ANcpLua.Sdk.Tests.Helpers;
+﻿using ANcpLua.Sdk.Tests.Helpers;
 using ANcpLua.Sdk.Tests.Infrastructure;
 
 namespace ANcpLua.Sdk.Tests;
@@ -57,14 +57,9 @@ public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutput
         result.ShouldSucceed().ShouldHaveWarning(Rs0030);
     }
 
-    // NOTE: Enumerable.Any() and Enumerable.FirstOrDefault() with predicates were previously banned
-    // to encourage using List<T>.Exists/Find, but this broke compatibility with xunit.v3 which
-    // uses Any() in its auto-generated entry point. See BannedSymbols.txt for details.
-
     [Fact]
     public async Task Enumerable_Any_With_Predicate_Is_Not_Banned()
     {
-        // Any() with predicate is allowed since xunit.v3 source generator uses it
         var result = await QuickBuild("""
                                       using System.Collections.Generic;
                                       using System.Linq;

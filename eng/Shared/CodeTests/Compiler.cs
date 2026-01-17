@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿
 
 using System;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ internal static class Compiler
 
     public static Assembly Build(string workflowProviderCode, params IEnumerable<Assembly> dependencies)
     {
-        // Compile the code
+        
         SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(workflowProviderCode);
         CSharpCompilation compilation = CSharpCompilation.Create(
             "DynamicAssembly",

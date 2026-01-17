@@ -1,6 +1,4 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
-
-#pragma warning disable CA1019, RCS1251, IDE0300
+﻿#pragma warning disable CA1019, RCS1251, IDE0300
 
 namespace System.Diagnostics.CodeAnalysis;
 

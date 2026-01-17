@@ -68,6 +68,9 @@
     <PackageVersion Include="NuGet.Protocol" Version="$(NuGetVersion)"/>
     <PackageVersion Include="NuGet.Packaging" Version="$(NuGetVersion)"/>
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkVersion)"/>
+    <PackageVersion Include="Microsoft.OpenApi" Version="2.0.0"/>
+    <PackageVersion Include="Microsoft.OpenApi.Readers" Version="2.0.0"/>
+    <PackageVersion Include="YamlDotNet" Version="16.3.0"/>
   </ItemGroup>
 
   <!-- OpenTelemetry -->

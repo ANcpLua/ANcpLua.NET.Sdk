@@ -1,6 +1,6 @@
-// Copyright (c) ANcpLua. All rights reserved.
-// Licensed under the MIT License.
-// Extends ANcpLua.Roslyn.Utilities with SDK-specific helpers
+
+
+
 
 using System.Threading;
 using Microsoft.CodeAnalysis;

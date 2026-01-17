@@ -1,4 +1,9 @@
 <Project>
+  <!-- Guard to prevent double-import (MSB4011) -->
+  <PropertyGroup>
+    <_ANcpLuaCommonPropsImported>true</_ANcpLuaCommonPropsImported>
+  </PropertyGroup>
+
   <Import Project="$(MSBuildThisFileDirectory)/ContinuousIntegrationBuild.props"/>
   <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.props"/>
 
@@ -21,6 +26,11 @@
     <!-- SDK Defaults - inject essential shared code -->
     <InjectSharedThrow Condition="'$(InjectSharedThrow)' == ''">true</InjectSharedThrow>
     <GenerateClaudeMd Condition="'$(GenerateClaudeMd)' == ''">true</GenerateClaudeMd>
+  </PropertyGroup>
+
+  <!-- Enable interceptors for ASP.NET Core projects (OpenAPI generator + ServiceDefaults) -->
+  <PropertyGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated;ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister</InterceptorsNamespaces>
   </PropertyGroup>
 
   <PropertyGroup>

@@ -1,6 +1,6 @@
-// Copyright (c) Microsoft. All rights reserved.
-// Polyfill for diagnostic classes on legacy TFMs
-// Note: CallerArgumentExpressionAttribute is in a separate file (LanguageFeatures/CallerArgumentExpressionAttribute.cs)
+
+
+
 
 #if NETSTANDARD2_0 || NET472
 

@@ -1,6 +1,6 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿
 
-#pragma warning disable IDE0005 // Using directive is unnecessary.
+#pragma warning disable IDE0005 
 
 using System;
 using System.Collections.Generic;
@@ -101,7 +101,7 @@ internal static partial class Throw
         [CallerArgumentExpression(nameof(member))] string memberName = "")
         where TParameter : notnull
     {
-        _ = argument; // Satisfy IDE0060 - parameter used only for CallerArgumentExpression
+        _ = argument; 
 
         if (member is null)
         {
@@ -242,10 +242,10 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNull]
 
-    // The method has actually 100% coverage, but due to a bug in the code coverage tool,
-    // a lower number is reported. Therefore, we temporarily exclude this method
-    // from the coverage measurements. Once the bug in the code coverage tool is fixed,
-    // the exclusion attribute can be removed.
+    
+    
+    
+    
     [ExcludeFromCodeCoverage]
     public static IEnumerable<T> IfNullOrEmpty<T>([NotNull] IEnumerable<T>? argument, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
@@ -864,7 +864,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double IfLessThan(double argument, double min, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        // strange conditional needed in order to handle NaN values correctly
+        
         if (!(argument >= min))
         {
             ArgumentOutOfRangeException(paramName, argument, $"Argument less than minimum value {min}");
@@ -883,7 +883,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double IfGreaterThan(double argument, double max, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        // strange conditional needed in order to handle NaN values correctly
+        
         if (!(argument <= max))
         {
             ArgumentOutOfRangeException(paramName, argument, $"Argument greater than maximum value {max}");
@@ -902,7 +902,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double IfLessThanOrEqual(double argument, double min, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        // strange conditional needed in order to handle NaN values correctly
+        
         if (!(argument > min))
         {
             ArgumentOutOfRangeException(paramName, argument, $"Argument less or equal than minimum value {min}");
@@ -921,7 +921,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double IfGreaterThanOrEqual(double argument, double max, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        // strange conditional needed in order to handle NaN values correctly
+        
         if (!(argument < max))
         {
             ArgumentOutOfRangeException(paramName, argument, $"Argument greater or equal than maximum value {max}");
@@ -941,7 +941,7 @@ internal static partial class Throw
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static double IfOutOfRange(double argument, double min, double max, [CallerArgumentExpression(nameof(argument))] string paramName = "")
     {
-        // strange conditional needed in order to handle NaN values correctly
+        
         if (!(min <= argument && argument <= max))
         {
             ArgumentOutOfRangeException(paramName, argument, $"Argument not in the range [{min}..{max}]");

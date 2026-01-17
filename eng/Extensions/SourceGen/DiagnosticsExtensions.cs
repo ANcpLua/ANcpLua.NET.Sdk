@@ -1,5 +1,5 @@
-// ANcpLua.NET.Sdk - Source Generator Helpers
-// Extends ANcpLua.Roslyn.Utilities with SDK-specific helpers
+
+
 
 using Microsoft.CodeAnalysis;
 

@@ -78,6 +78,88 @@ Optional injections:
 | Modify Throw helpers | Edit `eng/Shared/Throw/Throw.cs` |
 | Add new injectable extension | Create folder in `eng/Extensions/`, add switch in `Shared.props`, add conditional in `Shared.targets` |
 | Modify ServiceDefaults | See `eng/ANcpSdk.AspNetCore.ServiceDefaults/` and `eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/` |
+| Add new instrumentation provider | Add to `ProviderRegistry.cs`, update `DbInstrumentation.MapTypeNameToDbSystem` if DB |
+
+## 5. ServiceDefaults Auto-Registration (Web SDK)
+
+The Web SDK includes a source generator that automatically instruments method calls at compile time.
+
+### Architecture
+
+```
+ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/  ← Source Generator (netstandard2.0)
+├── Models/
+│   ├── ProviderRegistry.cs      ← SSOT for all provider definitions
+│   ├── GenAiInvocationInfo.cs   ← GenAI call site model
+│   ├── DbInvocationInfo.cs      ← Database call site model
+│   └── OTelTagInfo.cs           ← [OTel] attribute model
+├── Analyzers/
+│   ├── ProviderDetector.cs      ← Detects referenced providers
+│   ├── GenAiCallSiteAnalyzer.cs ← Finds GenAI SDK calls
+│   ├── DbCallSiteAnalyzer.cs    ← Finds DbCommand calls
+│   └── OTelTagAnalyzer.cs       ← Finds [OTel] attributes
+└── Emitters/
+    ├── GenAiInterceptorEmitter.cs ← Generates GenAI interceptors
+    ├── DbInterceptorEmitter.cs    ← Generates DB interceptors
+    └── OTelTagsEmitter.cs         ← Generates SetTag extensions
+
+ANcpSdk.AspNetCore.ServiceDefaults/  ← Runtime Library (net10.0)
+└── Instrumentation/
+    ├── ActivitySources.cs       ← Centralized ActivitySource definitions
+    ├── SemanticConventions.cs   ← OTel semantic convention constants
+    ├── OTelAttribute.cs         ← [OTel] marker attribute
+    ├── GenAi/
+    │   ├── GenAiInstrumentation.cs ← Execute/ExecuteAsync wrappers
+    │   └── TokenUsage.cs           ← Token count record
+    └── Db/
+        └── DbInstrumentation.cs    ← DbCommand wrappers
+```
+
+### Generator Pipelines
+
+The `ServiceDefaultsSourceGenerator` has 4 pipelines:
+
+| Pipeline | Output | Purpose |
+|----------|--------|---------|
+| Build() interception | `Intercepts.g.cs` | Auto-registers service defaults |
+| GenAI instrumentation | `GenAiIntercepts.g.cs` | Wraps OpenAI/Anthropic/etc. calls |
+| Database instrumentation | `DbIntercepts.g.cs` | Wraps DbCommand.Execute* calls |
+| OTel tags | `OTelTagExtensions.g.cs` | Generates Activity.SetTag() extensions |
+
+### ProviderRegistry (SSOT)
+
+All provider definitions live in `ProviderRegistry.cs`:
+
+```csharp
+// GenAI providers
+OpenAi, Anthropic, AzureOpenAi, Ollama, GoogleAi, VertexAi
+
+// Database providers
+DuckDb, SqliteMicrosoft, SqliteSystem, PostgreSql, MySqlConnector,
+MySqlData, SqlServerMicrosoft, SqlServerSystem, Oracle, Firebird
+```
+
+Each provider includes:
+- `ProviderId` - OTel semantic convention value
+- `AssemblyName` - For compile-time detection
+- `TypeContains` - For runtime type matching
+- `TokenUsage` - Property paths for token extraction (GenAI only)
+
+### [OTel] Attribute Usage
+
+Mark properties with semantic convention names:
+
+```csharp
+public record ChatRequest(
+    [OTel("gen_ai.request.model")] string Model,
+    [OTel("gen_ai.request.max_tokens")] int? MaxTokens);
+```
+
+Generated extension method:
+
+```csharp
+activity.SetTagsFromChatRequest(request);
+```
 
 ## Documentation
 

@@ -1,6 +1,4 @@
-// Copyright (c) Microsoft. All rights reserved.
-
-#pragma warning disable SA1623 // Property summary documentation should match accessors
+﻿#pragma warning disable SA1623
 
 namespace System.Runtime.CompilerServices;
 

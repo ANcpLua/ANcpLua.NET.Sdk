@@ -1,4 +1,4 @@
-using ANcpLua.Sdk.Tests.Helpers;
+﻿using ANcpLua.Sdk.Tests.Helpers;
 
 namespace ANcpLua.Sdk.Tests.Infrastructure;
 
@@ -7,12 +7,12 @@ namespace ANcpLua.Sdk.Tests.Infrastructure;
 /// </summary>
 public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper output)
 {
-    protected PackageFixture Fixture { get; } = fixture;
+    private PackageFixture Fixture { get; } = fixture;
 
-    protected ITestOutputHelper Output { get; } = output;
+    private ITestOutputHelper Output { get; } = output;
 
     /// <summary>Creates a new ProjectBuilder with default settings</summary>
-    protected ProjectBuilder CreateProject(
+    private ProjectBuilder CreateProject(
         SdkImportStyle style = SdkImportStyle.SdkElement,
         string sdk = PackageFixture.SdkName) =>
         new(Fixture, Output, style, sdk);
@@ -33,11 +33,11 @@ public abstract class SdkTestBase(PackageFixture fixture, ITestOutputHelper outp
     }
 
     /// <summary>Quick build helper with library output type</summary>
-    protected async Task<BuildResult> BuildLibrary(
+    protected Task<BuildResult> BuildLibrary(
         string code,
         string tfm = Tfm.Net100,
         params (string Key, string Value)[] extraProps) =>
-        await QuickBuild(code, tfm, extraProps);
+        QuickBuild(code, tfm, extraProps);
 
     /// <summary>Quick build helper with exe output type</summary>
     protected async Task<BuildResult> BuildExe(

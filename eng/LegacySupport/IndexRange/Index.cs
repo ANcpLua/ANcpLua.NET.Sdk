@@ -1,15 +1,11 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-// Source: https://github.com/Tenacom/PolyKit
-
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 #if !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
 namespace System;
 
 /// <summary>
-///     Backport of <see cref="Index" /> for .NET Standard 2.0 and .NET Framework.
+///     Backport of <c>Index</c> for .NET Standard 2.0 and .NET Framework.
 /// </summary>
 /// <remarks>
 ///     <para>
@@ -17,7 +13,7 @@ namespace System;
 ///         available on .NET Core 3.0+ and .NET Standard 2.1+ through the standard library.
 ///     </para>
 ///     <para>
-///         An <see cref="Index" /> represents a position in a collection, either from the start
+///         An <c>Index</c> represents a position in a collection, either from the start
 ///         (non-negative) or from the end (using the <c>^</c> operator in C#). This enables
 ///         the range and index syntax: <c>array[^1]</c> for the last element.
 ///     </para>
@@ -40,7 +36,7 @@ internal readonly struct Index : IEquatable<Index>
     private readonly int _value;
 
     /// <summary>
-    ///     Initializes a new instance of the <see cref="Index" /> struct.
+    ///     Initializes a new instance of the <c>Index</c> struct.
     /// </summary>
     /// <param name="value">
     ///     The index value. Must be non-negative.
@@ -70,20 +66,20 @@ internal readonly struct Index : IEquatable<Index>
     private Index(int value) => _value = value;
 
     /// <summary>
-    ///     Gets an <see cref="Index" /> pointing to the first element (index 0).
+    ///     Gets an <c>Index</c> pointing to the first element (index 0).
     /// </summary>
     public static Index Start => new(0);
 
     /// <summary>
-    ///     Gets an <see cref="Index" /> pointing to the position after the last element (<c>^0</c>).
+    ///     Gets an <c>Index</c> pointing to the position after the last element (<c>^0</c>).
     /// </summary>
     public static Index End => new(~0);
 
     /// <summary>
-    ///     Creates an <see cref="Index" /> from the start of a collection.
+    ///     Creates an <c>Index</c> from the start of a collection.
     /// </summary>
     /// <param name="value">The zero-based index from the start. Must be non-negative.</param>
-    /// <returns>An <see cref="Index" /> representing the specified position from the start.</returns>
+    /// <returns>An <c>Index</c> representing the specified position from the start.</returns>
     /// <exception cref="ArgumentOutOfRangeException">
     ///     Thrown when <paramref name="value" /> is negative.
     /// </exception>
@@ -95,13 +91,13 @@ internal readonly struct Index : IEquatable<Index>
     }
 
     /// <summary>
-    ///     Creates an <see cref="Index" /> from the end of a collection.
+    ///     Creates an <c>Index</c> from the end of a collection.
     /// </summary>
     /// <param name="value">
     ///     The index from the end. A value of <c>1</c> refers to the last element,
     ///     <c>2</c> to the second-to-last, and so on. Must be non-negative.
     /// </param>
-    /// <returns>An <see cref="Index" /> representing the specified position from the end.</returns>
+    /// <returns>An <c>Index</c> representing the specified position from the end.</returns>
     /// <exception cref="ArgumentOutOfRangeException">
     ///     Thrown when <paramref name="value" /> is negative.
     /// </exception>
@@ -147,7 +143,7 @@ internal readonly struct Index : IEquatable<Index>
     ///     <code>
     ///     var fromStart = new Index(2);       // index 2
     ///     var fromEnd = new Index(1, true);   // ^1 (last element)
-    /// 
+    ///
     ///     int length = 5;
     ///     fromStart.GetOffset(length); // returns 2
     ///     fromEnd.GetOffset(length);   // returns 4 (5 - 1)
@@ -171,10 +167,10 @@ internal readonly struct Index : IEquatable<Index>
     public override int GetHashCode() => _value;
 
     /// <summary>
-    ///     Implicitly converts an <see cref="int" /> to an <see cref="Index" /> from the start.
+    ///     Implicitly converts an <see cref="int" /> to an <c>Index</c> from the start.
     /// </summary>
     /// <param name="value">The integer index value.</param>
-    /// <returns>An <see cref="Index" /> equivalent to <c>Index.FromStart(value)</c>.</returns>
+    /// <returns>An <c>Index</c> equivalent to <c>Index.FromStart(value)</c>.</returns>
     public static implicit operator Index(int value) => FromStart(value);
 
     /// <summary>

@@ -1,4 +1,4 @@
-using ANcpLua.Sdk.Tests.Helpers;
+﻿using ANcpLua.Sdk.Tests.Helpers;
 using ANcpLua.Sdk.Tests.Infrastructure;
 
 namespace ANcpLua.Sdk.Tests;
@@ -14,7 +14,6 @@ public class JonSkeetAnalyzerTests(PackageFixture fixture, ITestOutputHelper tes
     [Fact]
     public async Task JonSkeet_Analyzer_Package_Is_Injected_By_SDK()
     {
-        // Verify the analyzer is injected by the SDK (build succeeds with record code)
         var result = await QuickBuild("""
                                       namespace Consumer;
 
@@ -27,7 +26,6 @@ public class JonSkeetAnalyzerTests(PackageFixture fixture, ITestOutputHelper tes
     [Fact]
     public async Task Records_With_Operator_Compiles_Successfully()
     {
-        // Verify record 'with' operator works with SDK analyzers
         var result = await QuickBuild("""
                                       namespace Consumer;
 

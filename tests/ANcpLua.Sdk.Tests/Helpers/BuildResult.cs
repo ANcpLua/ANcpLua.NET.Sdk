@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Meziantou.Framework;
 using Microsoft.Build.Logging.StructuredLogger;
 
@@ -60,7 +60,6 @@ public sealed record BuildResult(
 
     public bool HasInfo(string ruleId)
     {
-        // Info-level diagnostics may be reported as "note" or "none" in SARIF
         return SarifFile?.AllResults().Any(r =>
             r.Level is "note" or "none" && r.RuleId == ruleId) ?? false;
     }

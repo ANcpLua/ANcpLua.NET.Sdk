@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft. All rights reserved.
-// Polyfill for trimming attributes on legacy TFMs
+
+
 
 #if NETSTANDARD2_0 || NET472
 

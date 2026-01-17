@@ -1,6 +1,9 @@
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.Analyzers;
+using ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.Emitters;
+using ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -34,18 +37,53 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(
             interceptionCandidates.Combine(hasServiceDefaults),
             EmitInterceptors);
+
+        var genAiInvocations = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                GenAiCallSiteAnalyzer.IsPotentialGenAiCall,
+                GenAiCallSiteAnalyzer.TransformToGenAiInvocation)
+            .SelectMany(AsSingletonOrEmpty)
+            .WithTrackingName(TrackingNames.GenAiInvocations)
+            .Collect()
+            .WithTrackingName(TrackingNames.CollectedGenAiCalls);
+
+        context.RegisterSourceOutput(
+            genAiInvocations.Combine(hasServiceDefaults),
+            EmitGenAiInterceptors);
+
+        var dbInvocations = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                DbCallSiteAnalyzer.IsPotentialDbCall,
+                DbCallSiteAnalyzer.TransformToDbInvocation)
+            .SelectMany(AsSingletonOrEmpty)
+            .WithTrackingName(TrackingNames.DbInvocations)
+            .Collect()
+            .WithTrackingName(TrackingNames.CollectedDbCalls);
+
+        context.RegisterSourceOutput(
+            dbInvocations.Combine(hasServiceDefaults),
+            EmitDbInterceptors);
+
+        var otelTags = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                OTelTagAnalyzer.IsPotentialOTelMember,
+                OTelTagAnalyzer.TransformToOTelTagInfo)
+            .SelectMany(AsSingletonOrEmpty)
+            .WithTrackingName(TrackingNames.OTelTags)
+            .Collect()
+            .WithTrackingName(TrackingNames.CollectedOTelTags);
+
+        context.RegisterSourceOutput(
+            otelTags.Combine(hasServiceDefaults),
+            EmitOTelTagExtensions);
     }
 
     private static bool HasServiceDefaultsType(Compilation compilation, CancellationToken _) => compilation.GetTypeByMetadataName(MetadataNames.ServiceDefaultsClass) is not null;
 
     private static bool IsPotentialBuildCall(SyntaxNode node, CancellationToken _) => node.IsKind(SyntaxKind.InvocationExpression);
 
-    private static ImmutableArray<InterceptionData> AsSingletonOrEmpty(
-        InterceptionData? item,
-        CancellationToken _) =>
-        item is { } data
-            ? [data]
-            : [];
+    private static ImmutableArray<T> AsSingletonOrEmpty<T>(T? item, CancellationToken _) where T : class =>
+        item is not null ? [item] : [];
 
     private static InterceptionData? TransformToBuildInterception(
         GeneratorSyntaxContext context,
@@ -100,12 +138,10 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
     private static InterceptionData CreateInterceptionData(
         SyntaxNode node,
         InterceptableLocation location) =>
-        new()
-        {
-            OrderKey = FormatLocationKey(node),
-            Kind = InterceptionMethodKind.Build,
-            InterceptableLocation = location
-        };
+        new(
+            OrderKey: FormatLocationKey(node),
+            Kind: InterceptionMethodKind.Build,
+            InterceptableLocation: location);
 
     private static string FormatLocationKey(SyntaxNode node)
     {
@@ -123,6 +159,42 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
 
         var sourceCode = BuildInterceptorsSource(source.Candidates);
         context.AddSource(OutputFileNames.Interceptors, SourceText.From(sourceCode, Encoding.UTF8));
+    }
+
+    private static void EmitGenAiInterceptors(
+        SourceProductionContext context,
+        (ImmutableArray<GenAiInvocationInfo> Invocations, bool HasServiceDefaults) source)
+    {
+        if (!source.HasServiceDefaults || source.Invocations.IsEmpty)
+            return;
+
+        var sourceCode = GenAiInterceptorEmitter.Emit(source.Invocations);
+        if (!string.IsNullOrEmpty(sourceCode))
+            context.AddSource(OutputFileNames.GenAiInterceptors, SourceText.From(sourceCode, Encoding.UTF8));
+    }
+
+    private static void EmitDbInterceptors(
+        SourceProductionContext context,
+        (ImmutableArray<DbInvocationInfo> Invocations, bool HasServiceDefaults) source)
+    {
+        if (!source.HasServiceDefaults || source.Invocations.IsEmpty)
+            return;
+
+        var sourceCode = DbInterceptorEmitter.Emit(source.Invocations);
+        if (!string.IsNullOrEmpty(sourceCode))
+            context.AddSource(OutputFileNames.DbInterceptors, SourceText.From(sourceCode, Encoding.UTF8));
+    }
+
+    private static void EmitOTelTagExtensions(
+        SourceProductionContext context,
+        (ImmutableArray<OTelTagInfo> Tags, bool HasServiceDefaults) source)
+    {
+        if (!source.HasServiceDefaults || source.Tags.IsEmpty)
+            return;
+
+        var sourceCode = OTelTagsEmitter.Emit(source.Tags);
+        if (!string.IsNullOrEmpty(sourceCode))
+            context.AddSource(OutputFileNames.OTelTagExtensions, SourceText.From(sourceCode, Encoding.UTF8));
     }
 
     private static string BuildInterceptorsSource(ImmutableArray<InterceptionData> candidates)
@@ -222,12 +294,21 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         public const string ServiceDefaultsAvailable = nameof(ServiceDefaultsAvailable);
         public const string InterceptionCandidates = nameof(InterceptionCandidates);
         public const string CollectedBuildCalls = nameof(CollectedBuildCalls);
+        public const string GenAiInvocations = nameof(GenAiInvocations);
+        public const string CollectedGenAiCalls = nameof(CollectedGenAiCalls);
+        public const string DbInvocations = nameof(DbInvocations);
+        public const string CollectedDbCalls = nameof(CollectedDbCalls);
+        public const string OTelTags = nameof(OTelTags);
+        public const string CollectedOTelTags = nameof(CollectedOTelTags);
     }
 
     /// <summary>Output file names for generated source.</summary>
     private static class OutputFileNames
     {
         public const string Interceptors = "Intercepts.g.cs";
+        public const string GenAiInterceptors = "GenAiIntercepts.g.cs";
+        public const string DbInterceptors = "DbIntercepts.g.cs";
+        public const string OTelTagExtensions = "OTelTagExtensions.g.cs";
     }
 
     /// <summary>Source code templates for generated output.</summary>

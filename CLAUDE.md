@@ -63,16 +63,28 @@ src/
 │   └── Sdk.targets
 └── Testing/
     └── Testing.props          ← xUnit v3 MTP auto-injection
+
+eng/
+├── ANcpSdk.AspNetCore.ServiceDefaults/           ← Runtime library (net10.0)
+│   └── Instrumentation/                          ← OTel instrumentation helpers
+└── ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ ← Source generator (netstandard2.0)
+    └── Models/ProviderRegistry.cs                ← SSOT for provider definitions
 ```
 
 ## Features Provided to Consumers
 
 - **Polyfills:** Index/Range, IsExternalInit, StringExtensions (netstandard2.0)
 - **Analyzers:** ANcpLua.Analyzers, Meziantou.Analyzer, BannedApiAnalyzers
-- **BannedSymbols:** DateTime.Now, Newtonsoft.Json, object locks
+- **BannedSymbols:** Legacy time APIs, legacy JSON libraries, object locks
 - **LangVersion:** Forces `latest`
 - **Nullable:** Enabled by default
 - **Deterministic:** Reproducible builds
+
+### Web SDK Additional Features
+
+- **Auto-instrumentation:** GenAI (OpenAI, Anthropic, etc.) and Database (Npgsql, etc.) calls
+- **[OTel] attribute:** Compile-time Activity.SetTag() extension generation
+- **Service defaults:** OpenTelemetry, health endpoints, HTTP resilience
 
 ## Version.props Auto-Sync
 
@@ -82,6 +94,24 @@ When `src/common/Version.props` changes:
 3. Merge updates Analyzers versions
 
 **Workflow:** `.github/workflows/sync-versions.yml`
+
+## Publishing to NuGet
+
+Uses **NuGet Trusted Publishing** via GitHub Actions - no API keys needed.
+
+```bash
+# 1. Pack locally
+pwsh ./build.ps1 -Version X.Y.Z
+
+# 2. Commit and push
+git add . && git commit -m "Release X.Y.Z" && git push
+
+# 3. Create release tag (triggers nuget-publish.yml)
+git tag vX.Y.Z && git push origin vX.Y.Z
+```
+
+**Workflow:** `.github/workflows/nuget-publish.yml`
+**Trusted Publisher:** GitHubActions → ANcpLua/ANcpLua.NET.Sdk
 
 ## NuGet Feeds
 

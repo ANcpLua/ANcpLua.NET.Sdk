@@ -47,6 +47,8 @@ public static partial class ANcpSdkServiceDefaults
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
+        ArgumentNullException.ThrowIfNull(builder);
+
         return builder.Services.Any(static service => service.ServiceType == typeof(ANcpSdkServiceDefaultsOptions))
             ? builder
             : builder.UseANcpSdkConventions(configure);
@@ -56,6 +58,8 @@ public static partial class ANcpSdkServiceDefaults
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
+        ArgumentNullException.ThrowIfNull(builder);
+
         var options = new ANcpSdkServiceDefaultsOptions();
         configure?.Invoke(options);
 
@@ -182,6 +186,8 @@ public static partial class ANcpSdkServiceDefaults
 
     public static void MapANcpSdkDefaultEndpoints(this WebApplication app)
     {
+        ArgumentNullException.ThrowIfNull(app);
+
         var options = app.Services.GetRequiredService<ANcpSdkServiceDefaultsOptions>();
         if (options.MapCalled)
             return;
@@ -192,12 +198,8 @@ public static partial class ANcpSdkServiceDefaults
         {
             ForwardedHeaders = options.ForwardedHeaders.ForwardedHeaders
         };
-#pragma warning disable ASPDEPR005
-        forwardedHeadersOptions.KnownNetworks.Clear();
-#pragma warning restore ASPDEPR005
-#if NET10_0_OR_GREATER
+
         forwardedHeadersOptions.KnownIPNetworks.Clear();
-#endif
         forwardedHeadersOptions.KnownProxies.Clear();
 
         app.UseForwardedHeaders(forwardedHeadersOptions);
@@ -240,12 +242,13 @@ public static partial class ANcpSdkServiceDefaults
     {
         app.MapPost(options.DevLogs.RoutePattern, static (DevLogEntry entry, ILogger<DevLogEntry> logger) =>
         {
-            var logLevel = entry.Level?.ToLowerInvariant() switch
+            var logLevel = entry.Level switch
             {
-                "error" => LogLevel.Error,
-                "warn" or "warning" => LogLevel.Warning,
-                "debug" => LogLevel.Debug,
-                "trace" => LogLevel.Trace,
+                var l when string.Equals(l, "error", StringComparison.OrdinalIgnoreCase) => LogLevel.Error,
+                var l when string.Equals(l, "warn", StringComparison.OrdinalIgnoreCase) => LogLevel.Warning,
+                var l when string.Equals(l, "warning", StringComparison.OrdinalIgnoreCase) => LogLevel.Warning,
+                var l when string.Equals(l, "debug", StringComparison.OrdinalIgnoreCase) => LogLevel.Debug,
+                var l when string.Equals(l, "trace", StringComparison.OrdinalIgnoreCase) => LogLevel.Trace,
                 _ => LogLevel.Information
             };
             logger.LogBrowserMessage(logLevel, entry.Message ?? string.Empty);

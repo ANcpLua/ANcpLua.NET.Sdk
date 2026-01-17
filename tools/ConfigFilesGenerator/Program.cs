@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -26,9 +26,9 @@ await GenerateEditorConfigForAnalyzers();
 await GenerateBanSymbolsForNewtonsoftJson();
 
 Console.WriteLine($"{writtenFiles} configuration files written");
-if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color")?.WaitForExit();
+if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color").WaitForExit();
 
-return 0; // Success - writtenFiles count is informational only
+return 0;
 
 async Task GenerateEditorConfigForAnalyzers()
 {
@@ -179,7 +179,6 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
     await foreach (var package in GetReferencedNuGetPackages())
     {
-        // Find the latest version if no version is specified
         var version = package.Version is null ? null : NuGetVersion.Parse(package.Version);
         if (version is null)
         {
@@ -206,9 +205,10 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         ISet<SourcePackageDependencyInfo> dependencies,
         CancellationToken cancellationToken)
     {
+        var sourceRepositories = repositories as IReadOnlyList<SourceRepository> ?? repositories.ToList();
         if (dependencies.Contains(package)) return;
 
-        foreach (var repository in repositories)
+        foreach (var repository in sourceRepositories)
         {
             var dependencyInfoResource = await repository.GetResourceAsync<DependencyInfoResource>();
             var dependencyInfo =
@@ -220,7 +220,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
             foreach (var dependency in dependencyInfo.Dependencies)
                 await ListAllPackageDependencies(
                     new PackageIdentity(dependency.Id, dependency.VersionRange.MinVersion),
-                    repositories,
+                    sourceRepositories,
                     framework,
                     cache,
                     logger,
@@ -234,15 +234,14 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
 {
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null);
     foreach (var item in result)
-        // Skip packages with unresolved MSBuild property versions (e.g., "$(ANcpSdkPackageVersion)")
+
         if (item.Type is DependencyType.NuGet && item.Name is not null &&
             (item.Version is null || !item.Version.Contains("$(")))
             yield return (item.Name, item.Version);
 
-    // Add analyzers from the .NET SDK
     foreach (var package in new[]
              {
-                 "Microsoft.CodeAnalysis.NetAnalyzers" /* "Microsoft.CodeAnalysis.CSharp.CodeStyle" */
+                 "Microsoft.CodeAnalysis.NetAnalyzers"
              })
         yield return (package, null);
 }
@@ -288,15 +287,10 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
                 var assemblyPath = files?.FirstOrDefault(f =>
                     string.Equals(Path.GetFileName(f), assemblyFileName, StringComparison.OrdinalIgnoreCase));
                 if (assemblyPath != null)
-                    try
-                    {
-                        using var stream = package.PackageReader.GetStream(assemblyPath);
-                        return context.LoadFromStream(stream);
-                    }
-                    catch
-                    {
-                        // Ignore
-                    }
+                {
+                    using var stream = package.PackageReader.GetStream(assemblyPath);
+                    return context.LoadFromStream(stream);
+                }
             }
 
             return null;
@@ -405,7 +399,6 @@ static (AnalyzerConfiguration[] Rules, string[] Unknowns) GetConfiguration(FullP
             if (!line.StartsWith('#')) currentComment.Clear();
         }
 
-
     return (rules.ToArray(), unknowns.ToArray());
 }
 
@@ -433,7 +426,6 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
     var package = GlobalPackagesFolderUtility.GetPackage(new PackageIdentity(packageId, version), globalPackagesFolder);
     if (package is null || package.Status is DownloadResourceResultStatus.NotFound)
     {
-        // Download the package
         using var packageStream = new MemoryStream();
         await resource.CopyNupkgToStreamAsync(
             packageId,
@@ -445,7 +437,6 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
 
         packageStream.Seek(0, SeekOrigin.Begin);
 
-        // Add it to the global package folder
         package = await GlobalPackagesFolderUtility.AddPackageAsync(
             source,
             new PackageIdentity(packageId, version),
@@ -474,7 +465,6 @@ static IEnumerable<INamespaceSymbol> GetAllNamespaces(IAssemblySymbol assembly)
     }
 }
 
-// Skip types that can't be loaded (e.g., VB analyzers when we only have C# Roslyn)
 static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
 {
     try
@@ -497,9 +487,10 @@ file sealed record AnalyzerRule(
 
 file sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
 
-file static class Patterns
+internal static partial class Patterns
 {
-    public static readonly Regex DiagnosticSeverity = new(
-        @"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9]+).severity\s*=\s*(?<Severity>[a-z]+)",
-        RegexOptions.Compiled);
+    public static readonly Regex DiagnosticSeverity = MyRegex();
+
+    [GeneratedRegex(@"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9]+).severity\s*=\s*(?<Severity>[a-z]+)", RegexOptions.Compiled)]
+    private static partial Regex MyRegex();
 }

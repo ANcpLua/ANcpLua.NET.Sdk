@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Formats.Tar;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
@@ -10,18 +10,18 @@ namespace ANcpLua.Sdk.Tests.Helpers;
 
 public static class DotNetSdkHelpers
 {
-    private static readonly HttpClient HttpClient = new();
-    private static readonly ConcurrentDictionary<NetSdkVersion, FullPath> Values = new();
-    private static readonly KeyedAsyncLock<NetSdkVersion> KeyedAsyncLock = new();
+    private static readonly HttpClient _httpClient = new();
+    private static readonly ConcurrentDictionary<NetSdkVersion, FullPath> _values = new();
+    private static readonly KeyedAsyncLock<NetSdkVersion> _keyedAsyncLock = new();
 
     public static async Task<FullPath> Get(NetSdkVersion version)
     {
-        if (Values.TryGetValue(version, out var result))
+        if (_values.TryGetValue(version, out var result))
             return result;
 
-        using (await KeyedAsyncLock.LockAsync(version))
+        using (await _keyedAsyncLock.LockAsync(version))
         {
-            if (Values.TryGetValue(version, out result))
+            if (_values.TryGetValue(version, out result))
                 return result;
 
             var versionString = version switch
@@ -34,24 +34,26 @@ public static class DotNetSdkHelpers
             var product = products.Single(a => a.ProductName == ".NET" && a.ProductVersion == versionString);
             var releases = await product.GetReleasesAsync();
             var latestRelease = releases.Single(r => r.Version == product.LatestReleaseVersion);
-            var latestSdk = latestRelease.Sdks.MaxBy(static sdk => sdk.Version);
+            var latestSdk = latestRelease.Sdks.MaxBy(static sdk => sdk.Version)
+                            ?? throw new InvalidOperationException($"No SDK found for version {product.LatestReleaseVersion}");
 
             var runtimeIdentifier = RuntimeInformation.RuntimeIdentifier;
-            var file = latestSdk!.Files.Single(file =>
-                file.Rid == runtimeIdentifier && Path.GetExtension(file.Name) is ".zip" or ".gz");
+            var file = latestSdk.Files.Single(f =>
+                f.Rid == runtimeIdentifier && f.Name is { } n && Path.GetExtension(n) is ".zip" or ".gz");
+            var fileName = file.Name ?? throw new InvalidOperationException("File name was null after filter");
             var finalFolderPath = FullPath.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) / "ANcpLua" /
                                   "dotnet" / latestSdk.Version.ToString();
             var finalDotnetPath = finalFolderPath / (OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet");
             if (File.Exists(finalDotnetPath))
             {
-                Values[version] = finalDotnetPath;
+                _values[version] = finalDotnetPath;
                 return finalDotnetPath;
             }
 
             var tempFolder = FullPath.GetTempPath() / "dotnet" / Guid.NewGuid().ToString("N");
 
-            var bytes = await HttpClient.GetByteArrayAsync(file.Address);
-            if (Path.GetExtension(file.Name) is ".zip")
+            var bytes = await _httpClient.GetByteArrayAsync(file.Address);
+            if (Path.GetExtension(fileName) is ".zip")
             {
                 using var ms = new MemoryStream(bytes);
                 var zip = new ZipArchive(ms);
@@ -72,7 +74,10 @@ public static class DotNetSdkHelpers
                             break;
                         case TarEntryType.RegularFile:
                         {
-                            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+                            var directoryPath = Path.GetDirectoryName(destinationPath);
+                            if (directoryPath != null)
+                                Directory.CreateDirectory(directoryPath);
+
                             var entryStream = entry.DataStream;
                             await using var outputStream = File.Create(destinationPath);
                             if (entryStream is not null) await entryStream.CopyToAsync(outputStream);
@@ -106,7 +111,7 @@ public static class DotNetSdkHelpers
             Directory.Move(tempFolder, finalFolderPath);
 
             Assert.True(File.Exists(finalDotnetPath));
-            Values[version] = finalDotnetPath;
+            _values[version] = finalDotnetPath;
             return finalDotnetPath;
         }
     }

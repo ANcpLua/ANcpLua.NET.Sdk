@@ -1,11 +1,11 @@
-﻿// Copyright (c) Microsoft. All rights reserved.
+﻿
 
-// Polyfill for using UnreachableException with .NET Standard 2.0
+
 
 namespace System.Diagnostics;
 
-#pragma warning disable CA1064 // Exceptions should be public
-#pragma warning disable CA1812 // Internal class that is (sometimes) never instantiated.
+#pragma warning disable CA1064 
+#pragma warning disable CA1812 
 
 /// <summary>
 /// Exception thrown when the program executes an instruction that was thought to be unreachable.

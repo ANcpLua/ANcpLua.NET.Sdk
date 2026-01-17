@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
 using ANcpLua.Sdk.Tests.Helpers;
 using ANcpLua.Sdk.Tests.Infrastructure;
@@ -8,14 +8,13 @@ using Meziantou.Framework;
 
 namespace ANcpLua.Sdk.Tests.Helpers;
 
-public class PackageFixture : IAsyncLifetime
+public partial class PackageFixture : IAsyncLifetime
 {
     public const string SdkName = "ANcpLua.NET.Sdk";
     public const string SdkWebName = "ANcpLua.NET.Sdk.Web";
     public const string SdkTestName = "ANcpLua.NET.Sdk.Test";
 
-    // External package versions used by tests - keep in sync with test code
-    private static readonly (string Name, string Version)[] ExternalPackages =
+    private static readonly (string Name, string Version)[] _externalPackages =
     [
         ("xunit", "2.9.3"),
         ("xunit.v3", "3.2.1"),
@@ -57,13 +56,9 @@ public class PackageFixture : IAsyncLifetime
 
         var repoRoot = RepositoryRoot.Locate();
 
-        // Update only the version in existing Version.props (preserve all other content)
         var versionPropsPath = repoRoot["src"] / "common" / "Version.props";
         var existingContent = await File.ReadAllTextAsync(versionPropsPath);
-        var updatedContent = Regex.Replace(
-            existingContent,
-            @"<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>",
-            $"<ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>");
+        var updatedContent = MyRegex().Replace(existingContent, $"<ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>");
         await File.WriteAllTextAsync(versionPropsPath, updatedContent);
 
         var buildFiles = Directory
@@ -71,15 +66,12 @@ public class PackageFixture : IAsyncLifetime
             .Select(FullPath.FromPath)
             .ToList();
 
-        // Also include ANcpSdk.AspNetCore.ServiceDefaults packages from eng/ directory
-        // These need to be built first because they have IncludeBuildOutput=false and manually include the Release DLL
         var engProjects = new[]
         {
             repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj", repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" /
                                                                                                                   "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"
         };
 
-        // Build eng projects first (they need explicit build due to IncludeBuildOutput=false)
         foreach (var engProject in engProjects)
         {
             var buildPsi = new ProcessStartInfo("dotnet")
@@ -116,7 +108,6 @@ public class PackageFixture : IAsyncLifetime
                 Assert.Fail($"NuGet pack failed with exit code {result.ExitCode}. Output: {result.Output}");
         });
 
-        // Pre-warm NuGet cache to avoid race conditions in parallel tests
         await PreWarmNuGetCacheAsync();
     }
 
@@ -137,7 +128,6 @@ public class PackageFixture : IAsyncLifetime
 
         try
         {
-            // Create NuGet.config pointing to our shared package folder
             var nugetConfig = $"""
                                <configuration>
                                    <config>
@@ -161,12 +151,10 @@ public class PackageFixture : IAsyncLifetime
                                """;
             await File.WriteAllTextAsync(warmupDir / "NuGet.config", nugetConfig);
 
-            // Build package references XML
             var packageRefs = string.Join("\n        ",
-                ExternalPackages.Select(static p =>
+                _externalPackages.Select(static p =>
                     $"""<PackageReference Include="{p.Name}" Version="{p.Version}" />"""));
 
-            // Create warmup project that references all external packages
             var csproj = $"""
                           <Project Sdk="Microsoft.NET.Sdk">
                               <Sdk Name="Microsoft.Sbom.Targets" Version="4.1.5" />
@@ -181,7 +169,6 @@ public class PackageFixture : IAsyncLifetime
                           """;
             await File.WriteAllTextAsync(warmupDir / "warmup.csproj", csproj);
 
-            // Restore packages (sequential, one-time)
             var psi = new ProcessStartInfo("dotnet")
             {
                 WorkingDirectory = warmupDir,
@@ -198,11 +185,13 @@ public class PackageFixture : IAsyncLifetime
         }
         finally
         {
-            // Cleanup warmup directory (packages stay in globalPackagesFolder)
             if (Directory.Exists(warmupDir))
                 Directory.Delete(warmupDir, true);
         }
     }
+
+    [GeneratedRegex(@"<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>")]
+    private static partial Regex MyRegex();
 }
 
 public sealed record NuGetReference(string Name, string Version);

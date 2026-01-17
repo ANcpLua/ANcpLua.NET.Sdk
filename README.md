@@ -41,6 +41,7 @@ Add to `global.json` (check [NuGet](https://www.nuget.org/packages/ANcpLua.NET.S
 **Web SDK adds:**
 
 - OpenTelemetry (logging, metrics, tracing with OTLP)
+- Auto-instrumentation for GenAI (OpenAI, Anthropic, Ollama) and Database calls
 - Health endpoints (`/health`, `/alive`)
 - HTTP resilience (retries, circuit breakers)
 - DevLogs (browser console → server logs)
@@ -59,6 +60,21 @@ Add to `global.json` (check [NuGet](https://www.nuget.org/packages/ANcpLua.NET.S
   <InjectLockPolyfill>true</InjectLockPolyfill>
   <InjectTimeProviderPolyfill>true</InjectTimeProviderPolyfill>
 </PropertyGroup>
+```
+
+## [OTel] Attribute (Web SDK)
+
+Mark properties with OpenTelemetry semantic convention names for automatic tag generation:
+
+```csharp
+using ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation;
+
+public record ChatRequest(
+    [OTel("gen_ai.request.model")] string Model,
+    [OTel("gen_ai.request.max_tokens")] int? MaxTokens);
+
+// Generated extension method:
+activity.SetTagsFromChatRequest(request);
 ```
 
 ## Opt-out

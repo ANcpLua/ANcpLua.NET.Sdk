@@ -1,5 +1,5 @@
-// Copyright (c) Microsoft. All rights reserved.
-// Polyfill for System.TimeProvider (.NET 8+)
+
+
 
 #if NETSTANDARD2_0
 

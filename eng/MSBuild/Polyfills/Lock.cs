@@ -1,5 +1,5 @@
-// Copyright (c) ANcpLua. All rights reserved.
-// Licensed under the MIT License.
+
+
 
 #if !NET9_0_OR_GREATER
 

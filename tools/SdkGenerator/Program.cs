@@ -1,4 +1,4 @@
-using Meziantou.Framework;
+﻿using Meziantou.Framework;
 
 var rootFolder = GetRootFolderPath();
 var sdkRootPath = rootFolder / "src" / "Sdk";
@@ -15,7 +15,6 @@ foreach (var (sdkName, baseSdkName) in sdks)
 
     propsPath.CreateParentDirectory();
 
-    // Sdk.props
     File.WriteAllText(propsPath.Value, $"""
                                         <Project>
                                           <PropertyGroup>
@@ -31,7 +30,6 @@ foreach (var (sdkName, baseSdkName) in sdks)
                                         </Project>
                                         """);
 
-    // Sdk.targets
     File.WriteAllText(targetsPath.Value, $"""
                                           <Project>
                                             <Import Project="Sdk.targets" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>

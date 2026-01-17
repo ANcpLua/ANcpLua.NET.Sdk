@@ -1,6 +1,4 @@
-// Copyright (c) ANcpLua. All rights reserved.
-
-using ANcpLua.Sdk.Tests.Helpers;
+﻿using ANcpLua.Sdk.Tests.Helpers;
 using ANcpLua.Sdk.Tests.Infrastructure;
 
 namespace ANcpLua.Sdk.Tests;
@@ -72,8 +70,6 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
         if (polyfill.RequiresLangVersionLatest)
             properties.Add((Prop.LangVersion, Val.Latest));
 
-        // InjectSharedThrow defaults to true, which auto-enables CallerAttributes and NullabilityAttributes.
-        // For negative tests of these polyfills, we must explicitly disable InjectSharedThrow.
         if (polyfill.DisablesSharedThrowForNegative)
             properties.Add((Prop.InjectSharedThrow, Val.False));
 
@@ -95,12 +91,12 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
         result.ShouldFail($"Build succeeded for {polyfill.InjectionProperty} when expected to fail without the flag");
 
         Assert.True(
-            result.OutputContains("CS0246") || // Type or namespace not found
-            result.OutputContains("CS0103") || // Name does not exist
-            result.OutputContains("CS0234") || // Type or namespace does not exist in namespace
-            result.OutputContains("CS0518") || // Predefined type not defined
-            result.OutputContains("CS1513") || // } expected
-            result.OutputContains("CS1022"), // Type or namespace definition expected
+            result.OutputContains("CS0246") ||
+            result.OutputContains("CS0103") ||
+            result.OutputContains("CS0234") ||
+            result.OutputContains("CS0518") ||
+            result.OutputContains("CS1513") ||
+            result.OutputContains("CS1022"),
             $"Expected compilation error for missing type {polyfill.ExpectedType}. Output: {result.ProcessOutput}");
     }
 

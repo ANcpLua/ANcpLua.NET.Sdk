@@ -1,9 +1,9 @@
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
 
-// Polyfill for string methods with StringComparison that are missing in netstandard2.0
-// Fixes CA1307: Use StringComparison for clarity of intent
-// Fixes CA2249: Consider using String.Contains with StringComparison
+
+
+
+
+
 
 #if !NETCOREAPP2_1_OR_GREATER && !NETSTANDARD2_1_OR_GREATER
 
@@ -66,7 +66,7 @@ internal static class StringExtensionsPolyfill {
             throw new ArgumentNullException(nameof(source));
         }
 
-        // Convert char to string and use string comparison
+        
         return source.IndexOf(value.ToString(), comparisonType) >= 0;
     }
 
@@ -95,7 +95,7 @@ internal static class StringExtensionsPolyfill {
             throw new ArgumentException("String cannot be of zero length.", nameof(oldValue));
         }
 
-        // Fast path for ordinal comparison (most common case)
+        
         if (comparisonType == StringComparison.Ordinal) {
             return source.Replace(oldValue, newValue);
         }
@@ -107,17 +107,17 @@ internal static class StringExtensionsPolyfill {
             var matchIndex = source.IndexOf(oldValue, searchIndex, comparisonType);
 
             if (matchIndex < 0) {
-                // No more matches, append the rest
+                
                 result.Append(source, searchIndex, source.Length - searchIndex);
                 break;
             }
 
-            // Append everything before the match
+            
             if (matchIndex > searchIndex) {
                 result.Append(source, searchIndex, matchIndex - searchIndex);
             }
 
-            // Append the replacement
+            
             if (newValue is not null) {
                 result.Append(newValue);
             }
@@ -142,8 +142,8 @@ internal static class StringExtensionsPolyfill {
             throw new ArgumentNullException(nameof(source));
         }
 
-        // For char, we convert to string and use the string overload
-        // This handles culture-aware comparisons correctly
+        
+        
         return source.IndexOf(value.ToString(), comparisonType);
     }
 }

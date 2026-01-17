@@ -4,7 +4,6 @@ namespace ANcpLua.Sdk.Tests.Infrastructure;
 public static class Tfm
 {
     public const string NetStandard20 = "netstandard2.0";
-    public const string Net80 = "net8.0";
     public const string Net100 = "net10.0";
 }
 
@@ -22,7 +21,6 @@ public static class Prop
     public const string GenerateDocumentationFile = "GenerateDocumentationFile";
     public const string ManagePackageVersionsCentrally = "ManagePackageVersionsCentrally";
 
-    // Injection properties
     public const string InjectSharedThrow = "InjectSharedThrow";
     public const string InjectStringOrdinalComparer = "InjectStringOrdinalComparer";
     public const string InjectLockPolyfill = "InjectLockPolyfill";

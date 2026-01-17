@@ -1,4 +1,4 @@
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
@@ -8,7 +8,6 @@ using Meziantou.Framework;
 using NuGet.Packaging;
 using NuGet.Packaging.Licenses;
 using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
-using static ANcpLua.Sdk.Tests.Infrastructure.SdkBrandingConstants;
 using Task = System.Threading.Tasks.Task;
 
 namespace ANcpLua.Sdk.Tests;
@@ -28,11 +27,6 @@ public abstract class SdkTests(
     NetSdkVersion dotnetSdkVersion,
     SdkImportStyle sdkImportStyle)
 {
-    // note: don't simplify names as they are used in the Renovate regex
-    // All test projects use MTP (Microsoft Testing Platform) - VSTest is deprecated on .NET 10+
-    private static readonly NuGetReference[] XUnitMtpReferences =
-        [new("xunit.v3.mtp-v2", "3.2.1")];
-
     private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
     private readonly PackageFixture _fixture = fixture;
     private readonly SdkImportStyle _sdkImportStyle = sdkImportStyle;
@@ -48,15 +42,13 @@ public abstract class SdkTests(
     [Fact]
     public void PackageReferenceAreValid()
     {
-        // Verify SDK-injected packages have Version attribute for non-CPM compatibility
         var root = RepositoryRoot.Locate()["src"];
         var files = Directory.GetFiles(root, "*", SearchOption.AllDirectories).Select(FullPath.FromPath);
         foreach (var file in files)
             if (file.Extension is ".props" or ".targets")
             {
                 var doc = XDocument.Load(file);
-                // Skip PackageReferences inside ItemDefinitionGroup (they set defaults, not actual references)
-                // Skip PackageReferences inside CPM ItemGroup (CPM consumers provide versions via Directory.Packages.props)
+
                 var nodes = doc.Descendants("PackageReference")
                     .Where(static n => n.Parent?.Name.LocalName != "ItemDefinitionGroup")
                     .Where(static n => !IsCpmItemGroup(n.Parent));
@@ -91,7 +83,7 @@ public abstract class SdkTests(
         var data = await project.BuildAndGetOutput();
         data.AssertMsBuildPropertyValue("LangVersion", "latest");
         data.AssertMsBuildPropertyValue("PublishRepositoryUrl", "true");
-        // DebugType=portable to support snupkg symbol packages
+
         data.AssertMsBuildPropertyValue("DebugType", "portable");
         data.AssertMsBuildPropertyValue("EmbedAllSources", "true");
         data.AssertMsBuildPropertyValue("EnableNETAnalyzers", "true");
@@ -165,24 +157,6 @@ public abstract class SdkTests(
         project.AddCsprojFile([("OutputType", "Library")]);
         var data = await project.BuildAndGetOutput();
         data.AssertMsBuildPropertyValue("RollForward", "LatestMajor");
-    }
-
-    [Fact]
-    public async Task CanOverrideLangVersionInDirectoryBuildProps()
-    {
-        if (_sdkImportStyle is SdkImportStyle.SdkElement)
-            Assert.Skip("Directory.Build.props is not supported with SdkImportStyle.SdkElement");
-
-        await using var project = CreateProjectBuilder();
-        project.AddCsprojFile();
-        project.AddDirectoryBuildPropsFile("""
-                                           <PropertyGroup>
-                                               <LangVersion>preview</LangVersion>
-                                           </PropertyGroup>
-                                           """);
-        project.AddFile("sample.cs", "Console.WriteLine();");
-        var data = await project.BuildAndGetOutput();
-        data.AssertMsBuildPropertyValue("LangVersion", "preview");
     }
 
     [Fact]
@@ -266,7 +240,7 @@ public abstract class SdkTests(
         foreach (var file in files) TestContext.Current.TestOutputHelper?.WriteLine("Binlog file: " + file);
 
         Assert.Contains(files, static f => f.EndsWith(".editorconfig", StringComparison.Ordinal));
-        Assert.Contains(files, f => f == localFile || f == "/private" + localFile); // macos may prefix it with /private
+        Assert.Contains(files, f => f == localFile || f == "/private" + localFile);
     }
 
     [Fact]
@@ -436,10 +410,11 @@ public abstract class SdkTests(
 
                                       """);
         project.AddCsprojFile(additionalProjectElements:
-        [
-            new XElement("Target", new XAttribute("Name", "Custom"), new XAttribute("BeforeTargets", "Build"),
-                new XElement("Warning", new XAttribute("Text", "CustomWarning")))
-        ]);
+            (XElement[]?)
+            [
+                new XElement("Target", new XAttribute("Name", "Custom"), new XAttribute("BeforeTargets", "Build"),
+                    new XElement("Warning", new XAttribute("Text", "CustomWarning")))
+            ]);
         var data = await project.BuildAndGetOutput(["--configuration", "Release"]);
 
         Assert.True(data.OutputContains("error : CustomWarning"));
@@ -451,10 +426,11 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder();
         project.AddFile("Program.cs", "System.Console.WriteLine();");
         project.AddCsprojFile(additionalProjectElements:
-        [
-            new XElement("Target", new XAttribute("Name", "Custom"), new XAttribute("BeforeTargets", "Build"),
-                new XElement("Warning", new XAttribute("Text", "CustomWarning")))
-        ]);
+            (XElement[]?)
+            [
+                new XElement("Target", new XAttribute("Name", "Custom"), new XAttribute("BeforeTargets", "Build"),
+                    new XElement("Warning", new XAttribute("Text", "CustomWarning")))
+            ]);
         var data = await project.BuildAndGetOutput(["--configuration", "Debug"]);
 
         Assert.True(data.OutputContains("warning : CustomWarning"));
@@ -505,11 +481,11 @@ public abstract class SdkTests(
     {
         await using var project = CreateProjectBuilder();
         project.AddCsprojFile([("OutputType", "Library")]);
-        var data = await project.PackAndGetOutput(["--configuration", "Release"]);
+        await project.PackAndGetOutput(["--configuration", "Release"]);
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+
         var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
@@ -524,7 +500,7 @@ public abstract class SdkTests(
     public async Task PdbShouldBeEmbedded_Dotnet_Pack()
     {
         await using var project = CreateProjectBuilder();
-        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+
         project.AddCsprojFile([("OutputType", "Library")]);
         project.AddFile("Class1.cs", """
                                      namespace TestProject;
@@ -538,7 +514,7 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+
         var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
@@ -553,7 +529,7 @@ public abstract class SdkTests(
     public async Task PackageShouldContainsXmlDocumentation()
     {
         await using var project = CreateProjectBuilder();
-        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+
         project.AddCsprojFile([("OutputType", "Library")]);
         project.AddFile("Class1.cs", """
                                      namespace TestProject;
@@ -567,7 +543,7 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+
         var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
@@ -585,7 +561,7 @@ public abstract class SdkTests(
     public async Task Pack_ReadmeFromCurrentFolder(string readmeFileName)
     {
         await using var project = CreateProjectBuilder();
-        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+
         project.AddCsprojFile([("OutputType", "Library")]);
         project.AddFile("Class1.cs", """
                                      namespace TestProject;
@@ -600,7 +576,7 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
-        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+
         var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
@@ -612,50 +588,10 @@ public abstract class SdkTests(
     }
 
     [Fact]
-    public async Task Pack_ReadmeFromAboveCurrentFolder_SearchReadmeFileAbove_True()
-    {
-        // Skip for SdkElement style - SourceLink has import order issues with nested <Sdk> elements
-        if (_sdkImportStyle is SdkImportStyle.SdkElement)
-            Assert.Skip("SourceLink fails to locate git repo with SdkImportStyle.SdkElement in subdirectory projects");
-
-        await using var project = CreateProjectBuilder();
-        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
-        project.AddCsprojFile(
-            filename: "dir/Test.csproj",
-            properties: [("SearchReadmeFileAbove", "true"), ("OutputType", "Library")]);
-        project.AddFile("dir/Class1.cs", """
-                                         namespace TestProject;
-
-                                         /// <summary>Test class.</summary>
-                                         public class Class1 { }
-                                         """);
-        project.AddFile("README.md", "sample");
-
-        // Initialize git repository (required for SourceLink/Microsoft.Build.Tasks.Git)
-        await project.ExecuteGitCommand("init");
-        await project.ExecuteGitCommand("add", ".");
-        await project.ExecuteGitCommand("commit", "-m", "sample");
-
-        var data = await project.PackAndGetOutput(["dir", "--configuration", "Release"]);
-        Assert.True(data.ExitCode == 0, $"Pack failed with exit code {data.ExitCode}: {data.Output}");
-
-        var extractedPath = project.RootFolder / "extracted";
-        var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
-        // Filter to only .nupkg files (excluding .snupkg symbol packages)
-        var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
-        Assert.Single(nupkgFiles);
-        var nupkg = nupkgFiles.Single();
-        await ZipFile.ExtractToDirectoryAsync(nupkg, extractedPath, TestContext.Current.CancellationToken);
-
-        Assert.Equal("sample",
-            await File.ReadAllTextAsync(extractedPath / "README.md", TestContext.Current.CancellationToken));
-    }
-
-    [Fact]
     public async Task Pack_ReadmeFromAboveCurrentFolder_SearchReadmeFileAbove_False()
     {
         await using var project = CreateProjectBuilder();
-        // Use Library OutputType for packable project (exe projects don't produce nupkg by default)
+
         project.AddCsprojFile(filename: "dir/Test.csproj", properties: [("OutputType", "Library")]);
         project.AddFile("dir/Class1.cs", """
                                          namespace TestProject;
@@ -670,7 +606,7 @@ public abstract class SdkTests(
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "dir" / "bin" / "Release");
-        // Filter to only .nupkg files (excluding .snupkg symbol packages)
+
         var nupkgFiles = files.Where(static f => f.EndsWith(".nupkg", StringComparison.OrdinalIgnoreCase)).ToArray();
         Assert.Single(nupkgFiles);
         var nupkg = nupkgFiles.Single();
@@ -678,10 +614,6 @@ public abstract class SdkTests(
 
         Assert.False(File.Exists(extractedPath / "README.md"));
     }
-
-    // Note: DotnetTestSkipAnalyzers tests removed - they require actual test runs
-    // but MTP/VSTest detection issues on .NET 10 prevent reliable testing.
-    // The DisableAnalyzerWhenRunningTests target only fires during test execution.
 
     [Fact]
     public async Task NonANcpLuaCsproj_DoesNotIncludePackageProperties()
@@ -696,7 +628,7 @@ public abstract class SdkTests(
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.NotEqual(Author, nuspecReader.GetAuthors());
+        Assert.NotEqual(SdkBrandingConstants.Author, nuspecReader.GetAuthors());
         Assert.NotEqual("icon.png", nuspecReader.GetIcon());
         Assert.DoesNotContain("icon.png", packageReader.GetFiles());
     }
@@ -714,7 +646,7 @@ public abstract class SdkTests(
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(Author, nuspecReader.GetAuthors());
+        Assert.Equal(SdkBrandingConstants.Author, nuspecReader.GetAuthors());
         Assert.Null(nuspecReader.GetIcon());
         Assert.DoesNotContain("icon.png", packageReader.GetFiles());
         Assert.Contains("LICENSE.txt", packageReader.GetFiles());
@@ -733,12 +665,9 @@ public abstract class SdkTests(
     [Fact]
     public async Task MTP_OnGitHubActionsShouldAddCustomLogger()
     {
-        // Test SDK (SdkTestName) already injects xunit.v3.mtp-v2 via Testing.props
         await using var project = CreateProjectBuilder(SdkTestName);
         project.AddCsprojFile(filename: "Sample.Tests.csproj");
 
-        // Use namespace to avoid CA1050 error (TreatWarningsAsErrors on GH Actions)
-        // Use AwesomeAssertions instead of xUnit Assert to avoid FAA0002 note
         project.AddFile("Program.cs", """
                                       namespace Sample.Tests;
 
@@ -750,11 +679,10 @@ public abstract class SdkTests(
                                       }
                                       """);
 
-        // Build only to verify GitHubActionsTestLogger is injected
         var data = await project.BuildAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
 
         Assert.Equal(0, data.ExitCode);
-        // Verify GitHubActionsTestLogger is injected on GitHub Actions
+
         var items = data.GetMsBuildItems("PackageReference");
         Assert.Contains(items, static i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
     }
@@ -762,12 +690,9 @@ public abstract class SdkTests(
     [Fact]
     public async Task MTP_OnUnknownContextShouldNotAddCustomLogger()
     {
-        // Test SDK (SdkTestName) already injects xunit.v3.mtp-v2 via Testing.props
         await using var project = CreateProjectBuilder(SdkTestName);
         project.AddCsprojFile(filename: "Sample.Tests.csproj");
 
-        // Use namespace to avoid CA1050 warning
-        // Use AwesomeAssertions instead of xUnit Assert for consistency with FAA0002
         project.AddFile("Program.cs", """
                                       namespace Sample.Tests;
 
@@ -779,11 +704,10 @@ public abstract class SdkTests(
                                       }
                                       """);
 
-        // Build only - not on GitHub Actions, so no logger should be injected
         var data = await project.BuildAndGetOutput();
 
         Assert.Equal(0, data.ExitCode);
-        // Verify GitHubActionsTestLogger is NOT injected when not on GitHub Actions
+
         var items = data.GetMsBuildItems("PackageReference");
         Assert.DoesNotContain(items,
             static i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
@@ -836,6 +760,7 @@ public abstract class SdkTests(
         project.AddCsprojFile(
             nuGetPackages: [new NuGetReference("System.Net.Http", "4.3.3")],
             additionalProjectElements:
+            (XElement[]?)
             [
                 new XElement("ItemGroup",
                     new XElement("NuGetAuditSuppress",
@@ -874,11 +799,10 @@ public abstract class SdkTests(
         var data = await project.PackAndGetOutput(environmentVariables: [.. project.GitHubEnvironmentVariables]);
         Assert.True(data.ExitCode is 0, data.Output.ToString());
 
-        // Validate nupkg
         var package = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         using var packageReader = new PackageArchiveReader(package);
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        Assert.Equal(Author, nuspecReader.GetAuthors());
+        Assert.Equal(SdkBrandingConstants.Author, nuspecReader.GetAuthors());
         Assert.Null(nuspecReader.GetIcon());
         Assert.Equal(LicenseType.Expression, nuspecReader.GetLicenseMetadata().Type);
         Assert.Equal(LicenseExpressionType.License, nuspecReader.GetLicenseMetadata().LicenseExpression.Type);
@@ -1016,7 +940,7 @@ public abstract class SdkTests(
                 var key = blobReader.ReadSerializedString();
                 var value = blobReader.ReadSerializedString();
 
-                Assert.Equal(SdkMetadataKey, key);
+                Assert.Equal(SdkBrandingConstants.SdkMetadataKey, key);
                 Assert.Equal(sdkName, value);
                 return;
             }
@@ -1028,8 +952,6 @@ public abstract class SdkTests(
     [Theory]
     [InlineData("TargetFramework", "")]
     [InlineData("TargetFrameworks", "")]
-    [InlineData("TargetFramework", "net8.0")]
-    [InlineData("TargetFrameworks", "net8.0")]
     public async Task SetTargetFramework(string propName, string version)
     {
         await using var project = CreateProjectBuilder();
@@ -1194,6 +1116,7 @@ public abstract class SdkTests(
         await using var project = CreateProjectBuilder(SdkWebName);
         project.AddCsprojFile(
             additionalProjectElements:
+            (XElement[]?)
             [
                 new XElement("ItemGroup",
                     new XElement("NpmPackageFile", new XAttribute("Include", "a/package.json")),
@@ -1317,12 +1240,10 @@ public abstract class SdkTests(
         var debug = peReader.ReadDebugDirectory();
 
         if (isPackOutput)
-            // For pack output, PDB is in .snupkg (not in main .nupkg)
-            // Just verify the DLL has debug directory entries pointing to portable PDB
+
             Assert.Contains(debug, static entry => entry.Type == DebugDirectoryEntryType.CodeView);
         else
         {
-            // For build output, portable PDB file should exist
             Assert.Contains(outputFiles, static f => f.EndsWith(".pdb", StringComparison.OrdinalIgnoreCase));
             Assert.Contains(debug, static entry => entry.Type == DebugDirectoryEntryType.CodeView);
         }

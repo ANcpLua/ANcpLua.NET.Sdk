@@ -50,7 +50,7 @@ $VersionPropsContent = @"
        ROSLYN.UTILITIES.SOURCES (Source-only package for generators)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Roslyn.Utilities.Sources">
-    <ANcpLuaRoslynUtilitiesSourcesVersion>1.5.1</ANcpLuaRoslynUtilitiesSourcesVersion>
+    <ANcpLuaRoslynUtilitiesSourcesVersion>1.12.0</ANcpLuaRoslynUtilitiesSourcesVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -111,7 +111,7 @@ $VersionPropsContent = @"
        ANALYZERS (SDK-injected)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Analyzers">
-    <ANcpLuaAnalyzersVersion>1.6.1</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>1.6.10</ANcpLuaAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
     <JonSkeetAnalyzersVersion>1.0.0-beta.6</JonSkeetAnalyzersVersion>
@@ -122,9 +122,9 @@ $VersionPropsContent = @"
        Used by: SDK (ServiceDefaults), Web projects
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Microsoft.Extensions">
-    <MicrosoftExtensionsVersion>10.1.0</MicrosoftExtensionsVersion>
-    <AspNetCoreVersion>10.0.1</AspNetCoreVersion>
-    <MicrosoftBclAsyncInterfacesVersion>10.0.1</MicrosoftBclAsyncInterfacesVersion>
+    <MicrosoftExtensionsVersion>10.2.0</MicrosoftExtensionsVersion>
+    <AspNetCoreVersion>10.0.2</AspNetCoreVersion>
+    <MicrosoftBclAsyncInterfacesVersion>10.0.2</MicrosoftBclAsyncInterfacesVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════

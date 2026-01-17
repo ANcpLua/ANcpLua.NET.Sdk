@@ -1,9 +1,9 @@
-// Copyright (c) ANcpLua. All rights reserved.
-// Licensed under the MIT License.
+
+
 
 using System;
 
-#pragma warning disable RCS1157 // Composite enum value contains undefined flag
+#pragma warning disable RCS1157 
 
 namespace System.Diagnostics.CodeAnalysis;
 

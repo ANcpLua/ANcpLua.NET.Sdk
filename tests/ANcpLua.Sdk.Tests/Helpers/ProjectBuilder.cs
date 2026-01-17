@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
 using System.Xml.Linq;
 using ANcpLua.Sdk.Tests.Infrastructure;
@@ -25,7 +25,6 @@ public sealed class ProjectBuilder : IAsyncDisposable
     private readonly FullPath _githubStepSummaryFile;
     private readonly List<NuGetReference> _nugetPackages = [];
 
-    // Fluent API state
     private readonly List<(string Key, string Value)> _properties = [];
     private readonly List<(string Name, string Content)> _sourceFiles = [];
     private readonly ITestOutputHelper _testOutputHelper;
@@ -64,8 +63,6 @@ public sealed class ProjectBuilder : IAsyncDisposable
                                                    </configuration>
                                                    """);
 
-        // Create isolated global.json to prevent inheriting test.runner from parent directory
-        // This ensures temp projects don't get forced into MTP mode
         _directory.CreateTextFile("global.json", """
                                                  {
                                                    "sdk": {
@@ -92,14 +89,14 @@ public sealed class ProjectBuilder : IAsyncDisposable
         }
     }
 
-    public async ValueTask DisposeAsync()
+    public ValueTask DisposeAsync()
     {
         TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY",
             XmlSanitizer.SanitizeForXml(GetGitHubStepSummaryContent()));
-        await _directory.DisposeAsync();
+        return _directory.DisposeAsync();
     }
 
-    public string? GetGitHubStepSummaryContent() => File.Exists(_githubStepSummaryFile) ? File.ReadAllText(_githubStepSummaryFile) : null;
+    private string? GetGitHubStepSummaryContent() => File.Exists(_githubStepSummaryFile) ? File.ReadAllText(_githubStepSummaryFile) : null;
 
     public FullPath AddFile(string relativePath, string content)
     {
@@ -112,25 +109,6 @@ public sealed class ProjectBuilder : IAsyncDisposable
     public void SetDotnetSdkVersion(NetSdkVersion dotnetSdkVersion)
     {
         _sdkVersion = dotnetSdkVersion;
-    }
-
-    /// <summary>
-    ///     Enables Microsoft.Testing.Platform mode for test projects that use MTP packages.
-    ///     Required for .NET 10+ when using xunit.v3.mtp-*, TUnit, or other MTP-based frameworks.
-    /// </summary>
-    public void EnableMtpMode()
-    {
-        _directory.CreateTextFile("global.json", """
-                                                 {
-                                                   "sdk": {
-                                                     "rollForward": "latestMinor",
-                                                     "version": "10.0.100"
-                                                   },
-                                                   "test": {
-                                                     "runner": "Microsoft.Testing.Platform"
-                                                   }
-                                                 }
-                                                 """);
     }
 
     /// <summary>Sets the target framework</summary>
@@ -197,21 +175,19 @@ public sealed class ProjectBuilder : IAsyncDisposable
     }
 
     /// <summary>Builds the project and returns the result</summary>
-    public async Task<BuildResult> BuildAsync(string[]? buildArguments = null,
+    public Task<BuildResult> BuildAsync(string[]? buildArguments = null,
         (string Name, string Value)[]? environmentVariables = null)
     {
-        // Generate csproj from accumulated state
         AddCsprojFile(
             [.._properties],
             [.._nugetPackages],
             filename: _projectFilename ?? "ANcpLua.TestProject.csproj",
             importStyle: _importStyleOverride ?? SdkImportStyle.Default);
 
-        // Add all source files
         foreach (var (name, content) in _sourceFiles)
             AddFile(name, content);
 
-        return await BuildAndGetOutput(buildArguments, environmentVariables);
+        return BuildAndGetOutput(buildArguments, environmentVariables);
     }
 
     private string GetSdkElementContent(string sdkName) => $"""<Sdk Name="{sdkName}" Version="{_fixture.Version}" />""";
@@ -235,7 +211,7 @@ public sealed class ProjectBuilder : IAsyncDisposable
     }
 
     public ProjectBuilder AddCsprojFile((string Name, string Value)[]? properties = null,
-        NuGetReference[]? nuGetPackages = null, XElement[]? additionalProjectElements = null, string? sdk = null,
+        NuGetReference[]? nuGetPackages = null, IEnumerable<XElement>? additionalProjectElements = null, string? sdk = null,
         string? rootSdk = null, string filename = "ANcpLua.TestProject.csproj",
         SdkImportStyle importStyle = SdkImportStyle.Default)
     {
@@ -281,7 +257,6 @@ public sealed class ProjectBuilder : IAsyncDisposable
     public Task<BuildResult> BuildAndGetOutput(string[]? buildArguments = null,
         (string Name, string Value)[]? environmentVariables = null) =>
         ExecuteDotnetCommandAndGetOutput("build", buildArguments, environmentVariables);
-
 
     public Task<BuildResult> RestoreAndGetOutput(string[]? buildArguments = null,
         (string Name, string Value)[]? environmentVariables = null) =>
@@ -330,9 +305,8 @@ public sealed class ProjectBuilder : IAsyncDisposable
 
         psi.ArgumentList.Add("/bl");
 
-        // Remove parent environment variables that can interfere with SDK behavior
         psi.Environment.Remove("CI");
-        psi.Environment.Remove("DOTNET_ENVIRONMENT"); // Causes SBOM tool DI failure (microsoft/sbom-tool#278)
+        psi.Environment.Remove("DOTNET_ENVIRONMENT");
         foreach (var kvp in psi.Environment.ToArray())
             if (kvp.Key.StartsWith("GITHUB", StringComparison.Ordinal) ||
                 kvp.Key.StartsWith("MSBuild", StringComparison.OrdinalIgnoreCase) ||
@@ -362,7 +336,6 @@ public sealed class ProjectBuilder : IAsyncDisposable
 
         var result = await psi.RunAsTaskAsync();
 
-        // Retry up to 5 times if MSB4236 error occurs (SDK resolution issue)
         const int maxRetries = 5;
         for (var retry = 0; retry < maxRetries && result.ExitCode is not 0; retry++)
             if (result.Output.Any(static line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
@@ -373,7 +346,6 @@ public sealed class ProjectBuilder : IAsyncDisposable
                 _testOutputHelper.WriteLine(
                     $"SDK resolution or restore error detected, retrying ({retry + 1}/{maxRetries})...");
 
-                // Exponential backoff: 100ms, 200ms, 400ms, 800ms, 1600ms
                 await Task.Delay(100 * (1 << retry));
 
                 result = await psi.RunAsTaskAsync();
@@ -390,9 +362,10 @@ public sealed class ProjectBuilder : IAsyncDisposable
         {
             var bytes = await File.ReadAllBytesAsync(sarifPath);
             sarif = JsonSerializer.Deserialize<SarifFile>(bytes);
-            _testOutputHelper.WriteLine("Sarif result:\n" +
-                                        XmlSanitizer.SanitizeForXml(string.Join("\n",
-                                            sarif!.AllResults().Select(static r => r.ToString()))));
+            if (sarif is not null)
+                _testOutputHelper.WriteLine("Sarif result:\n" +
+                                            XmlSanitizer.SanitizeForXml(string.Join("\n",
+                                                sarif.AllResults().Select(static r => r.ToString()))));
         }
         else
             _testOutputHelper.WriteLine("Sarif file not found: " + sarifPath);
@@ -467,20 +440,14 @@ internal static class XmlSanitizer
         if (string.IsNullOrEmpty(text))
             return text ?? string.Empty;
 
-        // Fast path: check if any invalid characters exist
         var hasInvalidChars = text.Any(static ch => !IsValidXmlChar(ch));
 
         return !hasInvalidChars
             ? text
-            :
-            // Slow path: filter out invalid characters
-            new string(text.Where(IsValidXmlChar).ToArray());
+            : new string(text.Where(IsValidXmlChar).ToArray());
     }
 
     private static bool IsValidXmlChar(char ch) =>
-        // XML 1.0 valid characters:
-        // #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD]
-        // Note: Surrogate pairs (#x10000-#x10FFFF) are handled by .NET as two chars
         ch == 0x9 ||
         ch == 0xA ||
         ch == 0xD ||

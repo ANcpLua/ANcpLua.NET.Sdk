@@ -191,24 +191,28 @@
     </PackageReference>
   </ItemGroup>
 
+  <!--
+    SDK-injected analyzer packages for CPM consumers.
+    Uses VersionOverride to provide versions from SDK's Version.props,
+    so consumers don't need to add PackageVersion entries for SDK-injected packages.
+  -->
   <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
-    <!-- CPM: Consumer's Directory.Packages.props provides versions via PackageVersion entries -->
-    <PackageReference Include="ANcpLua.Analyzers"
+    <PackageReference Include="ANcpLua.Analyzers" VersionOverride="$(ANcpLuaAnalyzersVersion)"
                       Condition="'$(PackageId)' != 'ANcpLua.Analyzers'">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="Microsoft.Sbom.Targets">
+    <PackageReference Include="Microsoft.Sbom.Targets" VersionOverride="$(SbomTargetsVersion)">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers">
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" VersionOverride="$(BannedApiAnalyzersVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="JonSkeet.RoslynAnalyzers">
+    <PackageReference Include="JonSkeet.RoslynAnalyzers" VersionOverride="$(JonSkeetAnalyzersVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>

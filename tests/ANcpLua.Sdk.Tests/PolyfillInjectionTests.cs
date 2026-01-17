@@ -1,4 +1,4 @@
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using ANcpLua.Sdk.Tests.Helpers;
 using ANcpLua.Sdk.Tests.Infrastructure;
 
@@ -18,37 +18,32 @@ public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper te
     {
         await using var project = CreateProjectBuilder();
 
-        // Enable the polyfill property
         var properties = new[]
         {
             (polyfill.InjectionProperty, Val.True), (Prop.TargetFramework, tfm), (Prop.OutputType, Val.Library)
         };
 
-        // Inject a custom target to dump Compile items
         var dumpTarget = new XElement("Target",
             new XAttribute("Name", "DumpCompile"),
             new XAttribute("AfterTargets", "PrepareForBuild"),
             new XElement("Message",
                 new XAttribute("Importance", "High"),
-                new XAttribute("Text", "COMPILE_ITEM: %(Compile.Identity)") // Simple prefix for easy searching
+                new XAttribute("Text", "COMPILE_ITEM: %(Compile.Identity)")
             )
         );
 
         project.AddCsprojFile(
             properties,
-            additionalProjectElements: [dumpTarget]
+            additionalProjectElements: (XElement[]?)[dumpTarget]
         );
 
         project.AddFile("Class1.cs", "public class Class1 {}");
 
-        // Run the build (which triggers PrepareForBuild and our target)
         var result = await project.BuildAndGetOutput();
 
-        // Verify compilation success (sanity check)
         Assert.True(result.ExitCode is 0,
             $"Build failed for {polyfill.InjectionProperty} on {tfm}. Output: {result.ProcessOutput}");
 
-        // Check if the expected file is in the output
         var expectedFileName = Path.GetFileName(polyfill.RepositoryPath);
         var isPresent = result.ProcessOutput.Any(line =>
             line.Text.Contains("COMPILE_ITEM:") && line.Text.Contains(expectedFileName));

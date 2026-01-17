@@ -1,7 +1,4 @@
-// Copyright (c) ANcpLua. All rights reserved.
-// Licensed under the MIT License.
-
-namespace System.Runtime.CompilerServices;
+﻿namespace System.Runtime.CompilerServices;
 
 /// <summary>
 ///     Backport of <see cref="IsExternalInit" /> for .NET Standard 2.0/2.1 and .NET Framework.

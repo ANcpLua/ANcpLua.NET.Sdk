@@ -1,4 +1,4 @@
-using ANcpLua.Extensions.FakeLogger;
+﻿using ANcpLua.Extensions.FakeLogger;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 
@@ -12,7 +12,6 @@ public sealed class FakeLoggerExtensionsTests
     [Fact]
     public void GetFullLoggerText_ReturnsFormattedLogs()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         var logger = new FakeLogger<FakeLoggerExtensionsTests>(collector);
 
@@ -20,10 +19,8 @@ public sealed class FakeLoggerExtensionsTests
         logger.LogWarning("Second message");
         logger.LogError("Third message");
 
-        // Act
         var result = collector.GetFullLoggerText();
 
-        // Assert
         Assert.Contains("Information - First message", result);
         Assert.Contains("Warning - Second message", result);
         Assert.Contains("Error - Third message", result);
@@ -32,92 +29,75 @@ public sealed class FakeLoggerExtensionsTests
     [Fact]
     public void GetFullLoggerText_WithCustomFormatter_UsesFormatter()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         var logger = new FakeLogger<FakeLoggerExtensionsTests>(collector);
 
         logger.LogInformation("Test message");
 
-        // Act
         var result = collector.GetFullLoggerText(record => $"[{record.Level}] {record.Message}");
 
-        // Assert
         Assert.Contains("[Information] Test message", result);
     }
 
     [Fact]
     public void GetFullLoggerText_EmptyCollector_ReturnsEmptyString()
     {
-        // Arrange
         var collector = new FakeLogCollector();
 
-        // Act
         var result = collector.GetFullLoggerText();
 
-        // Assert
         Assert.Equal(string.Empty, result);
     }
 
     [Fact]
     public async Task WaitForLogAsync_ConditionMet_ReturnsTrue()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         var logger = new FakeLogger<FakeLoggerExtensionsTests>(collector);
 
         logger.LogInformation("Expected message");
 
-        // Act
         var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("Expected")),
             TimeSpan.FromSeconds(1), cancellationToken: TestContext.Current.CancellationToken);
 
-        // Assert
         Assert.True(result);
     }
 
     [Fact]
     public async Task WaitForLogAsync_ConditionNotMet_ReturnsFalse()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         var logger = new FakeLogger<FakeLoggerExtensionsTests>(collector);
 
         logger.LogInformation("Other message");
 
-        // Act
         var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("NotFound")),
             TimeSpan.FromMilliseconds(100), cancellationToken: TestContext.Current.CancellationToken);
 
-        // Assert
         Assert.False(result);
     }
 
     [Fact]
     public async Task WaitForLogAsync_DelayedLog_WaitsAndReturnsTrue()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         var logger = new FakeLogger<FakeLoggerExtensionsTests>(collector);
 
-        // Start background task to add log after delay
         _ = Task.Run(async () =>
         {
             await Task.Delay(50);
             logger.LogInformation("Delayed message");
         }, TestContext.Current.CancellationToken);
 
-        // Act
         var result = await collector.WaitForLogAsync(logs => logs.Any(l => l.Message.Contains("Delayed")),
             TimeSpan.FromSeconds(2), cancellationToken: TestContext.Current.CancellationToken);
 
-        // Assert
         Assert.True(result);
     }
 
     [Fact]
     public async Task WaitForLogCountAsync_ReachesExpectedCount_ReturnsTrue()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         var logger = new FakeLogger<FakeLoggerExtensionsTests>(collector);
 
@@ -125,48 +105,39 @@ public sealed class FakeLoggerExtensionsTests
         logger.LogInformation("Message 2");
         logger.LogWarning("Warning message");
 
-        // Act
         var result = await collector.WaitForLogCountAsync(log => log.Level == LogLevel.Information, 2,
             TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
 
-        // Assert
         Assert.True(result);
     }
 
     [Fact]
     public async Task WaitForLogCountAsync_NotEnoughLogs_ReturnsFalse()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         var logger = new FakeLogger<FakeLoggerExtensionsTests>(collector);
 
         logger.LogInformation("Only one message");
 
-        // Act
         var result = await collector.WaitForLogCountAsync(log => log.Level == LogLevel.Information, 5,
             TimeSpan.FromMilliseconds(100), TestContext.Current.CancellationToken);
 
-        // Assert
         Assert.False(result);
     }
 
     [Fact]
     public async Task WaitForLogAsync_CancellationRequested_ReturnsFalse()
     {
-        // Arrange
         var collector = new FakeLogCollector();
         using var cts = new CancellationTokenSource();
 
-        // Cancel immediately
         await cts.CancelAsync();
 
-        // Act - The method catches OperationCanceledException and returns the condition result
         var result = await collector.WaitForLogAsync(
-            _ => false, // Never true
+            _ => false,
             TimeSpan.FromSeconds(10),
             cancellationToken: cts.Token);
 
-        // Assert
         Assert.False(result);
     }
 }
