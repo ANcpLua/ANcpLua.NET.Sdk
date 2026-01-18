@@ -113,7 +113,7 @@ Central Package Management enabled in `Directory.Packages.props`:
 
 ## Documentation
 
-Full reference: https://ancplua.io/sdk/overview
+Full reference: https://ancplua.mintlify.app/sdk/overview
 
 ## Related
 

@@ -163,4 +163,4 @@ activity.SetTagsFromChatRequest(request);
 
 ## Documentation
 
-Full reference: https://ancplua.io/sdk/overview
+Full reference: https://ancplua.mintlify.app/sdk/overview
