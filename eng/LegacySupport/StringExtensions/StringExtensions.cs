@@ -91,12 +91,12 @@ internal static class StringExtensionsPolyfill {
             throw new ArgumentNullException(nameof(oldValue));
         }
 
-        if (oldValue.Length == 0) {
+        if (oldValue.Length is 0) {
             throw new ArgumentException("String cannot be of zero length.", nameof(oldValue));
         }
 
-        
-        if (comparisonType == StringComparison.Ordinal) {
+
+        if (comparisonType is StringComparison.Ordinal) {
             return source.Replace(oldValue, newValue);
         }
 
