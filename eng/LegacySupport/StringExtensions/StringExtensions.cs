@@ -9,12 +9,14 @@
 
 namespace System;
 
+using System.CodeDom.Compiler;
 using System.Text;
 
 /// <summary>
 /// Provides extension methods for <see cref="string"/> that are missing in older target frameworks.
 /// These methods enable CA1307 and CA2249 compliance on netstandard2.0.
 /// </summary>
+[GeneratedCode("ANcpLua.NET.Sdk", "1.0.0")]
 internal static class StringExtensionsPolyfill {
     /// <summary>
     /// Returns a value indicating whether a specified substring occurs within this string,
