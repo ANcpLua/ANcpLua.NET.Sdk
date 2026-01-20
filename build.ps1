@@ -61,6 +61,13 @@ $VersionPropsContent = @"
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
+       ROSLYN.UTILITIES.TESTING (Analyzer/CodeFix/Generator test infrastructure)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup Label="Roslyn.Utilities.Testing">
+    <ANcpLuaRoslynUtilitiesTestingVersion>1.13.0</ANcpLuaRoslynUtilitiesTestingVersion>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
        ROSLYN ANALYZER TESTING (Beta from dotnet-tools feed)
        Used by: Roslyn.Utilities.Testing, Analyzers.Tests
        ═══════════════════════════════════════════════════════════════════════ -->
