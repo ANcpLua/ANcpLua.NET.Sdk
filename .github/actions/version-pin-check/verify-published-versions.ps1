@@ -36,7 +36,7 @@ $errors = New-Object System.Collections.Generic.List[string]
 
 if (Test-Path $GlobalJsonPath) {
     $global = Get-Content $GlobalJsonPath -Raw | ConvertFrom-Json
-    $sdkSection = $global.'msbuild-sdks'
+    $sdkSection = if ($global.PSObject.Properties['msbuild-sdks']) { $global.'msbuild-sdks' } else { $null }
     if ($sdkSection) {
         foreach ($id in @("ANcpLua.NET.Sdk", "ANcpLua.NET.Sdk.Web", "ANcpLua.NET.Sdk.Test")) {
             $pinned = $sdkSection.$id
