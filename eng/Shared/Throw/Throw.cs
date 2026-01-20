@@ -402,6 +402,280 @@ internal static partial class Throw
     public static void InvalidOperationException(string message, Exception? innerException)
         => throw new InvalidOperationException(message, innerException);
 
+    private static string BuildUnreachableMessage(
+        string? message,
+        string memberName,
+        string filePath,
+        int lineNumber,
+        string? conditionExpression = null)
+    {
+        string baseMessage;
+
+        if (!string.IsNullOrEmpty(message))
+        {
+            baseMessage = message;
+        }
+        else if (string.IsNullOrEmpty(memberName) && string.IsNullOrEmpty(filePath))
+        {
+            baseMessage = "Should not be called";
+        }
+        else if (string.IsNullOrEmpty(filePath))
+        {
+            baseMessage = $"Unreachable code executed in {memberName}.";
+        }
+        else
+        {
+            baseMessage = $"Unreachable code executed in {memberName} ({filePath}:{lineNumber}).";
+        }
+
+        if (!string.IsNullOrEmpty(conditionExpression))
+        {
+            return $"{baseMessage} Condition: {conditionExpression}.";
+        }
+
+        return baseMessage;
+    }
+
+#if NET7_0_OR_GREATER
+    /// <summary>
+    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// </summary>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static void UnreachableException(
+        string? message = null,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+        => throw new System.Diagnostics.UnreachableException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber));
+
+    /// <summary>
+    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// </summary>
+    /// <param name="condition">The condition that should have prevented this code path.</param>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="conditionExpression">Caller condition expression when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static void UnreachableException(
+        [DoesNotReturnIf(true)] bool condition,
+        string? message = null,
+        [CallerArgumentExpression(nameof(condition))] string conditionExpression = "",
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        _ = condition;
+        throw new System.Diagnostics.UnreachableException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber, conditionExpression));
+    }
+
+    /// <summary>
+    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// </summary>
+    /// <typeparam name="T">The return type for unreachable code paths.</typeparam>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static T UnreachableException<T>(
+        string? message = null,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+        => throw new System.Diagnostics.UnreachableException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber));
+
+    /// <summary>
+    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// </summary>
+    /// <typeparam name="T">The return type for unreachable code paths.</typeparam>
+    /// <param name="condition">The condition that should have prevented this code path.</param>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="conditionExpression">Caller condition expression when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static T UnreachableException<T>(
+        [DoesNotReturnIf(true)] bool condition,
+        string? message = null,
+        [CallerArgumentExpression(nameof(condition))] string conditionExpression = "",
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        _ = condition;
+        throw new System.Diagnostics.UnreachableException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber, conditionExpression));
+    }
+
+    /// <summary>
+    /// Throws an <see cref="System.Diagnostics.UnreachableException"/> when the condition is <see langword="true"/>.
+    /// </summary>
+    /// <param name="condition">The condition that should never be true.</param>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="conditionExpression">Caller condition expression when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    public static void UnreachableExceptionIf(
+        bool condition,
+        string? message = null,
+        [CallerArgumentExpression(nameof(condition))] string conditionExpression = "",
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        if (condition)
+        {
+            throw new System.Diagnostics.UnreachableException(
+                BuildUnreachableMessage(message, memberName, filePath, lineNumber, conditionExpression));
+        }
+    }
+#else
+    /// <summary>
+    /// Throws an <see cref="System.InvalidOperationException"/> for unreachable code paths.
+    /// </summary>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static void UnreachableException(
+        string? message = null,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+        => throw new InvalidOperationException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber));
+
+    /// <summary>
+    /// Throws an <see cref="System.InvalidOperationException"/> for unreachable code paths.
+    /// </summary>
+    /// <param name="condition">The condition that should have prevented this code path.</param>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="conditionExpression">Caller condition expression when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static void UnreachableException(
+        [DoesNotReturnIf(true)] bool condition,
+        string? message = null,
+        [CallerArgumentExpression(nameof(condition))] string conditionExpression = "",
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        _ = condition;
+        throw new InvalidOperationException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber, conditionExpression));
+    }
+
+    /// <summary>
+    /// Throws an <see cref="System.InvalidOperationException"/> for unreachable code paths.
+    /// </summary>
+    /// <typeparam name="T">The return type for unreachable code paths.</typeparam>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static T UnreachableException<T>(
+        string? message = null,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+        => throw new InvalidOperationException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber));
+
+    /// <summary>
+    /// Throws an <see cref="System.InvalidOperationException"/> for unreachable code paths.
+    /// </summary>
+    /// <typeparam name="T">The return type for unreachable code paths.</typeparam>
+    /// <param name="condition">The condition that should have prevented this code path.</param>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="conditionExpression">Caller condition expression when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    [DoesNotReturn]
+    public static T UnreachableException<T>(
+        [DoesNotReturnIf(true)] bool condition,
+        string? message = null,
+        [CallerArgumentExpression(nameof(condition))] string conditionExpression = "",
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        _ = condition;
+        throw new InvalidOperationException(
+            BuildUnreachableMessage(message, memberName, filePath, lineNumber, conditionExpression));
+    }
+
+    /// <summary>
+    /// Throws an <see cref="System.InvalidOperationException"/> when the condition is <see langword="true"/>.
+    /// </summary>
+    /// <param name="condition">The condition that should never be true.</param>
+    /// <param name="message">A message that describes the error.</param>
+    /// <param name="conditionExpression">Caller condition expression when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="filePath">Caller file path when <paramref name="message"/> is <see langword="null"/>.</param>
+    /// <param name="lineNumber">Caller line number when <paramref name="message"/> is <see langword="null"/>.</param>
+#if !NET6_0_OR_GREATER
+    [MethodImpl(MethodImplOptions.NoInlining)]
+#endif
+    public static void UnreachableExceptionIf(
+        bool condition,
+        string? message = null,
+        [CallerArgumentExpression(nameof(condition))] string conditionExpression = "",
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "",
+        [CallerLineNumber] int lineNumber = 0)
+    {
+        if (condition)
+        {
+            throw new InvalidOperationException(
+                BuildUnreachableMessage(message, memberName, filePath, lineNumber, conditionExpression));
+        }
+    }
+#endif
+
     #endregion
 
     #region For Integer
