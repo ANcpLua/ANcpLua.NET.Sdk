@@ -21,7 +21,7 @@ runs:
     - name: Run version pin check
       shell: pwsh
       run: |
-        $scriptPath = Join-Path $PSScriptRoot 'verify-published-versions.ps1'
+        $scriptPath = Join-Path '${{ github.action_path }}' 'verify-published-versions.ps1'
         & $scriptPath `
           -GlobalJsonPath '${{ inputs.global-json-path }}' `
           -VersionPropsPath '${{ inputs.version-props-path }}' `
