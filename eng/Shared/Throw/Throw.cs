@@ -411,7 +411,7 @@ internal static partial class Throw
     {
         string baseMessage;
 
-        if (!string.IsNullOrEmpty(message))
+        if (message is { Length: > 0 })
         {
             baseMessage = message;
         }
