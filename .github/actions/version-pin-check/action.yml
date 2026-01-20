@@ -1,0 +1,28 @@
+name: Version Pin Check
+description: Verify global.json and Version.props pins match latest published packages.
+
+inputs:
+  global-json-path:
+    description: Path to global.json
+    required: false
+    default: global.json
+  version-props-path:
+    description: Path to Version.props (or version.props)
+    required: false
+    default: Version.props
+  nuget-source:
+    description: NuGet v3 flat container base URL
+    required: false
+    default: https://api.nuget.org/v3-flatcontainer
+
+runs:
+  using: composite
+  steps:
+    - name: Run version pin check
+      shell: pwsh
+      run: |
+        $scriptPath = Join-Path $PSScriptRoot 'verify-published-versions.ps1'
+        & $scriptPath `
+          -GlobalJsonPath '${{ inputs.global-json-path }}' `
+          -VersionPropsPath '${{ inputs.version-props-path }}' `
+          -NugetSource '${{ inputs.nuget-source }}'
