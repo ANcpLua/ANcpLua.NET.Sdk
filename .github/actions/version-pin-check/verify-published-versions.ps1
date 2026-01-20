@@ -57,18 +57,20 @@ if (-not (Test-Path $versionPropsPathResolved) -and (Test-Path "version.props"))
 
 if (Test-Path $versionPropsPathResolved) {
     [xml]$xml = Get-Content $versionPropsPathResolved -Raw
-    $props = @($xml.Project.PropertyGroup)
 
-    $sdkVersion = ($props | ForEach-Object { $_.ANcpSdkPackageVersion } | Where-Object { $_ -and $_.Trim() -ne "" }) | Select-Object -First 1
-    if ($sdkVersion) {
+    # Use SelectSingleNode for safe property access
+    $sdkNode = $xml.SelectSingleNode("//ANcpSdkPackageVersion")
+    if ($sdkNode -and $sdkNode.InnerText.Trim()) {
+        $sdkVersion = $sdkNode.InnerText.Trim()
         $latest = Get-Latest -PackageId "ANcpLua.NET.Sdk"
         if ($sdkVersion -ne $latest) {
             $errors.Add("$versionPropsPathResolved has ANcpSdkPackageVersion=$sdkVersion but latest ANcpLua.NET.Sdk is $latest.")
         }
     }
 
-    $analyzersVersion = ($props | ForEach-Object { $_.ANcpLuaAnalyzersVersion } | Where-Object { $_ -and $_.Trim() -ne "" }) | Select-Object -First 1
-    if ($analyzersVersion) {
+    $analyzersNode = $xml.SelectSingleNode("//ANcpLuaAnalyzersVersion")
+    if ($analyzersNode -and $analyzersNode.InnerText.Trim()) {
+        $analyzersVersion = $analyzersNode.InnerText.Trim()
         $latest = Get-Latest -PackageId "ANcpLua.Analyzers"
         if ($analyzersVersion -ne $latest) {
             $errors.Add("$versionPropsPathResolved has ANcpLuaAnalyzersVersion=$analyzersVersion but latest ANcpLua.Analyzers is $latest.")
