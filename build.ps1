@@ -47,6 +47,13 @@ $VersionPropsContent = @"
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
+       ROSLYN.UTILITIES (Runtime package)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup Label="Roslyn.Utilities">
+    <ANcpLuaRoslynUtilitiesVersion>1.13.0</ANcpLuaRoslynUtilitiesVersion>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
        ROSLYN.UTILITIES.SOURCES (Source-only package for generators)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Roslyn.Utilities.Sources">
