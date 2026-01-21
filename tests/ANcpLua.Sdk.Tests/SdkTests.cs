@@ -67,6 +67,7 @@ public abstract class SdkTests(
         await using var project = CreateProject();
 
         var result = await project
+            .WithOutputType(Val.Library)
             .AddSource("sample.cs", """
                 namespace TestProject;
 
@@ -159,7 +160,9 @@ public abstract class SdkTests(
     {
         await using var project = CreateProject();
 
-        var result = await project.BuildAsync();
+        var result = await project
+            .WithOutputType(Val.Library)
+            .BuildAsync();
 
         result.ShouldHavePropertyValue("RollForward", "LatestMajor");
     }
@@ -519,7 +522,9 @@ public abstract class SdkTests(
     {
         await using var project = CreateProject();
 
-        await project.PackAsync(["--configuration", "Release"]);
+        await project
+            .WithOutputType(Val.Library)
+            .PackAsync(["--configuration", "Release"]);
 
         var extractedPath = project.RootFolder / "extracted";
         var files = Directory.GetFiles(project.RootFolder / "bin" / "Release");
@@ -540,6 +545,7 @@ public abstract class SdkTests(
         await using var project = CreateProject();
 
         var result = await project
+            .WithOutputType(Val.Library)
             .AddSource("Class1.cs", """
                 namespace TestProject;
 
@@ -569,6 +575,7 @@ public abstract class SdkTests(
         await using var project = CreateProject();
 
         var result = await project
+            .WithOutputType(Val.Library)
             .AddSource("Class1.cs", """
                 namespace TestProject;
 
@@ -603,6 +610,7 @@ public abstract class SdkTests(
         project.AddFile(readmeFileName, "sample");
 
         var result = await project
+            .WithOutputType(Val.Library)
             .AddSource("Class1.cs", """
                 namespace TestProject;
 
@@ -635,6 +643,7 @@ public abstract class SdkTests(
 
         var result = await project
             .WithFilename("dir/Test.csproj")
+            .WithOutputType(Val.Library)
             .AddSource("dir/Class1.cs", """
                 namespace TestProject;
 

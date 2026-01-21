@@ -41,8 +41,9 @@
     <!-- Embed source files that are not tracked by the source control manager in the PDB -->
     <EmbedUntrackedSources Condition="'$(EmbedUntrackedSources)' == ''">true</EmbedUntrackedSources>
     <IncludeSourceRevisionInInformationalVersion Condition="'$(IncludeSourceRevisionInInformationalVersion)' == ''">true</IncludeSourceRevisionInInformationalVersion>
-    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == ''">true</EnableSourceControlManagerQueries>
-    <EnableSourceLink Condition="'$(EnableSourceLink)' == ''">true</EnableSourceLink>
+    <!-- Only enable if we're in a git repo - see _ANcpLuaInGitRepo detection above -->
+    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == '' and '$(_ANcpLuaInGitRepo)' == 'true'">true</EnableSourceControlManagerQueries>
+    <EnableSourceLink Condition="'$(EnableSourceLink)' == '' and '$(_ANcpLuaInGitRepo)' == 'true'">true</EnableSourceLink>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
