@@ -759,6 +759,18 @@ public abstract class SdkTests(
 
         Assert.Equal(0, result.ExitCode);
 
+        // Diagnostic: Check if the CI detection property was set
+        var isGitHubActions = result.GetMsBuildPropertyValue("_IsGitHubActions");
+        Assert.True(isGitHubActions == "true",
+            $"Expected _IsGitHubActions='true', but got '{isGitHubActions ?? "(null)"}'. " +
+            "This indicates the GITHUB_ACTIONS environment variable was not properly read by MSBuild.");
+
+        // Diagnostic: Check if the logger injection target executed
+        var targetExecuted = result.IsMsBuildTargetExecuted("_InjectGitHubActionsLogger");
+        Assert.True(targetExecuted,
+            "_InjectGitHubActionsLogger target did not execute. " +
+            "This could indicate a target ordering issue or the condition evaluated to false.");
+
         var items = result.GetMsBuildItems("PackageReference");
         Assert.Contains(items, static i => i.Contains("GitHubActionsTestLogger", StringComparison.OrdinalIgnoreCase));
     }

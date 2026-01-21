@@ -4,9 +4,9 @@
     <!-- Azure Pipelines / DevOpsServer -->
     <ContinuousIntegrationBuild Condition="'$(TF_BUILD)' == 'true'">true</ContinuousIntegrationBuild>
 
-    <!-- GitHub Actions -->
-    <_IsGitHubActions Condition="'$(GITHUB_ACTIONS)' == 'true'">true</_IsGitHubActions>
-    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+    <!-- GitHub Actions (case-insensitive to handle 'true'/'True'/'TRUE') -->
+    <_IsGitHubActions Condition="'$(GITHUB_ACTIONS.ToLowerInvariant())' == 'true'">true</_IsGitHubActions>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS.ToLowerInvariant())' == 'true'">true</ContinuousIntegrationBuild>
 
     <!-- AppVeyor -->
     <ContinuousIntegrationBuild Condition="'$(APPVEYOR)' == 'true'">true</ContinuousIntegrationBuild>
