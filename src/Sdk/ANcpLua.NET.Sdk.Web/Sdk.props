@@ -21,8 +21,8 @@
   <Import Project="$(MSBuildThisFileDirectory)../common/TerminalLogger.props"/>
   <Import Project="$(MSBuildThisFileDirectory)../common/BuildCheck.props"/>
 
-  <!-- Always import Common.props (CustomBeforeDirectoryBuildProps only works with Directory.Build.props) -->
-  <Import Project="$(MSBuildThisFileDirectory)../common/Common.props"/>
+  <!-- Import Common.props with guard to prevent MSB4011 when CustomBeforeDirectoryBuildProps already imported it -->
+  <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_ANcpLuaCommonPropsImported)' != 'true'"/>
 
   <!-- Enforcement and determinism/SourceLink -->
   <Import Project="$(MSBuildThisFileDirectory)../Enforcement/Enforcement.props"/>

@@ -67,6 +67,9 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         _sdkImportStyle = defaultSdkImportStyle;
         _sdkName = defaultSdkName;
 
+        // Override default project filename to enable SDK branding (_IsANcpLuaProject detection)
+        ProjectFilename = "ANcpLua.TestProject.csproj";
+
         // Configure NuGet with local package source
         WithNuGetConfig($"""
                          <configuration>
@@ -504,11 +507,42 @@ public sealed class SdkProjectBuilder : ProjectBuilder
             UseShellExecute = false
         };
         psi.ArgumentList.Add(command);
-        if (arguments is not null)
-            foreach (var arg in arguments)
-                psi.ArgumentList.Add(arg);
 
-        psi.ArgumentList.Add("/bl");
+        // For 'run' command:
+        // 1. Explicitly specify the project file (prevents "not a valid project file" errors
+        //    when Directory.Build.props exists or SDK resolution is complex)
+        // 2. /bl must come BEFORE the '--' separator (otherwise becomes app argument)
+        var dashDashIndex = arguments is not null ? Array.IndexOf(arguments, "--") : -1;
+        if (command == "run")
+        {
+            // Explicitly specify the project file
+            psi.ArgumentList.Add("--project");
+            psi.ArgumentList.Add(ProjectFilename ?? "ANcpLua.TestProject.csproj");
+
+            if (dashDashIndex >= 0)
+            {
+                // Add args before --, then /bl, then -- and remaining args
+                for (var i = 0; i < dashDashIndex; i++)
+                    psi.ArgumentList.Add(arguments![i]);
+                psi.ArgumentList.Add("/bl");
+                for (var i = dashDashIndex; i < arguments!.Length; i++)
+                    psi.ArgumentList.Add(arguments[i]);
+            }
+            else
+            {
+                if (arguments is not null)
+                    foreach (var arg in arguments)
+                        psi.ArgumentList.Add(arg);
+                psi.ArgumentList.Add("/bl");
+            }
+        }
+        else
+        {
+            if (arguments is not null)
+                foreach (var arg in arguments)
+                    psi.ArgumentList.Add(arg);
+            psi.ArgumentList.Add("/bl");
+        }
 
         // Remove interfering environment variables
         psi.Environment.Remove("CI");
@@ -598,6 +632,18 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         TestContext.Current.AddAttachment("GITHUB_STEP_SUMMARY",
             XmlSanitizer.SanitizeForXml(GetGitHubStepSummaryContent()));
         return base.DisposeAsync();
+    }
+
+    /// <summary>
+    ///     Initializes a git repository in the project directory.
+    ///     This is required for many SDK features like SourceLink, versioning, and SBOM generation.
+    /// </summary>
+    public async Task InitializeGitRepoAsync()
+    {
+        await ExecuteGitCommand("init");
+        await ExecuteGitCommand("add", ".");
+        await ExecuteGitCommand("commit", "-m", "Initial commit");
+        await ExecuteGitCommand("remote", "add", "origin", "https://github.com/ancplua/sample.git");
     }
 
     /// <summary>

@@ -24,7 +24,7 @@
 
   <!-- FakeLogger for testing - auto-inject -->
   <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(DiagnosticsTestingVersion)" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(DiagnosticsTestingVersion)" VersionOverride="$(DiagnosticsTestingVersion)" IsImplicitlyDefined="true"/>
     <Using Include="Microsoft.Extensions.Diagnostics.Testing"/>
   </ItemGroup>
   <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
@@ -51,7 +51,7 @@
   <Target Name="_InjectGitHubActionsLogger" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(_IsGitHubActions)' == 'true'">
     <!-- MTP: GitHubActionsTestLogger auto-registers -->
     <ItemGroup>
-      <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)" VersionOverride="$(GitHubActionsLoggerMTPVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
   </Target>
 

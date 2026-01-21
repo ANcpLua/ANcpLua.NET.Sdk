@@ -13,6 +13,7 @@ public class ClaudeBrainTests(PackageFixture fixture)
 
         var result = await project
             .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
             .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
 
         Assert.Equal(0, result.ExitCode);
@@ -35,6 +36,7 @@ public class ClaudeBrainTests(PackageFixture fixture)
 
         await project
             .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
             .WithProperty("GenerateClaudeMd", Val.False)
             .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
 
@@ -52,6 +54,7 @@ public class ClaudeBrainTests(PackageFixture fixture)
 
         await project
             .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
             .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
 
         var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";

@@ -47,12 +47,9 @@
   </ItemGroup>
 
   <!-- AwesomeAssertions is useful for any test framework -->
+  <!-- Note: AwesomeAssertions.Analyzers is injected via GlobalPackages.props (not here) to avoid NETSDK1023 -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
-    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" VersionOverride="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="false"/>
-    <PackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)" VersionOverride="$(AwesomeAssertionsAnalyzersVersion)" IsImplicitlyDefined="false">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
+    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" VersionOverride="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="true"/>
     <!-- Microsoft.Extensions.Diagnostics.Testing is injected by Tests.targets -->
   </ItemGroup>
 

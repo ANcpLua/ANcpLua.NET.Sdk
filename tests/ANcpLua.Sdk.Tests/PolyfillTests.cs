@@ -20,7 +20,9 @@ public class PolyfillTests(PackageFixture fixture)
     {
         await using var project = SdkProjectBuilder.Create(_fixture);
 
+        // Use Library since polyfills target netstandard2.0 which is library-only
         project
+            .WithOutputType(Val.Library)
             .WithProperty(polyfill.InjectionProperty, Val.True)
             .WithTargetFramework(polyfill.MinimumTargetFramework);
 
@@ -54,7 +56,10 @@ public class PolyfillTests(PackageFixture fixture)
 
         await using var project = SdkProjectBuilder.Create(_fixture);
 
-        project.WithTargetFramework(polyfill.MinimumTargetFramework);
+        // Use Library since polyfills target netstandard2.0 which is library-only
+        project
+            .WithOutputType(Val.Library)
+            .WithTargetFramework(polyfill.MinimumTargetFramework);
 
         if (polyfill.RequiresLangVersionLatest)
             project.WithLangVersion(Val.Latest);
@@ -192,7 +197,9 @@ public class PolyfillTests(PackageFixture fixture)
     {
         await using var project = SdkProjectBuilder.Create(_fixture);
 
+        // Use Library since polyfills target netstandard2.0 which is library-only
         project
+            .WithOutputType(Val.Library)
             .WithTargetFramework(Tfm.NetStandard20)
             .WithLangVersion(Val.Latest);
 

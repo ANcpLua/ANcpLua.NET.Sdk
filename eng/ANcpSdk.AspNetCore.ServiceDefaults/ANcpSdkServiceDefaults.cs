@@ -21,6 +21,9 @@ using OpenTelemetry.Trace;
 
 namespace ANcpSdk.AspNetCore.ServiceDefaults;
 
+/// <summary>
+///     Provides extension methods to configure default conventions for ANcpSdk applications.
+/// </summary>
 public static partial class ANcpSdkServiceDefaults
 {
     private const string DevLogsScript = """
@@ -43,6 +46,13 @@ public static partial class ANcpSdkServiceDefaults
                                          })();
                                          """;
 
+    /// <summary>
+    ///     Adds ANcpSdk default services to the application builder, only if they haven't been added already.
+    /// </summary>
+    /// <typeparam name="TBuilder">The type of the host application builder.</typeparam>
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="configure">A delegate to configure the <see cref="ANcpSdkServiceDefaultsOptions"/>.</param>
+    /// <returns>The original <paramref name="builder"/> for chaining.</returns>
     public static TBuilder TryUseANcpSdkConventions<TBuilder>(this TBuilder builder,
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
@@ -54,6 +64,16 @@ public static partial class ANcpSdkServiceDefaults
             : builder.UseANcpSdkConventions(configure);
     }
 
+    /// <summary>
+    ///     Adds ANcpSdk default services to the application builder.
+    ///     <para>
+    ///         This includes OpenTelemetry, Health Checks, Service Discovery, and other common patterns.
+    ///     </para>
+    /// </summary>
+    /// <typeparam name="TBuilder">The type of the host application builder.</typeparam>
+    /// <param name="builder">The host application builder.</param>
+    /// <param name="configure">A delegate to configure the <see cref="ANcpSdkServiceDefaultsOptions"/>.</param>
+    /// <returns>The original <paramref name="builder"/> for chaining.</returns>
     public static TBuilder UseANcpSdkConventions<TBuilder>(this TBuilder builder,
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
@@ -184,6 +204,14 @@ public static partial class ANcpSdkServiceDefaults
         return builder;
     }
 
+    /// <summary>
+    ///     Maps the default endpoints and middleware for ANcpSdk applications.
+    /// </summary>
+    /// <param name="app">The web application to configure.</param>
+    /// <remarks>
+    ///     This configures Health Checks, Forwarded Headers, HSTS, Anti-Forgery, Static Assets, OpenAPI, and Developer Logs
+    ///     based on the configured options.
+    /// </remarks>
     public static void MapANcpSdkDefaultEndpoints(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);

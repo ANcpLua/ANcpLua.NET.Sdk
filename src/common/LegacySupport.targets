@@ -205,7 +205,7 @@
        SDK-specific extensions (DiagnosticsExtensions, SyntaxValueProvider) embedded in SDK
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectSourceGenHelpers)' == 'true'">
-    <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesSourcesVersion)" PrivateAssets="all" IsImplicitlyDefined="true"/>
+    <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesSourcesVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesSourcesVersion)" PrivateAssets="all" IsImplicitlyDefined="true"/>
     <!-- SDK-specific extensions that build on ANcpLua.Roslyn.Utilities -->
     <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/DiagnosticsExtensions.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
     <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/SyntaxValueProvider.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
@@ -239,8 +239,8 @@
   <ItemGroup Condition="('$(InjectTimeProviderPolyfill)' == 'true' OR '$(InjectANcpLuaTimeProviderPolyfill)' == 'true') AND '$(_NeedsNet8Polyfills)' == 'true'">
     <Compile Include="$(_SharedSourcePath)Polyfills/TimeProvider/TimeProvider.cs" LinkBase="Shared/Polyfills" Visible="false"/>
     <!-- TimeProvider on legacy frameworks requires IAsyncDisposable and ValueTask -->
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(BclAsyncInterfacesVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(TasksExtensionsVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(BclAsyncInterfacesVersion)" VersionOverride="$(BclAsyncInterfacesVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(TasksExtensionsVersion)" VersionOverride="$(TasksExtensionsVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
