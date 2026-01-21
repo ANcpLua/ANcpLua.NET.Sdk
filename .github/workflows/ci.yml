@@ -79,6 +79,8 @@ jobs:
     needs: [create_nuget, compute_version]
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
       - uses: actions/download-artifact@v7
         with:
           name: nuget
