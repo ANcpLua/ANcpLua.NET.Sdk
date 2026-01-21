@@ -27,14 +27,23 @@ dotnet run --project tools/ConfigFilesGenerator
 
 **Output:** `src/configuration/Analyzer.*.editorconfig`, `src/configuration/BannedSymbols.*.txt`
 
+### SchemaGenerator
+
+Generates JSON schemas for SDK configuration and validation.
+
+```bash
+dotnet run --project tools/SchemaGenerator
+```
+
 ## When to Run
 
 - **SdkGenerator**: After modifying SDK import structure or adding new SDK flavors
 - **ConfigFilesGenerator**: After updating analyzer package versions in `Version.props`
+- **SchemaGenerator**: After modifying SDK configuration options
 
 ## Implementation Notes
 
-Both tools:
+All tools:
 - Auto-detect repo root via `.git` folder traversal
 - Use `Meziantou.Framework.FullPath` for path handling
 - Are standalone executables (not part of SDK package)

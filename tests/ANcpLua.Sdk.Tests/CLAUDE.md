@@ -32,19 +32,16 @@ result.AssertSuccess();
 
 ## Test Classes
 
-| Class                          | Purpose                                                           |
-|--------------------------------|-------------------------------------------------------------------|
-| SdkTests                       | Core SDK features (properties, package injection, build behavior) |
-| Sdk100RootTests                | net10.0 with `Sdk="..."` in Project element                       |
-| Sdk100InnerTests               | net10.0 with `<Sdk Name="..."/>` element                          |
-| Sdk100DirectoryBuildPropsTests | net10.0 with SDK in Directory.Build.props                         |
-| BannedApiTests                 | BannedApiAnalyzers enforcement                                    |
-| MtpDetectionTests              | Microsoft Testing Platform auto-detection                         |
-| PolyfillInjectionTests         | netstandard2.0 polyfill injection path validation                 |
-| PolyfillTests                  | Polyfill activation, negative tests, and multi-polyfill combos    |
-| FakeLoggerExtensionsTests      | FakeLogger test helpers                                           |
-| ClaudeBrainTests               | CLAUDE.md generation                                              |
-| JonSkeetAnalyzerTests          | Jon Skeet's NodaTime analyzer validation                          |
+| Class                     | Purpose                                                           |
+|---------------------------|-------------------------------------------------------------------|
+| SdkTests                  | Core SDK features (properties, package injection, build behavior) |
+| BannedApiTests            | BannedApiAnalyzers enforcement                                    |
+| MtpDetectionTests         | Microsoft Testing Platform auto-detection                         |
+| PolyfillInjectionTests    | netstandard2.0 polyfill injection path validation                 |
+| PolyfillTests             | Polyfill activation, negative tests, and multi-polyfill combos    |
+| FakeLoggerExtensionsTests | FakeLogger test helpers                                           |
+| ClaudeBrainTests          | CLAUDE.md generation                                              |
+| JonSkeetAnalyzerTests     | Jon Skeet's NodaTime analyzer validation                          |
 
 ## Key Test Patterns
 

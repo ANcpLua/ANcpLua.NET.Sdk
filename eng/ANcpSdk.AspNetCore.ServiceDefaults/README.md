@@ -13,15 +13,26 @@ Provides:
 ## Architecture
 
 ```
-Instrumentation/
-├── ActivitySources.cs       ← Centralized ActivitySource definitions
-├── SemanticConventions.cs   ← OTel semantic convention constants
-├── OTelAttribute.cs         ← [OTel] marker attribute
-├── GenAi/
-│   ├── GenAiInstrumentation.cs ← Execute/ExecuteAsync wrappers
-│   └── TokenUsage.cs           ← Token count record
-└── Db/
-    └── DbInstrumentation.cs    ← DbCommand wrappers
+ANcpSdk.AspNetCore.ServiceDefaults/
+├── ANcpSdkServiceDefaults.cs          <- Main service defaults registration
+├── ANcpSdkServiceDefaultsOptions.cs   <- Configuration options
+├── ANcpSdkOpenTelemetryConfiguration.cs
+├── ANcpSdkOpenApiConfiguration.cs
+├── ANcpSdkHttpsConfiguration.cs
+├── ANcpSdkForwardedHeadersConfiguration.cs
+├── ANcpSdkDevLogsConfiguration.cs
+├── ANcpSdkAntiForgeryConfiguration.cs
+├── ANcpSdkStaticAssetsConfiguration.cs
+├── ValidationStartupFilter.cs
+└── Instrumentation/
+    ├── ActivitySources.cs       <- Centralized ActivitySource definitions
+    ├── SemanticConventions.cs   <- OTel semantic convention constants
+    ├── OTelAttribute.cs         <- [OTel] marker attribute
+    ├── GenAi/
+    │   ├── GenAiInstrumentation.cs <- Execute/ExecuteAsync wrappers
+    │   └── TokenUsage.cs           <- Token count record
+    └── Db/
+        └── DbInstrumentation.cs    <- DbCommand wrappers
 ```
 
 ## Instrumentation

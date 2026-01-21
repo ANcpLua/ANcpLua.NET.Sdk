@@ -23,24 +23,20 @@ This generator provides compile-time interception of:
 ## Architecture
 
 ```
-Models/
-├── ProviderRegistry.cs      ← SSOT for all provider definitions
-├── GenAiInvocationInfo.cs   ← GenAI call site data
-├── DbInvocationInfo.cs      ← Database call site data
-├── OTelTagInfo.cs           ← [OTel] attribute data
-├── InterceptionData.cs      ← Build() interception data
-└── ProviderInfo.cs          ← Detected provider info
-
-Analyzers/
-├── ProviderDetector.cs      ← Detects providers via assembly references
-├── GenAiCallSiteAnalyzer.cs ← Finds GenAI SDK invocations
-├── DbCallSiteAnalyzer.cs    ← Finds DbCommand invocations
-└── OTelTagAnalyzer.cs       ← Finds [OTel] attributes
-
-Emitters/
-├── GenAiInterceptorEmitter.cs ← Emits GenAI interceptors
-├── DbInterceptorEmitter.cs    ← Emits DB interceptors
-└── OTelTagsEmitter.cs         ← Emits SetTag extensions
+ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/
+├── ServiceDefaultsSourceGenerator.cs <- Main generator entry point
+├── Models/
+│   └── Models.cs                <- All models: ProviderRegistry, InterceptionData,
+│                                   GenAiInvocationInfo, DbInvocationInfo, OTelTagInfo
+├── Analyzers/
+│   ├── ProviderDetector.cs      <- Detects providers via assembly references
+│   ├── GenAiCallSiteAnalyzer.cs <- Finds GenAI SDK invocations
+│   ├── DbCallSiteAnalyzer.cs    <- Finds DbCommand invocations
+│   └── OTelTagAnalyzer.cs       <- Finds [OTel] attributes
+└── Emitters/
+    ├── GenAiInterceptorEmitter.cs <- Emits GenAI interceptors
+    ├── DbInterceptorEmitter.cs    <- Emits DB interceptors
+    └── OTelTagsEmitter.cs         <- Emits SetTag extensions
 ```
 
 ## Supported Providers
@@ -70,7 +66,7 @@ Emitters/
 
 ## Adding New Providers
 
-1. Add provider definition to `Models/ProviderRegistry.cs`
+1. Add provider definition to `Models/Models.cs` (in the `ProviderRegistry` class)
 2. For database providers, also update `DbInstrumentation.MapTypeNameToDbSystem`
 3. Run tests to verify detection
 

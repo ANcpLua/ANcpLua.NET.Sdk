@@ -2,16 +2,31 @@
 
 Custom MSBuild SDK providing opinionated defaults, polyfills, and analyzers for .NET projects.
 
-## 🏗️ Ecosystem Position
+## Current Package Versions
+
+| Package | Version |
+|---------|---------|
+| ANcpLua.NET.Sdk | 1.6.21 |
+| ANcpLua.Roslyn.Utilities | 1.16.0 |
+| ANcpLua.Roslyn.Utilities.Sources | 1.16.0 |
+| ANcpLua.Roslyn.Utilities.Testing | 1.16.0 |
+| ANcpLua.Analyzers | 1.9.0 |
+| Roslyn | 5.0.0 |
+| OpenTelemetry | 1.15.0 |
+| Microsoft.Extensions | 10.2.0 |
+| AspNetCore | 10.0.2 |
+| xunit.v3 | 3.2.2 |
+
+## Ecosystem Position
 
 ```
-LAYER 0: ANcpLua.Roslyn.Utilities  ← UPSTREAM (no SDK dependency!)
-         ↓ publishes .Sources
-LAYER 1: ANcpLua.NET.Sdk           ← YOU ARE HERE (SOURCE OF TRUTH)
-         ↓ auto-syncs Version.props
-LAYER 2: ANcpLua.Analyzers         ← DOWNSTREAM (uses SDK)
-         ↓ consumed by
-LAYER 3: qyl, other projects       ← END USERS
+LAYER 0: ANcpLua.Roslyn.Utilities  <-- UPSTREAM (no SDK dependency!)
+         | publishes .Sources
+LAYER 1: ANcpLua.NET.Sdk           <-- YOU ARE HERE (SOURCE OF TRUTH)
+         | auto-syncs Version.props
+LAYER 2: ANcpLua.Analyzers         <-- DOWNSTREAM (uses SDK)
+         | consumed by
+LAYER 3: qyl, other projects       <-- END USERS
 ```
 
 ### This Repo: LAYER 1 (Source of Truth)
