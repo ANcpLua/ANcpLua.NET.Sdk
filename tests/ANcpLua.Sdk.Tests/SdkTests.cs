@@ -750,6 +750,7 @@ public abstract class SdkTests(
                 /// <summary>Sample test class.</summary>
                 public class Tests
                 {
+                    /// <summary>Test method.</summary>
                     [Fact]
                     public void Test1() => true.Should().BeTrue();
                 }
