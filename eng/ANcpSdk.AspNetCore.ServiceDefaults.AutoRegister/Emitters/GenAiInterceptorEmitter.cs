@@ -24,8 +24,8 @@ internal static class GenAiInterceptorEmitter
         var sb = new StringBuilder();
 
         AppendFileHeader(sb);
-        AppendInterceptsLocationAttribute(sb);
         AppendUsings(sb);
+        AppendInterceptsLocationAttribute(sb);
         AppendClassOpen(sb);
         AppendInterceptorMethods(sb, invocations);
         AppendClassClose(sb);
