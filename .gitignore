@@ -284,3 +284,6 @@ Desktop.ini
 
 # Test output
 test_results/
+
+# Local NuGet config for SDK development
+NuGet.local.config
