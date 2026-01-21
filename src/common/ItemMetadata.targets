@@ -3,21 +3,21 @@
     ═══════════════════════════════════════════════════════════════════════════
     ADVANCED ITEM METADATA (Phase 2)
     ═══════════════════════════════════════════════════════════════════════════
+
+    NOTE: Avoid using %(Metadata) in Condition attributes for metadata that may
+    not exist on all items - this causes MSB4096. Instead, set metadata with
+    inner Condition on the metadata element itself.
   -->
 
   <!-- Auto-set Link for files outside project directory -->
   <Target Name="_SetLinkMetadataForExternalFiles"
           BeforeTargets="AssignTargetPaths">
     <ItemGroup>
+      <!-- Only update Compile items that are outside the project directory -->
       <Compile Update="@(Compile)"
                Condition="!$([System.String]::new('%(FullPath)').StartsWith('$(MSBuildProjectDirectory)'))">
-        <Link Condition="'%(Link)' == ''">External\%(Filename)%(Extension)</Link>
+        <Link Condition="'%(Compile.Link)' == ''">External\%(Filename)%(Extension)</Link>
       </Compile>
-
-      <Content Update="@(Content)"
-               Condition="'%(RecursiveDir)' != '' And '%(Link)' == ''">
-        <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
-      </Content>
     </ItemGroup>
   </Target>
 
@@ -43,13 +43,13 @@
       <!-- *.Designer.cs depends on *.resx -->
       <Compile Update="@(Compile)"
                Condition="$([System.String]::new('%(Filename)').EndsWith('.Designer'))">
-        <DependentUpon Condition="'%(DependentUpon)' == ''">$([System.String]::new('%(Filename)').Replace('.Designer', '')).resx</DependentUpon>
+        <DependentUpon Condition="'%(Compile.DependentUpon)' == ''">$([System.String]::new('%(Filename)').Replace('.Designer', '')).resx</DependentUpon>
       </Compile>
 
       <!-- *.g.cs depends on *.xaml -->
       <Compile Update="@(Compile)"
                Condition="$([System.String]::new('%(Filename)').EndsWith('.g'))">
-        <DependentUpon Condition="'%(DependentUpon)' == ''">$([System.String]::new('%(Filename)').Replace('.g', '')).xaml</DependentUpon>
+        <DependentUpon Condition="'%(Compile.DependentUpon)' == ''">$([System.String]::new('%(Filename)').Replace('.g', '')).xaml</DependentUpon>
         <AutoGen>true</AutoGen>
       </Compile>
     </ItemGroup>
