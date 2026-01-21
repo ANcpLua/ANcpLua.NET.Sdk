@@ -15,14 +15,14 @@ public partial class PackageFixture : IAsyncLifetime
     private static readonly (string Name, string Version)[] _externalPackages =
     [
         ("xunit", "2.9.3"),
-        ("xunit.v3", "3.2.1"),
-        ("xunit.v3.mtp-v2", "3.2.1"),
+        ("xunit.v3", "3.2.2"),
+        ("xunit.v3.mtp-v2", "3.2.2"),
         ("xunit.runner.visualstudio", "3.1.5"),
         ("Newtonsoft.Json", "13.0.4"),
         ("System.Net.Http", "4.3.4"),
         ("Microsoft.Sbom.Targets", "4.1.5"),
-        ("OpenTelemetry", "1.14.0"),
-        ("OpenTelemetry.Extensions.Hosting", "1.14.0")
+        ("OpenTelemetry", "1.15.0"),
+        ("OpenTelemetry.Extensions.Hosting", "1.15.0")
     ];
 
     private readonly TemporaryDirectory _packageDirectory = TemporaryDirectory.Create();

@@ -93,7 +93,7 @@ $VersionPropsContent = @"
     <MeziantouTemporaryDirectoryVersion>1.0.31</MeziantouTemporaryDirectoryVersion>
     <MeziantouThreadingVersion>2.0.4</MeziantouThreadingVersion>
     <MeziantouDependencyScanningVersion>2.0.6</MeziantouDependencyScanningVersion>
-    <MeziantouAnalyzerVersion>2.0.284</MeziantouAnalyzerVersion>
+    <MeziantouAnalyzerVersion>2.0.285</MeziantouAnalyzerVersion>
     <MeziantouParallelTestFrameworkVersion>1.0.6</MeziantouParallelTestFrameworkVersion>
   </PropertyGroup>
 
@@ -117,6 +117,7 @@ $VersionPropsContent = @"
     <TestSdkVersion>18.0.1</TestSdkVersion>
     <DiagnosticsTestingVersion>10.0.0</DiagnosticsTestingVersion>
     <GitHubActionsLoggerMTPVersion>3.0.1</GitHubActionsLoggerMTPVersion>
+    <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -144,7 +145,7 @@ $VersionPropsContent = @"
        Used by: SDK (ServiceDefaults)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="OpenTelemetry">
-    <OpenTelemetryVersion>1.14.0</OpenTelemetryVersion>
+    <OpenTelemetryVersion>1.15.0</OpenTelemetryVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -154,8 +155,19 @@ $VersionPropsContent = @"
   <PropertyGroup Label="Build Tools">
     <NuGetVersion>7.0.1</NuGetVersion>
     <MSBuildStructuredLoggerVersion>2.3.113</MSBuildStructuredLoggerVersion>
-    <MicrosoftSourceLinkVersion>8.0.0</MicrosoftSourceLinkVersion>
+    <MicrosoftSourceLinkVersion>10.0.102</MicrosoftSourceLinkVersion>
     <MicrosoftDeploymentDotNetReleasesVersion>1.0.1</MicrosoftDeploymentDotNetReleasesVersion>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       OPENAPI / YAML
+       Used by: SDK (OpenAPI tooling)
+       Note: OpenApi.Readers 2.0.0 stable doesn't exist, using preview
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup Label="OpenAPI">
+    <MicrosoftOpenApiVersion>2.0.0</MicrosoftOpenApiVersion>
+    <MicrosoftOpenApiReadersVersion>2.0.0-preview.13</MicrosoftOpenApiReadersVersion>
+    <YamlDotNetVersion>16.3.0</YamlDotNetVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
