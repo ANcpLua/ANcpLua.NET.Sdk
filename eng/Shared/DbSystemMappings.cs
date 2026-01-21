@@ -28,18 +28,4 @@ internal static class DbSystemMappings
             _ when typeName.Contains("Firebird", StringComparison.OrdinalIgnoreCase) => "firebird",
             _ => "unknown"
         };
-
-    /// <summary>
-    ///     Database provider definitions with their type patterns and system names.
-    /// </summary>
-    public static readonly (string TypeContains, string SystemName)[] Providers =
-    [
-        ("DuckDB", "duckdb"),
-        ("Npgsql", "postgresql"),
-        ("SqlClient", "mssql"),
-        ("Sqlite", "sqlite"),
-        ("Oracle", "oracle"),
-        ("MySql", "mysql"),
-        ("Firebird", "firebird")
-    ];
 }

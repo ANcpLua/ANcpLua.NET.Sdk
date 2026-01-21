@@ -56,13 +56,17 @@ internal static class OTelTagAnalyzer
             return null;
 
         return new OTelTagInfo(
-            ContainingTypeName: containingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            MemberName: propertySymbol.Name,
-            MemberTypeName: propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            AttributeName: attributeName,
-            SkipIfNull: skipIfNull,
-            IsNullable: propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated ||
-                        (propertySymbol.Type.IsValueType && propertySymbol.Type.OriginalDefinition.SpecialType == SpecialType.None));
+            containingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            propertySymbol.Name,
+            propertySymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            attributeName,
+            skipIfNull,
+            propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated ||
+            propertySymbol.Type is
+            {
+                IsValueType: true,
+                OriginalDefinition.SpecialType: SpecialType.None
+            });
     }
 
     private static OTelTagInfo? AnalyzeParameter(
@@ -70,8 +74,7 @@ internal static class OTelTagAnalyzer
         SemanticModel semanticModel,
         CancellationToken cancellationToken)
     {
-        var parameterSymbol = semanticModel.GetDeclaredSymbol(parameter, cancellationToken) as IParameterSymbol;
-        if (parameterSymbol is null)
+        if (semanticModel.GetDeclaredSymbol(parameter, cancellationToken) is not IParameterSymbol parameterSymbol)
             return null;
 
         var otelAttr = FindOTelAttribute(parameterSymbol.GetAttributes());
@@ -87,13 +90,17 @@ internal static class OTelTagAnalyzer
             return null;
 
         return new OTelTagInfo(
-            ContainingTypeName: containingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            MemberName: parameterSymbol.Name,
-            MemberTypeName: parameterSymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
-            AttributeName: attributeName,
-            SkipIfNull: skipIfNull,
-            IsNullable: parameterSymbol.Type.NullableAnnotation == NullableAnnotation.Annotated ||
-                        (parameterSymbol.Type.IsValueType && parameterSymbol.Type.OriginalDefinition.SpecialType == SpecialType.None));
+            containingType.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            parameterSymbol.Name,
+            parameterSymbol.Type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat),
+            attributeName,
+            skipIfNull,
+            parameterSymbol.Type.NullableAnnotation == NullableAnnotation.Annotated ||
+            parameterSymbol.Type is
+            {
+                IsValueType: true,
+                OriginalDefinition.SpecialType: SpecialType.None
+            });
     }
 
     private static AttributeData? FindOTelAttribute(ImmutableArray<AttributeData> attributes)
@@ -125,7 +132,11 @@ internal static class OTelTagAnalyzer
         }
 
         foreach (var namedArg in attr.NamedArguments)
-            if (namedArg.Key == "SkipIfNull" && namedArg.Value.Value is bool skipValue)
+            if (namedArg is
+                {
+                    Key: "SkipIfNull",
+                    Value.Value: bool skipValue
+                })
                 skipIfNull = skipValue;
 
         return (name, skipIfNull);

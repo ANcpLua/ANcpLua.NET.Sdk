@@ -72,6 +72,10 @@ internal static class GenAiCallSiteAnalyzer
         if (!TryMatchGenAiMethod(invocation, out var provider, out var operation, out var isAsync))
             return null;
 
+        // Skip if already intercepted by another generator
+        if (IsAlreadyIntercepted(context, cancellationToken))
+            return null;
+
         var interceptLocation = context.SemanticModel.GetInterceptableLocation(
             (InvocationExpressionSyntax)context.Node,
             cancellationToken);
@@ -83,16 +87,16 @@ internal static class GenAiCallSiteAnalyzer
         var model = TryExtractModelName(invocation);
 
         return new GenAiInvocationInfo(
-            OrderKey: FormatOrderKey(context.Node),
-            Provider: provider,
-            Operation: operation,
-            Model: model,
-            ContainingTypeName: method.ContainingType.ToDisplayString(),
-            MethodName: method.Name,
-            IsAsync: isAsync,
-            ReturnTypeName: method.ReturnType.ToDisplayString(),
-            ParameterTypes: method.Parameters.Select(static p => p.Type.ToDisplayString()).ToList(),
-            InterceptableLocation: interceptLocation);
+            FormatOrderKey(context.Node),
+            provider,
+            operation,
+            model,
+            method.ContainingType.ToDisplayString(),
+            method.Name,
+            isAsync,
+            method.ReturnType.ToDisplayString(),
+            method.Parameters.Select(static p => p.Type.ToDisplayString()).ToList(),
+            interceptLocation);
     }
 
     private static bool IsGeneratedFile(string filePath) =>
@@ -167,6 +171,19 @@ internal static class GenAiCallSiteAnalyzer
         }
 
         return null;
+    }
+
+    /// <summary>
+    ///     Checks if a call is already being intercepted by another source generator.
+    /// </summary>
+    /// <seealso href="https://github.com/dotnet/roslyn/issues/72093" />
+    private static bool IsAlreadyIntercepted(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
+        if (context.Node is not InvocationExpressionSyntax invocationSyntax)
+            return false;
+
+        var interceptor = context.SemanticModel.GetInterceptorMethod(invocationSyntax, cancellationToken);
+        return interceptor is not null;
     }
 
     private static string FormatOrderKey(SyntaxNode node)

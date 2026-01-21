@@ -105,13 +105,13 @@ internal static class OTelTagsEmitter
         var attributeName = tag.AttributeName;
 
         if (tag.SkipIfNull && (tag.IsNullable || !IsValueType(tag.MemberTypeName)))
-            sb.AppendLine($$"""
-                                            if ({{accessor}} is not null)
-                                                activity.SetTag("{{attributeName}}", {{accessor}});
+            sb.AppendLine($"""
+                                            if ({accessor} is not null)
+                                                activity.SetTag("{attributeName}", {accessor});
                             """);
         else
-            sb.AppendLine($$"""
-                                            activity.SetTag("{{attributeName}}", {{accessor}});
+            sb.AppendLine($"""
+                                            activity.SetTag("{attributeName}", {accessor});
                             """);
     }
 

@@ -52,6 +52,10 @@ internal static class DbCallSiteAnalyzer
         if (!TryMatchDbCommandMethod(invocation, context.SemanticModel.Compilation, out var method, out var isAsync, out var concreteType))
             return null;
 
+        // Skip if already intercepted by another generator
+        if (IsAlreadyIntercepted(context, cancellationToken))
+            return null;
+
         var interceptLocation = context.SemanticModel.GetInterceptableLocation(
             (InvocationExpressionSyntax)context.Node,
             cancellationToken);
@@ -60,11 +64,11 @@ internal static class DbCallSiteAnalyzer
             return null;
 
         return new DbInvocationInfo(
-            OrderKey: FormatOrderKey(context.Node),
-            Method: method,
-            IsAsync: isAsync,
-            ConcreteCommandType: concreteType,
-            InterceptableLocation: interceptLocation);
+            FormatOrderKey(context.Node),
+            method,
+            isAsync,
+            concreteType,
+            interceptLocation);
     }
 
     private static bool IsGeneratedFile(string filePath) =>
@@ -138,6 +142,19 @@ internal static class DbCallSiteAnalyzer
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     Checks if a call is already being intercepted by another source generator.
+    /// </summary>
+    /// <seealso href="https://github.com/dotnet/roslyn/issues/72093" />
+    private static bool IsAlreadyIntercepted(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
+        if (context.Node is not InvocationExpressionSyntax invocationSyntax)
+            return false;
+
+        var interceptor = context.SemanticModel.GetInterceptorMethod(invocationSyntax, cancellationToken);
+        return interceptor is not null;
     }
 
     private static string FormatOrderKey(SyntaxNode node)

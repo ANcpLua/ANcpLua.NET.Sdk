@@ -95,8 +95,25 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         if (!IsWebApplicationBuilderBuild(invocation, context.SemanticModel.Compilation))
             return null;
 
+        // Skip if already intercepted by another generator
+        if (IsAlreadyIntercepted(context, cancellationToken))
+            return null;
+
         var interceptLocation = GetInterceptableLocation(context, cancellationToken);
         return interceptLocation is null ? null : CreateInterceptionData(context.Node, interceptLocation);
+    }
+
+    /// <summary>
+    ///     Checks if a call is already being intercepted by another source generator.
+    /// </summary>
+    /// <seealso href="https://github.com/dotnet/roslyn/issues/72093" />
+    private static bool IsAlreadyIntercepted(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+    {
+        if (context.Node is not InvocationExpressionSyntax invocationSyntax)
+            return false;
+
+        var interceptor = context.SemanticModel.GetInterceptorMethod(invocationSyntax, cancellationToken);
+        return interceptor is not null;
     }
 
     private static bool TryGetBuildInvocation(
@@ -139,9 +156,9 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         SyntaxNode node,
         InterceptableLocation location) =>
         new(
-            OrderKey: FormatLocationKey(node),
-            Kind: InterceptionMethodKind.Build,
-            InterceptableLocation: location);
+            FormatLocationKey(node),
+            InterceptionMethodKind.Build,
+            location);
 
     private static string FormatLocationKey(SyntaxNode node)
     {

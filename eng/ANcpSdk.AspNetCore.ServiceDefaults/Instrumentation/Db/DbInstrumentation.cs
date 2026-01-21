@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Diagnostics;
+using ANcpSdk.AspNetCore.ServiceDefaults.Shared;
 
 namespace ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.Db;
 
@@ -173,12 +174,12 @@ public static class DbInstrumentation
             return "unknown";
 
         return _sDbSystemCache.GetOrAdd(connection.GetType(), static type =>
-            Shared.DbSystemMappings.MapTypeNameToDbSystem(type.FullName ?? type.Name));
+            DbSystemMappings.MapTypeNameToDbSystem(type.FullName ?? type.Name));
     }
 
     /// <summary>
     ///     Gets the database system name for a type name. Exposed for testing.
     /// </summary>
     internal static string GetDbSystemForTesting(string typeName) =>
-        Shared.DbSystemMappings.MapTypeNameToDbSystem(typeName);
+        DbSystemMappings.MapTypeNameToDbSystem(typeName);
 }

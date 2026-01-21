@@ -109,67 +109,65 @@ internal static class GenAiInterceptorEmitter
 
         if (invocation.IsAsync)
         {
-            if (usageExtractor is not null)
-                sb.AppendLine($$"""
-                                        // Intercepted call at {{displayLocation}}
-                                        {{interceptAttribute}}
-                                        public static async {{returnType}} {{methodName}}({{parameters}})
-                                        {
-                                            return await GenAiInstrumentation.ExecuteAsync(
-                                                "{{invocation.Provider}}",
-                                                "{{invocation.Operation}}",
-                                                {{modelArg}},
-                                                async () => await @this.{{originalMethod}}({{arguments}}),
-                                                {{usageExtractor}});
-                                        }
+            sb.AppendLine(usageExtractor is not null
+                ? $$"""
+                            // Intercepted call at {{displayLocation}}
+                            {{interceptAttribute}}
+                            public static async {{returnType}} {{methodName}}({{parameters}})
+                            {
+                                return await GenAiInstrumentation.ExecuteAsync(
+                                    "{{invocation.Provider}}",
+                                    "{{invocation.Operation}}",
+                                    {{modelArg}},
+                                    async () => await @this.{{originalMethod}}({{arguments}}),
+                                    {{usageExtractor}});
+                            }
 
-                                """);
-            else
-                sb.AppendLine($$"""
-                                        // Intercepted call at {{displayLocation}}
-                                        {{interceptAttribute}}
-                                        public static async {{returnType}} {{methodName}}({{parameters}})
-                                        {
-                                            return await GenAiInstrumentation.ExecuteAsync(
-                                                "{{invocation.Provider}}",
-                                                "{{invocation.Operation}}",
-                                                {{modelArg}},
-                                                async () => await @this.{{originalMethod}}({{arguments}}));
-                                        }
+                    """
+                : $$"""
+                            // Intercepted call at {{displayLocation}}
+                            {{interceptAttribute}}
+                            public static async {{returnType}} {{methodName}}({{parameters}})
+                            {
+                                return await GenAiInstrumentation.ExecuteAsync(
+                                    "{{invocation.Provider}}",
+                                    "{{invocation.Operation}}",
+                                    {{modelArg}},
+                                    async () => await @this.{{originalMethod}}({{arguments}}));
+                            }
 
-                                """);
+                    """);
         }
         else
         {
-            if (usageExtractor is not null)
-                sb.AppendLine($$"""
-                                        // Intercepted call at {{displayLocation}}
-                                        {{interceptAttribute}}
-                                        public static {{returnType}} {{methodName}}({{parameters}})
-                                        {
-                                            return GenAiInstrumentation.Execute(
-                                                "{{invocation.Provider}}",
-                                                "{{invocation.Operation}}",
-                                                {{modelArg}},
-                                                () => @this.{{originalMethod}}({{arguments}}),
-                                                {{usageExtractor}});
-                                        }
+            sb.AppendLine(usageExtractor is not null
+                ? $$"""
+                            // Intercepted call at {{displayLocation}}
+                            {{interceptAttribute}}
+                            public static {{returnType}} {{methodName}}({{parameters}})
+                            {
+                                return GenAiInstrumentation.Execute(
+                                    "{{invocation.Provider}}",
+                                    "{{invocation.Operation}}",
+                                    {{modelArg}},
+                                    () => @this.{{originalMethod}}({{arguments}}),
+                                    {{usageExtractor}});
+                            }
 
-                                """);
-            else
-                sb.AppendLine($$"""
-                                        // Intercepted call at {{displayLocation}}
-                                        {{interceptAttribute}}
-                                        public static {{returnType}} {{methodName}}({{parameters}})
-                                        {
-                                            return GenAiInstrumentation.Execute(
-                                                "{{invocation.Provider}}",
-                                                "{{invocation.Operation}}",
-                                                {{modelArg}},
-                                                () => @this.{{originalMethod}}({{arguments}}));
-                                        }
+                    """
+                : $$"""
+                            // Intercepted call at {{displayLocation}}
+                            {{interceptAttribute}}
+                            public static {{returnType}} {{methodName}}({{parameters}})
+                            {
+                                return GenAiInstrumentation.Execute(
+                                    "{{invocation.Provider}}",
+                                    "{{invocation.Operation}}",
+                                    {{modelArg}},
+                                    () => @this.{{originalMethod}}({{arguments}}));
+                            }
 
-                                """);
+                    """);
         }
     }
 

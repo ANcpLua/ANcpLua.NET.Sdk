@@ -26,6 +26,7 @@ eng/LegacySupport/**/*.cs   → Actual polyfill source files
 ```
 
 Key files:
+
 - `MSBuild/LegacySupport.props` - switch definitions with defaults
 - `MSBuild/LegacySupport.targets` - conditional file injection
 - `LegacySupport/*/` - one folder per polyfill (IndexRange, TimeProvider, etc.)
@@ -39,6 +40,7 @@ Condition: IncludeANcpLuaAnalyzers != false
 ```
 
 Key files:
+
 - `MSBuild/Common.targets` - analyzer package injection
 - `MSBuild/BannedSymbols.txt` - banned API list (legacy time APIs, Newtonsoft, etc.)
 
@@ -51,6 +53,7 @@ Sets OutputType=Exe, TestingPlatform=true
 ```
 
 Key files:
+
 - `MSBuild/Testing.props` - MTP detection and property setting
 - Detection: looks for `xunit.v3.mtp-v2` in package references
 
@@ -65,20 +68,21 @@ eng/Shared/Throw/Throw.cs   → Guard clause utilities
 ```
 
 Optional injections:
+
 - `InjectSourceGenHelpers=true` → eng/Extensions/SourceGen/*
 - `InjectFakeLogger=true` → eng/Extensions/FakeLogger/*
 
 ## Decision Guide
 
-| Task | Where to Edit |
-|------|---------------|
-| Add new polyfill | Create `eng/LegacySupport/NewPolyfill/`, add switch in `LegacySupport.props`, add conditional in `LegacySupport.targets` |
-| Ban new API | Add to `MSBuild/BannedSymbols.txt` |
-| Add new analyzer package | Edit `Common.targets` PackageReference section |
-| Modify Throw helpers | Edit `eng/Shared/Throw/Throw.cs` |
-| Add new injectable extension | Create folder in `eng/Extensions/`, add switch in `Shared.props`, add conditional in `Shared.targets` |
-| Modify ServiceDefaults | See `eng/ANcpSdk.AspNetCore.ServiceDefaults/` and `eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/` |
-| Add new instrumentation provider | Add to `ProviderRegistry.cs`, update `DbInstrumentation.MapTypeNameToDbSystem` if DB |
+| Task                             | Where to Edit                                                                                                            |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| Add new polyfill                 | Create `eng/LegacySupport/NewPolyfill/`, add switch in `LegacySupport.props`, add conditional in `LegacySupport.targets` |
+| Ban new API                      | Add to `MSBuild/BannedSymbols.txt`                                                                                       |
+| Add new analyzer package         | Edit `Common.targets` PackageReference section                                                                           |
+| Modify Throw helpers             | Edit `eng/Shared/Throw/Throw.cs`                                                                                         |
+| Add new injectable extension     | Create folder in `eng/Extensions/`, add switch in `Shared.props`, add conditional in `Shared.targets`                    |
+| Modify ServiceDefaults           | See `eng/ANcpSdk.AspNetCore.ServiceDefaults/` and `eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/`                 |
+| Add new instrumentation provider | Add to `ProviderRegistry.cs`, update `DbInstrumentation.MapTypeNameToDbSystem` if DB                                     |
 
 ## 5. ServiceDefaults Auto-Registration (Web SDK)
 
@@ -119,12 +123,12 @@ ANcpSdk.AspNetCore.ServiceDefaults/  ← Runtime Library (net10.0)
 
 The `ServiceDefaultsSourceGenerator` has 4 pipelines:
 
-| Pipeline | Output | Purpose |
-|----------|--------|---------|
-| Build() interception | `Intercepts.g.cs` | Auto-registers service defaults |
-| GenAI instrumentation | `GenAiIntercepts.g.cs` | Wraps OpenAI/Anthropic/etc. calls |
-| Database instrumentation | `DbIntercepts.g.cs` | Wraps DbCommand.Execute* calls |
-| OTel tags | `OTelTagExtensions.g.cs` | Generates Activity.SetTag() extensions |
+| Pipeline                 | Output                   | Purpose                                |
+|--------------------------|--------------------------|----------------------------------------|
+| Build() interception     | `Intercepts.g.cs`        | Auto-registers service defaults        |
+| GenAI instrumentation    | `GenAiIntercepts.g.cs`   | Wraps OpenAI/Anthropic/etc. calls      |
+| Database instrumentation | `DbIntercepts.g.cs`      | Wraps DbCommand.Execute* calls         |
+| OTel tags                | `OTelTagExtensions.g.cs` | Generates Activity.SetTag() extensions |
 
 ### ProviderRegistry (SSOT)
 
@@ -140,6 +144,7 @@ MySqlData, SqlServerMicrosoft, SqlServerSystem, Oracle, Firebird
 ```
 
 Each provider includes:
+
 - `ProviderId` - OTel semantic convention value
 - `AssemblyName` - For compile-time detection
 - `TypeContains` - For runtime type matching
