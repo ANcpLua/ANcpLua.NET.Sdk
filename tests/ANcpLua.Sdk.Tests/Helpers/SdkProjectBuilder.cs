@@ -71,6 +71,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         ProjectFilename = "ANcpLua.TestProject.csproj";
 
         // Configure NuGet with local package source
+        // No packageSourceMapping - NuGet tries sources in order (TestSource first, then nuget.org)
         WithNuGetConfig($"""
                          <configuration>
                              <config>
@@ -81,15 +82,6 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                                  <add key="TestSource" value="{_fixture.PackageDirectory}" />
                                  <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
                              </packageSources>
-                             <packageSourceMapping>
-                                 <packageSource key="TestSource">
-                                     <package pattern="ANcpLua.NET.Sdk*" />
-                                     <package pattern="ANcpSdk.*" />
-                                 </packageSource>
-                                 <packageSource key="nuget.org">
-                                     <package pattern="*" />
-                                 </packageSource>
-                             </packageSourceMapping>
                          </configuration>
                          """);
 

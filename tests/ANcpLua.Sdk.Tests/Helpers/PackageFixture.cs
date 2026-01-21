@@ -136,15 +136,6 @@ public partial class PackageFixture : IAsyncLifetime
                                        <add key="TestSource" value="{_packageDirectory.FullPath}" />
                                        <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
                                    </packageSources>
-                                   <packageSourceMapping>
-                                       <packageSource key="TestSource">
-                                           <package pattern="ANcpLua.*" />
-                                           <package pattern="ANcpSdk.*" />
-                                       </packageSource>
-                                       <packageSource key="nuget.org">
-                                           <package pattern="*" />
-                                       </packageSource>
-                                   </packageSourceMapping>
                                </configuration>
                                """;
             await File.WriteAllTextAsync(warmupDir / "NuGet.config", nugetConfig);
