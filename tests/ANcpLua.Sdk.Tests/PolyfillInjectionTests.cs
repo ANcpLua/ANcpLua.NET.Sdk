@@ -25,6 +25,7 @@ public class PolyfillInjectionTests(PackageFixture fixture)
         var result = await project
             .WithProperty(polyfill.InjectionProperty, Val.True)
             .WithTargetFramework(tfm)
+            .WithOutputType(Val.Library) // Use Library - we just need build to succeed, not run
             .WithAdditionalProjectElement(dumpTarget)
             .AddSource("Class1.cs", "public class Class1 {}")
             .BuildAsync();

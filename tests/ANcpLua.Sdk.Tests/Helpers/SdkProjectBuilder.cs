@@ -106,10 +106,11 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     ///     <para>Default configuration:</para>
     ///     <list type="bullet">
     ///         <item><description>Target Framework: net10.0</description></item>
+    ///         <item><description>Output Type: Exe (allows top-level statements)</description></item>
     ///         <item><description>SDK Import Style: SdkElement</description></item>
     ///         <item><description>SDK Name: ANcpLua.NET.Sdk</description></item>
     ///     </list>
-    ///     <para>OutputType is NOT set by default, allowing the SDK to auto-detect it (e.g., MTP projects → exe).</para>
+    ///     <para>Override OutputType with <see cref="WithOutputType"/> when testing library scenarios.</para>
     /// </remarks>
     /// <example>
     ///     <code>
@@ -132,8 +133,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     {
         var builder = new SdkProjectBuilder(fixture, style, sdkName ?? PackageFixture.SdkName);
         builder.WithTargetFramework(Tfm.Net100);
-        // Don't set OutputType by default - let SDK auto-detect (e.g., MTP projects → exe)
-        // Tests that need a specific OutputType should call .WithOutputType() explicitly
+        // OutputType=Exe is set in GenerateCsprojFile to allow top-level statements
         return builder;
     }
 
@@ -354,6 +354,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                        <Project Sdk="{rootSdkName}">
                            {innerSdkXmlElement}
                            <PropertyGroup>
+                               <OutputType>exe</OutputType>
                                <ErrorLog>{SarifFileName},version=2.1</ErrorLog>
                                <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
                                <ANcpLuaSdkSkipCPMEnforcement>true</ANcpLuaSdkSkipCPMEnforcement>
