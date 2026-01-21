@@ -2,7 +2,7 @@
 # Build script for CI
 
 param(
-    [string]$Version = "1.0.0",
+    [string]$Version = "1.6.21",
     [Parameter(ValueFromRemainingArguments = $true)]$RemainingArgs
 )
 
@@ -57,14 +57,14 @@ $VersionPropsContent = @"
        ROSLYN.UTILITIES.SOURCES (Source-only package for generators)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Roslyn.Utilities.Sources">
-    <ANcpLuaRoslynUtilitiesSourcesVersion>1.13.0</ANcpLuaRoslynUtilitiesSourcesVersion>
+    <ANcpLuaRoslynUtilitiesSourcesVersion>1.14.0</ANcpLuaRoslynUtilitiesSourcesVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        ROSLYN.UTILITIES.TESTING (Analyzer/CodeFix/Generator test infrastructure)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Roslyn.Utilities.Testing">
-    <ANcpLuaRoslynUtilitiesTestingVersion>1.13.0</ANcpLuaRoslynUtilitiesTestingVersion>
+    <ANcpLuaRoslynUtilitiesTestingVersion>1.14.0</ANcpLuaRoslynUtilitiesTestingVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -72,7 +72,7 @@ $VersionPropsContent = @"
        Used by: Roslyn.Utilities.Testing, Analyzers.Tests
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Analyzer Testing">
-    <AnalyzerTestingVersion>1.1.3-beta1.25564.1</AnalyzerTestingVersion>
+    <AnalyzerTestingVersion>1.1.3</AnalyzerTestingVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -102,7 +102,7 @@ $VersionPropsContent = @"
        Used by: SDK, Roslyn.Utilities.Testing, Analyzers.Tests
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Testing">
-    <XunitV3Version>3.2.1</XunitV3Version>
+    <XunitV3Version>3.2.2</XunitV3Version>
     <AwesomeAssertionsVersion>9.3.0</AwesomeAssertionsVersion>
     <AwesomeAssertionsAnalyzersVersion>9.0.8</AwesomeAssertionsAnalyzersVersion>
     <GitHubActionsTestLoggerVersion>3.0.1</GitHubActionsTestLoggerVersion>
@@ -125,7 +125,7 @@ $VersionPropsContent = @"
        ANALYZERS (SDK-injected)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Analyzers">
-    <ANcpLuaAnalyzersVersion>1.6.13</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>1.6.16</ANcpLuaAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>3.3.4</BannedApiAnalyzersVersion>
     <JonSkeetAnalyzersVersion>1.0.0-beta.6</JonSkeetAnalyzersVersion>

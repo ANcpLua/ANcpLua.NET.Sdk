@@ -16,12 +16,12 @@ LAYER 3: qyl, other projects       ← END USERS
 
 ### This Repo: LAYER 1 (Source of Truth)
 
-| Property | Value |
-|----------|-------|
+| Property                  | Value                                                           |
+|---------------------------|-----------------------------------------------------------------|
 | **Upstream dependencies** | ANcpLua.Roslyn.Utilities.Sources (see Directory.Packages.props) |
-| **Downstream consumers** | ANcpLua.Analyzers, qyl, all SDK users |
-| **Version.props** | SOURCE (canonical) |
-| **Auto-sync** | SENDS to Analyzers via GitHub Action |
+| **Downstream consumers**  | ANcpLua.Analyzers, qyl, all SDK users                           |
+| **Version.props**         | SOURCE (canonical)                                              |
+| **Auto-sync**             | SENDS to Analyzers via GitHub Action                            |
 
 ---
 
@@ -40,11 +40,11 @@ dotnet test
 
 ## Published Packages
 
-| Package | Description |
-|---------|-------------|
-| `ANcpLua.NET.Sdk` | Main SDK (`Sdk="ANcpLua.NET.Sdk"`) |
-| `ANcpLua.NET.Sdk.Test` | Test projects with xUnit v3 MTP |
-| `ANcpLua.NET.Sdk.Web` | Web projects with ASP.NET Core |
+| Package                | Description                        |
+|------------------------|------------------------------------|
+| `ANcpLua.NET.Sdk`      | Main SDK (`Sdk="ANcpLua.NET.Sdk"`) |
+| `ANcpLua.NET.Sdk.Test` | Test projects with xUnit v3 MTP    |
+| `ANcpLua.NET.Sdk.Web`  | Web projects with ASP.NET Core     |
 
 ## Key Files
 
@@ -89,6 +89,7 @@ eng/
 ## Version.props Auto-Sync
 
 When `src/common/Version.props` changes:
+
 1. GitHub Action triggers
 2. PR created in ANcpLua.Analyzers
 3. Merge updates Analyzers versions
@@ -97,7 +98,7 @@ When `src/common/Version.props` changes:
 
 ## Publishing to NuGet
 
-Uses **NuGet Trusted Publishing** via GitHub Actions - no API keys needed.
+Uses **NuGet Trusted Publishing** via GitHub Actions – no API keys needed.
 
 ```bash
 # 1. Pack locally

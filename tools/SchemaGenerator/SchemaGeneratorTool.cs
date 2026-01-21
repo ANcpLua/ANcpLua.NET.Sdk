@@ -47,7 +47,7 @@ public static class SchemaGeneratorTool
     // C# SCALARS
     // ════════════════════════════════════════════════════════════════════════════
 
-    static string GenerateScalars(IEnumerable<SchemaDefinition> scalars, string sourcePath)
+    private static string GenerateScalars(IEnumerable<SchemaDefinition> scalars, string sourcePath)
     {
         var sb = new StringBuilder();
         AppendHeader(sb, sourcePath, "Strongly-typed scalar primitives");
@@ -108,7 +108,7 @@ public static class SchemaGeneratorTool
         return sb.ToString();
     }
 
-    static void AppendHexParsing(StringBuilder sb, string typeName, int len)
+    private static void AppendHexParsing(StringBuilder sb, string typeName, int len)
     {
         var zeros = new string('0', len);
         sb.AppendLine();
@@ -136,7 +136,7 @@ public static class SchemaGeneratorTool
     // C# ENUMS
     // ════════════════════════════════════════════════════════════════════════════
 
-    static string GenerateEnums(IEnumerable<SchemaDefinition> enums, string sourcePath)
+    private static string GenerateEnums(IEnumerable<SchemaDefinition> enums, string sourcePath)
     {
         var sb = new StringBuilder();
         AppendHeader(sb, sourcePath, "Enumeration types");
@@ -168,7 +168,7 @@ public static class SchemaGeneratorTool
             for (var i = 0; i < enumDef.EnumValues.Length; i++)
             {
                 var rawValue = enumDef.EnumValues[i];
-                string memberName = i < enumVarNames.Length
+                var memberName = i < enumVarNames.Length
                     ? enumVarNames[i]
                     : isIntegerEnum
                         ? InferEnumMemberName(typeName, rawValue)
@@ -192,7 +192,7 @@ public static class SchemaGeneratorTool
         return sb.ToString();
     }
 
-    static string InferEnumMemberName(string enumTypeName, string value) => enumTypeName switch
+    private static string InferEnumMemberName(string enumTypeName, string value) => enumTypeName switch
     {
         "SpanKind" => value switch
         {
@@ -218,7 +218,7 @@ public static class SchemaGeneratorTool
     // C# MODELS
     // ════════════════════════════════════════════════════════════════════════════
 
-    static string GenerateModels(string ns, IEnumerable<SchemaDefinition> models, string sourcePath)
+    private static string GenerateModels(string ns, IEnumerable<SchemaDefinition> models, string sourcePath)
     {
         var sb = new StringBuilder();
         AppendHeader(sb, sourcePath, $"Models for {ns}");
@@ -260,7 +260,7 @@ public static class SchemaGeneratorTool
         return sb.ToString();
     }
 
-    static string ResolveCSharpType(SchemaProperty prop)
+    private static string ResolveCSharpType(SchemaProperty prop)
     {
         if (prop.Extensions.TryGetValue("x-csharp-type", out var csType)) return csType;
 
@@ -282,7 +282,7 @@ public static class SchemaGeneratorTool
         return MapOpenApiType(prop.Type, prop.Format);
     }
 
-    static string MapOpenApiType(string? type, string? format) => (type, format) switch
+    private static string MapOpenApiType(string? type, string? format) => (type, format) switch
     {
         ("string", "date-time") => "DateTimeOffset",
         ("string", "date") => "DateOnly",
@@ -304,7 +304,7 @@ public static class SchemaGeneratorTool
     // DUCKDB SCHEMA
     // ════════════════════════════════════════════════════════════════════════════
 
-    static string GenerateDuckDb(IEnumerable<SchemaDefinition> tables, OpenApiSchema schema, string sourcePath)
+    private static string GenerateDuckDb(IEnumerable<SchemaDefinition> tables, OpenApiSchema schema, string sourcePath)
     {
         var sb = new StringBuilder();
         AppendHeader(sb, sourcePath, "DuckDB schema definitions");
@@ -358,7 +358,7 @@ public static class SchemaGeneratorTool
         return sb.ToString();
     }
 
-    static string ResolveDuckDbType(SchemaProperty prop, OpenApiSchema schema)
+    private static string ResolveDuckDbType(SchemaProperty prop, OpenApiSchema schema)
     {
         if (prop.Extensions.TryGetValue("x-duckdb-type", out var duckType)) return duckType;
 
@@ -373,7 +373,7 @@ public static class SchemaGeneratorTool
         return MapOpenApiTypeToDuckDb(prop.Type, prop.Format);
     }
 
-    static string MapOpenApiTypeToDuckDb(string? type, string? format) => (type, format) switch
+    private static string MapOpenApiTypeToDuckDb(string? type, string? format) => (type, format) switch
     {
         ("string", "date-time") => "TIMESTAMP",
         ("string", "date") => "DATE",
@@ -392,7 +392,7 @@ public static class SchemaGeneratorTool
     // HELPERS
     // ════════════════════════════════════════════════════════════════════════════
 
-    static void AppendHeader(StringBuilder sb, string sourcePath, string description)
+    private static void AppendHeader(StringBuilder sb, string sourcePath, string description)
     {
         sb.AppendLine("// =============================================================================");
         sb.AppendLine("// AUTO-GENERATED FILE - DO NOT EDIT");
@@ -406,14 +406,14 @@ public static class SchemaGeneratorTool
         sb.AppendLine();
     }
 
-    static void AppendXmlDoc(StringBuilder sb, string? description, string indent)
+    private static void AppendXmlDoc(StringBuilder sb, string? description, string indent)
     {
         if (string.IsNullOrWhiteSpace(description)) return;
         var escaped = description.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
         sb.AppendLine($"{indent}/// <summary>{escaped}</summary>");
     }
 
-    static string GetCSharpNamespace(string schemaName)
+    private static string GetCSharpNamespace(string schemaName)
     {
         if (schemaName.StartsWith("Primitives.", StringComparison.Ordinal)) return "Qyl.Common";
         if (schemaName.StartsWith("Enums.", StringComparison.Ordinal)) return "Qyl.Enums";
@@ -421,7 +421,7 @@ public static class SchemaGeneratorTool
         return schemaName.StartsWith("Api.", StringComparison.Ordinal) ? "Qyl.Api" : "Qyl";
     }
 
-    static string GetFileNameFromNamespace(string ns) => ns switch
+    private static string GetFileNameFromNamespace(string ns) => ns switch
     {
         "Qyl.Common" => "Scalars",
         "Qyl.Enums" => "Enums",
@@ -430,7 +430,7 @@ public static class SchemaGeneratorTool
         _ => "Types"
     };
 
-    static (string CSharpType, string JsonRead, string JsonWrite) GetScalarTypeInfo(string? type, string? format) =>
+    private static (string CSharpType, string JsonRead, string JsonWrite) GetScalarTypeInfo(string? type, string? format) =>
         (type, format) switch
         {
             ("string", _) => ("string", "reader.GetString() ?? string.Empty", "writer.WriteStringValue(value.Value)"),
@@ -443,7 +443,7 @@ public static class SchemaGeneratorTool
             _ => ("string", "reader.GetString() ?? string.Empty", "writer.WriteStringValue(value.Value)")
         };
 
-    static string ToPascalCase(string value)
+    private static string ToPascalCase(string value)
     {
         if (string.IsNullOrEmpty(value)) return "Unknown";
 
@@ -451,7 +451,6 @@ public static class SchemaGeneratorTool
         var capitalizeNext = true;
 
         foreach (var c in value)
-        {
             if (c is '_' or '-' or ' ' or '.')
                 capitalizeNext = true;
             else if (capitalizeNext)
@@ -461,14 +460,13 @@ public static class SchemaGeneratorTool
             }
             else
                 sb.Append(c);
-        }
 
         if (sb.Length == 0) return "Unknown";
         var result = sb.ToString();
         return char.IsDigit(result[0]) ? $"_{result}" : result;
     }
 
-    static string ToSnakeCase(string value)
+    private static string ToSnakeCase(string value)
     {
         if (string.IsNullOrEmpty(value)) return value;
 
@@ -488,7 +486,7 @@ public static class SchemaGeneratorTool
         return sb.ToString();
     }
 
-    static string EscapeKeyword(string name) => name switch
+    private static string EscapeKeyword(string name) => name switch
     {
         "abstract" or "as" or "base" or "bool" or "break" or "byte" or "case" or "catch" or "char" or "checked"
             or "class" or "const" or "continue" or "decimal" or "default" or "delegate" or "do" or "double"
@@ -527,15 +525,13 @@ public sealed record OpenApiSchema(string Title, string Version, ImmutableArray<
 
         if (schemasNode is not null)
             foreach (var (keyNode, valueNode) in schemasNode.Children)
-            {
                 if (keyNode is YamlScalarNode { Value: { } name } && valueNode is YamlMappingNode schemaNode)
                     schemas.Add(ParseSchema(name, schemaNode));
-            }
 
         return new OpenApiSchema(title, version, schemas.ToImmutable());
     }
 
-    static SchemaDefinition ParseSchema(string name, YamlMappingNode node)
+    private static SchemaDefinition ParseSchema(string name, YamlMappingNode node)
     {
         var type = GetString(node, "type");
         var description = GetString(node, "description");
@@ -558,10 +554,8 @@ public sealed record OpenApiSchema(string Title, string Version, ImmutableArray<
         {
             var propsBuilder = ImmutableArray.CreateBuilder<SchemaProperty>();
             foreach (var (keyNode, valueNode) in propsNode.Children)
-            {
                 if (keyNode is YamlScalarNode { Value: { } propName } && valueNode is YamlMappingNode propNode)
                     propsBuilder.Add(ParseProperty(propName, propNode, required.Contains(propName)));
-            }
 
             properties = propsBuilder.ToImmutable();
         }
@@ -569,7 +563,7 @@ public sealed record OpenApiSchema(string Title, string Version, ImmutableArray<
         return new SchemaDefinition(name, type, description, format, pattern, enumValues, properties, extensions, isScalar, isEnum);
     }
 
-    static SchemaProperty ParseProperty(string name, YamlMappingNode node, bool isRequired)
+    private static SchemaProperty ParseProperty(string name, YamlMappingNode node, bool isRequired)
     {
         var type = GetString(node, "type");
         var format = GetString(node, "format");
@@ -593,7 +587,7 @@ public sealed record OpenApiSchema(string Title, string Version, ImmutableArray<
         return new SchemaProperty(name, type, format, description, refPath, itemsRef, itemsType, isRequired, ParseExtensions(node));
     }
 
-    static ImmutableDictionary<string, string> ParseExtensions(YamlMappingNode node)
+    private static ImmutableDictionary<string, string> ParseExtensions(YamlMappingNode node)
     {
         var builder = ImmutableDictionary.CreateBuilder<string, string>();
         foreach (var (keyNode, valueNode) in node.Children)
@@ -611,16 +605,16 @@ public sealed record OpenApiSchema(string Title, string Version, ImmutableArray<
         return builder.ToImmutable();
     }
 
-    static YamlMappingNode? GetMapping(YamlMappingNode parent, string key) =>
+    private static YamlMappingNode? GetMapping(YamlMappingNode parent, string key) =>
         parent.Children.TryGetValue(key, out var node) && node is YamlMappingNode m ? m : null;
 
-    static string? GetString(YamlMappingNode parent, string key) =>
+    private static string? GetString(YamlMappingNode parent, string key) =>
         parent.Children.TryGetValue(key, out var node) && node is YamlScalarNode s ? s.Value : null;
 
-    static string? GetRef(YamlMappingNode node) =>
+    private static string? GetRef(YamlMappingNode node) =>
         node.Children.TryGetValue("$ref", out var refNode) && refNode is YamlScalarNode s ? s.Value : null;
 
-    static ImmutableArray<string> GetStringArray(YamlMappingNode parent, string key)
+    private static ImmutableArray<string> GetStringArray(YamlMappingNode parent, string key)
     {
         if (parent.Children.TryGetValue(key, out var node) && node is YamlSequenceNode seq)
             return [..seq.Children.OfType<YamlScalarNode>().Select(static s => s.Value ?? "").Where(static s => s.Length > 0)];
@@ -661,7 +655,7 @@ public sealed record SchemaProperty(
     bool IsRequired,
     ImmutableDictionary<string, string> Extensions)
 {
-    const string RefPrefix = "#/components/schemas/";
+    private const string RefPrefix = "#/components/schemas/";
 
     public string? GetRefTypeName() => RefPath?.StartsWith(RefPrefix, StringComparison.Ordinal) == true
         ? RefPath[RefPrefix.Length..]
@@ -681,8 +675,8 @@ public enum GuardMode
 
 public partial class GenerationGuard(GuardMode mode)
 {
-    private readonly GuardMode _mode = mode;
     public const GuardMode DefaultMode = GuardMode.SkipExisting;
+    private readonly GuardMode _mode = mode;
 
     [GeneratedRegex(@"^(//|--)\s+Generated:\s+\d{4}-\d{2}-\d{2}T.*$", RegexOptions.Multiline)]
     private static partial Regex GeneratedTimestampRegex();
@@ -717,7 +711,7 @@ public partial class GenerationGuard(GuardMode mode)
         Console.WriteLine($"Written: {path}");
     }
 
-    static string Normalize(string content)
+    private static string Normalize(string content)
     {
         var normalized = content.ReplaceLineEndings("\n");
         return GeneratedTimestampRegex().Replace(normalized, "$1 Generated: <STABLE>");
