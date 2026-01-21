@@ -1,0 +1,36 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    BUILDCHECK INTEGRATION (.NET 9+)
+    ═══════════════════════════════════════════════════════════════════════════
+
+    BuildCheck runs at MSBuild evaluation time and catches common antipatterns.
+    Docs: https://learn.microsoft.com/en-us/dotnet/core/tools/buildcheck-rules
+  -->
+
+  <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '17.8'))">
+    <RunBuildCheck Condition="'$(DisableBuildCheck)' != 'true'">true</RunBuildCheck>
+
+    <!-- Treat as errors in CI -->
+    <BuildCheckTreatWarningsAsErrors Condition="'$(CI)' == 'true'">true</BuildCheckTreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <!-- Rule Configuration -->
+  <PropertyGroup Label="BuildCheck Rules"
+                 Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '17.8'))">
+    <!-- BC0101: Shared output path - MUST be error -->
+    <BC0101Severity>Error</BC0101Severity>
+
+    <!-- BC0102: Double-writes - MUST be error -->
+    <BC0102Severity>Error</BC0102Severity>
+
+    <!-- BC0103: Environment variable usage (non-deterministic) -->
+    <BC0103Severity>Warning</BC0103Severity>
+
+    <!-- BC0104: ProjectReference without TFM negotiation -->
+    <BC0104Severity>Suggestion</BC0104Severity>
+
+    <!-- BC0105: EmbeddedResource culture issues - error -->
+    <BC0105Severity>Error</BC0105Severity>
+  </PropertyGroup>
+</Project>

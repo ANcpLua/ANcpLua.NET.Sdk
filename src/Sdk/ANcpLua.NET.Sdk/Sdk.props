@@ -10,7 +10,17 @@
     <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../common/Common.targets</BeforeMicrosoftNETSdkTargets>
   </PropertyGroup>
 
+  <!-- GlobalPackageReference must be imported BEFORE Microsoft.NET.Sdk -->
+  <Import Project="$(MSBuildThisFileDirectory)../common/GlobalPackages.props"/>
+
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
+
+  <!-- Enhanced Features (props phase) -->
+  <Import Project="$(MSBuildThisFileDirectory)../common/ItemDefaults.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../common/InternalsVisibleTo.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../common/TerminalLogger.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../common/BuildCheck.props"/>
+
   <!-- Import Common.props with guard to prevent MSB4011 when CustomBeforeDirectoryBuildProps already imported it -->
   <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_ANcpLuaCommonPropsImported)' != 'true'"/>
 

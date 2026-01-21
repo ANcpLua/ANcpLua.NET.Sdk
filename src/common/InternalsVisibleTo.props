@@ -1,0 +1,34 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    INTERNALS VISIBLE TO MANAGEMENT
+    ═══════════════════════════════════════════════════════════════════════════
+  -->
+
+  <!-- Public key for signed assemblies -->
+  <PropertyGroup>
+    <InternalsVisibleToPublicKey Condition="'$(InternalsVisibleToPublicKey)' == '' And '$(SignAssembly)' == 'true'">$(PublicKey)</InternalsVisibleToPublicKey>
+  </PropertyGroup>
+
+  <!-- Auto-add test projects as friend assemblies -->
+  <ItemGroup Condition="'$(AutoInternalsVisibleToTests)' != 'false' And '$(IsTestProject)' != 'true'">
+    <InternalsVisibleTo Include="$(AssemblyName).Tests" />
+    <InternalsVisibleTo Include="$(AssemblyName).UnitTests" />
+    <InternalsVisibleTo Include="$(AssemblyName).IntegrationTests" />
+    <InternalsVisibleTo Include="$(AssemblyName).FunctionalTests" />
+  </ItemGroup>
+
+  <!-- Add public key to InternalsVisibleTo when signing -->
+  <ItemGroup Condition="'$(SignAssembly)' == 'true' And '$(InternalsVisibleToPublicKey)' != ''">
+    <InternalsVisibleTo Update="@(InternalsVisibleTo)" Condition="'%(Key)' == ''">
+      <Key>$(InternalsVisibleToPublicKey)</Key>
+    </InternalsVisibleTo>
+  </ItemGroup>
+
+  <!-- Allow mocking frameworks access -->
+  <ItemGroup Condition="'$(AllowMockingFrameworksAccess)' == 'true'">
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+    <InternalsVisibleTo Include="Castle.Core" />
+    <InternalsVisibleTo Include="NSubstitute.Dynamic" />
+  </ItemGroup>
+</Project>

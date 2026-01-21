@@ -1,0 +1,58 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    ITEM DEFINITION DEFAULTS (Phase 1 - Static Only)
+    ═══════════════════════════════════════════════════════════════════════════
+
+    RULE: No conditional batching (%(Identity)) allowed here.
+    Use Update attribute in targets for conditional metadata.
+  -->
+
+  <ItemDefinitionGroup>
+    <!-- PackageReference -->
+    <PackageReference>
+      <PrivateAssets></PrivateAssets>
+    </PackageReference>
+
+    <!-- EmbeddedResource - prevent culture auto-detection issues -->
+    <EmbeddedResource>
+      <WithCulture>false</WithCulture>
+    </EmbeddedResource>
+
+    <!-- Content - explicit copy is better -->
+    <Content>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </Content>
+
+    <!-- None -->
+    <None>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <Visible>true</Visible>
+    </None>
+
+    <!-- ProjectReference -->
+    <ProjectReference>
+      <Private>true</Private>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
+
+    <!-- Compile -->
+    <Compile>
+      <Visible>true</Visible>
+    </Compile>
+
+    <!-- AdditionalFiles -->
+    <AdditionalFiles>
+      <Visible>false</Visible>
+    </AdditionalFiles>
+  </ItemDefinitionGroup>
+
+  <!-- Test project specific defaults -->
+  <ItemDefinitionGroup Condition="'$(IsTestProject)' == 'true'">
+    <ProjectReference>
+      <Private>true</Private>
+      <IncludeAssets>all</IncludeAssets>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+</Project>

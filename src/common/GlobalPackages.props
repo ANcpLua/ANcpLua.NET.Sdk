@@ -1,0 +1,46 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    GLOBAL PACKAGE REFERENCES
+    ═══════════════════════════════════════════════════════════════════════════
+
+    GlobalPackageReference = "every project gets this, cannot be removed per-project"
+
+    BREAKING CHANGE: Core analyzers can no longer be removed via PackageReference Remove.
+    Opt-out: DisableANcpLuaAnalyzers=true (disables ALL SDK-injected analyzers)
+  -->
+
+  <!-- Core analyzers - MANDATORY for all projects -->
+  <ItemGroup Condition="'$(DisableANcpLuaAnalyzers)' != 'true' And '$(PackageId)' != 'ANcpLua.Analyzers'">
+    <GlobalPackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </GlobalPackageReference>
+
+    <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="$(BannedApiAnalyzersVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </GlobalPackageReference>
+
+    <GlobalPackageReference Include="JonSkeet.RoslynAnalyzers" Version="$(JonSkeetAnalyzersVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </GlobalPackageReference>
+  </ItemGroup>
+
+  <!-- SBOM - MANDATORY for packable projects -->
+  <ItemGroup Condition="'$(GenerateSBOM)' != 'false' And '$(IsPackable)' == 'true'">
+    <GlobalPackageReference Include="Microsoft.Sbom.Targets" Version="$(SbomTargetsVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </GlobalPackageReference>
+  </ItemGroup>
+
+  <!-- Test-specific global packages -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <GlobalPackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </GlobalPackageReference>
+  </ItemGroup>
+</Project>

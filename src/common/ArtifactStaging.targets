@@ -1,0 +1,65 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    ARTIFACT STAGING (CI Integration)
+    ═══════════════════════════════════════════════════════════════════════════
+  -->
+
+  <PropertyGroup>
+    <PackageArtifactsPath Condition="'$(PackageArtifactsPath)' == ''">$(ArtifactsPath)packages\</PackageArtifactsPath>
+    <TestResultsArtifactsPath Condition="'$(TestResultsArtifactsPath)' == ''">$(ArtifactsPath)TestResults\</TestResultsArtifactsPath>
+    <CoverageArtifactsPath Condition="'$(CoverageArtifactsPath)' == ''">$(ArtifactsPath)coverage\</CoverageArtifactsPath>
+    <PublishArtifactsPath Condition="'$(PublishArtifactsPath)' == ''">$(ArtifactsPath)publish\</PublishArtifactsPath>
+  </PropertyGroup>
+
+  <!-- Stage NuGet packages -->
+  <Target Name="_StageNuGetPackages"
+          AfterTargets="Pack"
+          Condition="'$(IsPackable)' == 'true'"
+          Inputs="$(PackageOutputPath)*.nupkg;$(PackageOutputPath)*.snupkg"
+          Outputs="$(PackageArtifactsPath)%(Filename)%(Extension)">
+    <ItemGroup>
+      <_PackagesToStage Include="$(PackageOutputPath)*.nupkg" />
+      <_PackagesToStage Include="$(PackageOutputPath)*.snupkg" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_PackagesToStage)"
+          DestinationFolder="$(PackageArtifactsPath)"
+          SkipUnchangedFiles="true"
+          Condition="@(_PackagesToStage->Count()) > 0" />
+
+    <Message Text="Staged @(_PackagesToStage->Count()) package(s) to $(PackageArtifactsPath)"
+             Importance="high"
+             Condition="@(_PackagesToStage->Count()) > 0" />
+  </Target>
+
+  <!-- Stage test results with %(RecursiveDir) -->
+  <Target Name="_StageTestResults"
+          AfterTargets="VSTest;Test"
+          Condition="'$(IsTestProject)' == 'true'">
+    <ItemGroup>
+      <_TestResultsToStage Include="$(TestResultsPath)**\*.trx" />
+      <_TestResultsToStage Include="$(TestResultsPath)**\*.xml" />
+      <_TestResultsToStage Include="$(TestResultsPath)**\*.json" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_TestResultsToStage)"
+          DestinationFiles="@(_TestResultsToStage->'$(TestResultsArtifactsPath)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="@(_TestResultsToStage->Count()) > 0" />
+  </Target>
+
+  <!-- Stage coverage reports -->
+  <Target Name="_StageCoverageReports"
+          AfterTargets="GenerateCoverageResult"
+          Condition="'$(CollectCoverage)' == 'true'">
+    <ItemGroup>
+      <_CoverageToStage Include="$(CoverageOutputPath)**\*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(_CoverageToStage)"
+          DestinationFiles="@(_CoverageToStage->'$(CoverageArtifactsPath)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="@(_CoverageToStage->Count()) > 0" />
+  </Target>
+</Project>

@@ -36,4 +36,7 @@
   <!-- Analyzer pack layout enforcement (dev-only, not included in nupkg) -->
   <Import Project="$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets"
           Condition="Exists('$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets')"/>
+
+  <!-- Enhanced Features (targets phase) -->
+  <Import Project="$(MSBuildThisFileDirectory)../common/ArtifactStaging.targets"/>
 </Project>

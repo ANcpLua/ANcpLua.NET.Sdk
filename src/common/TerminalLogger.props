@@ -1,0 +1,33 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    TERMINAL LOGGER CONFIGURATION (.NET 8+)
+    ═══════════════════════════════════════════════════════════════════════════
+  -->
+
+  <PropertyGroup>
+    <TerminalLoggerVerbosity Condition="'$(TerminalLoggerVerbosity)' == ''">minimal</TerminalLoggerVerbosity>
+    <TerminalLoggerShowProjectSummary Condition="'$(TerminalLoggerShowProjectSummary)' == ''">true</TerminalLoggerShowProjectSummary>
+  </PropertyGroup>
+
+  <!-- CI: More verbose, show timestamps -->
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <TerminalLoggerVerbosity>normal</TerminalLoggerVerbosity>
+    <TerminalLoggerShowTimestamp>true</TerminalLoggerShowTimestamp>
+  </PropertyGroup>
+
+  <!-- GitHub Actions: Problem matchers format -->
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <MSBuildTerminalLoggerFormat>GitHub</MSBuildTerminalLoggerFormat>
+  </PropertyGroup>
+
+  <!-- Azure DevOps: Logging commands format -->
+  <PropertyGroup Condition="'$(TF_BUILD)' == 'True'">
+    <MSBuildTerminalLoggerFormat>AzureDevOps</MSBuildTerminalLoggerFormat>
+  </PropertyGroup>
+
+  <!-- GitLab CI -->
+  <PropertyGroup Condition="'$(GITLAB_CI)' == 'true'">
+    <TerminalLoggerVerbosity>normal</TerminalLoggerVerbosity>
+  </PropertyGroup>
+</Project>

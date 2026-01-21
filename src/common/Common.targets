@@ -163,60 +163,7 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-  <!--
-    SDK-injected analyzer packages.
-    For CPM consumers: Version comes from Directory.Packages.props (PackageVersion entries).
-    For non-CPM consumers: Version comes from SDK's Version.props variables.
-  -->
-  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' != 'true'">
-    <!-- Non-CPM: SDK provides versions -->
-    <PackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)"
-                      Condition="'$(PackageId)' != 'ANcpLua.Analyzers'">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.Sbom.Targets" Version="$(SbomTargetsVersion)">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="$(BannedApiAnalyzersVersion)">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="JonSkeet.RoslynAnalyzers" Version="$(JonSkeetAnalyzersVersion)">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <!--
-    SDK-injected analyzer packages for CPM consumers.
-    Uses VersionOverride to provide versions from SDK's Version.props,
-    so consumers don't need to add PackageVersion entries for SDK-injected packages.
-  -->
-  <ItemGroup Condition="'$(ManagePackageVersionsCentrally)' == 'true'">
-    <PackageReference Include="ANcpLua.Analyzers" VersionOverride="$(ANcpLuaAnalyzersVersion)"
-                      Condition="'$(PackageId)' != 'ANcpLua.Analyzers'">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.Sbom.Targets" VersionOverride="$(SbomTargetsVersion)">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" VersionOverride="$(BannedApiAnalyzersVersion)">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="JonSkeet.RoslynAnalyzers" VersionOverride="$(JonSkeetAnalyzersVersion)">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+  <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
 
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)../configuration/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>

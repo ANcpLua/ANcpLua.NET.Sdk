@@ -30,6 +30,13 @@
     <file src="common/LegacySupport.targets" target="common/"/>
     <file src="common/Npm.targets" target="common/"/>
     <file src="common/Tests.targets" target="common/"/>
+    <!-- V4 Enhancements -->
+    <file src="common/ItemDefaults.props" target="common/"/>
+    <file src="common/GlobalPackages.props" target="common/"/>
+    <file src="common/TerminalLogger.props" target="common/"/>
+    <file src="common/BuildCheck.props" target="common/"/>
+    <file src="common/InternalsVisibleTo.props" target="common/"/>
+    <file src="common/ArtifactStaging.targets" target="common/"/>
     <file src="configuration/Analyzers.editorconfig" target="configuration/"/>
     <file src="configuration/Analyzer.Meziantou.Analyzer.editorconfig" target="configuration/"/>
     <file src="configuration/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="configuration/"/>
