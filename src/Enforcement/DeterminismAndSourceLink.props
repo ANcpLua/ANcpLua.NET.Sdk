@@ -16,11 +16,18 @@
     <IncludeSourceRevisionInInformationalVersion Condition="'$(IncludeSourceRevisionInInformationalVersion)' == ''">true</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
+  <!-- Stderr redirect suffix: 2>nul on Windows, 2>/dev/null on Unix -->
+  <PropertyGroup>
+    <_StderrRedirect Condition="'$(OS)' == 'Windows_NT'"> 2^&gt;nul</_StderrRedirect>
+    <_StderrRedirect Condition="'$(OS)' != 'Windows_NT'"> 2&gt;/dev/null</_StderrRedirect>
+  </PropertyGroup>
+
   <Target Name="_ANcpLuaComputeGitMetadata" BeforeTargets="InitializeSourceControlInformation;GenerateNuspec">
-    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; rev-parse --show-toplevel"
+    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; rev-parse --show-toplevel$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
-          StandardOutputImportance="Low">
+          StandardOutputImportance="Low"
+          StandardErrorImportance="Low">
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitRootFromGit"/>
     </Exec>
 
@@ -37,34 +44,38 @@
       <NoWarn>$(NoWarn);NETSDK1018</NoWarn>
     </PropertyGroup>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; config --get remote.origin.url"
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; config --get remote.origin.url$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
+          StandardErrorImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitOriginUrlRaw"/>
     </Exec>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; symbolic-ref --quiet HEAD"
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; symbolic-ref --quiet HEAD$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
+          StandardErrorImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchRefRaw"/>
     </Exec>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse --abbrev-ref HEAD"
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse --abbrev-ref HEAD$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
+          StandardErrorImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true' and '$(_GitBranchRefRaw)' == ''">
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchNameRaw"/>
     </Exec>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse HEAD"
+    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse HEAD$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
+          StandardErrorImportance="Low"
           Condition="'$(_ANcpLuaInGitRepo)' == 'true'">
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitCommitRaw"/>
     </Exec>

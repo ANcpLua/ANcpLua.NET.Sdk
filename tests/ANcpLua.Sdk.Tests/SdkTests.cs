@@ -859,8 +859,11 @@ public abstract class SdkTests(
 
         var result = await project
             .WithFilename("ANcpLua.Sample.csproj")
+            .WithOutputType(Val.Library)
             .AddSource("Class1.cs", """
                 namespace ANcpLua.Sample;
+
+                /// <summary>Sample class.</summary>
                 public static class Class1
                 {
                 }
