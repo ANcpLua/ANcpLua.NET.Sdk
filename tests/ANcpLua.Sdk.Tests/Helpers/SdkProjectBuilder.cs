@@ -345,11 +345,15 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                 new XAttribute("Include", package.Name),
                 new XAttribute("Version", package.Version)));
 
+        // Only set default OutputType=exe if user didn't explicitly set it via WithOutputType
+        var hasExplicitOutputType = Properties.Any(p => p.Key == Prop.OutputType);
+        var defaultOutputType = hasExplicitOutputType ? "" : "<OutputType>exe</OutputType>";
+
         var content = $"""
                        <Project Sdk="{rootSdkName}">
                            {innerSdkXmlElement}
                            <PropertyGroup>
-                               <OutputType>exe</OutputType>
+                               {defaultOutputType}
                                <ErrorLog>{SarifFileName},version=2.1</ErrorLog>
                                <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
                                <ANcpLuaSdkSkipCPMEnforcement>true</ANcpLuaSdkSkipCPMEnforcement>

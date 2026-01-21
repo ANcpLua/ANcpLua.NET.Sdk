@@ -179,6 +179,6 @@ public partial class PackageFixture : IAsyncLifetime
         }
     }
 
-    [GeneratedRegex(@"<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>")]
+    [GeneratedRegex("<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>")]
     private static partial Regex MyRegex();
 }
