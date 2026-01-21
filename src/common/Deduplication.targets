@@ -16,33 +16,39 @@
     </ItemGroup>
   </Target>
 
-  <!-- Deduplicate Content items by Link -->
+  <!-- Deduplicate Content items by Link using RemoveDuplicates task -->
   <Target Name="_DeduplicateContentItems"
           BeforeTargets="AssignTargetPaths">
+    <RemoveDuplicates Inputs="@(Content)">
+      <Output TaskParameter="Filtered" ItemName="_UniqueContent"/>
+    </RemoveDuplicates>
     <ItemGroup>
-      <Content Remove="@(Content)"
-               MatchOnMetadata="Link"
-               MatchOnMetadataOptions="CaseInsensitive" />
+      <Content Remove="@(Content)"/>
+      <Content Include="@(_UniqueContent)"/>
     </ItemGroup>
   </Target>
 
-  <!-- Deduplicate analyzer references by Filename -->
+  <!-- Deduplicate analyzer references by Filename using RemoveDuplicates task -->
   <Target Name="_DeduplicateAnalyzerReferences"
           BeforeTargets="ResolveAnalyzerReferences">
+    <RemoveDuplicates Inputs="@(Analyzer)">
+      <Output TaskParameter="Filtered" ItemName="_UniqueAnalyzer"/>
+    </RemoveDuplicates>
     <ItemGroup>
-      <Analyzer Remove="@(Analyzer)"
-                MatchOnMetadata="Filename"
-                MatchOnMetadataOptions="CaseInsensitive" />
+      <Analyzer Remove="@(Analyzer)"/>
+      <Analyzer Include="@(_UniqueAnalyzer)"/>
     </ItemGroup>
   </Target>
 
-  <!-- Deduplicate Compile items by FullPath -->
+  <!-- Deduplicate Compile items by FullPath using RemoveDuplicates task -->
   <Target Name="_DeduplicateCompileItems"
           BeforeTargets="CoreCompile">
+    <RemoveDuplicates Inputs="@(Compile)">
+      <Output TaskParameter="Filtered" ItemName="_UniqueCompile"/>
+    </RemoveDuplicates>
     <ItemGroup>
-      <Compile Remove="@(Compile)"
-               MatchOnMetadata="FullPath"
-               MatchOnMetadataOptions="PathLike" />
+      <Compile Remove="@(Compile)"/>
+      <Compile Include="@(_UniqueCompile)"/>
     </ItemGroup>
   </Target>
 </Project>

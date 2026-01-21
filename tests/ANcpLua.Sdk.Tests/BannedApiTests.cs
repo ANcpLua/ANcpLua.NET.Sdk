@@ -1,10 +1,7 @@
-﻿using ANcpLua.Sdk.Tests.Helpers;
-using ANcpLua.Sdk.Tests.Infrastructure;
+﻿namespace ANcpLua.Sdk.Tests;
 
-namespace ANcpLua.Sdk.Tests;
-
-public class BannedApiTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
-    : SdkTestBase(fixture, testOutputHelper)
+public class BannedApiTests(PackageFixture fixture)
+    : SdkTestBase(fixture)
 {
     private const string Rs0030 = "RS0030";
 

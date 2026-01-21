@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Text.RegularExpressions;
-using ANcpLua.Sdk.Tests.Helpers;
-using ANcpLua.Sdk.Tests.Infrastructure;
 using Meziantou.Framework;
 
 [assembly: AssemblyFixture(typeof(PackageFixture))]
@@ -192,11 +190,4 @@ public partial class PackageFixture : IAsyncLifetime
 
     [GeneratedRegex(@"<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>")]
     private static partial Regex MyRegex();
-}
-
-public sealed record NuGetReference(string Name, string Version);
-
-public enum NetSdkVersion
-{
-    Net100 = 10
 }

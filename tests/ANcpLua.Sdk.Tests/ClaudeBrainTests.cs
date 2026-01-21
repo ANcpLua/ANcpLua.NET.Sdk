@@ -1,29 +1,19 @@
-﻿using ANcpLua.Sdk.Tests.Helpers;
-using ANcpLua.Sdk.Tests.Infrastructure;
-
 namespace ANcpLua.Sdk.Tests;
 
-public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
+public class ClaudeBrainTests(PackageFixture fixture)
 {
     private readonly PackageFixture _fixture = fixture;
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
     [Fact]
     public async Task ClaudeBrain_Generates_File_By_Default()
     {
-        await using var project =
-            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+        await using var project = SdkProjectBuilder.Create(_fixture);
 
         project.AddFile("CLAUDE.md", "This is the root brain.");
 
-        project.AddCsprojFile(
-            [
-                (Prop.TargetFramework, Tfm.Net100),
-                (Prop.OutputType, Val.Library)
-            ],
-            filename: "src/MyLibrary/MyLibrary.csproj");
-
-        var result = await project.BuildAndGetOutput(["src/MyLibrary/MyLibrary.csproj"]);
+        var result = await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
 
         Assert.Equal(0, result.ExitCode);
 
@@ -39,19 +29,14 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
     [Fact]
     public async Task ClaudeBrain_Does_Not_Generate_When_Disabled()
     {
-        await using var project =
-            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+        await using var project = SdkProjectBuilder.Create(_fixture);
 
         project.AddFile("CLAUDE.md", "Root brain");
 
-        project.AddCsprojFile(
-            [
-                (Prop.TargetFramework, Tfm.Net100),
-                ("GenerateClaudeMd", Val.False)
-            ],
-            filename: "src/MyLibrary/MyLibrary.csproj");
-
-        await project.BuildAndGetOutput(["src/MyLibrary/MyLibrary.csproj"]);
+        await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithProperty("GenerateClaudeMd", Val.False)
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
 
         var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";
         Assert.False(File.Exists(generatedFilePath), "CLAUDE.md should NOT have been generated when disabled.");
@@ -60,20 +45,14 @@ public class ClaudeBrainTests(PackageFixture fixture, ITestOutputHelper testOutp
     [Fact]
     public async Task ClaudeBrain_Does_Not_Overwrite_Existing()
     {
-        await using var project =
-            new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
+        await using var project = SdkProjectBuilder.Create(_fixture);
 
         project.AddFile("CLAUDE.md", "Root brain");
-
         project.AddFile("src/MyLibrary/CLAUDE.md", "Existing content");
 
-        project.AddCsprojFile(
-            [
-                (Prop.TargetFramework, Tfm.Net100)
-            ],
-            filename: "src/MyLibrary/MyLibrary.csproj");
-
-        await project.BuildAndGetOutput(["src/MyLibrary/MyLibrary.csproj"]);
+        await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
 
         var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";
         var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);

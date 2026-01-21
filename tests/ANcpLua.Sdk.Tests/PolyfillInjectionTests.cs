@@ -1,27 +1,17 @@
-﻿using System.Xml.Linq;
-using ANcpLua.Sdk.Tests.Helpers;
-using ANcpLua.Sdk.Tests.Infrastructure;
+using System.Xml.Linq;
 
 namespace ANcpLua.Sdk.Tests;
 
-public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
+public class PolyfillInjectionTests(PackageFixture fixture)
 {
     private readonly PackageFixture _fixture = fixture;
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
-
-    private ProjectBuilder CreateProjectBuilder() => new(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
     [Theory]
     [MemberData(nameof(PolyfillTestDataSource.InjectionMatrix), MemberType = typeof(PolyfillTestDataSource))]
     public async Task Polyfill_Injection_Status_Is_Correct(PolyfillDefinition polyfill, string tfm,
         bool shouldBePresent)
     {
-        await using var project = CreateProjectBuilder();
-
-        var properties = new[]
-        {
-            (polyfill.InjectionProperty, Val.True), (Prop.TargetFramework, tfm), (Prop.OutputType, Val.Library)
-        };
+        await using var project = SdkProjectBuilder.Create(_fixture);
 
         var dumpTarget = new XElement("Target",
             new XAttribute("Name", "DumpCompile"),
@@ -32,14 +22,12 @@ public class PolyfillInjectionTests(PackageFixture fixture, ITestOutputHelper te
             )
         );
 
-        project.AddCsprojFile(
-            properties,
-            additionalProjectElements: (XElement[]?)[dumpTarget]
-        );
-
-        project.AddFile("Class1.cs", "public class Class1 {}");
-
-        var result = await project.BuildAndGetOutput();
+        var result = await project
+            .WithProperty(polyfill.InjectionProperty, Val.True)
+            .WithTargetFramework(tfm)
+            .WithAdditionalProjectElement(dumpTarget)
+            .AddSource("Class1.cs", "public class Class1 {}")
+            .BuildAsync();
 
         Assert.True(result.ExitCode is 0,
             $"Build failed for {polyfill.InjectionProperty} on {tfm}. Output: {result.ProcessOutput}");

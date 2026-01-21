@@ -54,4 +54,10 @@
     <!-- Version from Version.props - CPM disabled for source generator compatibility -->
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)" PrivateAssets="all"/>
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="..\Shared\">
+      <Link>Shared</Link>
+    </Folder>
+  </ItemGroup>
 </Project>

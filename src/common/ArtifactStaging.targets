@@ -15,9 +15,7 @@
   <!-- Stage NuGet packages -->
   <Target Name="_StageNuGetPackages"
           AfterTargets="Pack"
-          Condition="'$(IsPackable)' == 'true'"
-          Inputs="$(PackageOutputPath)*.nupkg;$(PackageOutputPath)*.snupkg"
-          Outputs="$(PackageArtifactsPath)%(Filename)%(Extension)">
+          Condition="'$(IsPackable)' == 'true' AND '$(ArtifactsPath)' != ''">
     <ItemGroup>
       <_PackagesToStage Include="$(PackageOutputPath)*.nupkg" />
       <_PackagesToStage Include="$(PackageOutputPath)*.snupkg" />

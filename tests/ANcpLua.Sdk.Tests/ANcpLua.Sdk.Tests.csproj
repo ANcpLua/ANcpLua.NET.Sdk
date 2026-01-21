@@ -12,11 +12,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ANcpLua.Roslyn.Utilities.Testing"/>
     <PackageReference Include="Meziantou.Framework"/>
     <PackageReference Include="Meziantou.Framework.TemporaryDirectory"/>
-    <PackageReference Include="Meziantou.Framework.Threading"/>
     <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework"/>
-    <PackageReference Include="Microsoft.Deployment.DotNet.Releases"/>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
     <PackageReference Include="Microsoft.Extensions.Logging"/>
     <PackageReference Include="MSBuild.StructuredLogger"/>

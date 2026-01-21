@@ -6,12 +6,21 @@
 
     GlobalPackageReference = "every project gets this, cannot be removed per-project"
 
-    BREAKING CHANGE: Core analyzers can no longer be removed via PackageReference Remove.
+    IMPORTANT: GlobalPackageReference items ONLY work when ManagePackageVersionsCentrally=true.
+    When CPM is disabled, we fall back to regular PackageReference items to ensure analyzers
+    are always included.
+
     Opt-out: DisableANcpLuaAnalyzers=true (disables ALL SDK-injected analyzers)
   -->
 
-  <!-- Core analyzers - MANDATORY for all projects -->
-  <ItemGroup Condition="'$(DisableANcpLuaAnalyzers)' != 'true' And '$(PackageId)' != 'ANcpLua.Analyzers'">
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       CORE ANALYZERS - Always included (analyzer-only, no runtime dependency)
+       When CPM enabled: GlobalPackageReference (immutable, cannot be removed)
+       When CPM disabled: PackageReference fallback (can be removed, but shouldn't)
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- CPM ENABLED: Use GlobalPackageReference (immutable) -->
+  <ItemGroup Condition="'$(DisableANcpLuaAnalyzers)' != 'true' And '$(PackageId)' != 'ANcpLua.Analyzers' And '$(ManagePackageVersionsCentrally)' == 'true'">
     <GlobalPackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>analyzers</IncludeAssets>
@@ -28,19 +37,55 @@
     </GlobalPackageReference>
   </ItemGroup>
 
-  <!-- SBOM - MANDATORY for packable projects -->
-  <ItemGroup Condition="'$(GenerateSBOM)' != 'false' And '$(IsPackable)' == 'true'">
+  <!-- CPM DISABLED: Fallback to regular PackageReference -->
+  <ItemGroup Condition="'$(DisableANcpLuaAnalyzers)' != 'true' And '$(PackageId)' != 'ANcpLua.Analyzers' And '$(ManagePackageVersionsCentrally)' != 'true'">
+    <PackageReference Include="ANcpLua.Analyzers" Version="$(ANcpLuaAnalyzersVersion)" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="$(BannedApiAnalyzersVersion)" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="JonSkeet.RoslynAnalyzers" Version="$(JonSkeetAnalyzersVersion)" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SBOM - MANDATORY for packable projects
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <ItemGroup Condition="'$(GenerateSBOM)' != 'false' And '$(IsPackable)' == 'true' And '$(ManagePackageVersionsCentrally)' == 'true'">
     <GlobalPackageReference Include="Microsoft.Sbom.Targets" Version="$(SbomTargetsVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </GlobalPackageReference>
   </ItemGroup>
 
-  <!-- Test-specific global packages -->
-  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+  <ItemGroup Condition="'$(GenerateSBOM)' != 'false' And '$(IsPackable)' == 'true' And '$(ManagePackageVersionsCentrally)' != 'true'">
+    <PackageReference Include="Microsoft.Sbom.Targets" Version="$(SbomTargetsVersion)" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TEST-SPECIFIC ANALYZERS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' And '$(ManagePackageVersionsCentrally)' == 'true'">
     <GlobalPackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>analyzers</IncludeAssets>
     </GlobalPackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(IsTestProject)' == 'true' And '$(ManagePackageVersionsCentrally)' != 'true'">
+    <PackageReference Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)" IsImplicitlyDefined="true">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>analyzers</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

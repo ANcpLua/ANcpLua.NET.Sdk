@@ -1,4 +1,3 @@
-﻿using ANcpLua.Sdk.Tests.Helpers;
 using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
@@ -12,12 +11,11 @@ namespace ANcpLua.Sdk.Tests;
 ///     - NUnit with EnableNUnitRunner=true (explicit opt-in)
 ///     - MSTest with EnableMSTestRunner=true (explicit opt-in)
 /// </summary>
-public sealed class MtpDetectionNet100Tests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
-    : MtpDetectionTests(fixture, testOutputHelper, NetSdkVersion.Net100);
+public sealed class MtpDetectionNet100Tests(PackageFixture fixture)
+    : MtpDetectionTests(fixture, NetSdkVersion.Net100);
 
 public abstract class MtpDetectionTests(
     PackageFixture fixture,
-    ITestOutputHelper testOutputHelper,
     NetSdkVersion dotnetSdkVersion)
 {
     private static readonly NuGetReference[] _xUnit3MtpV1Packages =
@@ -37,64 +35,57 @@ public abstract class MtpDetectionTests(
 
     private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
     private readonly PackageFixture _fixture = fixture;
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
 
-    private ProjectBuilder CreateProjectBuilder(string defaultSdkName = SdkTestName)
-    {
-        var builder = new ProjectBuilder(_fixture, _testOutputHelper, SdkImportStyle.ProjectElement, defaultSdkName);
-        builder.SetDotnetSdkVersion(_dotnetSdkVersion);
-        return builder;
-    }
+    private SdkProjectBuilder CreateProject(string? sdkName = null) =>
+        SdkProjectBuilder.Create(_fixture, SdkImportStyle.ProjectElement, sdkName ?? SdkTestName)
+            .WithDotnetSdkVersion(_dotnetSdkVersion);
 
     [Fact]
     public async Task XUnit3MtpV2_IsMTP()
     {
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("IsTestProject", "true")],
-            nuGetPackages: [.. _xUnit3MtpV2Packages]
-        );
+        await using var project = CreateProject(SdkName);
 
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
+        foreach (var pkg in _xUnit3MtpV2Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithProperty("IsTestProject", "true")
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
 
-        data.AssertMsBuildPropertyValue("IsTestProject", "true");
-
-        data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
-
-        data.AssertMsBuildPropertyValue("OutputType", "exe");
-
-        data.AssertMsBuildPropertyValue("TestingPlatformDotnetTestSupport", "true");
+        result.ShouldHavePropertyValue("IsTestProject", "true");
+        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHavePropertyValue("OutputType", "exe");
+        result.ShouldHavePropertyValue("TestingPlatformDotnetTestSupport", "true");
     }
 
     [Fact]
     public async Task XUnit3MtpV2_DoesNotInjectMTPExtensions()
     {
-        await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. _xUnit3MtpV2Packages]
-        );
+        await using var project = CreateProject();
 
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
+        foreach (var pkg in _xUnit3MtpV2Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
 
-        var items = data.GetMsBuildItems("PackageReference");
+        var items = result.GetMsBuildItems("PackageReference");
         Assert.DoesNotContain(items,
             static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
         Assert.DoesNotContain(items,
@@ -106,23 +97,23 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task XUnit3MtpV2_UsesNativeTrxOption()
     {
-        await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. _xUnit3MtpV2Packages]
-        );
+        await using var project = CreateProject();
 
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
+        foreach (var pkg in _xUnit3MtpV2Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
 
-        var cliArgs = data.GetMsBuildPropertyValue("TestingPlatformCommandLineArguments");
+        var cliArgs = result.GetMsBuildPropertyValue("TestingPlatformCommandLineArguments");
         Assert.Contains("--report-xunit-trx", cliArgs);
         Assert.DoesNotContain("--report-trx ", cliArgs);
         Assert.DoesNotContain("--crashdump", cliArgs);
@@ -132,130 +123,137 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task XUnit3MtpV1_IsMTP()
     {
-        await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            nuGetPackages: [.. _xUnit3MtpV1Packages]
-        );
+        await using var project = CreateProject();
 
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
+        foreach (var pkg in _xUnit3MtpV1Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
 
-        data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
-        data.AssertMsBuildPropertyValue("OutputType", "exe");
+        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHavePropertyValue("OutputType", "exe");
     }
 
     [Fact]
     public async Task NUnit_WithEnableNUnitRunner_IsMTP()
     {
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("EnableNUnitRunner", "true")],
-            nuGetPackages: [.. _nUnitMtpPackages]
-        );
+        await using var project = CreateProject(SdkName);
 
-        project.AddFile("Tests.cs", """
-                                    using NUnit.Framework;
+        foreach (var pkg in _nUnitMtpPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-                                    [TestFixture]
-                                    public class SampleTests
-                                    {
-                                        [Test]
-                                        public void Test1() => Assert.That(true, Is.True);
-                                    }
-                                    """);
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithTargetFramework("net10.0")
+            .WithProperty("IsTestProject", "true")
+            .WithProperty("EnableNUnitRunner", "true")
+            .AddSource("Tests.cs", """
+                using NUnit.Framework;
 
-        var data = await project.BuildAndGetOutput();
+                [TestFixture]
+                public class SampleTests
+                {
+                    [Test]
+                    public void Test1() => Assert.That(true, Is.True);
+                }
+                """)
+            .BuildAsync();
 
-        data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
-        data.AssertMsBuildPropertyValue("OutputType", "exe");
+        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHavePropertyValue("OutputType", "exe");
     }
 
     [Fact]
     public async Task MSTest_WithEnableMSTestRunner_IsMTP()
     {
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("EnableMSTestRunner", "true")],
-            nuGetPackages: [.. _msTestMtpPackages]
-        );
+        await using var project = CreateProject(SdkName);
 
-        project.AddFile("Tests.cs", """
-                                    using Microsoft.VisualStudio.TestTools.UnitTesting;
+        foreach (var pkg in _msTestMtpPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-                                    [TestClass]
-                                    public class SampleTests
-                                    {
-                                        [TestMethod]
-                                        public void Test1() => Assert.IsTrue(true);
-                                    }
-                                    """);
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithTargetFramework("net10.0")
+            .WithProperty("IsTestProject", "true")
+            .WithProperty("EnableMSTestRunner", "true")
+            .AddSource("Tests.cs", """
+                using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-        var data = await project.BuildAndGetOutput();
+                [TestClass]
+                public class SampleTests
+                {
+                    [TestMethod]
+                    public void Test1() => Assert.IsTrue(true);
+                }
+                """)
+            .BuildAsync();
 
-        data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
-        data.AssertMsBuildPropertyValue("OutputType", "exe");
+        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHavePropertyValue("OutputType", "exe");
     }
 
     [Fact]
     public async Task TUnit_IsMTP()
     {
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
-            nuGetPackages: [.. _tUnitPackages]
-        );
+        await using var project = CreateProject(SdkName);
 
-        project.AddFile("Tests.cs", """
-                                    using TUnit.Core;
+        foreach (var pkg in _tUnitPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-                                    public class SampleTests
-                                    {
-                                        [Test]
-                                        public async Task Test1() => await Assert.That(true).IsTrue();
-                                    }
-                                    """);
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithTargetFramework("net10.0")
+            .WithProperty("IsTestProject", "true")
+            .WithProperty("SkipXunitInjection", "true")
+            .AddSource("Tests.cs", """
+                using TUnit.Core;
 
-        var data = await project.BuildAndGetOutput();
+                public class SampleTests
+                {
+                    [Test]
+                    public async Task Test1() => await Assert.That(true).IsTrue();
+                }
+                """)
+            .BuildAsync();
 
-        data.AssertMsBuildPropertyValue("IsTestProject", "true");
-
-        data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
-        data.AssertMsBuildPropertyValue("OutputType", "exe");
+        result.ShouldHavePropertyValue("IsTestProject", "true");
+        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHavePropertyValue("OutputType", "exe");
     }
 
     [Fact]
     public async Task MTP_DoesNotInjectMicrosoftNETTestSdk()
     {
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
-            nuGetPackages: [.. _tUnitPackages]
-        );
+        await using var project = CreateProject(SdkName);
 
-        project.AddFile("Tests.cs", """
-                                    using TUnit.Core;
-                                    public class SampleTests
-                                    {
-                                        [Test]
-                                        public async Task Test1() => await Assert.That(true).IsTrue();
-                                    }
-                                    """);
+        foreach (var pkg in _tUnitPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithTargetFramework("net10.0")
+            .WithProperty("IsTestProject", "true")
+            .WithProperty("SkipXunitInjection", "true")
+            .AddSource("Tests.cs", """
+                using TUnit.Core;
+                public class SampleTests
+                {
+                    [Test]
+                    public async Task Test1() => await Assert.That(true).IsTrue();
+                }
+                """)
+            .BuildAsync();
 
-        var items = data.GetMsBuildItems("PackageReference");
+        var items = result.GetMsBuildItems("PackageReference");
         Assert.DoesNotContain(items,
             static i => i.Contains("Microsoft.NET.Test.Sdk", StringComparison.OrdinalIgnoreCase));
     }
@@ -263,25 +261,27 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task MTP_InjectsMTPExtensions()
     {
-        await using var project = CreateProjectBuilder(SdkName);
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("TargetFramework", "net10.0"), ("IsTestProject", "true"), ("SkipXunitInjection", "true")],
-            nuGetPackages: [.. _tUnitPackages]
-        );
+        await using var project = CreateProject(SdkName);
 
-        project.AddFile("Tests.cs", """
-                                    using TUnit.Core;
-                                    public class SampleTests
-                                    {
-                                        [Test]
-                                        public async Task Test1() => await Assert.That(true).IsTrue();
-                                    }
-                                    """);
+        foreach (var pkg in _tUnitPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithTargetFramework("net10.0")
+            .WithProperty("IsTestProject", "true")
+            .WithProperty("SkipXunitInjection", "true")
+            .AddSource("Tests.cs", """
+                using TUnit.Core;
+                public class SampleTests
+                {
+                    [Test]
+                    public async Task Test1() => await Assert.That(true).IsTrue();
+                }
+                """)
+            .BuildAsync();
 
-        var items = data.GetMsBuildItems("PackageReference");
+        var items = result.GetMsBuildItems("PackageReference");
         Assert.Contains(items,
             static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(items,
@@ -291,51 +291,52 @@ public abstract class MtpDetectionTests(
     [Fact]
     public async Task SafetyGuard_WarnsWhenMTPWithLibraryOutputType()
     {
-        await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("UseMicrosoftTestingPlatform", "true"), ("OutputType", "Library")],
-            nuGetPackages: [.. _xUnit3MtpV2Packages]
-        );
+        await using var project = CreateProject();
 
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
+        foreach (var pkg in _xUnit3MtpV2Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithProperty("UseMicrosoftTestingPlatform", "true")
+            .WithOutputType("Library")
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
 
         Assert.True(
-            data.OutputContains("ANCPSDK001") ||
-            data.OutputContains("MTP is enabled") ||
-            data.OutputContains("test projects must be executable"),
+            result.OutputContains("ANCPSDK001") ||
+            result.OutputContains("MTP is enabled") ||
+            result.OutputContains("test projects must be executable"),
             "Should warn/error about MTP with Library OutputType");
     }
 
     [Fact]
     public async Task ExplicitProperty_UseMicrosoftTestingPlatform_EnablesMTP()
     {
-        await using var project = CreateProjectBuilder();
-        project.AddCsprojFile(
-            filename: "Sample.Tests.csproj",
-            properties: [("UseMicrosoftTestingPlatform", "true")],
-            nuGetPackages: [.. _xUnit3MtpV2Packages]
-        );
+        await using var project = CreateProject();
 
-        project.AddFile("Tests.cs", """
-                                    public class SampleTests
-                                    {
-                                        [Fact]
-                                        public void Test1() => Assert.True(true);
-                                    }
-                                    """);
+        foreach (var pkg in _xUnit3MtpV2Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
 
-        var data = await project.BuildAndGetOutput();
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithProperty("UseMicrosoftTestingPlatform", "true")
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
 
-        data.AssertMsBuildPropertyValue("UseMicrosoftTestingPlatform", "true");
-        data.AssertMsBuildPropertyValue("OutputType", "exe");
+        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHavePropertyValue("OutputType", "exe");
     }
 }

@@ -1,5 +1,4 @@
-﻿using ANcpLua.Sdk.Tests.Helpers;
-using ANcpLua.Sdk.Tests.Infrastructure;
+using Xunit.Sdk;
 
 namespace ANcpLua.Sdk.Tests;
 
@@ -7,12 +6,9 @@ namespace ANcpLua.Sdk.Tests;
 ///     Consolidated polyfill tests - activation (positive/negative) and combination scenarios.
 ///     Uses PolyfillDefinition directly - no custom serializer needed.
 /// </summary>
-public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputHelper)
+public class PolyfillTests(PackageFixture fixture)
 {
     private readonly PackageFixture _fixture = fixture;
-    private readonly ITestOutputHelper _testOutputHelper = testOutputHelper;
-
-    private ProjectBuilder CreateProjectBuilder() => new(_fixture, _testOutputHelper, SdkImportStyle.SdkElement, PackageFixture.SdkName);
 
     #region Individual Polyfill Activation Tests
 
@@ -22,33 +18,30 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
     [MemberData(nameof(AllPolyfills))]
     public async Task Polyfill_Activates_When_Enabled(PolyfillDefinition polyfill)
     {
-        await using var project = CreateProjectBuilder();
+        await using var project = SdkProjectBuilder.Create(_fixture);
 
-        var properties = new List<(string, string)>
-        {
-            (polyfill.InjectionProperty, Val.True),
-            (Prop.TargetFramework, polyfill.MinimumTargetFramework),
-            (Prop.OutputType, Val.Library)
-        };
+        project
+            .WithProperty(polyfill.InjectionProperty, Val.True)
+            .WithTargetFramework(polyfill.MinimumTargetFramework);
 
         if (polyfill.RequiresLangVersionLatest)
-            properties.Add((Prop.LangVersion, Val.Latest));
+            project.WithLangVersion(Val.Latest);
 
-        project.AddCsprojFile(properties.ToArray());
-        project.AddFile("Smoke.cs", $$"""
-                                      #nullable enable
-                                      using System;
-                                      namespace Consumer;
-                                      internal class Smoke
-                                      {
-                                          public void Run()
-                                          {
-                                              {{polyfill.ActivationCode}}
-                                          }
-                                      }
-                                      """);
+        var result = await project
+            .AddSource("Smoke.cs", $$"""
+                #nullable enable
+                using System;
+                namespace Consumer;
+                internal class Smoke
+                {
+                    public void Run()
+                    {
+                        {{polyfill.ActivationCode}}
+                    }
+                }
+                """)
+            .BuildAsync();
 
-        var result = await project.BuildAndGetOutput();
         result.ShouldSucceed($"Build failed for {polyfill.InjectionProperty} on {polyfill.MinimumTargetFramework}");
     }
 
@@ -59,35 +52,31 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
         if (!polyfill.HasNegativeTest)
             return;
 
-        await using var project = CreateProjectBuilder();
+        await using var project = SdkProjectBuilder.Create(_fixture);
 
-        var properties = new List<(string, string)>
-        {
-            (Prop.TargetFramework, polyfill.MinimumTargetFramework),
-            (Prop.OutputType, Val.Library)
-        };
+        project.WithTargetFramework(polyfill.MinimumTargetFramework);
 
         if (polyfill.RequiresLangVersionLatest)
-            properties.Add((Prop.LangVersion, Val.Latest));
+            project.WithLangVersion(Val.Latest);
 
         if (polyfill.DisablesSharedThrowForNegative)
-            properties.Add((Prop.InjectSharedThrow, Val.False));
+            project.WithProperty(SdkProp.InjectSharedThrow, Val.False);
 
-        project.AddCsprojFile(properties.ToArray());
-        project.AddFile("Smoke.cs", $$"""
-                                      #nullable enable
-                                      using System;
-                                      namespace Consumer;
-                                      internal class Smoke
-                                      {
-                                          public void Run()
-                                          {
-                                              {{polyfill.ActivationCode}}
-                                          }
-                                      }
-                                      """);
+        var result = await project
+            .AddSource("Smoke.cs", $$"""
+                #nullable enable
+                using System;
+                namespace Consumer;
+                internal class Smoke
+                {
+                    public void Run()
+                    {
+                        {{polyfill.ActivationCode}}
+                    }
+                }
+                """)
+            .BuildAsync();
 
-        var result = await project.BuildAndGetOutput();
         result.ShouldFail($"Build succeeded for {polyfill.InjectionProperty} when expected to fail without the flag");
 
         Assert.True(
@@ -109,8 +98,8 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
         new PolyfillScenario(
             "Language Features (required, init, Index)",
             [
-                Prop.InjectRequiredMemberOnLegacy, Prop.InjectCompilerFeatureRequiredOnLegacy,
-                Prop.InjectIsExternalInitOnLegacy, Prop.InjectIndexRangeOnLegacy
+                SdkProp.InjectRequiredMemberOnLegacy, SdkProp.InjectCompilerFeatureRequiredOnLegacy,
+                SdkProp.InjectIsExternalInitOnLegacy, SdkProp.InjectIndexRangeOnLegacy
             ],
             """
             var arr = new[] { 1, 2, 3, 4, 5 };
@@ -130,7 +119,7 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
 
         new PolyfillScenario(
             "Throw + TimeProvider",
-            [Prop.InjectSharedThrow, Prop.InjectTimeProviderPolyfill],
+            [SdkProp.InjectSharedThrow, SdkProp.InjectTimeProviderPolyfill],
             """
             var tp = Microsoft.Shared.Diagnostics.Throw.IfNull(TimeProvider.System);
             var now = tp.GetUtcNow();
@@ -140,9 +129,9 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
         new PolyfillScenario(
             "Realistic Service (Throw + Nullable + Caller + Init + UnreachableException)",
             [
-                Prop.InjectSharedThrow, Prop.InjectNullabilityAttributesOnLegacy,
-                Prop.InjectCallerAttributesOnLegacy, Prop.InjectIsExternalInitOnLegacy,
-                Prop.InjectUnreachableExceptionOnLegacy
+                SdkProp.InjectSharedThrow, SdkProp.InjectNullabilityAttributesOnLegacy,
+                SdkProp.InjectCallerAttributesOnLegacy, SdkProp.InjectIsExternalInitOnLegacy,
+                SdkProp.InjectUnreachableExceptionOnLegacy
             ],
             """
             var options = new ServiceOptions { ConnectionString = "test", Timeout = 30 };
@@ -177,7 +166,7 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
 
         new PolyfillScenario(
             "Nullable + CallerExpression",
-            [Prop.InjectNullabilityAttributesOnLegacy, Prop.InjectCallerAttributesOnLegacy],
+            [SdkProp.InjectNullabilityAttributesOnLegacy, SdkProp.InjectCallerAttributesOnLegacy],
             """
             string? input = "test";
             Validator.ThrowIfNull(input);
@@ -201,36 +190,35 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
     [MemberData(nameof(CombinationScenarios))]
     public async Task Polyfill_Combinations_Build_Successfully(PolyfillScenario scenario)
     {
-        await using var project = CreateProjectBuilder();
+        await using var project = SdkProjectBuilder.Create(_fixture);
 
-        var properties = scenario.PolyfillsToEnable
-            .Select(p => (p, Val.True))
-            .Prepend((Prop.LangVersion, Val.Latest))
-            .Prepend((Prop.OutputType, Val.Library))
-            .Prepend((Prop.TargetFramework, Tfm.NetStandard20))
-            .ToArray();
+        project
+            .WithTargetFramework(Tfm.NetStandard20)
+            .WithLangVersion(Val.Latest);
 
-        project.AddCsprojFile(properties);
+        foreach (var polyfillProp in scenario.PolyfillsToEnable)
+            project.WithProperty(polyfillProp, Val.True);
 
         var code = $$"""
-                     #nullable enable
-                     using System;
-                     namespace Consumer;
+            #nullable enable
+            using System;
+            namespace Consumer;
 
-                     {{scenario.AdditionalCode}}
+            {{scenario.AdditionalCode}}
 
-                     internal class Smoke
-                     {
-                         public void Run()
-                         {
-                             {{scenario.TestCode}}
-                         }
-                     }
-                     """;
+            internal class Smoke
+            {
+                public void Run()
+                {
+                    {{scenario.TestCode}}
+                }
+            }
+            """;
 
-        project.AddFile("Smoke.cs", code);
+        var result = await project
+            .AddSource("Smoke.cs", code)
+            .BuildAsync();
 
-        var result = await project.BuildAndGetOutput();
         result.ShouldSucceed($"Combination scenario '{scenario.Name}' failed");
     }
 
@@ -239,13 +227,41 @@ public class PolyfillTests(PackageFixture fixture, ITestOutputHelper testOutputH
 
 /// <summary>
 ///     Defines a polyfill combination test scenario.
-///     xUnit v3 handles records natively - no serializer needed.
+///     Implements IXunitSerializable for Test Explorer enumeration.
 /// </summary>
-public sealed record PolyfillScenario(
-    string Name,
-    string[] PolyfillsToEnable,
-    string TestCode,
-    string AdditionalCode = "")
+public sealed class PolyfillScenario : IXunitSerializable
 {
+    public string Name { get; private set; } = "";
+    public string[] PolyfillsToEnable { get; private set; } = [];
+    public string TestCode { get; private set; } = "";
+    public string AdditionalCode { get; private set; } = "";
+
+    /// <summary>Required for xUnit deserialization.</summary>
+    public PolyfillScenario() { }
+
+    public PolyfillScenario(string name, string[] polyfillsToEnable, string testCode, string additionalCode = "")
+    {
+        Name = name;
+        PolyfillsToEnable = polyfillsToEnable;
+        TestCode = testCode;
+        AdditionalCode = additionalCode;
+    }
+
+    void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
+    {
+        Name = (string)info.GetValue(nameof(Name))!;
+        PolyfillsToEnable = (string[])info.GetValue(nameof(PolyfillsToEnable))!;
+        TestCode = (string)info.GetValue(nameof(TestCode))!;
+        AdditionalCode = (string)info.GetValue(nameof(AdditionalCode))!;
+    }
+
+    void IXunitSerializable.Serialize(IXunitSerializationInfo info)
+    {
+        info.AddValue(nameof(Name), Name, typeof(string));
+        info.AddValue(nameof(PolyfillsToEnable), PolyfillsToEnable, typeof(string[]));
+        info.AddValue(nameof(TestCode), TestCode, typeof(string));
+        info.AddValue(nameof(AdditionalCode), AdditionalCode, typeof(string));
+    }
+
     public override string ToString() => Name;
 }
