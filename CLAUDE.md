@@ -119,8 +119,5 @@ git tag vX.Y.Z && git push origin vX.Y.Z
 ```xml
 <packageSources>
   <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-  <add key="dotnet-tools" value="https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet-tools/nuget/v3/index.json" />
 </packageSources>
 ```
-
-The `dotnet-tools` feed is required for beta versions of `Microsoft.CodeAnalysis.Testing`.
