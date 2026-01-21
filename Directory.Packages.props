@@ -55,7 +55,7 @@
   <ItemGroup Label="Testing">
     <PackageVersion Include="ANcpLua.Roslyn.Utilities.Testing" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
     <PackageVersion Include="xunit.v3.mtp-v2" Version="$(XunitV3Version)"/>
-    <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsTestLoggerVersion)"/>
+    <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)"/>
     <PackageVersion Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)"/>
     <PackageVersion Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)"/>
   </ItemGroup>
