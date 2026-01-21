@@ -51,7 +51,7 @@
   <Target Name="_InjectGitHubActionsLogger" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(_IsGitHubActions)' == 'true'">
     <!-- MTP: GitHubActionsTestLogger auto-registers -->
     <ItemGroup>
-      <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)" VersionOverride="$(GitHubActionsLoggerMTPVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsTestLoggerVersion)" VersionOverride="$(GitHubActionsTestLoggerVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
   </Target>
 

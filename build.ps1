@@ -117,8 +117,7 @@ $VersionPropsContent = @"
     <CodeCoverageVersion>18.1.0</CodeCoverageVersion>
     <TestSdkVersion>18.0.1</TestSdkVersion>
     <DiagnosticsTestingVersion>10.0.0</DiagnosticsTestingVersion>
-    <GitHubActionsLoggerMTPVersion>3.0.1</GitHubActionsLoggerMTPVersion>
-    <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
+    <!-- GitHubActionsTestLoggerVersion defined in Testing section above -->
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
