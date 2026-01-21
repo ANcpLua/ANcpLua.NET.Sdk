@@ -18,7 +18,7 @@
 
   <!-- Stderr redirect suffix: 2>nul on Windows, 2>/dev/null on Unix -->
   <PropertyGroup>
-    <_StderrRedirect Condition="'$(OS)' == 'Windows_NT'"> 2^&gt;nul</_StderrRedirect>
+    <_StderrRedirect Condition="'$(OS)' == 'Windows_NT'"> 2&gt;nul</_StderrRedirect>
     <_StderrRedirect Condition="'$(OS)' != 'Windows_NT'"> 2&gt;/dev/null</_StderrRedirect>
   </PropertyGroup>
 
