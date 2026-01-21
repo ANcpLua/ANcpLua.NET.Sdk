@@ -2,5 +2,7 @@
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk.Web" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
 
   <!-- Enhanced Features (targets phase) -->
+  <Import Project="$(MSBuildThisFileDirectory)../common/ItemMetadata.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)../common/Deduplication.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)../common/ArtifactStaging.targets"/>
 </Project>

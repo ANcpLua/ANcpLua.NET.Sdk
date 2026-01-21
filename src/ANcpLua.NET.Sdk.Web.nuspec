@@ -37,6 +37,8 @@
     <file src="common/BuildCheck.props" target="common/"/>
     <file src="common/InternalsVisibleTo.props" target="common/"/>
     <file src="common/ArtifactStaging.targets" target="common/"/>
+    <file src="common/ItemMetadata.targets" target="common/"/>
+    <file src="common/Deduplication.targets" target="common/"/>
     <file src="configuration/Analyzers.editorconfig" target="configuration/"/>
     <file src="configuration/Analyzer.Meziantou.Analyzer.editorconfig" target="configuration/"/>
     <file src="configuration/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="configuration/"/>

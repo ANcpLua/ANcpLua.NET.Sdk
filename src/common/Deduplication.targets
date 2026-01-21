@@ -1,0 +1,48 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    INTELLIGENT DEDUPLICATION (MSBuild 16.6+)
+    ═══════════════════════════════════════════════════════════════════════════
+  -->
+
+  <!-- Deduplicate output files by TargetPath -->
+  <Target Name="_DeduplicateOutputFiles"
+          BeforeTargets="CopyFilesToOutputDirectory">
+    <ItemGroup>
+      <_TransitiveItemsToCopyToOutputDirectory
+          Remove="@(_ThisProjectItemsToCopyToOutputDirectory)"
+          MatchOnMetadata="TargetPath"
+          MatchOnMetadataOptions="PathLike" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Deduplicate Content items by Link -->
+  <Target Name="_DeduplicateContentItems"
+          BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <Content Remove="@(Content)"
+               MatchOnMetadata="Link"
+               MatchOnMetadataOptions="CaseInsensitive" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Deduplicate analyzer references by Filename -->
+  <Target Name="_DeduplicateAnalyzerReferences"
+          BeforeTargets="ResolveAnalyzerReferences">
+    <ItemGroup>
+      <Analyzer Remove="@(Analyzer)"
+                MatchOnMetadata="Filename"
+                MatchOnMetadataOptions="CaseInsensitive" />
+    </ItemGroup>
+  </Target>
+
+  <!-- Deduplicate Compile items by FullPath -->
+  <Target Name="_DeduplicateCompileItems"
+          BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Compile Remove="@(Compile)"
+               MatchOnMetadata="FullPath"
+               MatchOnMetadataOptions="PathLike" />
+    </ItemGroup>
+  </Target>
+</Project>

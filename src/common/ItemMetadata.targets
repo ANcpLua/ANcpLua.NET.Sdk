@@ -1,0 +1,63 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    ADVANCED ITEM METADATA (Phase 2)
+    ═══════════════════════════════════════════════════════════════════════════
+  -->
+
+  <!-- Auto-set Link for files outside project directory -->
+  <Target Name="_SetLinkMetadataForExternalFiles"
+          BeforeTargets="AssignTargetPaths">
+    <ItemGroup>
+      <Compile Update="@(Compile)"
+               Condition="!$([System.String]::new('%(FullPath)').StartsWith('$(MSBuildProjectDirectory)'))">
+        <Link Condition="'%(Link)' == ''">External\%(Filename)%(Extension)</Link>
+      </Compile>
+
+      <Content Update="@(Content)"
+               Condition="'%(RecursiveDir)' != '' And '%(Link)' == ''">
+        <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+      </Content>
+    </ItemGroup>
+  </Target>
+
+  <!-- Auto-mark generated files -->
+  <Target Name="_MarkGeneratedFiles"
+          BeforeTargets="CoreCompile">
+    <ItemGroup>
+      <Compile Update="@(Compile)"
+               Condition="$([System.String]::new('%(FullPath)').Contains('obj')) Or
+                          $([System.String]::new('%(Filename)').Contains('.g.')) Or
+                          $([System.String]::new('%(Filename)').Contains('.generated'))">
+        <AutoGen>true</AutoGen>
+        <Visible>false</Visible>
+      </Compile>
+    </ItemGroup>
+  </Target>
+
+  <!-- Auto-set DependentUpon for common patterns -->
+  <Target Name="_SetDependentUponMetadata"
+          BeforeTargets="AssignTargetPaths"
+          Condition="'$(DisableAutoDependentUpon)' != 'true'">
+    <ItemGroup>
+      <!-- *.Designer.cs depends on *.resx -->
+      <Compile Update="@(Compile)"
+               Condition="$([System.String]::new('%(Filename)').EndsWith('.Designer'))">
+        <DependentUpon Condition="'%(DependentUpon)' == ''">$([System.String]::new('%(Filename)').Replace('.Designer', '')).resx</DependentUpon>
+      </Compile>
+
+      <!-- *.g.cs depends on *.xaml -->
+      <Compile Update="@(Compile)"
+               Condition="$([System.String]::new('%(Filename)').EndsWith('.g'))">
+        <DependentUpon Condition="'%(DependentUpon)' == ''">$([System.String]::new('%(Filename)').Replace('.g', '')).xaml</DependentUpon>
+        <AutoGen>true</AutoGen>
+      </Compile>
+    </ItemGroup>
+  </Target>
+
+  <!-- Assembly metadata injection -->
+  <ItemGroup>
+    <AssemblyMetadata Include="SDKVersion" Value="$(ANcpSdkPackageVersion)" />
+    <AssemblyMetadata Include="RepositoryCommit" Value="$(SourceRevisionId)" Condition="'$(SourceRevisionId)' != ''" />
+  </ItemGroup>
+</Project>
