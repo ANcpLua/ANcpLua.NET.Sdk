@@ -243,9 +243,21 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     /// <summary>
     ///     Adds a Directory.Build.props file.
     /// </summary>
+    /// <remarks>
+    ///     Automatically injects DisableVersionAnalyzer property for test projects.
+    /// </remarks>
     public new SdkProjectBuilder WithDirectoryBuildProps(string content)
     {
-        base.WithDirectoryBuildProps(content);
+        // Inject DisableVersionAnalyzer to prevent AL0017-AL0019 errors in test projects
+        var modifiedContent = content.Replace(
+            "<Project>",
+            """
+            <Project>
+                <PropertyGroup>
+                    <DisableVersionAnalyzer>true</DisableVersionAnalyzer>
+                </PropertyGroup>
+            """);
+        base.WithDirectoryBuildProps(modifiedContent);
         return this;
     }
 
@@ -310,6 +322,10 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     /// <summary>
     ///     Adds a Directory.Build.props file with optional SDK import.
     /// </summary>
+    /// <remarks>
+    ///     Automatically disables the version analyzer (AL0017-AL0019) for test projects
+    ///     since they don't have a Version.props file.
+    /// </remarks>
     public void AddDirectoryBuildPropsFile(string postSdkContent, string preSdkContent = "", string? sdkName = null)
     {
         var sdk = _sdkImportStyle == SdkImportStyle.SdkElementDirectoryBuildProps
@@ -318,6 +334,9 @@ public sealed class SdkProjectBuilder : ProjectBuilder
 
         var content = $"""
                        <Project>
+                           <PropertyGroup>
+                               <DisableVersionAnalyzer>true</DisableVersionAnalyzer>
+                           </PropertyGroup>
                            {preSdkContent}
                            {sdk}
                            {postSdkContent}
