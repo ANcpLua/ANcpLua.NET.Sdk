@@ -65,15 +65,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" Visible="false"/>
   </ItemGroup>
 
-  <!-- Auto-inject analyzer test packages -->
-  <ItemGroup Condition="'$(IsAnalyzerTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Analyzer.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)"/>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.CodeFix.Testing" Version="$(AnalyzerTestingVersion)" VersionOverride="$(AnalyzerTestingVersion)"/>
-    <PackageReference Include="Basic.Reference.Assemblies.Net100" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)"/>
-    <PackageReference Include="Basic.Reference.Assemblies.NetStandard20" Version="$(BasicReferenceAssembliesVersion)" VersionOverride="$(BasicReferenceAssembliesVersion)"/>
-  </ItemGroup>
+  <!-- Opt-in: Roslyn analyzer/generator test infrastructure
+       Enable with: <UseRoslynUtilitiesTesting>true</UseRoslynUtilitiesTesting>
 
-  <!-- Analyzer test fixtures now provided by ANcpLua.Roslyn.Utilities.Testing package -->
+       ANcpLua.Roslyn.Utilities.Testing provides:
+       - Microsoft.CodeAnalysis.CSharp.Analyzer.Testing
+       - Microsoft.CodeAnalysis.CSharp.CodeFix.Testing
+       - Microsoft.CodeAnalysis.CSharp.SourceGenerators.Testing
+       - Basic.Reference.Assemblies.Net100/NetStandard20
+       - AwesomeAssertions
+       - Test<TGenerator>, AnalyzerTest<T>, CodeFixTest<T,T>, ProjectBuilder APIs -->
+  <ItemGroup Condition="'$(UseRoslynUtilitiesTesting)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
+    <PackageReference Include="ANcpLua.Roslyn.Utilities.Testing" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
+  </ItemGroup>
 
   <!-- Auto-inject GlobalUsings for tests (AwesomeAssertions works with any framework) -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(ImplicitUsings)' == 'enable'">
@@ -93,6 +97,14 @@
     <Using Include="Microsoft.AspNetCore.Mvc.Testing"/>
     <Using Include="Microsoft.AspNetCore.TestHost"/>
     <Using Include="Microsoft.AspNetCore.Hosting"/>
+  </ItemGroup>
+
+  <!-- GlobalUsings for Roslyn utilities testing (when opted-in) -->
+  <ItemGroup Condition="'$(UseRoslynUtilitiesTesting)' == 'true' and '$(ImplicitUsings)' == 'enable'">
+    <Using Include="ANcpLua.Roslyn.Utilities.Testing"/>
+    <Using Include="Microsoft.CodeAnalysis"/>
+    <Using Include="Microsoft.CodeAnalysis.CSharp"/>
+    <Using Include="Microsoft.CodeAnalysis.Diagnostics"/>
   </ItemGroup>
 
   <!--

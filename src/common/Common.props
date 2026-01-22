@@ -93,6 +93,26 @@
        .NET 8+ includes SourceLink by default. Since this SDK requires .NET 10+,
        SourceLink is always available without a package reference. -->
 
+  <!-- Opt-in: ANcpLua.Roslyn.Utilities (core Roslyn helpers)
+       Enable with: <UseRoslynUtilities>true</UseRoslynUtilities>
+
+       Provides: EquatableArray<T>, DiagnosticInfo, DiagnosticFlow<T>,
+                 AwaitableContext, CollectionContext, symbol extensions
+
+       For netstandard2.0 (generators): uses .Sources package (bundled in output)
+       For net10.0+ (runtime): uses regular package reference -->
+  <ItemGroup Condition="'$(UseRoslynUtilities)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
+    <PackageReference Include="ANcpLua.Roslyn.Utilities" Version="$(ANcpLuaRoslynUtilitiesVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesVersion)"/>
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseRoslynUtilities)' == 'true' and '$(TargetFrameworkIdentifier)' == '.NETStandard'">
+    <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesSourcesVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesSourcesVersion)" PrivateAssets="all"/>
+  </ItemGroup>
+
+  <!-- GlobalUsings for Roslyn utilities (when opted-in, non-netstandard only) -->
+  <ItemGroup Condition="'$(UseRoslynUtilities)' == 'true' and '$(ImplicitUsings)' == 'enable' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
+    <Using Include="ANcpLua.Roslyn.Utilities"/>
+  </ItemGroup>
+
   <ItemGroup>
     <!-- Shared injected test bases are packaged, not compiled -->
     <Compile Remove="$(MSBuildThisFileDirectory)..\Shared\*.cs"/>
