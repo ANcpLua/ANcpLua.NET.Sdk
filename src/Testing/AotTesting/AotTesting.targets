@@ -56,19 +56,20 @@
     <_CurrentOsName Condition="$([MSBuild]::IsOSPlatform('OSX'))">osx</_CurrentOsName>
     <_CurrentOsName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</_CurrentOsName>
 
-    <!-- Architecture detection -->
-    <_CurrentArchitecture Condition="'$(Platform)' != ''">$(Platform)</_CurrentArchitecture>
-    <_CurrentArchitecture Condition="'$(_CurrentArchitecture)' == ''">$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</_CurrentArchitecture>
-    <_CurrentArchitecture Condition="'$(_CurrentArchitecture)' == 'x86'">x86</_CurrentArchitecture>
-    <_CurrentArchitecture Condition="'$(_CurrentArchitecture)' == 'x64' or '$(_CurrentArchitecture)' == 'amd64'">x64</_CurrentArchitecture>
-    <_CurrentArchitecture Condition="'$(_CurrentArchitecture)' == 'arm'">arm</_CurrentArchitecture>
-    <_CurrentArchitecture Condition="'$(_CurrentArchitecture)' == 'arm64'">arm64</_CurrentArchitecture>
+    <!-- Architecture detection (always use actual OS architecture, not $(Platform) which is typically AnyCPU) -->
+    <_RawArchitecture>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLowerInvariant())</_RawArchitecture>
+    <_CurrentArchitecture Condition="'$(_RawArchitecture)' == 'x86'">x86</_CurrentArchitecture>
+    <_CurrentArchitecture Condition="'$(_RawArchitecture)' == 'x64' or '$(_RawArchitecture)' == 'amd64'">x64</_CurrentArchitecture>
+    <_CurrentArchitecture Condition="'$(_RawArchitecture)' == 'arm'">arm</_CurrentArchitecture>
+    <_CurrentArchitecture Condition="'$(_RawArchitecture)' == 'arm64'">arm64</_CurrentArchitecture>
+    <_CurrentArchitecture Condition="'$(_CurrentArchitecture)' == ''">$(_RawArchitecture)</_CurrentArchitecture>
 
     <!-- Default RID -->
     <_DefaultRuntimeIdentifier>$(_CurrentOsName)-$(_CurrentArchitecture)</_DefaultRuntimeIdentifier>
 
-    <!-- Test assembly path -->
-    <_TestAssemblyPath>$(TargetPath)</_TestAssemblyPath>
+    <!-- Test assembly path (must be absolute for generated projects to reference correctly) -->
+    <_TestAssemblyPath Condition="$([System.IO.Path]::IsPathRooted('$(TargetPath)'))">$(TargetPath)</_TestAssemblyPath>
+    <_TestAssemblyPath Condition="!$([System.IO.Path]::IsPathRooted('$(TargetPath)'))">$([System.IO.Path]::GetFullPath('$(MSBuildProjectDirectory)\$(TargetPath)'))</_TestAssemblyPath>
   </PropertyGroup>
 
   <!-- ================================================================
@@ -173,14 +174,15 @@ try
                 runtimeIdentifier = DefaultRuntimeIdentifier;
             }
 
-            // Extract TrimMode for [TrimTest]
-            string trimMode = "Full";
+            // Extract TrimMode for [TrimTest] (must be lowercase for ILLink)
+            string trimMode = "full";
             if (trimTestAttr != null)
             {
                 var trimModeValue = attrType.GetProperty("TrimMode")?.GetValue(attrToUse);
                 if (trimModeValue != null)
                 {
-                    trimMode = trimModeValue.ToString();
+                    // Convert to lowercase (ILLink expects "full" or "partial", not "Full" or "Partial")
+                    trimMode = trimModeValue.ToString().ToLowerInvariant();
                 }
             }
 
@@ -245,16 +247,29 @@ return true;
       <Output TaskParameter="DiscoveredTests" ItemName="AotTestItem" />
     </DiscoverAotTestsTask>
 
-    <!-- Create project metadata for each test -->
+    <!-- Create project metadata for each test (two-phase to handle dependencies) -->
+    <!-- Phase 1: Set base paths -->
     <ItemGroup>
       <AotTestItem>
         <ProjectDir>$([MSBuild]::NormalizeDirectory('$(AotTestProjectsDir)', '%(Identity)'))</ProjectDir>
+        <ExecutableName Condition="'$(_CurrentOsName)' == 'win'">project.exe</ExecutableName>
+        <ExecutableName Condition="'$(_CurrentOsName)' != 'win'">project</ExecutableName>
+      </AotTestItem>
+    </ItemGroup>
+
+    <!-- Phase 2: Set derived paths (depends on ProjectDir) -->
+    <ItemGroup>
+      <AotTestItem>
         <ProjectFile>%(ProjectDir)project.csproj</ProjectFile>
         <ProgramFile>%(ProjectDir)Program.cs</ProgramFile>
         <DirBuildProps>%(ProjectDir)Directory.Build.props</DirBuildProps>
         <PublishDir>%(ProjectDir)bin\%(Configuration)\$(TargetFramework)\%(RuntimeIdentifier)\publish\</PublishDir>
-        <ExecutableName Condition="'$(_CurrentOsName)' == 'win'">project.exe</ExecutableName>
-        <ExecutableName Condition="'$(_CurrentOsName)' != 'win'">project</ExecutableName>
+      </AotTestItem>
+    </ItemGroup>
+
+    <!-- Phase 3: Set executable path (depends on PublishDir) -->
+    <ItemGroup>
+      <AotTestItem>
         <ExecutablePath>%(PublishDir)%(ExecutableName)</ExecutablePath>
       </AotTestItem>
     </ItemGroup>
@@ -303,6 +318,11 @@ return true;
 
     <PropertyGroup>
       <_RuntimeHostConfigOptionsString>@(_RuntimeHostConfigOptions)</_RuntimeHostConfigOptionsString>
+      <!-- Generate AOT/Trim properties based on test type -->
+      <!-- AOT tests: PublishAot=true (trimming is implied, don't set PublishTrimmed=false) -->
+      <!-- Trim tests: PublishTrimmed=true with TrimMode -->
+      <_AotPropertiesString Condition="'$(_CurrentIsAot)' == 'true'">&lt;PublishAot&gt;true&lt;/PublishAot&gt;%0a    &lt;TrimMode&gt;$(_CurrentTrimMode)&lt;/TrimMode&gt;</_AotPropertiesString>
+      <_AotPropertiesString Condition="'$(_CurrentIsTrim)' == 'true' and '$(_CurrentIsAot)' != 'true'">&lt;PublishTrimmed&gt;true&lt;/PublishTrimmed&gt;%0a    &lt;TrimMode&gt;$(_CurrentTrimMode)&lt;/TrimMode&gt;</_AotPropertiesString>
     </PropertyGroup>
 
     <!-- Generate project file from template -->
@@ -310,10 +330,8 @@ return true;
                       Lines="$([System.IO.File]::ReadAllText('$(_AotTestProjectTemplate)')
                                                  .Replace('{TargetFramework}', '$(TargetFramework)')
                                                  .Replace('{RuntimeIdentifier}', '$(_CurrentRuntimeIdentifier)')
-                                                 .Replace('{PublishAot}', '$(_CurrentIsAot)')
-                                                 .Replace('{PublishTrimmed}', '$(_CurrentIsTrim)')
-                                                 .Replace('{TrimMode}', '$(_CurrentTrimMode)')
                                                  .Replace('{Configuration}', '$(_CurrentConfiguration)')
+                                                 .Replace('{AotProperties}', '    $(_AotPropertiesString)')
                                                  .Replace('{RuntimeHostConfigurationOptions}', '$(_RuntimeHostConfigOptionsString)')
                                                  .Replace('{ProjectReferences}', '&lt;Reference Include=&quot;$(_TestAssemblyPath)&quot; /&gt;')
                                                  )"
@@ -428,18 +446,20 @@ public class Program
       <_TestId>%(AotTestItem.Identity)</_TestId>
       <_TestMethodName>%(AotTestItem.MethodName)</_TestMethodName>
       <_TestTypeName>%(AotTestItem.TypeName)</_TestTypeName>
-      <_TestTimeout>%(AotTestItem.TimeoutSeconds)</_TestTimeout>
+      <_TestTimeoutRaw>%(AotTestItem.TimeoutSeconds)</_TestTimeoutRaw>
+      <_TestTimeout Condition="'$(_TestTimeoutRaw)' != ''">$(_TestTimeoutRaw)</_TestTimeout>
+      <_TestTimeout Condition="'$(_TestTimeoutRaw)' == ''">300</_TestTimeout>
       <_TestWorkingDir>%(AotTestItem.PublishDir)</_TestWorkingDir>
     </PropertyGroup>
 
     <Message Text="[AOT Testing] Running test: $(_TestTypeName).$(_TestMethodName)"
              Importance="High" />
 
-    <!-- Execute the test -->
+    <!-- Execute the test (timeout in milliseconds = seconds * 1000) -->
     <Exec Command="&quot;$(_TestExecutable)&quot;"
           WorkingDirectory="$(_TestWorkingDir)"
           IgnoreExitCode="true"
-          Timeout="$([System.Int32]::Parse($(_TestTimeout))000)"
+          Timeout="$([MSBuild]::Multiply($(_TestTimeout), 1000))"
           StandardOutputImportance="Normal"
           StandardErrorImportance="Normal"
           Condition="Exists('$(_TestExecutable)')">
