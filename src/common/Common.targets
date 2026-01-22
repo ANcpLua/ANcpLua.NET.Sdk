@@ -128,13 +128,33 @@
   <!-- ═══════════════════════════════════════════════════════════════════════
        ADDITIONAL FILES FOR ANALYZERS
        Expose .props files to analyzers for version management validation
+       AL0017: Directory.Packages.props (hardcoded versions)
+       AL0018: Directory.Build.props (Version.props import check)
+       AL0019: Version.props (undefined variable check)
        ═══════════════════════════════════════════════════════════════════════ -->
   <ItemGroup Condition="'$(DisableVersionAnalyzer)' != 'true'">
+    <!-- Directory.Packages.props - for AL0017, AL0019 -->
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Packages.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Directory.Packages.props')"
                      Visible="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Packages.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Visible="false"/>
+
+    <!-- Directory.Build.props - for AL0018 -->
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Build.props"
+                     Condition="Exists('$(MSBuildProjectDirectory)/Directory.Build.props')"
+                     Visible="false"/>
+    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildProjectDirectory)'))"
+                     Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Build.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Build.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Visible="false"/>
+
+    <!-- Version.props - for AL0019 -->
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)/Version.props"
+                     Condition="Exists('$(MSBuildProjectDirectory)/Version.props')"
+                     Visible="false"/>
+    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Version.props', '$(MSBuildProjectDirectory)'))"
+                     Condition="!Exists('$(MSBuildProjectDirectory)/Version.props') AND '$([MSBuild]::GetPathOfFileAbove(`Version.props`, `$(MSBuildProjectDirectory)`))' != ''"
                      Visible="false"/>
   </ItemGroup>
 
