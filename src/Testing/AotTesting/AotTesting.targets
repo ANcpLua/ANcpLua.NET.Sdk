@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AOT/Trim Testing Orchestration Targets
+  
+  DESIGN:
+  This file provides the orchestration logic for discovering and running AOT (Ahead-of-Time) 
+  and trimming tests within the xUnit v3 MTP test framework. The implementation follows a 
+  staged approach:
+  
+  1. DISCOVERY (_DiscoverAotTests):
+     - Runs before VSTest to signal that AOT/Trim tests will be discovered at runtime
+     - Tests are marked with [AotTest] or [TrimTest] attributes
+     - Discovery leverages xUnit v3 MTP's reflection-based test enumeration
+  
+  2. EXECUTION (_RunAotTests):
+     - Runs after VSTest to execute AOT/Trim specific test scenarios
+     - For each discovered [AotTest]/[TrimTest] method:
+       a) Generate a temporary project from ProjectTemplate.csproj.txt
+       b) Apply Directory.Build.props.txt for AOT/Trim configuration
+       c) Run 'dotnet publish' with PublishTrimmed=true or PublishAot=true
+       d) Execute the published binary
+       e) Validate exit code 100 (reserved for AOT/Trim test success)
+  
+  3. CLEANUP (_CleanAotTests):
+     - Runs after normal Clean target
+     - Removes temporary AOT test projects and artifacts
+     - Ensures no stale builds interfere with subsequent test runs
+  
+  TEMPLATE SUPPORT:
+  - ProjectTemplate.csproj.txt: Template for generating test projects with AOT/Trim metadata
+  - Directory.Build.props.txt: Template with PublishTrimmed and PublishAot configuration
+  
+  FUTURE IMPLEMENTATION:
+  The actual orchestration logic will be implemented in a companion MSBuild task assembly
+  or as an xUnit v3 MTP trait handler that integrates with the test discovery pipeline.
+  This stub establishes the target structure and messaging framework.
+-->
+
+<Project>
+
+  <!-- ================================================================
+       PROPERTY DEFINITIONS
+       ================================================================ -->
+
+  <PropertyGroup>
+    <!-- Directory containing AOT testing infrastructure templates -->
+    <_AotTestTemplateDir>$(MSBuildThisFileDirectory)</_AotTestTemplateDir>
+    
+    <!-- Project template for generating temporary AOT test projects -->
+    <_AotTestProjectTemplate>$(_AotTestTemplateDir)ProjectTemplate.csproj.txt</_AotTestProjectTemplate>
+    
+    <!-- Directory.Build.props template with AOT/Trim configuration -->
+    <_AotTestDirBuildProps>$(_AotTestTemplateDir)Directory.Build.props.txt</_AotTestDirBuildProps>
+    
+    <!-- Directory where temporary AOT test projects will be generated -->
+    <AotTestProjectsDir Condition="'$(AotTestProjectsDir)' == ''">$(IntermediateOutputPath)AotTests</AotTestProjectsDir>
+  </PropertyGroup>
+
+  <!-- ================================================================
+       DISCOVERY TARGET
+       Runs BEFORE VSTest to announce AOT/Trim test discovery
+       ================================================================ -->
+
+  <Target Name="_DiscoverAotTests" 
+          BeforeTargets="VSTest" 
+          Condition="'$(EnableAotTesting)' == 'true'">
+    
+    <Message Text="AOT/Trim testing enabled. Tests will be discovered at runtime." 
+             Importance="High" />
+    
+    <Message Text="Template directory: $(_AotTestTemplateDir)" 
+             Importance="Normal" />
+    
+    <!-- 
+      IMPLEMENTATION NOTES:
+      - Discovery will scan test assembly for [AotTest] and [TrimTest] attributes
+      - xUnit v3 MTP trait system will classify these as separate trait groups
+      - Discovered tests will be executed after normal VSTest run completes
+    -->
+    
+  </Target>
+
+  <!-- ================================================================
+       EXECUTION TARGET
+       Runs AFTER VSTest to execute AOT/Trim specific tests
+       ================================================================ -->
+
+  <Target Name="_RunAotTests" 
+          AfterTargets="VSTest" 
+          Condition="'$(EnableAotTesting)' == 'true'">
+    
+    <Message Text="Running AOT/Trim tests..." 
+             Importance="High" />
+    
+    <!--
+      STUB IMPLEMENTATION PLACEHOLDER
+      
+      The actual orchestration requires the following steps for each discovered 
+      [AotTest] or [TrimTest] method:
+      
+      STEP 1: Template Expansion
+      - Read ProjectTemplate.csproj.txt
+      - Substitute test method metadata (name, assembly, class)
+      - Write to $(AotTestProjectsDir)\{TestName}\{TestName}.csproj
+      
+      STEP 2: Configuration Application
+      - Read Directory.Build.props.txt
+      - Set appropriate flags:
+        * For [AotTest]: PublishAot=true, PublishTrimmed=true
+        * For [TrimTest]: PublishTrimmed=true
+      - Write to $(AotTestProjectsDir)\{TestName}\Directory.Build.props
+      
+      STEP 3: Publish Step
+      - Execute: dotnet publish -c Release -p:Platform=x64
+      - Direct output to intermediate directory
+      - Capture stdout/stderr
+      
+      STEP 4: Test Execution
+      - Execute the published binary
+      - Expect exit code 100 (reserved for AOT/Trim test success)
+      - Exit codes 0-99 and 101+ are considered test failures
+      - Capture and report output
+      
+      STEP 5: Result Aggregation
+      - Collect all test results
+      - Report summary: X passed, Y failed
+      - Fail the build if any AOT/Trim test fails
+      
+      Implementation Strategy:
+      - Use MSBuild Task (C#) for complex orchestration logic
+      - Or use Exec task with PowerShell for cross-platform support
+      - Consider using MSBuild.StructuredLogger for detailed diagnostics
+    -->
+    
+  </Target>
+
+  <!-- ================================================================
+       CLEANUP TARGET
+       Runs AFTER Clean to remove temporary AOT test artifacts
+       ================================================================ -->
+
+  <Target Name="_CleanAotTests" 
+          AfterTargets="Clean" 
+          Condition="'$(EnableAotTesting)' == 'true'">
+    
+    <RemoveDir Directories="$(AotTestProjectsDir)" />
+    
+    <Message Text="Cleaned up AOT/Trim test artifacts from $(AotTestProjectsDir)" 
+             Importance="Normal" />
+    
+  </Target>
+
+</Project>

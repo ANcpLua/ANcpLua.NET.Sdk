@@ -121,4 +121,7 @@
     </PropertyGroup>
   </Target>
 
+  <!-- Import AOT/Trim testing infrastructure -->
+  <Import Project="$(MSBuildThisFileDirectory)AotTesting/AotTesting.props" Condition="Exists('$(MSBuildThisFileDirectory)AotTesting/AotTesting.props')" />
+
 </Project>

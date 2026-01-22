@@ -5,4 +5,7 @@
   <Import Project="$(MSBuildThisFileDirectory)../common/ItemMetadata.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)../common/Deduplication.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)../common/ArtifactStaging.targets"/>
+
+  <!-- AOT/Trim Testing (targets phase) -->
+  <Import Project="$(MSBuildThisFileDirectory)../../Testing/AotTesting/AotTesting.targets" Condition="'$(EnableAotTesting)' == 'true' and Exists('$(MSBuildThisFileDirectory)../../Testing/AotTesting/AotTesting.targets')"/>
 </Project>

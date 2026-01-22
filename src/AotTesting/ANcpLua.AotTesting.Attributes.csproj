@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>ANcpLua.AotTesting.Attributes</PackageId>
+    <Title>ANcpLua AOT Testing Attributes</Title>
+    <Description>AOT and trimming test attributes for ANcpLua.NET.Sdk</Description>
+    <Authors>ancplua</Authors>
+    <PackageProjectUrl>https://github.com/ANcpLua/ANcpLua.NET.Sdk</PackageProjectUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/ANcpLua/ANcpLua.NET.Sdk</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Version>0.0.0-local</Version>
+  </PropertyGroup>
+</Project>
