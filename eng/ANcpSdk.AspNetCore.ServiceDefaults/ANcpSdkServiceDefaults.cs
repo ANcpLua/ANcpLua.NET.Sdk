@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Shared.Diagnostics;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -57,7 +58,7 @@ public static partial class ANcpSdkServiceDefaults
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
-        ArgumentNullException.ThrowIfNull(builder);
+        _ = Throw.IfNull(builder);
 
         return builder.Services.Any(static service => service.ServiceType == typeof(ANcpSdkServiceDefaultsOptions))
             ? builder
@@ -78,7 +79,7 @@ public static partial class ANcpSdkServiceDefaults
         Action<ANcpSdkServiceDefaultsOptions>? configure = null)
         where TBuilder : IHostApplicationBuilder
     {
-        ArgumentNullException.ThrowIfNull(builder);
+        _ = Throw.IfNull(builder);
 
         var options = new ANcpSdkServiceDefaultsOptions();
         configure?.Invoke(options);
@@ -214,7 +215,7 @@ public static partial class ANcpSdkServiceDefaults
     /// </remarks>
     public static void MapANcpSdkDefaultEndpoints(this WebApplication app)
     {
-        ArgumentNullException.ThrowIfNull(app);
+        _ = Throw.IfNull(app);
 
         var options = app.Services.GetRequiredService<ANcpSdkServiceDefaultsOptions>();
         if (options.MapCalled)

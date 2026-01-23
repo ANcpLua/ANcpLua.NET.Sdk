@@ -35,7 +35,7 @@ public abstract class SdkTestBase(PackageFixture fixture)
     /// <summary>
     ///     Gets the package fixture for SDK tests.
     /// </summary>
-    protected PackageFixture Fixture { get; } = fixture;
+    private PackageFixture Fixture { get; } = fixture;
 
     /// <summary>
     ///     Creates a new <see cref="SdkProjectBuilder" /> with default settings.

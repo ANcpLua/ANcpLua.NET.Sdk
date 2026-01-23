@@ -27,6 +27,9 @@
         <Project Path="eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj" />
         <Project Path="eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj" />
     </Folder>
+    <Folder Name="/src/AotTesting/">
+        <Project Path="src/AotTesting/ANcpLua.AotTesting.Attributes.csproj" />
+    </Folder>
 
     <!-- Tests -->
     <Folder Name="/tests/">
