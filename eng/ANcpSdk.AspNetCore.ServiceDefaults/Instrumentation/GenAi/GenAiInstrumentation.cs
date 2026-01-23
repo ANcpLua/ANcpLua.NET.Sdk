@@ -113,8 +113,11 @@ public static class GenAiInstrumentation
             activity.SetTag(SemanticConventions.GenAi.UsageInputTokens, usage.InputTokens);
             activity.SetTag(SemanticConventions.GenAi.UsageOutputTokens, usage.OutputTokens);
         }
-        catch
+        catch (Exception ex)
         {
+            // Record extraction failure as event for debugging
+            activity.AddEvent(new ActivityEvent("gen_ai.usage.extraction_failed",
+                tags: new ActivityTagsCollection { ["exception.message"] = ex.Message }));
         }
     }
 

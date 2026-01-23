@@ -28,6 +28,8 @@ public static class GenAiActivityExtensions
         double? topP = null,
         int? topK = null)
     {
+        ArgumentNullException.ThrowIfNull(activity);
+
         if (model is { Length: > 0 })
             activity.SetTag(SemanticConventions.GenAi.RequestModel, model);
 
@@ -62,6 +64,8 @@ public static class GenAiActivityExtensions
         long? cachedTokens = null,
         long? reasoningTokens = null)
     {
+        ArgumentNullException.ThrowIfNull(activity);
+
         if (inputTokens.HasValue)
             activity.SetTag(SemanticConventions.GenAi.UsageInputTokens, inputTokens.Value);
 
@@ -91,6 +95,8 @@ public static class GenAiActivityExtensions
         string? responseId = null,
         string[]? finishReasons = null)
     {
+        ArgumentNullException.ThrowIfNull(activity);
+
         if (model is { Length: > 0 })
             activity.SetTag(SemanticConventions.GenAi.ResponseModel, model);
 
@@ -117,6 +123,8 @@ public static class GenAiActivityExtensions
         string? agentName = null,
         string? agentDescription = null)
     {
+        ArgumentNullException.ThrowIfNull(activity);
+
         if (agentId is { Length: > 0 })
             activity.SetTag(SemanticConventions.GenAi.AgentId, agentId);
 
@@ -135,17 +143,24 @@ public static class GenAiActivityExtensions
     /// <param name="activity">The activity to set tags on.</param>
     /// <param name="toolName">Tool name.</param>
     /// <param name="toolCallId">Tool call identifier.</param>
+    /// <param name="conversationId">Session/thread identifier for multi-turn conversations.</param>
     /// <returns>The activity for fluent chaining.</returns>
     public static Activity SetGenAiTool(
         this Activity activity,
         string? toolName = null,
-        string? toolCallId = null)
+        string? toolCallId = null,
+        string? conversationId = null)
     {
+        ArgumentNullException.ThrowIfNull(activity);
+
         if (toolName is { Length: > 0 })
             activity.SetTag(SemanticConventions.GenAi.ToolName, toolName);
 
         if (toolCallId is { Length: > 0 })
             activity.SetTag(SemanticConventions.GenAi.ToolCallId, toolCallId);
+
+        if (conversationId is { Length: > 0 })
+            activity.SetTag(SemanticConventions.GenAi.ConversationId, conversationId);
 
         return activity;
     }
