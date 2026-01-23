@@ -90,7 +90,8 @@ public static class GenAiInstrumentation
 
     private static void SetRequestTags(Activity activity, string provider, string operation, string? model)
     {
-        activity.SetTag(SemanticConventions.GenAi.System, provider);
+        // OTel 1.37+: gen_ai.system → gen_ai.provider.name
+        activity.SetTag(SemanticConventions.GenAi.ProviderName, provider);
         activity.SetTag(SemanticConventions.GenAi.OperationName, operation);
 
         if (model is { Length: > 0 })
@@ -108,11 +109,15 @@ public static class GenAiInstrumentation
         try
         {
             var usage = extractUsage(response);
-            activity.SetTag(SemanticConventions.GenAi.InputTokens, usage.InputTokens);
-            activity.SetTag(SemanticConventions.GenAi.OutputTokens, usage.OutputTokens);
+            // OTel 1.37+: Explicit Usage prefix
+            activity.SetTag(SemanticConventions.GenAi.UsageInputTokens, usage.InputTokens);
+            activity.SetTag(SemanticConventions.GenAi.UsageOutputTokens, usage.OutputTokens);
         }
-        catch
+        catch (Exception ex)
         {
+            // Record extraction failure as event for debugging
+            activity.AddEvent(new ActivityEvent("gen_ai.usage.extraction_failed",
+                tags: new ActivityTagsCollection { ["exception.message"] = ex.Message }));
         }
     }
 
