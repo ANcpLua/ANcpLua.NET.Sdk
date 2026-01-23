@@ -6,7 +6,7 @@ Custom MSBuild SDK providing opinionated defaults, polyfills, and analyzers for 
 
 | Package | Version |
 |---------|---------|
-| ANcpLua.NET.Sdk | 1.6.26 |
+| ANcpLua.NET.Sdk | 1.6.28 |
 | ANcpLua.Roslyn.Utilities | 1.18.3 |
 | ANcpLua.Roslyn.Utilities.Sources | 1.18.3 |
 | ANcpLua.Roslyn.Utilities.Testing | 1.18.3 |
