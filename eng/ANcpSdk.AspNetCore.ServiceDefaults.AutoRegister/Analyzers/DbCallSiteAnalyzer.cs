@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -43,17 +42,17 @@ internal static class DbCallSiteAnalyzer
         GeneratorSyntaxContext context,
         CancellationToken cancellationToken)
     {
-        if (IsGeneratedFile(context.Node.SyntaxTree.FilePath))
+        if (AnalyzerHelpers.IsGeneratedFile(context.Node.SyntaxTree.FilePath))
             return null;
 
-        if (!TryGetInvocationOperation(context, cancellationToken, out var invocation))
+        if (!AnalyzerHelpers.TryGetInvocationOperation(context, cancellationToken, out var invocation))
             return null;
 
         if (!TryMatchDbCommandMethod(invocation, context.SemanticModel.Compilation, out var method, out var isAsync, out var concreteType))
             return null;
 
         // Skip if already intercepted by another generator
-        if (IsAlreadyIntercepted(context, cancellationToken))
+        if (AnalyzerHelpers.IsAlreadyIntercepted(context, cancellationToken))
             return null;
 
         var interceptLocation = context.SemanticModel.GetInterceptableLocation(
@@ -64,31 +63,11 @@ internal static class DbCallSiteAnalyzer
             return null;
 
         return new DbInvocationInfo(
-            FormatOrderKey(context.Node),
+            AnalyzerHelpers.FormatOrderKey(context.Node),
             method,
             isAsync,
             concreteType,
             interceptLocation);
-    }
-
-    private static bool IsGeneratedFile(string filePath) =>
-        filePath.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) ||
-        filePath.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase);
-
-    private static bool TryGetInvocationOperation(
-        GeneratorSyntaxContext context,
-        CancellationToken cancellationToken,
-        [NotNullWhen(true)] out IInvocationOperation? invocation)
-    {
-        if (context.SemanticModel.GetOperation(context.Node, cancellationToken)
-            is IInvocationOperation op)
-        {
-            invocation = op;
-            return true;
-        }
-
-        invocation = null;
-        return false;
     }
 
     private static bool TryMatchDbCommandMethod(
@@ -142,25 +121,5 @@ internal static class DbCallSiteAnalyzer
         }
 
         return false;
-    }
-
-    /// <summary>
-    ///     Checks if a call is already being intercepted by another source generator.
-    /// </summary>
-    /// <seealso href="https://github.com/dotnet/roslyn/issues/72093" />
-    private static bool IsAlreadyIntercepted(GeneratorSyntaxContext context, CancellationToken cancellationToken)
-    {
-        if (context.Node is not InvocationExpressionSyntax invocationSyntax)
-            return false;
-
-        var interceptor = context.SemanticModel.GetInterceptorMethod(invocationSyntax, cancellationToken);
-        return interceptor is not null;
-    }
-
-    private static string FormatOrderKey(SyntaxNode node)
-    {
-        var span = node.GetLocation().GetLineSpan();
-        var start = span.StartLinePosition;
-        return $"{node.SyntaxTree.FilePath}:{start.Line}:{start.Character}";
     }
 }

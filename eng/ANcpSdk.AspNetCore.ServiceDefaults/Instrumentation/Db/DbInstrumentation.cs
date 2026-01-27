@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using System.Data.Common;
 using System.Diagnostics;
-using ANcpSdk.AspNetCore.ServiceDefaults.Shared;
+using ANcpSdk.Instrumentation;
 
 namespace ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.Db;
 
@@ -144,14 +144,14 @@ public static class DbInstrumentation
 
         var dbSystem = GetDbSystem(command.Connection);
 
-        activity.SetTag(SemanticConventions.Db.SystemName, dbSystem);
-        activity.SetTag(SemanticConventions.Db.OperationName, operationName);
+        activity.SetTag(DbSystemAttributes.Name, dbSystem);
+        activity.SetTag(DbOperationAttributes.Name, operationName);
 
         if (command.CommandText is { Length: > 0 } sql)
-            activity.SetTag(SemanticConventions.Db.QueryText, sql);
+            activity.SetTag(DbQueryAttributes.Text, sql);
 
         if (command.Connection?.Database is { Length: > 0 } dbName)
-            activity.SetTag(SemanticConventions.Db.Namespace, dbName);
+            activity.SetTag(DbNamespaceAttributes.Namespace, dbName);
 
         return activity;
     }
@@ -174,12 +174,28 @@ public static class DbInstrumentation
             return "unknown";
 
         return _sDbSystemCache.GetOrAdd(connection.GetType(), static type =>
-            DbSystemMappings.MapTypeNameToDbSystem(type.FullName ?? type.Name));
+            MapTypeNameToDbSystem(type.FullName ?? type.Name));
     }
 
     /// <summary>
     ///     Gets the database system name for a type name. Exposed for testing.
     /// </summary>
     internal static string GetDbSystemForTesting(string typeName) =>
-        DbSystemMappings.MapTypeNameToDbSystem(typeName);
+        MapTypeNameToDbSystem(typeName);
+
+    /// <summary>
+    ///     Maps a type name to the OTel db.system.name semantic convention value.
+    /// </summary>
+    private static string MapTypeNameToDbSystem(string typeName) =>
+        typeName switch
+        {
+            _ when typeName.Contains("DuckDB", StringComparison.OrdinalIgnoreCase) => "duckdb",
+            _ when typeName.Contains("Npgsql", StringComparison.OrdinalIgnoreCase) => "postgresql",
+            _ when typeName.Contains("SqlClient", StringComparison.OrdinalIgnoreCase) => "mssql",
+            _ when typeName.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) => "sqlite",
+            _ when typeName.Contains("Oracle", StringComparison.OrdinalIgnoreCase) => "oracle",
+            _ when typeName.Contains("MySql", StringComparison.OrdinalIgnoreCase) => "mysql",
+            _ when typeName.Contains("Firebird", StringComparison.OrdinalIgnoreCase) => "firebird",
+            _ => "unknown"
+        };
 }

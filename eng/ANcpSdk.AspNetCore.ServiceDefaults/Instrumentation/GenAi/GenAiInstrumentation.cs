@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using ANcpSdk.Instrumentation;
 
 namespace ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.GenAi;
 
@@ -91,11 +92,11 @@ public static class GenAiInstrumentation
     private static void SetRequestTags(Activity activity, string provider, string operation, string? model)
     {
         // OTel 1.37+: gen_ai.system → gen_ai.provider.name
-        activity.SetTag(SemanticConventions.GenAi.ProviderName, provider);
-        activity.SetTag(SemanticConventions.GenAi.OperationName, operation);
+        activity.SetTag(GenAiProviderAttributes.Name, provider);
+        activity.SetTag(GenAiOperationAttributes.Name, operation);
 
         if (model is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.RequestModel, model);
+            activity.SetTag(GenAiRequestAttributes.Model, model);
     }
 
     private static void SetResponseTags<TResponse>(
@@ -110,8 +111,8 @@ public static class GenAiInstrumentation
         {
             var usage = extractUsage(response);
             // OTel 1.37+: Explicit Usage prefix
-            activity.SetTag(SemanticConventions.GenAi.UsageInputTokens, usage.InputTokens);
-            activity.SetTag(SemanticConventions.GenAi.UsageOutputTokens, usage.OutputTokens);
+            activity.SetTag(GenAiUsageAttributes.InputTokens, usage.InputTokens);
+            activity.SetTag(GenAiUsageAttributes.OutputTokens, usage.OutputTokens);
         }
         catch (Exception ex)
         {

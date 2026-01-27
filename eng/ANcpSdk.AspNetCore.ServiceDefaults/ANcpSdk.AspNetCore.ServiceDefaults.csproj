@@ -44,7 +44,6 @@
   <!-- Shared source files -->
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)../Shared/Throw/Throw.cs" Link="Shared/Throw.cs"/>
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/DbSystemMappings.cs" Link="Shared/DbSystemMappings.cs"/>
   </ItemGroup>
 
 </Project>

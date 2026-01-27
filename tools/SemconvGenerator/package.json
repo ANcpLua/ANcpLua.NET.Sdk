@@ -1,0 +1,30 @@
+{
+  "name": "@ancplua/semconv-generator",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Generate OTel Semantic Conventions for TypeScript, C#, and DuckDB",
+  "scripts": {
+    "generate": "tsx generate-semconv.ts",
+    "generate:ts": "tsx generate-semconv.ts --ts-only",
+    "generate:cs": "tsx generate-semconv.ts --cs-only",
+    "generate:utf8": "tsx generate-semconv.ts --utf8-only",
+    "generate:sql": "tsx generate-semconv.ts --sql-only",
+    "generate:package": "tsx generate-semconv.ts --package",
+    "generate:all": "npm run generate && npm run generate:package",
+    "build:package": "npm run generate:package && cd output/OTelConventions && dotnet build -c Release",
+    "pack:package": "npm run generate:package && cd output/OTelConventions && dotnet pack -c Release",
+    "deploy:dashboard": "cp output/semconv.ts ../../../qyl/src/qyl.dashboard/src/lib/semconv.ts",
+    "deploy:sdk": "cp output/SemanticConventions.g.cs ../../eng/ANcpSdk.AspNetCore.ServiceDefaults/Instrumentation/SemanticConventions.g.cs",
+    "deploy:all": "npm run deploy:dashboard && npm run deploy:sdk",
+    "validate:dashboard": "diff -q output/semconv.ts ../../../qyl/src/qyl.dashboard/src/lib/semconv.ts",
+    "validate:sdk": "diff -q output/SemanticConventions.g.cs ../../eng/ANcpSdk.AspNetCore.ServiceDefaults/Instrumentation/SemanticConventions.g.cs",
+    "validate:all": "npm run validate:dashboard && npm run validate:sdk",
+    "ci": "npm run generate:all && npm run validate:all"
+  },
+  "devDependencies": {
+    "@opentelemetry/semantic-conventions": "1.39.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.0"
+  }
+}

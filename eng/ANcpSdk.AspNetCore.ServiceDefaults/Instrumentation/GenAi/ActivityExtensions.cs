@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using ANcpSdk.Instrumentation;
+using Microsoft.Shared.Diagnostics;
 
 namespace ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.GenAi;
 
@@ -10,16 +12,13 @@ namespace ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.GenAi;
 /// </remarks>
 public static class GenAiActivityExtensions
 {
+    // Not yet in OTel semconv v1.39.0
+    private const string UsageInputTokensCached = "gen_ai.usage.input_tokens.cached";
+    private const string UsageOutputTokensReasoning = "gen_ai.usage.output_tokens.reasoning";
+
     /// <summary>
     ///     Sets GenAI request attributes on the activity.
     /// </summary>
-    /// <param name="activity">The activity to set tags on.</param>
-    /// <param name="model">The model requested (e.g., "gpt-4o", "claude-3-opus").</param>
-    /// <param name="temperature">Temperature setting (0.0-2.0).</param>
-    /// <param name="maxTokens">Maximum tokens to generate.</param>
-    /// <param name="topP">Nucleus sampling threshold.</param>
-    /// <param name="topK">Top-k sampling parameter.</param>
-    /// <returns>The activity for fluent chaining.</returns>
     public static Activity SetGenAiRequest(
         this Activity activity,
         string? model = null,
@@ -28,22 +27,22 @@ public static class GenAiActivityExtensions
         double? topP = null,
         int? topK = null)
     {
-        ArgumentNullException.ThrowIfNull(activity);
+        Throw.IfNull(activity);
 
         if (model is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.RequestModel, model);
+            activity.SetTag(GenAiRequestAttributes.Model, model);
 
         if (temperature.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.RequestTemperature, temperature.Value);
+            activity.SetTag(GenAiRequestAttributes.Temperature, temperature.Value);
 
         if (maxTokens.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.RequestMaxTokens, maxTokens.Value);
+            activity.SetTag(GenAiRequestAttributes.MaxTokens, maxTokens.Value);
 
         if (topP.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.RequestTopP, topP.Value);
+            activity.SetTag(GenAiRequestAttributes.TopP, topP.Value);
 
         if (topK.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.RequestTopK, topK.Value);
+            activity.SetTag(GenAiRequestAttributes.TopK, topK.Value);
 
         return activity;
     }
@@ -51,12 +50,6 @@ public static class GenAiActivityExtensions
     /// <summary>
     ///     Sets GenAI token usage attributes on the activity.
     /// </summary>
-    /// <param name="activity">The activity to set tags on.</param>
-    /// <param name="inputTokens">Number of input/prompt tokens.</param>
-    /// <param name="outputTokens">Number of output/completion tokens.</param>
-    /// <param name="cachedTokens">Number of cached input tokens (Anthropic).</param>
-    /// <param name="reasoningTokens">Number of reasoning tokens (o1-style models).</param>
-    /// <returns>The activity for fluent chaining.</returns>
     public static Activity SetGenAiUsage(
         this Activity activity,
         long? inputTokens = null,
@@ -64,19 +57,19 @@ public static class GenAiActivityExtensions
         long? cachedTokens = null,
         long? reasoningTokens = null)
     {
-        ArgumentNullException.ThrowIfNull(activity);
+        Throw.IfNull(activity);
 
         if (inputTokens.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.UsageInputTokens, inputTokens.Value);
+            activity.SetTag(GenAiUsageAttributes.InputTokens, inputTokens.Value);
 
         if (outputTokens.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.UsageOutputTokens, outputTokens.Value);
+            activity.SetTag(GenAiUsageAttributes.OutputTokens, outputTokens.Value);
 
         if (cachedTokens.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.UsageInputTokensCached, cachedTokens.Value);
+            activity.SetTag(UsageInputTokensCached, cachedTokens.Value);
 
         if (reasoningTokens.HasValue)
-            activity.SetTag(SemanticConventions.GenAi.UsageOutputTokensReasoning, reasoningTokens.Value);
+            activity.SetTag(UsageOutputTokensReasoning, reasoningTokens.Value);
 
         return activity;
     }
@@ -84,27 +77,22 @@ public static class GenAiActivityExtensions
     /// <summary>
     ///     Sets GenAI response attributes on the activity.
     /// </summary>
-    /// <param name="activity">The activity to set tags on.</param>
-    /// <param name="model">The model that generated the response.</param>
-    /// <param name="responseId">Unique completion identifier.</param>
-    /// <param name="finishReasons">Reasons the model stopped generating.</param>
-    /// <returns>The activity for fluent chaining.</returns>
     public static Activity SetGenAiResponse(
         this Activity activity,
         string? model = null,
         string? responseId = null,
         string[]? finishReasons = null)
     {
-        ArgumentNullException.ThrowIfNull(activity);
+        Throw.IfNull(activity);
 
         if (model is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.ResponseModel, model);
+            activity.SetTag(GenAiResponseAttributes.Model, model);
 
         if (responseId is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.ResponseId, responseId);
+            activity.SetTag(GenAiResponseAttributes.Id, responseId);
 
         if (finishReasons is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.ResponseFinishReasons, finishReasons);
+            activity.SetTag(GenAiResponseAttributes.FinishReasons, finishReasons);
 
         return activity;
     }
@@ -112,27 +100,22 @@ public static class GenAiActivityExtensions
     /// <summary>
     ///     Sets GenAI agent attributes on the activity (OTel 1.38+).
     /// </summary>
-    /// <param name="activity">The activity to set tags on.</param>
-    /// <param name="agentId">Unique agent identifier.</param>
-    /// <param name="agentName">Human-readable agent name.</param>
-    /// <param name="agentDescription">Agent description.</param>
-    /// <returns>The activity for fluent chaining.</returns>
     public static Activity SetGenAiAgent(
         this Activity activity,
         string? agentId = null,
         string? agentName = null,
         string? agentDescription = null)
     {
-        ArgumentNullException.ThrowIfNull(activity);
+        Throw.IfNull(activity);
 
         if (agentId is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.AgentId, agentId);
+            activity.SetTag(GenAiAgentAttributes.Id, agentId);
 
         if (agentName is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.AgentName, agentName);
+            activity.SetTag(GenAiAgentAttributes.Name, agentName);
 
         if (agentDescription is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.AgentDescription, agentDescription);
+            activity.SetTag(GenAiAgentAttributes.Description, agentDescription);
 
         return activity;
     }
@@ -140,27 +123,22 @@ public static class GenAiActivityExtensions
     /// <summary>
     ///     Sets GenAI tool attributes on the activity (OTel 1.39).
     /// </summary>
-    /// <param name="activity">The activity to set tags on.</param>
-    /// <param name="toolName">Tool name.</param>
-    /// <param name="toolCallId">Tool call identifier.</param>
-    /// <param name="conversationId">Session/thread identifier for multi-turn conversations.</param>
-    /// <returns>The activity for fluent chaining.</returns>
     public static Activity SetGenAiTool(
         this Activity activity,
         string? toolName = null,
         string? toolCallId = null,
         string? conversationId = null)
     {
-        ArgumentNullException.ThrowIfNull(activity);
+        Throw.IfNull(activity);
 
         if (toolName is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.ToolName, toolName);
+            activity.SetTag(GenAiToolAttributes.Name, toolName);
 
         if (toolCallId is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.ToolCallId, toolCallId);
+            activity.SetTag(GenAiToolAttributes.CallId, toolCallId);
 
         if (conversationId is { Length: > 0 })
-            activity.SetTag(SemanticConventions.GenAi.ConversationId, conversationId);
+            activity.SetTag(GenAiConversationAttributes.Id, conversationId);
 
         return activity;
     }

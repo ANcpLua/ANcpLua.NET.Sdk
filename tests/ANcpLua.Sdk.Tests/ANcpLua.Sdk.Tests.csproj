@@ -41,4 +41,8 @@
     <Reference Include="Microsoft.Extensions.Logging.Abstractions"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\eng\ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister\ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"/>
+  </ItemGroup>
+
 </Project>

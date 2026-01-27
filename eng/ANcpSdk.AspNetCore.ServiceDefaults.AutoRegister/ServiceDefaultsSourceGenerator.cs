@@ -76,6 +76,20 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(
             otelTags.Combine(hasServiceDefaults),
             EmitOTelTagExtensions);
+
+        // Meter instrumentation pipeline
+        var meterClasses = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                MeterAnalyzer.IsPotentialMeterClass,
+                MeterAnalyzer.TransformToMeterClassInfo)
+            .SelectMany(AsSingletonOrEmpty)
+            .WithTrackingName(TrackingNames.MeterClasses)
+            .Collect()
+            .WithTrackingName(TrackingNames.CollectedMeterClasses);
+
+        context.RegisterSourceOutput(
+            meterClasses.Combine(hasServiceDefaults),
+            EmitMeterImplementations);
     }
 
     private static bool HasServiceDefaultsType(Compilation compilation, CancellationToken _) => compilation.GetTypeByMetadataName(MetadataNames.ServiceDefaultsClass) is not null;
@@ -214,6 +228,18 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
             context.AddSource(OutputFileNames.OTelTagExtensions, SourceText.From(sourceCode, Encoding.UTF8));
     }
 
+    private static void EmitMeterImplementations(
+        SourceProductionContext context,
+        (ImmutableArray<MeterClassInfo> Meters, bool HasServiceDefaults) source)
+    {
+        if (!source.HasServiceDefaults || source.Meters.IsEmpty)
+            return;
+
+        var sourceCode = MeterEmitter.Emit(source.Meters);
+        if (!string.IsNullOrEmpty(sourceCode))
+            context.AddSource(OutputFileNames.MeterImplementations, SourceText.From(sourceCode, Encoding.UTF8));
+    }
+
     private static string BuildInterceptorsSource(ImmutableArray<InterceptionData> candidates)
     {
         var sb = new StringBuilder();
@@ -317,6 +343,8 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         public const string CollectedDbCalls = nameof(CollectedDbCalls);
         public const string OTelTags = nameof(OTelTags);
         public const string CollectedOTelTags = nameof(CollectedOTelTags);
+        public const string MeterClasses = nameof(MeterClasses);
+        public const string CollectedMeterClasses = nameof(CollectedMeterClasses);
     }
 
     /// <summary>Output file names for generated source.</summary>
@@ -326,6 +354,7 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         public const string GenAiInterceptors = "GenAiIntercepts.g.cs";
         public const string DbInterceptors = "DbIntercepts.g.cs";
         public const string OTelTagExtensions = "OTelTagExtensions.g.cs";
+        public const string MeterImplementations = "MeterImplementations.g.cs";
     }
 
     /// <summary>Source code templates for generated output.</summary>

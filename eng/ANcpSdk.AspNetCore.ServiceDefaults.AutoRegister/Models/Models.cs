@@ -121,3 +121,47 @@ internal sealed record OTelTagInfo(
     bool IsNullable);
 
 #endregion
+
+#region Meter Types
+
+/// <summary>
+///     Information about a class decorated with [Meter] attribute.
+/// </summary>
+internal sealed record MeterClassInfo(
+    string OrderKey,
+    string Namespace,
+    string ClassName,
+    string MeterName,
+    string? MeterVersion,
+    IReadOnlyList<MetricMethodInfo> Methods);
+
+/// <summary>
+///     The kind of metric instrument.
+/// </summary>
+internal enum MetricKind
+{
+    Counter,
+    Histogram
+}
+
+/// <summary>
+///     Information about a metric method.
+/// </summary>
+internal sealed record MetricMethodInfo(
+    string MethodName,
+    MetricKind Kind,
+    string MetricName,
+    string? Unit,
+    string? Description,
+    string? ValueTypeName,
+    IReadOnlyList<MetricTagInfo> Tags);
+
+/// <summary>
+///     Information about a metric tag parameter.
+/// </summary>
+internal sealed record MetricTagInfo(
+    string ParameterName,
+    string TagName,
+    string TypeName);
+
+#endregion

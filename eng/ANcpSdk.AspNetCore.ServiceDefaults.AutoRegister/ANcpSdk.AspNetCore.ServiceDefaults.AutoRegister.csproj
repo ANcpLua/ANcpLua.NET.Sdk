@@ -24,9 +24,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-  <!-- Shared source files -->
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)../Shared/DbSystemMappings.cs" Link="Shared/DbSystemMappings.cs"/>
+    <InternalsVisibleTo Include="ANcpLua.Sdk.Tests"/>
   </ItemGroup>
 
   <!-- Polyfills for netstandard2.0 -->

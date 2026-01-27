@@ -676,7 +676,6 @@ public enum GuardMode
 public partial class GenerationGuard(GuardMode mode)
 {
     public const GuardMode DefaultMode = GuardMode.SkipExisting;
-    private readonly GuardMode _mode = mode;
 
     [GeneratedRegex(@"^(//|--)\s+Generated:\s+\d{4}-\d{2}-\d{2}T.*$", RegexOptions.Multiline)]
     private static partial Regex GeneratedTimestampRegex();
@@ -693,14 +692,14 @@ public partial class GenerationGuard(GuardMode mode)
                 return;
             }
 
-            if (_mode == GuardMode.SkipExisting)
+            if (mode == GuardMode.SkipExisting)
             {
                 Console.WriteLine($"Skipping existing: {path}");
                 return;
             }
         }
 
-        if (_mode == GuardMode.DryRun)
+        if (mode == GuardMode.DryRun)
         {
             Console.WriteLine($"Dry run: Would write to {path}");
             return;

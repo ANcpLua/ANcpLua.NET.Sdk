@@ -63,17 +63,17 @@ internal static class GenAiCallSiteAnalyzer
         GeneratorSyntaxContext context,
         CancellationToken cancellationToken)
     {
-        if (IsGeneratedFile(context.Node.SyntaxTree.FilePath))
+        if (AnalyzerHelpers.IsGeneratedFile(context.Node.SyntaxTree.FilePath))
             return null;
 
-        if (!TryGetInvocationOperation(context, cancellationToken, out var invocation))
+        if (!AnalyzerHelpers.TryGetInvocationOperation(context, cancellationToken, out var invocation))
             return null;
 
         if (!TryMatchGenAiMethod(invocation, out var provider, out var operation, out var isAsync))
             return null;
 
         // Skip if already intercepted by another generator
-        if (IsAlreadyIntercepted(context, cancellationToken))
+        if (AnalyzerHelpers.IsAlreadyIntercepted(context, cancellationToken))
             return null;
 
         var interceptLocation = context.SemanticModel.GetInterceptableLocation(
@@ -87,7 +87,7 @@ internal static class GenAiCallSiteAnalyzer
         var model = TryExtractModelName(invocation);
 
         return new GenAiInvocationInfo(
-            FormatOrderKey(context.Node),
+            AnalyzerHelpers.FormatOrderKey(context.Node),
             provider,
             operation,
             model,
@@ -97,26 +97,6 @@ internal static class GenAiCallSiteAnalyzer
             method.ReturnType.ToDisplayString(),
             method.Parameters.Select(static p => p.Type.ToDisplayString()).ToList(),
             interceptLocation);
-    }
-
-    private static bool IsGeneratedFile(string filePath) =>
-        filePath.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase) ||
-        filePath.EndsWith(".generated.cs", StringComparison.OrdinalIgnoreCase);
-
-    private static bool TryGetInvocationOperation(
-        GeneratorSyntaxContext context,
-        CancellationToken cancellationToken,
-        [NotNullWhen(true)] out IInvocationOperation? invocation)
-    {
-        if (context.SemanticModel.GetOperation(context.Node, cancellationToken)
-            is IInvocationOperation op)
-        {
-            invocation = op;
-            return true;
-        }
-
-        invocation = null;
-        return false;
     }
 
     private static bool TryMatchGenAiMethod(
@@ -171,25 +151,5 @@ internal static class GenAiCallSiteAnalyzer
         }
 
         return null;
-    }
-
-    /// <summary>
-    ///     Checks if a call is already being intercepted by another source generator.
-    /// </summary>
-    /// <seealso href="https://github.com/dotnet/roslyn/issues/72093" />
-    private static bool IsAlreadyIntercepted(GeneratorSyntaxContext context, CancellationToken cancellationToken)
-    {
-        if (context.Node is not InvocationExpressionSyntax invocationSyntax)
-            return false;
-
-        var interceptor = context.SemanticModel.GetInterceptorMethod(invocationSyntax, cancellationToken);
-        return interceptor is not null;
-    }
-
-    private static string FormatOrderKey(SyntaxNode node)
-    {
-        var span = node.GetLocation().GetLineSpan();
-        var start = span.StartLinePosition;
-        return $"{node.SyntaxTree.FilePath}:{start.Line}:{start.Character}";
     }
 }

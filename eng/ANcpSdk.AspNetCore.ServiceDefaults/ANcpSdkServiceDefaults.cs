@@ -199,8 +199,10 @@ public static partial class ANcpSdkServiceDefaults
     private static TBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder)
         where TBuilder : IHostApplicationBuilder
     {
+        // Aspire standard: separate liveness and readiness checks
         builder.Services.AddHealthChecks()
-            .AddCheck("self", static () => HealthCheckResult.Healthy(), ["live"]);
+            .AddCheck("self", static () => HealthCheckResult.Healthy(), ["live"])
+            .AddCheck("ready", static () => HealthCheckResult.Healthy(), ["ready"]);
 
         return builder;
     }
@@ -245,7 +247,13 @@ public static partial class ANcpSdkServiceDefaults
 
         if (options.AntiForgery.Enabled) app.UseAntiforgery();
 
-        app.MapHealthChecks("/health");
+        // Aspire standard health endpoints:
+        // /health = Readiness (is service ready for traffic?)
+        // /alive  = Liveness (is process running?)
+        app.MapHealthChecks("/health", new HealthCheckOptions
+        {
+            Predicate = static r => r.Tags.Contains("ready")
+        });
         app.MapHealthChecks("/alive", new HealthCheckOptions
         {
             Predicate = static r => r.Tags.Contains("live")

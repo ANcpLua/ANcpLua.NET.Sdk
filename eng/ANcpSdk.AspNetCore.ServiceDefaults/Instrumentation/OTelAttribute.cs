@@ -11,8 +11,8 @@ namespace ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation;
 ///         Example usage:
 ///         <code>
 /// public record ChatRequest(
-///     [OTel(SemanticConventions.GenAi.RequestModel)] string Model,
-///     [OTel(SemanticConventions.GenAi.RequestMaxTokens)] int? MaxTokens);
+///     [OTel(GenAiRequestAttributes.Model)] string Model,
+///     [OTel(GenAiRequestAttributes.MaxTokens)] int? MaxTokens);
 /// </code>
 ///     </para>
 /// </remarks>

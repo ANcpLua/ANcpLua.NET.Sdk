@@ -218,3 +218,10 @@ dotnet build eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetC
 # Pack ServiceDefaults packages (required by SDK.Web)
 dotnet pack eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj -c Release -o artifacts --no-build "-p:Version=$Version"
 dotnet pack eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj -c Release -o artifacts --no-build "-p:Version=$Version"
+
+# =============================================================================
+# OTelConventions Package (generated from @opentelemetry/semantic-conventions)
+# =============================================================================
+$OTelConventionsVersion = "1.39.0"  # Matches @opentelemetry/semantic-conventions
+Write-Host "Building OTelConventions $OTelConventionsVersion" -ForegroundColor Cyan
+dotnet pack tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj -c Release -o artifacts "-p:Version=$OTelConventionsVersion"
