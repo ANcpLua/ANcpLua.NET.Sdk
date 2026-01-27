@@ -224,4 +224,5 @@ dotnet pack eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCo
 # =============================================================================
 $OTelConventionsVersion = "1.39.0"  # Matches @opentelemetry/semantic-conventions
 Write-Host "Building OTelConventions $OTelConventionsVersion" -ForegroundColor Cyan
-dotnet pack tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj -c Release -o artifacts "-p:Version=$OTelConventionsVersion"
+dotnet build tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj -c Release
+dotnet pack tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj -c Release -o artifacts --no-build "-p:Version=$OTelConventionsVersion"
