@@ -123,7 +123,7 @@
   <Import Project="$(MSBuildThisFileDirectory)/Tests.targets" Condition="'$(IsTestProject)' == 'true'"/>
   <Import Project="$(MSBuildThisFileDirectory)/Npm.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.targets"/>
-  <Import Project="$(MSBuildThisFileDirectory)/../Build/Enforcement/VersionEnforcement.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)/../Enforcement/VersionEnforcement.targets"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        ADDITIONAL FILES FOR ANALYZERS
