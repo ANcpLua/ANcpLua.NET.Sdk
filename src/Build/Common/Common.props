@@ -115,11 +115,11 @@
 
   <ItemGroup>
     <!-- Shared injected test bases are packaged, not compiled -->
-    <Compile Remove="$(MSBuildThisFileDirectory)..\Shared\*.cs"/>
-    <None Include="$(MSBuildThisFileDirectory)..\Shared\*.cs" Pack="false"/>
+    <Compile Remove="$(MSBuildThisFileDirectory)../../Testing/Fixtures/*.cs"/>
+    <None Include="$(MSBuildThisFileDirectory)../../Testing/Fixtures/*.cs" Pack="false"/>
 
     <!-- Add all editorconfig files -->
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../Config/*.editorconfig"/>
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../../Config/*.editorconfig"/>
   </ItemGroup>
 
 </Project>

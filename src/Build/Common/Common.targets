@@ -239,8 +239,8 @@
   <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../Config/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../Config/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
@@ -286,12 +286,12 @@
 
   <!-- NuGet Package -->
   <Choose>
-    <When Condition="'$(PackageIcon)' == '' AND '$(_IsANcpLuaProject)' == 'true' AND Exists('$(MSBuildThisFileDirectory)../icon.png')">
+    <When Condition="'$(PackageIcon)' == '' AND '$(_IsANcpLuaProject)' == 'true' AND Exists('$(MSBuildThisFileDirectory)../../icon.png')">
       <PropertyGroup>
         <PackageIcon>icon.png</PackageIcon>
       </PropertyGroup>
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)../icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="$(MSBuildThisFileDirectory)../../icon.png" Pack="true" PackagePath="" Visible="false"/>
       </ItemGroup>
     </When>
   </Choose>

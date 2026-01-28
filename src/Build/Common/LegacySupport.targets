@@ -70,7 +70,7 @@
     <_NeedsNet9Polyfills Condition="$([MSBuild]::VersionLessThan('$(_TfmVersion)', '9.0'))">true</_NeedsNet9Polyfills>
 
     <!-- Shared folder path -->
-    <_SharedSourcePath>$(MSBuildThisFileDirectory)../shared/</_SharedSourcePath>
+    <_SharedSourcePath>$(MSBuildThisFileDirectory)../../shared/</_SharedSourcePath>
   </PropertyGroup>
 
   <Target Name="DebugLegacySupport" BeforeTargets="CoreCompile" Condition="'$(ANcpLuaDebugLegacySupport)' == 'true'">
