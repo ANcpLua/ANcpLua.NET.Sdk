@@ -28,9 +28,9 @@
     <GenerateClaudeMd Condition="'$(GenerateClaudeMd)' == ''">true</GenerateClaudeMd>
   </PropertyGroup>
 
-  <!-- Enable interceptors for ASP.NET Core projects (OpenAPI generator + ServiceDefaults) -->
+  <!-- Enable interceptors for ASP.NET Core projects (OpenAPI generator) -->
   <PropertyGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">
-    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated;ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister</InterceptorsNamespaces>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
   </PropertyGroup>
 
   <PropertyGroup>

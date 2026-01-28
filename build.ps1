@@ -132,7 +132,7 @@ $VersionPropsContent = @"
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        MICROSOFT.EXTENSIONS (ASP.NET Core / Hosting)
-       Used by: SDK (ServiceDefaults), Web projects
+       Used by: Web projects
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Microsoft.Extensions">
     <MicrosoftExtensionsVersion>10.2.0</MicrosoftExtensionsVersion>
@@ -142,7 +142,7 @@ $VersionPropsContent = @"
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        OPENTELEMETRY
-       Used by: SDK (ServiceDefaults)
+       Used by: Web projects (qyl ServiceDefaults)
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="OpenTelemetry">
     <OpenTelemetryVersion>1.15.0</OpenTelemetryVersion>
@@ -210,19 +210,3 @@ Write-Host "Cleaned old .nupkg files"
 dotnet pack src/ANcpLua.NET.Sdk.csproj -c Release -o artifacts "-p:Version=$Version"
 dotnet pack src/ANcpLua.NET.Sdk.Web.csproj -c Release -o artifacts "-p:Version=$Version"
 dotnet pack src/ANcpLua.NET.Sdk.Test.csproj -c Release -o artifacts "-p:Version=$Version"
-
-# Build ServiceDefaults first (AutoRegister has IncludeBuildOutput=false and manually includes built DLL)
-dotnet build eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj -c Release
-dotnet build eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj -c Release
-
-# Pack ServiceDefaults packages (required by SDK.Web)
-dotnet pack eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj -c Release -o artifacts --no-build "-p:Version=$Version"
-dotnet pack eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj -c Release -o artifacts --no-build "-p:Version=$Version"
-
-# =============================================================================
-# OTelConventions Package (generated from @opentelemetry/semantic-conventions)
-# =============================================================================
-$OTelConventionsVersion = "1.39.0"  # Matches @opentelemetry/semantic-conventions
-Write-Host "Building OTelConventions $OTelConventionsVersion" -ForegroundColor Cyan
-dotnet build tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj -c Release
-dotnet pack tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj -c Release -o artifacts --no-build "-p:Version=$OTelConventionsVersion"

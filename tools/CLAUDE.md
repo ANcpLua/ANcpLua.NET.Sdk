@@ -35,32 +35,11 @@ Generates JSON schemas for SDK configuration and validation.
 dotnet run --project tools/SchemaGenerator
 ```
 
-### SemconvGenerator
-
-Generates OTel Semantic Conventions from `@opentelemetry/semantic-conventions` NPM package for TypeScript, C#, and DuckDB.
-
-```bash
-cd tools/SemconvGenerator
-npm run generate      # All outputs
-npm run deploy:all    # Copy to target locations
-npm run ci            # Generate + validate (CI enforcement)
-```
-
-**Source:** `@opentelemetry/semantic-conventions` v1.39.0
-
-**Outputs:**
-- `output/semconv.ts` → `qyl/src/qyl.dashboard/src/lib/semconv.ts`
-- `output/SemanticConventions.g.cs` → `eng/ANcpSdk.AspNetCore.ServiceDefaults/Instrumentation/`
-- `output/promoted-columns.sql` (DuckDB column definitions)
-
-**CI Validation:** `npm run ci` fails if outputs differ from deployed files.
-
 ## When to Run
 
 - **SdkGenerator**: After modifying SDK import structure or adding new SDK flavors
 - **ConfigFilesGenerator**: After updating analyzer package versions in `Version.props`
 - **SchemaGenerator**: After modifying SDK configuration options
-- **SemconvGenerator**: After updating `@opentelemetry/semantic-conventions` version or modifying prefix filters
 
 ## Implementation Notes
 

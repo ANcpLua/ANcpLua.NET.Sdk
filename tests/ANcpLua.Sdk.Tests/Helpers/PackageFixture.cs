@@ -54,7 +54,7 @@ public partial class PackageFixture : IAsyncLifetime
 
         var repoRoot = RepositoryRoot.Locate();
 
-        var versionPropsPath = repoRoot["src"] / "common" / "Version.props";
+        var versionPropsPath = repoRoot["src"] / "Build" / "Common" / "Version.props";
         var existingContent = await File.ReadAllTextAsync(versionPropsPath);
         var updatedContent = MyRegex().Replace(existingContent, $"<ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>");
         await File.WriteAllTextAsync(versionPropsPath, updatedContent);
@@ -63,29 +63,6 @@ public partial class PackageFixture : IAsyncLifetime
             .GetFiles(repoRoot["src"], "*.csproj")
             .Select(FullPath.FromPath)
             .ToList();
-
-        var engProjects = new[]
-        {
-            repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults" / "ANcpSdk.AspNetCore.ServiceDefaults.csproj", repoRoot["eng"] / "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister" /
-                                                                                                                  "ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj"
-        };
-
-        foreach (var engProject in engProjects)
-        {
-            var buildPsi = new ProcessStartInfo("dotnet")
-            {
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            buildPsi.ArgumentList.AddRange("build", engProject, "-c", "Release");
-            var buildResult = await buildPsi.RunAsTaskAsync(CancellationToken.None);
-            if (buildResult.ExitCode is not 0)
-                Assert.Fail($"Build failed with exit code {buildResult.ExitCode}. Output: {buildResult.Output}");
-        }
-
-        buildFiles.AddRange(engProjects);
 
         Assert.NotEmpty(buildFiles);
         await Parallel.ForEachAsync(buildFiles, async (nuspecPath, t) =>

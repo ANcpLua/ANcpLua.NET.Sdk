@@ -20,12 +20,10 @@
         <Project Path="src/ANcpLua.NET.Sdk.Test.csproj" />
     </Folder>
 
-    <!-- Engineering (Runtime + Generator) -->
+    <!-- Engineering (Polyfills, Extensions, Shared) -->
     <Folder Name="/eng/">
         <File Path="eng/CLAUDE.md" />
         <File Path="eng/Directory.Build.props" />
-        <Project Path="eng/ANcpSdk.AspNetCore.ServiceDefaults/ANcpSdk.AspNetCore.ServiceDefaults.csproj" />
-        <Project Path="eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.csproj" />
     </Folder>
     <Folder Name="/src/AotTesting/">
         <Project Path="src/AotTesting/ANcpLua.AotTesting.Attributes.csproj" />
@@ -42,13 +40,5 @@
         <Project Path="tools/ConfigFilesGenerator/ConfigFilesGenerator.csproj" />
         <Project Path="tools/SdkGenerator/SdkGenerator.csproj" />
         <Project Path="tools/SchemaGenerator/SchemaGenerator.csproj" />
-    </Folder>
-
-    <!-- SemconvGenerator (OTel Semantic Conventions) -->
-    <Folder Name="/tools/SemconvGenerator/">
-        <File Path="tools/SemconvGenerator/generate-semconv.ts" />
-        <File Path="tools/SemconvGenerator/package.json" />
-        <File Path="tools/SemconvGenerator/tsconfig.json" />
-        <Project Path="tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj" />
     </Folder>
 </Solution>

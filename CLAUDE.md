@@ -65,13 +65,14 @@ dotnet test
 
 ```
 src/
-├── common/
+├── Build/Common/
 │   ├── Version.props          ← SOURCE OF TRUTH for all versions
 │   ├── Common.props           ← LangVersion, Nullable, Analyzers
 │   ├── Common.targets         ← Analyzer package injection
 │   ├── LegacySupport.props    ← Polyfill switches
 │   ├── LegacySupport.targets  ← Polyfill file injection
-│   ├── Shared.props           ← Utility switches
+│   └── Shared.props           ← Utility switches
+├── Config/
 │   └── BannedSymbols.txt      ← API enforcement
 ├── Sdk/
 │   ├── Sdk.props              ← SDK entry point
@@ -80,10 +81,10 @@ src/
     └── Testing.props          ← xUnit v3 MTP auto-injection
 
 eng/
-├── ANcpSdk.AspNetCore.ServiceDefaults/           ← Runtime library (net10.0)
-│   └── Instrumentation/                          ← OTel instrumentation helpers
-└── ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/ ← Source generator (netstandard2.0)
-    └── Models/ProviderRegistry.cs                ← SSOT for provider definitions
+├── Extensions/                ← Roslyn/Testing helpers
+├── LegacySupport/             ← Polyfill source files
+├── MSBuild/Polyfills/         ← MSBuild polyfills
+└── Shared/                    ← General utilities
 ```
 
 ## Features Provided to Consumers
@@ -95,15 +96,9 @@ eng/
 - **Nullable:** Enabled by default
 - **Deterministic:** Reproducible builds
 
-### Web SDK Additional Features
-
-- **Auto-instrumentation:** GenAI (OpenAI, Anthropic, etc.) and Database (Npgsql, etc.) calls
-- **[OTel] attribute:** Compile-time Activity.SetTag() extension generation
-- **Service defaults:** OpenTelemetry, health endpoints, HTTP resilience
-
 ## Version.props Auto-Sync
 
-When `src/common/Version.props` changes:
+When `src/Build/Common/Version.props` changes:
 
 1. GitHub Action triggers
 2. PR created in ANcpLua.Analyzers
