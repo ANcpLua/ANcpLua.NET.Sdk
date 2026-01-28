@@ -14,7 +14,7 @@ $ErrorActionPreference = "Stop"
 Write-Host "Building version: $Version" -ForegroundColor Cyan
 
 # Generate Version.props with the package version and centralized dependency versions
-$VersionPropsPath = "src/common/Version.props"
+$VersionPropsPath = "src/Build/Common/Version.props"
 $VersionPropsContent = @"
 <Project>
   <!--
