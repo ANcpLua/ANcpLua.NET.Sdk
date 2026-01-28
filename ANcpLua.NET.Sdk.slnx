@@ -43,4 +43,12 @@
         <Project Path="tools/SdkGenerator/SdkGenerator.csproj" />
         <Project Path="tools/SchemaGenerator/SchemaGenerator.csproj" />
     </Folder>
+
+    <!-- SemconvGenerator (OTel Semantic Conventions) -->
+    <Folder Name="/tools/SemconvGenerator/">
+        <File Path="tools/SemconvGenerator/generate-semconv.ts" />
+        <File Path="tools/SemconvGenerator/package.json" />
+        <File Path="tools/SemconvGenerator/tsconfig.json" />
+        <Project Path="tools/SemconvGenerator/output/OTelConventions/OTelConventions.csproj" />
+    </Folder>
 </Solution>

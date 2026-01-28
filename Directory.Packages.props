@@ -4,13 +4,13 @@
     ANcpLua.NET.Sdk - Directory.Packages.props
     ═══════════════════════════════════════════════════════════════════════════
 
-    All version variables are defined in src/common/Version.props.
+    All version variables are defined in src/Build/Common/Version.props.
     This file only declares WHICH packages are used, not their versions.
   -->
 
   <!-- Import centralized versions (this SDK owns Version.props) -->
   <!-- Conditional to avoid double-import from eng/Directory.Build.props -->
-  <Import Project="$(MSBuildThisFileDirectory)src/common/Version.props" Condition="'$(RoslynVersion)' == ''"/>
+  <Import Project="$(MSBuildThisFileDirectory)src/Build/Common/Version.props" Condition="'$(RoslynVersion)' == ''"/>
 
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>

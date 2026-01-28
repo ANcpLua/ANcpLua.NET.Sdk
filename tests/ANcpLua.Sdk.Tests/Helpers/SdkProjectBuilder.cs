@@ -722,6 +722,6 @@ internal static class XmlSanitizer
         ch == 0x9 ||
         ch == 0xA ||
         ch == 0xD ||
-        ch >= 0x20 && ch <= 0xD7FF ||
-        ch >= 0xE000 && ch <= 0xFFFD;
+        (ch >= 0x20 && ch <= 0xD7FF) ||
+        (ch >= 0xE000 && ch <= 0xFFFD);
 }

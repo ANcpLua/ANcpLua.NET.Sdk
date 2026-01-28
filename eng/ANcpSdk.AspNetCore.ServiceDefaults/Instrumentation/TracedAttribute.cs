@@ -1,27 +1,32 @@
 namespace ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation;
 
 /// <summary>
-///     Marks a method for automatic OpenTelemetry tracing instrumentation.
+///     Marks a class or method for automatic OpenTelemetry tracing instrumentation.
 /// </summary>
 /// <remarks>
 ///     <para>
-///         Methods decorated with this attribute will be intercepted at compile time
-///         to automatically create a span around the method execution.
+///         When applied to a class, all public methods are traced automatically.
+///         Use <see cref="NoTraceAttribute"/> to opt-out specific methods.
+///         Method-level attributes override class-level settings.
 ///     </para>
 ///     <para>
 ///         Example usage:
 ///         <code>
-/// [Traced("MyApp.Orders")]
-/// public async Task&lt;Order&gt; ProcessOrder(
-///     [TracedTag("order.id")] string orderId,
-///     [TracedTag("order.amount")] decimal amount)
+/// [Traced("MyApp.Orders")]  // Class-level: all public methods traced
+/// public class OrderService
 /// {
-///     // Method body - automatically wrapped in a span
+///     public async Task&lt;Order&gt; GetOrder([TracedTag] string id) { }  // Traced
+///     
+///     [NoTrace]
+///     public void HelperMethod() { }  // Not traced
+///     
+///     [Traced(SpanName = "custom.operation")]  // Override
+///     public void CustomOperation() { }
 /// }
 /// </code>
 ///     </para>
 /// </remarks>
-[AttributeUsage(AttributeTargets.Method)]
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public sealed class TracedAttribute : Attribute
 {
     /// <summary>

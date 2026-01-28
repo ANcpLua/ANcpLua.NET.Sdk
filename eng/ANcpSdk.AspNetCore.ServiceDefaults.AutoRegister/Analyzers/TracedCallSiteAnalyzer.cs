@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister.Models;
 using Microsoft.CodeAnalysis;
@@ -14,6 +15,7 @@ internal static class TracedCallSiteAnalyzer
 {
     private const string TracedAttributeFullName = "ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.TracedAttribute";
     private const string TracedTagAttributeFullName = "ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.TracedTagAttribute";
+    private const string NoTraceAttributeFullName = "ANcpSdk.AspNetCore.ServiceDefaults.Instrumentation.NoTraceAttribute";
 
     /// <summary>
     ///     Checks if the syntax node could potentially be a traced method invocation.
@@ -52,6 +54,7 @@ internal static class TracedCallSiteAnalyzer
         var tracedTags = ExtractTracedTags(method, context.SemanticModel.Compilation);
         var parameterTypes = method.Parameters.Select(static p => p.Type.ToDisplayString()).ToList();
         var parameterNames = method.Parameters.Select(static p => p.Name).ToList();
+        var typeParameters = ExtractTypeParameters(method);
 
         var isStatic = method.IsStatic;
         var isAsync = IsAsyncMethod(method);
@@ -69,6 +72,7 @@ internal static class TracedCallSiteAnalyzer
             parameterTypes,
             parameterNames,
             tracedTags,
+            typeParameters,
             interceptLocation);
     }
 
@@ -83,53 +87,103 @@ internal static class TracedCallSiteAnalyzer
         if (tracedAttributeType is null)
             return false;
 
-        foreach (var attribute in method.GetAttributes())
+        // Check if method has [NoTrace] - opt-out from class-level tracing
+        var noTraceAttributeType = compilation.GetTypeByMetadataName(NoTraceAttributeFullName);
+        if (noTraceAttributeType is not null &&
+            method.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, noTraceAttributeType)))
+            return false;
+
+        // 1. Check method-level [Traced] first (takes priority)
+        var methodAttr = GetTracedAttributeData(method.GetAttributes(), tracedAttributeType);
+        if (methodAttr is not null)
         {
-            if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, tracedAttributeType))
-                continue;
+            tracedInfo = ExtractTracedInfo(methodAttr, method.Name);
+            return tracedInfo is not null;
+        }
 
-            // Get ActivitySourceName from constructor argument
-            if (attribute.ConstructorArguments.Length == 0)
+        // 2. Check class-level [Traced] - walk inheritance chain
+        var classAttr = GetTracedAttributeFromTypeHierarchy(method.ContainingType, tracedAttributeType);
+        if (classAttr is not null)
+        {
+            // Only trace public methods (not private/internal helpers)
+            if (method.DeclaredAccessibility != Accessibility.Public)
                 return false;
 
-            var activitySourceName = attribute.ConstructorArguments[0].Value as string;
-            if (string.IsNullOrEmpty(activitySourceName))
-                return false;
-
-            string? spanName = null;
-            var spanKind = "Internal"; // Default
-
-            // Get named arguments
-            foreach (var namedArg in attribute.NamedArguments)
-            {
-                switch (namedArg.Key)
-                {
-                    case "SpanName":
-                        spanName = namedArg.Value.Value as string;
-                        break;
-                    case "Kind":
-                        // ActivityKind enum value
-                        if (namedArg.Value.Value is int kindValue)
-                        {
-                            spanKind = kindValue switch
-                            {
-                                0 => "Internal",
-                                1 => "Server",
-                                2 => "Client",
-                                3 => "Producer",
-                                4 => "Consumer",
-                                _ => "Internal"
-                            };
-                        }
-                        break;
-                }
-            }
-
-            tracedInfo = (activitySourceName!, spanName, spanKind);
-            return true;
+            tracedInfo = ExtractTracedInfo(classAttr, method.Name);
+            return tracedInfo is not null;
         }
 
         return false;
+    }
+
+    private static AttributeData? GetTracedAttributeFromTypeHierarchy(
+        INamedTypeSymbol? type,
+        INamedTypeSymbol tracedAttributeType)
+    {
+        while (type is not null)
+        {
+            var attr = GetTracedAttributeData(type.GetAttributes(), tracedAttributeType);
+            if (attr is not null)
+                return attr;
+            type = type.BaseType;
+        }
+        return null;
+    }
+
+    private static AttributeData? GetTracedAttributeData(
+        ImmutableArray<AttributeData> attributes,
+        INamedTypeSymbol tracedAttributeType)
+    {
+        foreach (var attribute in attributes)
+        {
+            if (SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, tracedAttributeType))
+                return attribute;
+        }
+        return null;
+    }
+
+    private static (string ActivitySourceName, string? SpanName, string SpanKind)? ExtractTracedInfo(
+        AttributeData attribute,
+        string defaultSpanName)
+    {
+        // Get ActivitySourceName from constructor argument
+        if (attribute.ConstructorArguments.Length == 0)
+            return null;
+
+        var activitySourceName = attribute.ConstructorArguments[0].Value as string;
+        if (string.IsNullOrEmpty(activitySourceName))
+            return null;
+
+        string? spanName = null;
+        var spanKind = "Internal"; // Default
+
+        // Get named arguments
+        foreach (var namedArg in attribute.NamedArguments)
+        {
+            switch (namedArg.Key)
+            {
+                case "SpanName":
+                    spanName = namedArg.Value.Value as string;
+                    break;
+                case "Kind":
+                    // ActivityKind enum value
+                    if (namedArg.Value.Value is int kindValue)
+                    {
+                        spanKind = kindValue switch
+                        {
+                            0 => "Internal",
+                            1 => "Server",
+                            2 => "Client",
+                            3 => "Producer",
+                            4 => "Consumer",
+                            _ => "Internal"
+                        };
+                    }
+                    break;
+            }
+        }
+
+        return (activitySourceName!, spanName, spanKind);
     }
 
     private static IReadOnlyList<TracedTagInfo> ExtractTracedTags(
@@ -149,18 +203,21 @@ internal static class TracedCallSiteAnalyzer
                 if (!SymbolEqualityComparer.Default.Equals(attribute.AttributeClass, tracedTagAttributeType))
                     continue;
 
-                // Get tag name from constructor argument
-                if (attribute.ConstructorArguments.Length == 0)
-                    continue;
+                // Get tag name from constructor argument, fallback to parameter name
+                string? tagName = null;
+                if (attribute.ConstructorArguments.Length > 0)
+                    tagName = attribute.ConstructorArguments[0].Value as string;
 
-                var tagName = attribute.ConstructorArguments[0].Value as string;
+                // Use parameter name if no explicit name provided
+                tagName ??= parameter.Name;
+
                 if (string.IsNullOrEmpty(tagName))
                     continue;
 
                 var skipIfNull = true; // Default
                 foreach (var namedArg in attribute.NamedArguments)
                 {
-                    if (namedArg.Key == "SkipIfNull" && namedArg.Value.Value is bool skipValue)
+                    if (namedArg is { Key: "SkipIfNull", Value.Value: bool skipValue })
                         skipIfNull = skipValue;
                 }
 
@@ -186,5 +243,43 @@ internal static class TracedCallSiteAnalyzer
 
         return returnTypeName.StartsWith("System.Threading.Tasks.Task", StringComparison.Ordinal) ||
                returnTypeName.StartsWith("System.Threading.Tasks.ValueTask", StringComparison.Ordinal);
+    }
+
+    private static IReadOnlyList<TypeParameterInfo> ExtractTypeParameters(IMethodSymbol method)
+    {
+        if (method.TypeParameters.IsEmpty)
+            return [];
+
+        var result = new List<TypeParameterInfo>();
+
+        foreach (var tp in method.TypeParameters)
+        {
+            var constraints = BuildConstraintClause(tp);
+            result.Add(new TypeParameterInfo(tp.Name, constraints));
+        }
+
+        return result;
+    }
+
+    private static string? BuildConstraintClause(ITypeParameterSymbol tp)
+    {
+        var parts = new List<string>();
+
+        if (tp.HasReferenceTypeConstraint)
+            parts.Add("class");
+        if (tp.HasValueTypeConstraint)
+            parts.Add("struct");
+        if (tp.HasUnmanagedTypeConstraint)
+            parts.Add("unmanaged");
+        if (tp.HasNotNullConstraint)
+            parts.Add("notnull");
+
+        foreach (var constraintType in tp.ConstraintTypes)
+            parts.Add(constraintType.ToDisplayString());
+
+        if (tp.HasConstructorConstraint)
+            parts.Add("new()");
+
+        return parts.Count > 0 ? $"where {tp.Name} : {string.Join(", ", parts)}" : null;
     }
 }

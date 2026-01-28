@@ -159,26 +159,29 @@ internal static class TracedInterceptorEmitter
         var interceptAttribute = invocation.InterceptableLocation.GetInterceptsLocationAttributeSyntax();
 
         var methodName = $"Intercept_Traced_{index}";
-        var returnType = ToGlobalTypeName(invocation.ReturnTypeName);
+        var typeParamNames = GetTypeParameterNames(invocation);
+        var returnType = ToGlobalTypeName(invocation.ReturnTypeName, typeParamNames);
         var containingType = invocation.ContainingTypeName;
         var originalMethod = invocation.MethodName;
         var activitySourceField = GetActivitySourceFieldName(invocation.ActivitySourceName);
 
-        var parameters = BuildParameterList(invocation, containingType);
+        var typeParams = BuildTypeParameterList(invocation);
+        var constraints = BuildConstraintClauses(invocation);
+        var parameters = BuildParameterList(invocation, containingType, typeParamNames);
         var arguments = BuildArgumentList(invocation);
         var tagSetters = BuildTagSetters(invocation);
         var methodCall = invocation.IsStatic
-            ? $"global::{containingType}.{originalMethod}({arguments})"
-            : $"@this.{originalMethod}({arguments})";
+            ? $"global::{containingType}.{originalMethod}{typeParams}({arguments})"
+            : $"@this.{originalMethod}{typeParams}({arguments})";
 
         if (invocation.IsAsync)
         {
-            EmitAsyncInterceptor(sb, invocation, methodName, returnType, parameters,
+            EmitAsyncInterceptor(sb, invocation, methodName, typeParams, constraints, returnType, parameters,
                 displayLocation, interceptAttribute, activitySourceField, tagSetters, methodCall);
         }
         else
         {
-            EmitSyncInterceptor(sb, invocation, methodName, returnType, parameters,
+            EmitSyncInterceptor(sb, invocation, methodName, typeParams, constraints, returnType, parameters,
                 displayLocation, interceptAttribute, activitySourceField, tagSetters, methodCall);
         }
     }
@@ -187,6 +190,8 @@ internal static class TracedInterceptorEmitter
         StringBuilder sb,
         TracedInvocationInfo invocation,
         string methodName,
+        string typeParams,
+        string constraints,
         string returnType,
         string parameters,
         string displayLocation,
@@ -201,7 +206,7 @@ internal static class TracedInterceptorEmitter
         sb.AppendLine($$"""
                 // Intercepted call at {{displayLocation}}
                 {{interceptAttribute}}
-                public static async {{returnType}} {{methodName}}({{parameters}})
+                public static async {{returnType}} {{methodName}}{{typeParams}}({{parameters}}){{constraints}}
                 {
                     using var activity = TracedActivitySources.{{activitySourceField}}.StartActivity(
                         "{{invocation.SpanName}}",
@@ -219,49 +224,46 @@ internal static class TracedInterceptorEmitter
 
         sb.AppendLine();
 
-        if (hasReturnValue)
-        {
-            sb.AppendLine($$"""
-                    try
-                    {
-                        var result = await {{methodCall}};
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
-                        return result;
-                    }
-                    catch (global::System.Exception ex)
-                    {
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
-                        activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
-                        throw;
-                    }
-                }
+        sb.AppendLine(hasReturnValue
+            ? $$"""
+                            try
+                            {
+                                var result = await {{methodCall}};
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
+                                return result;
+                            }
+                            catch (global::System.Exception ex)
+                            {
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
+                                activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
+                                throw;
+                            }
+                        }
 
-        """);
-        }
-        else
-        {
-            sb.AppendLine($$"""
-                    try
-                    {
-                        await {{methodCall}};
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
-                    }
-                    catch (global::System.Exception ex)
-                    {
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
-                        activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
-                        throw;
-                    }
-                }
+                """
+            : $$"""
+                            try
+                            {
+                                await {{methodCall}};
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
+                            }
+                            catch (global::System.Exception ex)
+                            {
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
+                                activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
+                                throw;
+                            }
+                        }
 
-        """);
-        }
+                """);
     }
 
     private static void EmitSyncInterceptor(
         StringBuilder sb,
         TracedInvocationInfo invocation,
         string methodName,
+        string typeParams,
+        string constraints,
         string returnType,
         string parameters,
         string displayLocation,
@@ -275,7 +277,7 @@ internal static class TracedInterceptorEmitter
         sb.AppendLine($$"""
                 // Intercepted call at {{displayLocation}}
                 {{interceptAttribute}}
-                public static {{returnType}} {{methodName}}({{parameters}})
+                public static {{returnType}} {{methodName}}{{typeParams}}({{parameters}}){{constraints}}
                 {
                     using var activity = TracedActivitySources.{{activitySourceField}}.StartActivity(
                         "{{invocation.SpanName}}",
@@ -293,46 +295,41 @@ internal static class TracedInterceptorEmitter
 
         sb.AppendLine();
 
-        if (hasReturnValue)
-        {
-            sb.AppendLine($$"""
-                    try
-                    {
-                        var result = {{methodCall}};
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
-                        return result;
-                    }
-                    catch (global::System.Exception ex)
-                    {
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
-                        activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
-                        throw;
-                    }
-                }
+        sb.AppendLine(hasReturnValue
+            ? $$"""
+                            try
+                            {
+                                var result = {{methodCall}};
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
+                                return result;
+                            }
+                            catch (global::System.Exception ex)
+                            {
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
+                                activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
+                                throw;
+                            }
+                        }
 
-        """);
-        }
-        else
-        {
-            sb.AppendLine($$"""
-                    try
-                    {
-                        {{methodCall}};
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
-                    }
-                    catch (global::System.Exception ex)
-                    {
-                        activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
-                        activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
-                        throw;
-                    }
-                }
+                """
+            : $$"""
+                            try
+                            {
+                                {{methodCall}};
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Ok);
+                            }
+                            catch (global::System.Exception ex)
+                            {
+                                activity?.SetStatus(global::System.Diagnostics.ActivityStatusCode.Error, ex.Message);
+                                activity?.AddEvent(new global::System.Diagnostics.ActivityEvent("exception", tags: new global::System.Diagnostics.ActivityTagsCollection { { "exception.type", ex.GetType().FullName }, { "exception.message", ex.Message } }));
+                                throw;
+                            }
+                        }
 
-        """);
-        }
+                """);
     }
 
-    private static string BuildParameterList(TracedInvocationInfo invocation, string containingType)
+    private static string BuildParameterList(TracedInvocationInfo invocation, string containingType, IReadOnlyList<string>? typeParamNames = null)
     {
         var sb = new StringBuilder();
 
@@ -346,7 +343,7 @@ internal static class TracedInterceptorEmitter
         {
             if (sb.Length > 0)
                 sb.Append(", ");
-            var typeName = ToGlobalTypeName(invocation.ParameterTypes[i]);
+            var typeName = ToGlobalTypeName(invocation.ParameterTypes[i], typeParamNames);
             sb.Append($"{typeName} {invocation.ParameterNames[i]}");
         }
 
@@ -355,17 +352,36 @@ internal static class TracedInterceptorEmitter
 
     /// <summary>
     ///     Converts a type name to a fully qualified global:: format.
-    ///     Handles C# keyword aliases like string, int, decimal, etc.
+    ///     Handles C# keyword aliases, generics, and nullable types recursively.
     /// </summary>
-    private static string ToGlobalTypeName(string typeName)
+    private static string ToGlobalTypeName(string typeName, IReadOnlyList<string>? typeParameterNames = null)
     {
-        // Handle nullable types
-        var isNullable = typeName.EndsWith("?", StringComparison.Ordinal);
-        var baseType = isNullable ? typeName[..^1] : typeName;
-        var suffix = isNullable ? "?" : "";
+        if (string.IsNullOrEmpty(typeName))
+            return typeName;
+
+        // Check if this is a type parameter (T, TResult, etc.)
+        if (typeParameterNames is not null && typeParameterNames.Contains(typeName))
+            return typeName;
+
+        // Handle nullable reference types (trailing ?)
+        if (typeName.EndsWith("?", StringComparison.Ordinal))
+            return ToGlobalTypeName(typeName[..^1], typeParameterNames) + "?";
+
+        // Handle generic types: Task<Order> or Dictionary<string, Order>
+        var genericStart = typeName.IndexOf('<');
+        if (genericStart > 0 && typeName.EndsWith(">", StringComparison.Ordinal))
+        {
+            var baseTypeName = typeName[..genericStart];
+            var argsContent = typeName[(genericStart + 1)..^1];
+
+            var args = ParseGenericArguments(argsContent);
+            var qualifiedArgs = args.Select(a => ToGlobalTypeName(a, typeParameterNames));
+
+            return $"{ToGlobalTypeName(baseTypeName, typeParameterNames)}<{string.Join(", ", qualifiedArgs)}>";
+        }
 
         // Map C# keyword aliases to their BCL names
-        var mapped = baseType switch
+        var mapped = typeName switch
         {
             "string" => "System.String",
             "int" => "System.Int32",
@@ -383,23 +399,75 @@ internal static class TracedInterceptorEmitter
             "char" => "System.Char",
             "object" => "System.Object",
             "void" => "void",
-            _ => baseType
+            _ => typeName
         };
 
-        return mapped == "void" ? "void" : $"global::{mapped}{suffix}";
+        return mapped == "void" ? "void" : $"global::{mapped}";
+    }
+
+    /// <summary>
+    ///     Parses generic type arguments, handling nested generics correctly.
+    /// </summary>
+    private static IEnumerable<string> ParseGenericArguments(string argsContent)
+    {
+        var args = new List<string>();
+        var depth = 0;
+        var start = 0;
+
+        for (var i = 0; i < argsContent.Length; i++)
+        {
+            switch (argsContent[i])
+            {
+                case '<':
+                    depth++;
+                    break;
+                case '>':
+                    depth--;
+                    break;
+                case ',' when depth == 0:
+                    args.Add(argsContent[start..i].Trim());
+                    start = i + 1;
+                    break;
+            }
+        }
+
+        if (start < argsContent.Length)
+            args.Add(argsContent[start..].Trim());
+
+        return args;
+    }
+
+    private static string BuildTypeParameterList(TracedInvocationInfo invocation)
+    {
+        if (invocation.TypeParameters.Count == 0)
+            return "";
+
+        return "<" + string.Join(", ", invocation.TypeParameters.Select(static tp => tp.Name)) + ">";
+    }
+
+    private static string BuildConstraintClauses(TracedInvocationInfo invocation)
+    {
+        var constraints = invocation.TypeParameters
+            .Where(static tp => tp.Constraints is not null)
+            .Select(static tp => tp.Constraints);
+
+        var clauseList = constraints.ToList();
+        return clauseList.Count > 0 ? " " + string.Join(" ", clauseList) : "";
+    }
+
+    private static IReadOnlyList<string> GetTypeParameterNames(TracedInvocationInfo invocation)
+    {
+        return invocation.TypeParameters.Select(static tp => tp.Name).ToList();
     }
 
     private static string BuildArgumentList(TracedInvocationInfo invocation)
     {
-        if (invocation.ParameterNames.Count == 0)
-            return string.Empty;
-
-        return string.Join(", ", invocation.ParameterNames);
+        return invocation.ParameterNames.Count is 0 ? string.Empty : string.Join(", ", invocation.ParameterNames);
     }
 
     private static string BuildTagSetters(TracedInvocationInfo invocation)
     {
-        if (invocation.TracedTags.Count == 0)
+        if (invocation.TracedTags.Count is 0)
             return string.Empty;
 
         var sb = new StringBuilder();

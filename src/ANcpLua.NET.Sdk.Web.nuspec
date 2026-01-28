@@ -11,89 +11,81 @@
     <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$"/>
   </metadata>
   <files>
+    <!-- SDK Entry Points -->
     <file src="Sdk/ANcpLua.NET.Sdk.Web/Sdk.props" target="Sdk/Sdk.props"/>
     <file src="Sdk/ANcpLua.NET.Sdk.Web/Sdk.targets" target="Sdk/Sdk.targets"/>
-    <file src="Enforcement/Enforcement.props" target="Enforcement/"/>
-    <file src="Enforcement/DeterminismAndSourceLink.props" target="Enforcement/"/>
-    <file src="Enforcement/VersionEnforcement.targets" target="Enforcement/"/>
-    <file src="Testing/Testing.props" target="Testing/"/>
-    <file src="Shared/IntegrationTestBase.cs" target="Shared/"/>
-    <file src="Shared/KestrelTestBase.cs" target="Shared/"/>
-    <file src="Shared/FakeLoggerExtensions.cs" target="Shared/"/>
-    <file src="Packaging/AnalyzersPack.targets" target="Packaging/"/>
-    <!-- Fully explicit file paths (NuGet globs unreliable on Windows) -->
-    <file src="common/Common.props" target="common/"/>
-    <file src="common/Common.targets" target="common/"/>
-    <file src="common/Version.props" target="common/"/>
-    <file src="common/ContinuousIntegrationBuild.props" target="common/"/>
-    <file src="common/LegacySupport.props" target="common/"/>
-    <file src="common/LegacySupport.targets" target="common/"/>
-    <file src="common/Npm.targets" target="common/"/>
-    <file src="common/Tests.targets" target="common/"/>
-    <!-- V4 Enhancements -->
-    <file src="common/ItemDefaults.props" target="common/"/>
-    <file src="common/GlobalPackages.props" target="common/"/>
-    <file src="common/TerminalLogger.props" target="common/"/>
-    <file src="common/BuildCheck.props" target="common/"/>
-    <file src="common/InternalsVisibleTo.props" target="common/"/>
-    <file src="common/ArtifactStaging.targets" target="common/"/>
-    <file src="common/ItemMetadata.targets" target="common/"/>
-    <file src="common/Deduplication.targets" target="common/"/>
-    <file src="configuration/Analyzers.editorconfig" target="configuration/"/>
-    <file src="configuration/Analyzer.Meziantou.Analyzer.editorconfig" target="configuration/"/>
-    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="configuration/"/>
-    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="configuration/"/>
-    <file src="configuration/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="configuration/"/>
-    <file src="configuration/CodingStyle.editorconfig" target="configuration/"/>
-    <file src="configuration/NamingConvention.editorconfig" target="configuration/"/>
-    <file src="configuration/GeneratedFiles.editorconfig" target="configuration/"/>
-    <file src="configuration/BannedSymbols.txt" target="configuration/"/>
-    <file src="configuration/BannedSymbols.NewtonsoftJson.txt" target="configuration/"/>
-    <file src="configuration/default.runsettings" target="configuration/"/>
-    <!-- ANcpLua.Analyzers now comes from NuGet package (PackageReference in Common.targets) -->
 
-    <!-- Shared Sources - Polyfills from LegacySupport (fully explicit paths) -->
+    <!-- Build/Common - Core MSBuild logic -->
+    <file src="Build/Common/Common.props" target="Build/Common/"/>
+    <file src="Build/Common/Common.targets" target="Build/Common/"/>
+    <file src="Build/Common/Version.props" target="Build/Common/"/>
+    <file src="Build/Common/ContinuousIntegrationBuild.props" target="Build/Common/"/>
+    <file src="Build/Common/LegacySupport.props" target="Build/Common/"/>
+    <file src="Build/Common/LegacySupport.targets" target="Build/Common/"/>
+    <file src="Build/Common/Npm.targets" target="Build/Common/"/>
+    <file src="Build/Common/Tests.targets" target="Build/Common/"/>
+    <file src="Build/Common/ItemDefaults.props" target="Build/Common/"/>
+    <file src="Build/Common/GlobalPackages.props" target="Build/Common/"/>
+    <file src="Build/Common/TerminalLogger.props" target="Build/Common/"/>
+    <file src="Build/Common/BuildCheck.props" target="Build/Common/"/>
+    <file src="Build/Common/InternalsVisibleTo.props" target="Build/Common/"/>
+    <file src="Build/Common/ArtifactStaging.targets" target="Build/Common/"/>
+    <file src="Build/Common/ItemMetadata.targets" target="Build/Common/"/>
+    <file src="Build/Common/Deduplication.targets" target="Build/Common/"/>
+
+    <!-- Build/Enforcement - Determinism and SourceLink -->
+    <file src="Build/Enforcement/Enforcement.props" target="Build/Enforcement/"/>
+    <file src="Build/Enforcement/DeterminismAndSourceLink.props" target="Build/Enforcement/"/>
+    <file src="Build/Enforcement/VersionEnforcement.targets" target="Build/Enforcement/"/>
+
+    <!-- Build/Packaging - Analyzer pack layout -->
+    <file src="Build/Packaging/AnalyzersPack.targets" target="Build/Packaging/"/>
+
+    <!-- Config - EditorConfig and analyzer settings -->
+    <file src="Config/Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.ANcpLua.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Meziantou.Analyzer.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/CodingStyle.editorconfig" target="Config/"/>
+    <file src="Config/NamingConvention.editorconfig" target="Config/"/>
+    <file src="Config/GeneratedFiles.editorconfig" target="Config/"/>
+    <file src="Config/BannedSymbols.txt" target="Config/"/>
+    <file src="Config/BannedSymbols.NewtonsoftJson.txt" target="Config/"/>
+    <file src="Config/default.runsettings" target="Config/"/>
+
+    <!-- Testing - only in .Test SDK -->
+    <file src="Testing/Testing.props" target="Testing/"/>
+
+    <!-- Shared Sources - Polyfills -->
     <file src="../eng/LegacySupport/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
     <file src="../eng/LegacySupport/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs"
-          target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs"
-          target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="../eng/LegacySupport/IsExternalInit/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs"
-          target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs"
-          target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs"
-          target="shared/Polyfills/DiagnosticAttributes/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="../eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
     <file src="../eng/LegacySupport/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
-    <file src="../eng/LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs"
-          target="shared/Polyfills/NullabilityAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMemberTypes.cs"
-          target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs"
-          target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/RequiresDynamicCodeAttribute.cs"
-          target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/RequiresUnreferencedCodeAttribute.cs"
-          target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/UnconditionalSuppressMessageAttribute.cs"
-          target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMemberTypes.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresDynamicCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/RequiresUnreferencedCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="../eng/LegacySupport/TrimAttributes/UnconditionalSuppressMessageAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
     <file src="../eng/LegacySupport/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
     <file src="../eng/LegacySupport/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
     <file src="../eng/LegacySupport/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
-
-    <!-- Polyfills from MSBuild/Polyfills (root level files) -->
     <file src="../eng/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/Polyfills/"/>
     <file src="../eng/MSBuild/Polyfills/Lock.cs" target="shared/Polyfills/"/>
     <file src="../eng/MSBuild/Polyfills/TrimAttributes.cs" target="shared/Polyfills/"/>
 
-    <!-- Other shared sources -->
+    <!-- Shared Sources - Other -->
     <file src="../eng/Shared/Throw/Throw.cs" target="shared/Throw/"/>
     <file src="../eng/Shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
     <file src="../eng/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
     <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
-    <!-- SDK-specific SourceGen extensions (base utilities come from ANcpLua.Roslyn.Utilities.Sources NuGet package) -->
     <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
 

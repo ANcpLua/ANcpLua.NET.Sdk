@@ -34,11 +34,11 @@
   </Target>
 
   <!-- Analyzer pack layout enforcement (dev-only, not included in nupkg) -->
-  <Import Project="$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets"
-          Condition="Exists('$(MSBuildThisFileDirectory)../../Packaging/AnalyzersPack.targets')"/>
+  <Import Project="$(MSBuildThisFileDirectory)../../Build/Packaging/AnalyzersPack.targets"
+          Condition="Exists('$(MSBuildThisFileDirectory)../../Build/Packaging/AnalyzersPack.targets')"/>
 
   <!-- Enhanced Features (targets phase) -->
-  <Import Project="$(MSBuildThisFileDirectory)../common/ItemMetadata.targets"/>
-  <Import Project="$(MSBuildThisFileDirectory)../common/Deduplication.targets"/>
-  <Import Project="$(MSBuildThisFileDirectory)../common/ArtifactStaging.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/ItemMetadata.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/Deduplication.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/ArtifactStaging.targets"/>
 </Project>

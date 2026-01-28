@@ -165,3 +165,42 @@ internal sealed record MetricTagInfo(
     string TypeName);
 
 #endregion
+
+#region Traced Types
+
+/// <summary>
+///     Represents a method decorated with [Traced] attribute to be intercepted.
+/// </summary>
+internal sealed record TracedInvocationInfo(
+    string OrderKey,
+    string ActivitySourceName,
+    string SpanName,
+    string SpanKind,
+    string ContainingTypeName,
+    string MethodName,
+    bool IsStatic,
+    bool IsAsync,
+    string ReturnTypeName,
+    IReadOnlyList<string> ParameterTypes,
+    IReadOnlyList<string> ParameterNames,
+    IReadOnlyList<TracedTagInfo> TracedTags,
+    IReadOnlyList<TypeParameterInfo> TypeParameters,
+    InterceptableLocation InterceptableLocation);
+
+/// <summary>
+///     Information about a parameter decorated with [TracedTag] attribute.
+/// </summary>
+internal sealed record TracedTagInfo(
+    string ParameterName,
+    string TagName,
+    bool SkipIfNull,
+    bool IsNullable);
+
+/// <summary>
+///     Information about a type parameter on a generic method.
+/// </summary>
+internal sealed record TypeParameterInfo(
+    string Name,
+    string? Constraints);
+
+#endregion

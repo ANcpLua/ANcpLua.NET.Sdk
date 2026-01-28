@@ -1,6 +1,6 @@
 <Project>
   <!-- Import version info for consistent package versioning -->
-  <Import Project="$(MSBuildThisFileDirectory)../common/Version.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/Version.props"/>
 
   <PropertyGroup>
     <ANcpLuaSdkName>ANcpLua.NET.Sdk.Test</ANcpLuaSdkName>
@@ -9,27 +9,27 @@
     <OutputType Condition="'$(OutputType)' == ''">Library</OutputType>
     <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
 
-    <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../common/Common.props</CustomBeforeDirectoryBuildProps>
-    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../common/Common.targets</BeforeMicrosoftNETSdkTargets>
+    <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../Build/Common/Common.props</CustomBeforeDirectoryBuildProps>
+    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../Build/Common/Common.targets</BeforeMicrosoftNETSdkTargets>
   </PropertyGroup>
 
   <!-- GlobalPackageReference must be imported BEFORE Microsoft.NET.Sdk -->
-  <Import Project="$(MSBuildThisFileDirectory)../common/GlobalPackages.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/GlobalPackages.props"/>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
 
   <!-- Enhanced Features (props phase) -->
-  <Import Project="$(MSBuildThisFileDirectory)../common/ItemDefaults.props"/>
-  <Import Project="$(MSBuildThisFileDirectory)../common/InternalsVisibleTo.props"/>
-  <Import Project="$(MSBuildThisFileDirectory)../common/TerminalLogger.props"/>
-  <Import Project="$(MSBuildThisFileDirectory)../common/BuildCheck.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/ItemDefaults.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/InternalsVisibleTo.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/TerminalLogger.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/BuildCheck.props"/>
 
   <!-- Always import Common.props (CustomBeforeDirectoryBuildProps only works with Directory.Build.props) -->
-  <Import Project="$(MSBuildThisFileDirectory)../common/Common.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/Common.props"/>
 
   <!-- Enforcement and determinism/SourceLink -->
-  <Import Project="$(MSBuildThisFileDirectory)../Enforcement/Enforcement.props"/>
-  <Import Project="$(MSBuildThisFileDirectory)../Enforcement/DeterminismAndSourceLink.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Enforcement/Enforcement.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)../Build/Enforcement/DeterminismAndSourceLink.props"/>
 
   <!-- Testing auto-injection -->
   <Import Project="$(MSBuildThisFileDirectory)../Testing/Testing.props"/>

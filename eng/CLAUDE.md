@@ -83,6 +83,7 @@ Optional injections:
 | Add new injectable extension     | Create folder in `eng/Extensions/`, add switch in `Shared.props`, add conditional in `Shared.targets`                    |
 | Modify ServiceDefaults           | See `eng/ANcpSdk.AspNetCore.ServiceDefaults/` and `eng/ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/`                 |
 | Add new instrumentation provider | Add to `Models/Models.cs` ProviderRegistry, update `DbInstrumentation.MapTypeNameToDbSystem` if DB                       |
+| Modify Traced interceptor        | Edit `TracedCallSiteAnalyzer.cs` (detection) or `TracedInterceptorEmitter.cs` (code gen)                                 |
 
 ## 5. ServiceDefaults Auto-Registration (Web SDK)
 
@@ -94,16 +95,19 @@ The Web SDK includes a source generator that automatically instruments method ca
 ANcpSdk.AspNetCore.ServiceDefaults.AutoRegister/  <- Source Generator (netstandard2.0)
 ├── Models/
 │   └── Models.cs                <- All models: ProviderRegistry, InterceptionData,
-│                                   GenAiInvocationInfo, DbInvocationInfo, OTelTagInfo
+│                                   GenAiInvocationInfo, DbInvocationInfo, OTelTagInfo,
+│                                   TracedInvocationInfo, TracedTagInfo
 ├── Analyzers/
 │   ├── ProviderDetector.cs      <- Detects referenced providers
 │   ├── GenAiCallSiteAnalyzer.cs <- Finds GenAI SDK calls
 │   ├── DbCallSiteAnalyzer.cs    <- Finds DbCommand calls
-│   └── OTelTagAnalyzer.cs       <- Finds [OTel] attributes
+│   ├── OTelTagAnalyzer.cs       <- Finds [OTel] attributes
+│   └── TracedCallSiteAnalyzer.cs <- Finds [Traced] method calls
 ├── Emitters/
 │   ├── GenAiInterceptorEmitter.cs <- Generates GenAI interceptors
 │   ├── DbInterceptorEmitter.cs    <- Generates DB interceptors
-│   └── OTelTagsEmitter.cs         <- Generates SetTag extensions
+│   ├── OTelTagsEmitter.cs         <- Generates SetTag extensions
+│   └── TracedInterceptorEmitter.cs <- Generates [Traced] interceptors
 └── ServiceDefaultsSourceGenerator.cs <- Main generator entry point
 
 ANcpSdk.AspNetCore.ServiceDefaults/  <- Runtime Library (net10.0)
@@ -121,6 +125,8 @@ ANcpSdk.AspNetCore.ServiceDefaults/  <- Runtime Library (net10.0)
     ├── ActivitySources.cs       <- Centralized ActivitySource definitions
     ├── SemanticConventions.cs   <- OTel semantic convention constants
     ├── OTelAttribute.cs         <- [OTel] marker attribute
+    ├── TracedAttribute.cs       <- [Traced] method instrumentation attribute
+    ├── TracedTagAttribute.cs    <- [TracedTag] parameter tag attribute
     ├── GenAi/
     │   ├── GenAiInstrumentation.cs <- Execute/ExecuteAsync wrappers
     │   └── TokenUsage.cs           <- Token count record
@@ -130,14 +136,15 @@ ANcpSdk.AspNetCore.ServiceDefaults/  <- Runtime Library (net10.0)
 
 ### Generator Pipelines
 
-The `ServiceDefaultsSourceGenerator` has 4 pipelines:
+The `ServiceDefaultsSourceGenerator` has 5 pipelines:
 
-| Pipeline                 | Output                   | Purpose                                |
-|--------------------------|--------------------------|----------------------------------------|
-| Build() interception     | `Intercepts.g.cs`        | Auto-registers service defaults        |
-| GenAI instrumentation    | `GenAiIntercepts.g.cs`   | Wraps OpenAI/Anthropic/etc. calls      |
-| Database instrumentation | `DbIntercepts.g.cs`      | Wraps DbCommand.Execute* calls         |
-| OTel tags                | `OTelTagExtensions.g.cs` | Generates Activity.SetTag() extensions |
+| Pipeline                 | Output                   | Purpose                                   |
+|--------------------------|--------------------------|-------------------------------------------|
+| Build() interception     | `Intercepts.g.cs`        | Auto-registers service defaults           |
+| GenAI instrumentation    | `GenAiIntercepts.g.cs`   | Wraps OpenAI/Anthropic/etc. calls         |
+| Database instrumentation | `DbIntercepts.g.cs`      | Wraps DbCommand.Execute* calls            |
+| OTel tags                | `OTelTagExtensions.g.cs` | Generates Activity.SetTag() extensions    |
+| Traced instrumentation   | `TracedIntercepts.g.cs`  | Wraps methods with [Traced] attribute     |
 
 ### ProviderRegistry (SSOT)
 
@@ -171,6 +178,39 @@ Generated extension method:
 ```csharp
 activity.SetTagsFromChatRequest(request);
 ```
+
+### [Traced] Attribute Usage
+
+Mark methods to auto-instrument with OpenTelemetry spans:
+
+```csharp
+public class OrderService
+{
+    [Traced("MyApp.Orders")]
+    public async Task<Order> ProcessOrder([TracedTag("order.id")] string orderId)
+    {
+        // Method body - automatically wrapped with Activity/span
+    }
+}
+```
+
+Attribute options:
+
+- `[Traced("ActivitySourceName")]` - Required. The ActivitySource name.
+- `[Traced("...", SpanName = "CustomName")]` - Optional span name (defaults to method name).
+- `[Traced("...", Kind = ActivityKind.Client)]` - Optional span kind (defaults to Internal).
+- `[TracedTag("tag.name")]` - Marks parameter as span tag.
+- `[TracedTag("tag.name", SkipIfNull = false)]` - Include tag even if null.
+
+Generated interceptor wraps calls to create spans with:
+
+- Automatic span start/stop
+- Parameter tags from `[TracedTag]`
+- Exception recording with status
+- Async/sync method support
+- Static and instance method support
+
+**Note:** Generic methods are not yet supported.
 
 ## Documentation
 

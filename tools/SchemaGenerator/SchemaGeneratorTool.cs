@@ -541,8 +541,8 @@ public sealed record OpenApiSchema(string Title, string Version, ImmutableArray<
         var extensions = ParseExtensions(node);
 
         var isScalar = extensions.ContainsKey("x-csharp-struct") ||
-                       type is "string" or "integer" or "number" && enumValues.Length == 0 &&
-                       GetMapping(node, "properties")?.Children.Any() != true;
+                       (type is "string" or "integer" or "number" && enumValues.Length is 0 &&
+                        GetMapping(node, "properties")?.Children.Any() != true);
 
         var isEnum = enumValues.Length > 0;
 

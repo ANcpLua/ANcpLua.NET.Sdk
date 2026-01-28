@@ -68,7 +68,7 @@ public sealed class MeterGeneratorTests
         var result = MeterEmitter.Emit(meters);
 
         // Assert
-        Assert.Contains("CreateCounter<long>(\"orders.created\", null, null)", result);
+        Assert.Contains("CreateCounter<long>(\"orders.created\")", result);  // Clean: no trailing nulls
         Assert.Contains("_ordersCreated.Add(1)", result);
     }
 
@@ -101,7 +101,7 @@ public sealed class MeterGeneratorTests
         var result = MeterEmitter.Emit(meters);
 
         // Assert
-        Assert.Contains("CreateHistogram<double>(\"duration\", \"ms\", null)", result);
+        Assert.Contains("CreateHistogram<double>(\"duration\", \"ms\")", result);  // Clean: no trailing null
         Assert.Contains("_duration.Record(value, new KeyValuePair<string, object?>(\"type\", type))", result);
     }
 

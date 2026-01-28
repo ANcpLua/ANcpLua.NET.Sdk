@@ -119,7 +119,7 @@
     <None Include="$(MSBuildThisFileDirectory)..\Shared\*.cs" Pack="false"/>
 
     <!-- Add all editorconfig files -->
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../configuration/*.editorconfig"/>
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../Config/*.editorconfig"/>
   </ItemGroup>
 
 </Project>

@@ -90,6 +90,20 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(
             meterClasses.Combine(hasServiceDefaults),
             EmitMeterImplementations);
+
+        // Traced instrumentation pipeline
+        var tracedInvocations = context.SyntaxProvider
+            .CreateSyntaxProvider(
+                TracedCallSiteAnalyzer.IsPotentialTracedCall,
+                TracedCallSiteAnalyzer.TransformToTracedInvocation)
+            .SelectMany(AsSingletonOrEmpty)
+            .WithTrackingName(TrackingNames.TracedInvocations)
+            .Collect()
+            .WithTrackingName(TrackingNames.CollectedTracedCalls);
+
+        context.RegisterSourceOutput(
+            tracedInvocations.Combine(hasServiceDefaults),
+            EmitTracedInterceptors);
     }
 
     private static bool HasServiceDefaultsType(Compilation compilation, CancellationToken _) => compilation.GetTypeByMetadataName(MetadataNames.ServiceDefaultsClass) is not null;
@@ -240,6 +254,18 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
             context.AddSource(OutputFileNames.MeterImplementations, SourceText.From(sourceCode, Encoding.UTF8));
     }
 
+    private static void EmitTracedInterceptors(
+        SourceProductionContext context,
+        (ImmutableArray<TracedInvocationInfo> Invocations, bool HasServiceDefaults) source)
+    {
+        if (!source.HasServiceDefaults || source.Invocations.IsEmpty)
+            return;
+
+        var sourceCode = TracedInterceptorEmitter.Emit(source.Invocations);
+        if (!string.IsNullOrEmpty(sourceCode))
+            context.AddSource(OutputFileNames.TracedInterceptors, SourceText.From(sourceCode, Encoding.UTF8));
+    }
+
     private static string BuildInterceptorsSource(ImmutableArray<InterceptionData> candidates)
     {
         var sb = new StringBuilder();
@@ -345,6 +371,8 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         public const string CollectedOTelTags = nameof(CollectedOTelTags);
         public const string MeterClasses = nameof(MeterClasses);
         public const string CollectedMeterClasses = nameof(CollectedMeterClasses);
+        public const string TracedInvocations = nameof(TracedInvocations);
+        public const string CollectedTracedCalls = nameof(CollectedTracedCalls);
     }
 
     /// <summary>Output file names for generated source.</summary>
@@ -355,6 +383,7 @@ public sealed class ServiceDefaultsSourceGenerator : IIncrementalGenerator
         public const string DbInterceptors = "DbIntercepts.g.cs";
         public const string OTelTagExtensions = "OTelTagExtensions.g.cs";
         public const string MeterImplementations = "MeterImplementations.g.cs";
+        public const string TracedInterceptors = "TracedIntercepts.g.cs";
     }
 
     /// <summary>Source code templates for generated output.</summary>

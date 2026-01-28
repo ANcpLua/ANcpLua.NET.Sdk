@@ -6,11 +6,11 @@ Custom MSBuild SDK providing opinionated defaults, polyfills, and analyzers for 
 
 | Package | Version |
 |---------|---------|
-| ANcpLua.NET.Sdk | 1.6.28 |
-| ANcpLua.Roslyn.Utilities | 1.18.3 |
-| ANcpLua.Roslyn.Utilities.Sources | 1.18.3 |
-| ANcpLua.Roslyn.Utilities.Testing | 1.18.3 |
-| ANcpLua.Analyzers | 1.10.2 |
+| ANcpLua.NET.Sdk | 1.6.31 |
+| ANcpLua.Roslyn.Utilities | 1.20.0 |
+| ANcpLua.Roslyn.Utilities.Sources | 1.20.0 |
+| ANcpLua.Roslyn.Utilities.Testing | 1.20.0 |
+| ANcpLua.Analyzers | 1.10.6 |
 | Roslyn | 5.0.0 |
 | OpenTelemetry | 1.15.0 |
 | Microsoft.Extensions | 10.2.0 |

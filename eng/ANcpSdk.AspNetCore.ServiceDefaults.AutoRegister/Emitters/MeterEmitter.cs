@@ -81,19 +81,29 @@ internal static class MeterEmitter
     private static void AppendInstrumentField(StringBuilder sb, MetricMethodInfo method)
     {
         var fieldName = ToFieldName(method.MetricName);
-        var unitArg = method.Unit is not null ? $"\"{method.Unit}\"" : "null";
-        var descArg = method.Description is not null ? $"\"{method.Description}\"" : "null";
+
+        // Build arguments conditionally for cleaner generated code
+        var args = $"\"{method.MetricName}\"";
+
+        if (method.Unit is not null || method.Description is not null)
+        {
+            var unitArg = method.Unit is not null ? $"\"{method.Unit}\"" : "null";
+            args += $", {unitArg}";
+        }
+
+        if (method.Description is not null)
+            args += $", \"{method.Description}\"";
 
         if (method.Kind == MetricKind.Counter)
         {
             sb.AppendLine($"        private static readonly Counter<long> {fieldName} =");
-            sb.AppendLine($"            _meter.CreateCounter<long>(\"{method.MetricName}\", {unitArg}, {descArg});");
+            sb.AppendLine($"            _meter.CreateCounter<long>({args});");
         }
         else
         {
             var valueType = method.ValueTypeName ?? "double";
             sb.AppendLine($"        private static readonly Histogram<{valueType}> {fieldName} =");
-            sb.AppendLine($"            _meter.CreateHistogram<{valueType}>(\"{method.MetricName}\", {unitArg}, {descArg});");
+            sb.AppendLine($"            _meter.CreateHistogram<{valueType}>({args});");
         }
     }
 
@@ -104,7 +114,7 @@ internal static class MeterEmitter
         // Build parameter list
         var paramParts = new List<string>();
 
-        if (method.Kind == MetricKind.Histogram && method.ValueTypeName is not null)
+        if (method is { Kind: MetricKind.Histogram, ValueTypeName: not null })
         {
             paramParts.Add($"{method.ValueTypeName} value");
         }
@@ -121,20 +131,18 @@ internal static class MeterEmitter
 
         if (method.Tags.Count == 0)
         {
-            if (method.Kind == MetricKind.Counter)
-                sb.AppendLine($"            {fieldName}.Add(1);");
-            else
-                sb.AppendLine($"            {fieldName}.Record(value);");
+            sb.AppendLine(method.Kind == MetricKind.Counter
+                ? $"            {fieldName}.Add(1);"
+                : $"            {fieldName}.Record(value);");
         }
         else if (method.Tags.Count == 1)
         {
             var tag = method.Tags[0];
             var kvp = $"new KeyValuePair<string, object?>(\"{tag.TagName}\", {tag.ParameterName})";
 
-            if (method.Kind == MetricKind.Counter)
-                sb.AppendLine($"            {fieldName}.Add(1, {kvp});");
-            else
-                sb.AppendLine($"            {fieldName}.Record(value, {kvp});");
+            sb.AppendLine(method.Kind == MetricKind.Counter
+                ? $"            {fieldName}.Add(1, {kvp});"
+                : $"            {fieldName}.Record(value, {kvp});");
         }
         else
         {
@@ -148,10 +156,9 @@ internal static class MeterEmitter
             sb.Append(string.Join(", ", tagList));
             sb.AppendLine(" };");
 
-            if (method.Kind == MetricKind.Counter)
-                sb.AppendLine($"            {fieldName}.Add(1, tags);");
-            else
-                sb.AppendLine($"            {fieldName}.Record(value, tags);");
+            sb.AppendLine(method.Kind == MetricKind.Counter
+                ? $"            {fieldName}.Add(1, tags);"
+                : $"            {fieldName}.Record(value, tags);");
         }
 
         sb.AppendLine("        }");
@@ -170,7 +177,7 @@ internal static class MeterEmitter
             if (i == 0)
                 sb.Append(part);
             else
-                sb.Append(char.ToUpperInvariant(part[0])).Append(part.Substring(1));
+                sb.Append(char.ToUpperInvariant(part[0])).Append(part[1..]);
         }
 
         return sb.ToString();

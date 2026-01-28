@@ -123,7 +123,7 @@
   <Import Project="$(MSBuildThisFileDirectory)/Tests.targets" Condition="'$(IsTestProject)' == 'true'"/>
   <Import Project="$(MSBuildThisFileDirectory)/Npm.targets"/>
   <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.targets"/>
-  <Import Project="$(MSBuildThisFileDirectory)/../Enforcement/VersionEnforcement.targets"/>
+  <Import Project="$(MSBuildThisFileDirectory)/../Build/Enforcement/VersionEnforcement.targets"/>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        ADDITIONAL FILES FOR ANALYZERS
@@ -239,8 +239,8 @@
   <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../configuration/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../configuration/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../Config/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../Config/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
