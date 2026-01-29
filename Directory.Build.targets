@@ -46,19 +46,4 @@
     </PropertyGroup>
   </Target>
 
-  <!-- Target for ProjectReference inspection (runs later when items resolved) -->
-  <Target Name="_AncpLuaDetectReferences" BeforeTargets="ResolveProjectReferences">
-    <ItemGroup>
-      <_WebRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Web.csproj'))"/>
-      <_ApiRefs Include="@(ProjectReference)" Condition="$([System.String]::new('%(Identity)').EndsWith('.Api.csproj'))"/>
-    </ItemGroup>
-
-    <PropertyGroup Condition="'@(_WebRefs)' != ''">
-      <DefineConstants>$(DefineConstants);HAS_WEB_REFERENCE</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition="'@(_ApiRefs)' != ''">
-      <DefineConstants>$(DefineConstants);HAS_API_REFERENCE</DefineConstants>
-    </PropertyGroup>
-  </Target>
-
 </Project>
