@@ -74,7 +74,7 @@
     <MeziantouFullPathVersion>1.1.13</MeziantouFullPathVersion>
     <MeziantouTemporaryDirectoryVersion>1.0.31</MeziantouTemporaryDirectoryVersion>
     <MeziantouThreadingVersion>2.0.4</MeziantouThreadingVersion>
-    <MeziantouDependencyScanningVersion>2.0.6</MeziantouDependencyScanningVersion>
+    <MeziantouDependencyScanningVersion>2.0.7</MeziantouDependencyScanningVersion>
     <MeziantouAnalyzerVersion>2.0.285</MeziantouAnalyzerVersion>
     <MeziantouParallelTestFrameworkVersion>1.0.6</MeziantouParallelTestFrameworkVersion>
   </PropertyGroup>
