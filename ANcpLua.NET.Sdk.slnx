@@ -25,10 +25,6 @@
         <File Path="eng/CLAUDE.md" />
         <File Path="eng/Directory.Build.props" />
     </Folder>
-    <Folder Name="/src/AotTesting/">
-        <Project Path="src/AotTesting/ANcpLua.AotTesting.Attributes.csproj" />
-    </Folder>
-
     <!-- Tests -->
     <Folder Name="/tests/">
         <Project Path="tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj" />

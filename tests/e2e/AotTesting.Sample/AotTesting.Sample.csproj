@@ -12,8 +12,8 @@
     <SkipXunitInjection>true</SkipXunitInjection>
   </PropertyGroup>
 
-  <!-- Reference the AotTesting attributes package (version managed by CPM) -->
+  <!-- Reference the AOT testing utilities package (version managed by CPM) -->
   <ItemGroup>
-    <PackageReference Include="ANcpLua.AotTesting.Attributes" VersionOverride="0.0.0-local" />
+    <PackageReference Include="ANcpLua.Roslyn.Utilities.Testing.Aot" VersionOverride="0.0.0-local" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-using ANcpLua.AotTesting;
+using ANcpLua.Roslyn.Utilities.Testing.Aot;
 
 namespace AotTesting.Sample;
 

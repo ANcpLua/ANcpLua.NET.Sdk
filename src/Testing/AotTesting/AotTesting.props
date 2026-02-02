@@ -18,18 +18,17 @@
   -->
   <PropertyGroup>
     <EnableAotTesting Condition="'$(EnableAotTesting)' == ''">false</EnableAotTesting>
-    <AotTestingPackageVersion Condition="'$(AotTestingPackageVersion)' == ''">$(ANcpLuaAotTestingVersion)</AotTestingPackageVersion>
     <AotTestProjectsDir Condition="'$(AotTestProjectsDir)' == ''">$(IntermediateOutputPath)aot-tests/</AotTestProjectsDir>
     <DefaultAotTestTimeout Condition="'$(DefaultAotTestTimeout)' == ''">300</DefaultAotTestTimeout>
   </PropertyGroup>
 
-  <!-- 
+  <!--
     AOT Testing Package References
-    
-    When EnableAotTesting is true, automatically includes the ANcpLua.AotTesting.Attributes
+
+    When EnableAotTesting is true, automatically includes the ANcpLua.Roslyn.Utilities.Testing.Aot
     package which provides attributes and utilities for marking and configuring AOT tests.
   -->
   <ItemGroup Condition="'$(EnableAotTesting)' == 'true'">
-    <PackageReference Include="ANcpLua.AotTesting.Attributes" Version="$(AotTestingPackageVersion)" />
+    <PackageReference Include="ANcpLua.Roslyn.Utilities.Testing.Aot" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesTestingVersion)" />
   </ItemGroup>
 </Project>

@@ -17,12 +17,11 @@ src/
     ANcpLua.NET.Sdk.Test/
   Testing/              # Test project infrastructure
     Fixtures/           # Injectable test base classes
-    AotTesting/         # AOT/Trim testing support
+    AotTesting/         # AOT/Trim testing MSBuild orchestration
   shared/               # Injectable source files
     Polyfills/          # BCL polyfills for older TFMs
     Extensions/         # Utility extensions (Comparers, SourceGen, FakeLogger)
     Throw/              # Guard clause utilities
-  AotTesting/           # AOT testing attributes package
 ```
 
 ## SDK Entry Points
