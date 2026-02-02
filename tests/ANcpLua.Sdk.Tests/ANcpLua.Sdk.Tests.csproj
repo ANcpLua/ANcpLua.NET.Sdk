@@ -37,8 +37,4 @@
     <Compile Include="$(MSBuildThisFileDirectory)../../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" Link="Extensions/FakeLoggerExtensions.cs"/>
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Logging.Abstractions"/>
-  </ItemGroup>
-
 </Project>

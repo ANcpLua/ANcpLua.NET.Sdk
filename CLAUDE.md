@@ -1,44 +1,209 @@
 # CLAUDE.md - ANcpLua.NET.Sdk
 
-Custom MSBuild SDK providing opinionated defaults, polyfills, and analyzers for .NET projects.
+Opinionated MSBuild SDK providing standardized defaults, policy enforcement, polyfills, and analyzer injection for .NET projects.
 
-## Current Package Versions
+## SDK Variants
 
-| Package | Version |
-|---------|---------|
-| ANcpLua.NET.Sdk | 1.6.31 |
-| ANcpLua.Roslyn.Utilities | 1.20.0 |
-| ANcpLua.Roslyn.Utilities.Sources | 1.20.0 |
-| ANcpLua.Roslyn.Utilities.Testing | 1.20.0 |
-| ANcpLua.Analyzers | 1.10.6 |
-| Roslyn | 5.0.0 |
-| OpenTelemetry | 1.15.0 |
-| Microsoft.Extensions | 10.2.0 |
-| AspNetCore | 10.0.2 |
-| xunit.v3 | 3.2.2 |
+| Package              | Base SDK              | Purpose                            |
+|----------------------|-----------------------|------------------------------------|
+| ANcpLua.NET.Sdk      | Microsoft.NET.Sdk     | Standard .NET libraries/apps       |
+| ANcpLua.NET.Sdk.Web  | Microsoft.NET.Sdk.Web | ASP.NET Core web projects          |
+| ANcpLua.NET.Sdk.Test | Microsoft.NET.Sdk     | Test projects (xUnit v3 MTP)       |
 
-## Ecosystem Position
+## Import Chain
 
 ```
-LAYER 0: ANcpLua.Roslyn.Utilities  <-- UPSTREAM (no SDK dependency!)
-         | publishes .Sources
-LAYER 1: ANcpLua.NET.Sdk           <-- YOU ARE HERE (SOURCE OF TRUTH)
-         | auto-syncs Version.props
-LAYER 2: ANcpLua.Analyzers         <-- DOWNSTREAM (uses SDK)
-         | consumed by
-LAYER 3: qyl, other projects       <-- END USERS
+Sdk.props
+    |
+    +-> Version.props              # Package version constants
+    +-> GlobalPackages.props       # GlobalPackageReference (analyzers, SBOM)
+    |       |
+    |       +-> ANcpLua.Analyzers, BannedApiAnalyzers, JonSkeet.RoslynAnalyzers
+    |       +-> Microsoft.Sbom.Targets (if IsPackable=true)
+    |       +-> AwesomeAssertions.Analyzers (if IsTestProject=true)
+    |
+    +-> Microsoft.NET.Sdk[.Web]    # Base SDK import
+    |
+    +-> ItemDefaults.props         # AdditionalFiles, InternalsVisibleTo
+    +-> InternalsVisibleTo.props   # Simplified IVT syntax
+    +-> TerminalLogger.props       # Terminal logger configuration
+    +-> BuildCheck.props           # MSBuild BuildCheck integration
+    |
+    +-> Common.props               # Core defaults (see below)
+    |       |
+    |       +-> ContinuousIntegrationBuild.props
+    |       +-> LegacySupport.props  # Polyfill switch definitions
+    |
+    +-> Enforcement.props          # BANNED packages policy
+    +-> DeterminismAndSourceLink.props  # Reproducible builds
+    +-> Testing.props              # Test project detection (ANcpLua.NET.Sdk, ANcpLua.NET.Sdk.Test only)
+
+Sdk.targets
+    |
+    +-> Microsoft.NET.Sdk[.Web]    # Base SDK targets
+    +-> ItemMetadata.targets       # Auto-apply item metadata
+    +-> Deduplication.targets      # Remove duplicate items
+    +-> ArtifactStaging.targets    # Output organization
+    +-> LegacySupport.targets      # Polyfill file injection
 ```
 
-### This Repo: LAYER 1 (Source of Truth)
+## Auto-Detected Properties
 
-| Property                  | Value                                                           |
-|---------------------------|-----------------------------------------------------------------|
-| **Upstream dependencies** | ANcpLua.Roslyn.Utilities.Sources (see Directory.Packages.props) |
-| **Downstream consumers**  | ANcpLua.Analyzers, qyl, all SDK users                           |
-| **Version.props**         | SOURCE (canonical)                                              |
-| **Auto-sync**             | SENDS to Analyzers via GitHub Action                            |
+| Property                   | Detection Logic                                                          |
+|----------------------------|--------------------------------------------------------------------------|
+| `IsTestProject`            | Name ends with `.Tests`/`.Test` OR directory contains `tests`            |
+| `IsIntegrationTestProject` | Directory contains `Integration` or `E2E` OR references `.Web`/`.Api`    |
+| `IsAnalyzerTestProject`    | Name contains `Analyzer` or `Analyzers`                                  |
+| `_ANcpLuaInGitRepo`        | `.git` folder found via `GetDirectoryNameOfFileAbove`                    |
 
----
+## Core Defaults (Common.props)
+
+| Property                              | Value      | Notes                                      |
+|---------------------------------------|------------|--------------------------------------------|
+| `LangVersion`                         | `latest`   | Always use latest C# features              |
+| `Nullable`                            | `enable`   | NRTs enabled by default                    |
+| `ImplicitUsings`                      | `enable`   | Global usings enabled                      |
+| `Deterministic`                       | `true`     | Reproducible builds                        |
+| `EnableNETAnalyzers`                  | `true`     | .NET analyzers enabled                     |
+| `AnalysisLevel`                       | `latest-all` | All analysis rules                       |
+| `TreatWarningsAsErrors`               | `true`     | In CI or Release builds                    |
+| `ManagePackageVersionsCentrally`      | `true`     | CPM required                               |
+| `CentralPackageTransitivePinningEnabled` | `true`  | Transitive pinning enabled                 |
+
+## Banned Packages (Policy Enforcement)
+
+| Package                  | Reason                                     | Alternative                          |
+|--------------------------|--------------------------------------------|--------------------------------------|
+| `PolySharp`              | SDK provides polyfills                     | Use `Inject*OnLegacy` properties     |
+| `FluentAssertions`       | License concerns                           | Use `AwesomeAssertions`              |
+| `Microsoft.NET.Test.Sdk` | Only when MTP enabled                      | MTP doesn't need VSTest              |
+| `DisableTransitiveProjectReferences` | Breaks CPM          | Use `CentralPackageTransitivePinningEnabled` |
+
+## Polyfill Opt-In
+
+All polyfills are **opt-in** (default: `false`). Set in your project file:
+
+```xml
+<PropertyGroup>
+  <!-- Individual polyfills -->
+  <InjectIndexRangeOnLegacy>true</InjectIndexRangeOnLegacy>
+  <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
+  <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
+  <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
+  <InjectUnreachableExceptionOnLegacy>true</InjectUnreachableExceptionOnLegacy>
+  <InjectStringExtensionsPolyfill>true</InjectStringExtensionsPolyfill>
+  <InjectTimeProviderPolyfill>true</InjectTimeProviderPolyfill>
+
+  <!-- OR use bundle for all polyfills -->
+  <InjectAllPolyfillsOnLegacy>true</InjectAllPolyfillsOnLegacy>
+</PropertyGroup>
+```
+
+### Polyfill Reference
+
+| Property                              | Adds                                       | Required When         |
+|---------------------------------------|--------------------------------------------|-----------------------|
+| `InjectIndexRangeOnLegacy`            | `Index`, `Range` structs                   | before netcoreapp3.1  |
+| `InjectIsExternalInitOnLegacy`        | `IsExternalInit` (records)                 | before net5.0         |
+| `InjectRequiredMemberOnLegacy`        | `required` keyword support                 | before net7.0         |
+| `InjectCallerAttributesOnLegacy`      | `CallerArgumentExpression`                 | before net6.0         |
+| `InjectUnreachableExceptionOnLegacy`  | `UnreachableException`                     | before net7.0         |
+| `InjectExperimentalAttributeOnLegacy` | `ExperimentalAttribute`                    | before net8.0         |
+| `InjectNullabilityAttributesOnLegacy` | `MaybeNull`, `NotNull`, etc.               | before netcoreapp3.1  |
+| `InjectTrimAttributesOnLegacy`        | AOT/Trim attributes                        | before net5.0         |
+| `InjectStringExtensionsPolyfill`      | `string.Contains(StringComparison)`        | before netcoreapp2.1  |
+| `InjectTimeProviderPolyfill`          | `TimeProvider` abstract class              | before net8.0         |
+| `InjectLockPolyfill`                  | `Lock` class                               | before net10.0        |
+| `InjectSharedThrow`                   | Guard clause utilities                     | All TFMs (default: true) |
+
+## Extension Opt-In
+
+```xml
+<PropertyGroup>
+  <!-- Individual extensions -->
+  <InjectSharedThrow>true</InjectSharedThrow>          <!-- Guard clauses (enabled by default) -->
+  <InjectSourceGenHelpers>true</InjectSourceGenHelpers> <!-- EquatableArray, DiagnosticInfo -->
+  <InjectCommonComparers>true</InjectCommonComparers>   <!-- StringOrdinalComparer -->
+  <InjectFakeLogger>true</InjectFakeLogger>             <!-- Test logging helpers -->
+
+  <!-- OR use bundle for all extensions -->
+  <InjectAllExtensions>true</InjectAllExtensions>
+</PropertyGroup>
+```
+
+## Analyzer Injection
+
+Analyzers are injected via `GlobalPackageReference` (immutable when CPM enabled):
+
+| Analyzer                               | Purpose                          |
+|----------------------------------------|----------------------------------|
+| `ANcpLua.Analyzers`                    | Custom code quality rules        |
+| `Microsoft.CodeAnalysis.BannedApiAnalyzers` | Banned API enforcement       |
+| `JonSkeet.RoslynAnalyzers`             | NodaTime best practices          |
+| `AwesomeAssertions.Analyzers`          | Test assertion best practices    |
+
+Opt-out: `<DisableANcpLuaAnalyzers>true</DisableANcpLuaAnalyzers>`
+
+## Test Project Configuration
+
+When `IsTestProject=true`, the SDK automatically:
+
+1. Sets `OutputType=Exe` (for MTP)
+2. Injects `xunit.v3.mtp-v2` and `Meziantou.Xunit.v3.ParallelTestFramework`
+3. Injects `AwesomeAssertions` and its analyzer
+4. Adds global usings: `Xunit`, `AwesomeAssertions`
+5. Configures TRX reporting: `--report-xunit-trx`
+
+Opt-out of xUnit injection (for TUnit/NUnit/MSTest):
+```xml
+<PropertyGroup>
+  <SkipXunitInjection>true</SkipXunitInjection>
+</PropertyGroup>
+```
+
+## Roslyn Utilities Integration
+
+For source generators targeting netstandard2.0:
+
+```xml
+<PropertyGroup>
+  <UseRoslynUtilities>true</UseRoslynUtilities>
+</PropertyGroup>
+```
+
+This adds `ANcpLua.Roslyn.Utilities.Sources` (embedded) for netstandard2.0 or `ANcpLua.Roslyn.Utilities` (runtime) for newer TFMs.
+
+For analyzer/generator testing:
+
+```xml
+<PropertyGroup>
+  <UseRoslynUtilitiesTesting>true</UseRoslynUtilitiesTesting>
+</PropertyGroup>
+```
+
+## Consumer Usage
+
+### global.json
+
+```json
+{
+  "msbuild-sdks": {
+    "ANcpLua.NET.Sdk": "<version>",
+    "ANcpLua.NET.Sdk.Web": "<version>",
+    "ANcpLua.NET.Sdk.Test": "<version>"
+  }
+}
+```
+
+### Project File
+
+```xml
+<Project Sdk="ANcpLua.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+</Project>
+```
 
 ## Build Commands
 
@@ -46,88 +211,37 @@ LAYER 3: qyl, other projects       <-- END USERS
 # Build
 dotnet build
 
-# Pack (creates NuGet packages)
-pwsh ./build.ps1 -Version <major.minor.patch>
-
 # Test
 dotnet test
+
+# Pack (creates NuGet packages)
+pwsh ./build.ps1 -Version <major.minor.patch>
 ```
 
-## Published Packages
+## Version.props: Source of Truth
 
-| Package                | Description                        |
-|------------------------|------------------------------------|
-| `ANcpLua.NET.Sdk`      | Main SDK (`Sdk="ANcpLua.NET.Sdk"`) |
-| `ANcpLua.NET.Sdk.Test` | Test projects with xUnit v3 MTP    |
-| `ANcpLua.NET.Sdk.Web`  | Web projects with ASP.NET Core     |
+`src/Build/Common/Version.props` defines ALL package versions used across the SDK ecosystem:
 
-## Key Files
+- ANcpLua.NET.Sdk (this repo)
+- ANcpLua.Roslyn.Utilities (via symlink)
+- ANcpLua.Analyzers (via auto-sync GitHub Action)
+
+## Directory Structure
 
 ```
 src/
-├── Build/Common/
-│   ├── Version.props          ← SOURCE OF TRUTH for all versions
-│   ├── Common.props           ← LangVersion, Nullable, Analyzers
-│   ├── Common.targets         ← Analyzer package injection
-│   ├── LegacySupport.props    ← Polyfill switches
-│   ├── LegacySupport.targets  ← Polyfill file injection
-│   └── Shared.props           ← Utility switches
-├── Config/
-│   └── BannedSymbols.txt      ← API enforcement
-├── Sdk/
-│   ├── Sdk.props              ← SDK entry point
-│   └── Sdk.targets
-└── Testing/
-    └── Testing.props          ← xUnit v3 MTP auto-injection
-
-eng/
-├── Extensions/                ← Roslyn/Testing helpers
-├── LegacySupport/             ← Polyfill source files
-├── MSBuild/Polyfills/         ← MSBuild polyfills
-└── Shared/                    ← General utilities
-```
-
-## Features Provided to Consumers
-
-- **Polyfills:** Index/Range, IsExternalInit, StringExtensions (netstandard2.0)
-- **Analyzers:** ANcpLua.Analyzers, Meziantou.Analyzer, BannedApiAnalyzers
-- **BannedSymbols:** Legacy time APIs, legacy JSON libraries, object locks
-- **LangVersion:** Forces `latest`
-- **Nullable:** Enabled by default
-- **Deterministic:** Reproducible builds
-
-## Version.props Auto-Sync
-
-When `src/Build/Common/Version.props` changes:
-
-1. GitHub Action triggers
-2. PR created in ANcpLua.Analyzers
-3. Merge updates Analyzers versions
-
-**Workflow:** `.github/workflows/sync-versions.yml`
-
-## Publishing to NuGet
-
-Uses **NuGet Trusted Publishing** via GitHub Actions – no API keys needed.
-
-```bash
-# 1. Pack locally
-pwsh ./build.ps1 -Version X.Y.Z
-
-# 2. Commit and push
-git add . && git commit -m "Release X.Y.Z" && git push
-
-# 3. Create release tag (triggers nuget-publish.yml)
-git tag vX.Y.Z && git push origin vX.Y.Z
-```
-
-**Workflow:** `.github/workflows/nuget-publish.yml`
-**Trusted Publisher:** GitHubActions → ANcpLua/ANcpLua.NET.Sdk
-
-## NuGet Feeds
-
-```xml
-<packageSources>
-  <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
-</packageSources>
+  Build/
+    Common/           # Core props/targets
+    Enforcement/      # Policy enforcement
+    Packaging/        # NuGet packaging
+  Config/             # EditorConfig, BannedSymbols
+  Sdk/                # SDK entry points per variant
+  Testing/            # Test SDK infrastructure
+  shared/             # Injectable source files
+tests/
+  ANcpLua.Sdk.Tests/  # SDK behavior tests
+tools/
+  SdkGenerator/       # Generates Sdk.props/Sdk.targets
+  ConfigFilesGenerator/ # Generates editorconfig
+eng/                  # Build infrastructure
 ```

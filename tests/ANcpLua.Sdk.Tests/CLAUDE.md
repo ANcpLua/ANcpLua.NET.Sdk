@@ -1,6 +1,6 @@
 # CLAUDE.md - ANcpLua.Sdk.Tests
 
-Full SDK behavior test suite validating all SDK features.
+Full SDK behavior test suite validating all SDK features end-to-end.
 
 ## Commands
 
@@ -84,3 +84,29 @@ Tests run with 3 SDK import styles to ensure all work correctly:
 - Polyfill compilation (Index/Range on netstandard2.0)
 - Deterministic builds (hash consistency)
 - SourceLink generation
+
+## Adding New Tests
+
+1. Create test class in appropriate category
+2. Inherit from appropriate base (use `PackageFixture` for SDK tests)
+3. Use `ProjectBuilder` to create test projects
+4. Assert on build results, generated files, or diagnostics
+
+Example:
+```csharp
+[Fact]
+public async Task NewFeature_WhenEnabled_ShouldWork()
+{
+    await using var project = CreateProjectBuilder();
+    project.AddCsprojFile([
+        ("TargetFramework", "net10.0"),
+        ("NewFeature", "true")
+    ]);
+    project.AddFile("test.cs", "public class Test { }");
+
+    var result = await project.BuildAsync();
+
+    result.AssertSuccess();
+    result.AssertPropertyValue("NewFeature", "true");
+}
+```
