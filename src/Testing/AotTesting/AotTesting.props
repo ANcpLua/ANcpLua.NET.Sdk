@@ -23,6 +23,17 @@
   </PropertyGroup>
 
   <!--
+    AOT Compatibility Verification
+
+    When enabled, verifies that all referenced assemblies are marked as AOT-compatible.
+    This triggers IL3058 warnings for dependencies without IsAotCompatible metadata.
+    Opt-in to catch unmarked but potentially incompatible dependencies early.
+  -->
+  <PropertyGroup Condition="'$(EnableAotTesting)' == 'true'">
+    <VerifyReferenceAotCompatibility Condition="'$(VerifyReferenceAotCompatibility)' == ''">false</VerifyReferenceAotCompatibility>
+  </PropertyGroup>
+
+  <!--
     AOT Testing Package References
 
     When EnableAotTesting is true, automatically includes the ANcpLua.Roslyn.Utilities.Testing.Aot
