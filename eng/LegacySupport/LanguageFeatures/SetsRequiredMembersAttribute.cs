@@ -1,0 +1,63 @@
+using System.ComponentModel;
+
+#if !NET7_0_OR_GREATER
+
+namespace System.Diagnostics.CodeAnalysis;
+
+/// <summary>
+///     Specifies that the constructor sets all required members for the current type,
+///     and callers do not need to set any required members themselves.
+/// </summary>
+/// <remarks>
+///     <para>
+///         This type is only defined on older target frameworks and is automatically
+///         available on .NET 7+ through the standard library.
+///     </para>
+///     <para>
+///         The C# 11 compiler uses this attribute in conjunction with
+///         <see cref="System.Runtime.CompilerServices.RequiredMemberAttribute"/> to enable
+///         the <c>required</c> modifier on properties and fields.
+///     </para>
+///     <para>
+///         Apply this attribute to constructors that fully initialize all required members
+///         of a type. This allows callers to use that constructor without setting the
+///         required members through object initializer syntax.
+///     </para>
+/// </remarks>
+/// <example>
+///     <code>
+///     public class Person
+///     {
+///         public required string Name { get; set; }
+///         public required int Age { get; set; }
+///
+///         [SetsRequiredMembers]
+///         public Person(string name, int age)
+///         {
+///             Name = name;
+///             Age = age;
+///         }
+///     }
+///
+///     // Both are valid:
+///     var p1 = new Person("John", 30);  // Constructor sets required members
+///     var p2 = new Person { Name = "Jane", Age = 25 };  // Object initializer
+///     </code>
+/// </example>
+[AttributeUsage(AttributeTargets.Constructor, Inherited = false)]
+[EditorBrowsable(EditorBrowsableState.Never)]
+internal sealed class SetsRequiredMembersAttribute : Attribute
+{
+    /// <summary>
+    ///     Initializes a new instance of the <see cref="SetsRequiredMembersAttribute"/> class.
+    /// </summary>
+    /// <remarks>
+    ///     This constructor is called implicitly when applying the attribute to a constructor
+    ///     that sets all required members. It is not intended to be called directly from user code.
+    /// </remarks>
+    public SetsRequiredMembersAttribute()
+    {
+    }
+}
+
+#endif

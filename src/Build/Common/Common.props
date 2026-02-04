@@ -6,6 +6,7 @@
 
   <Import Project="$(MSBuildThisFileDirectory)/ContinuousIntegrationBuild.props"/>
   <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.props"/>
+  <Import Project="$(MSBuildThisFileDirectory)/SourceGenerators.props"/>
 
   <PropertyGroup Label="Git Detection">
     <_ANcpLuaGitDir Condition="'$(_ANcpLuaGitDir)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', '.git'))</_ANcpLuaGitDir>

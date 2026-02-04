@@ -11,6 +11,7 @@
     <InjectNullabilityAttributesOnLegacy>  - Nullable reference type attrs (< netcoreapp3.1)
     <InjectIsExternalInitOnLegacy>         - Records support (< net5.0)
     <InjectRequiredMemberOnLegacy>         - required keyword support (< net7.0)
+    <InjectSetsRequiredMembersOnLegacy>    - SetsRequiredMembersAttribute (< net7.0)
     <InjectCallerAttributesOnLegacy>       - CallerArgumentExpression (< net6.0)
     <InjectUnreachableExceptionOnLegacy>   - UnreachableException (< net7.0)
     <InjectExperimentalAttributeOnLegacy>  - ExperimentalAttribute (< net8.0)
@@ -22,10 +23,12 @@
     <InjectSharedThrow>                    - Guard clause utilities (all TFMs)
     <InjectSourceGenHelpers>               - EquatableArray, DiagnosticInfo, LocationInfo
     <InjectCommonComparers>                - StringOrdinalComparer
+    <InjectCodeFixProviderBase>            - CodeFixProviderBase<TSyntax> base class for code fixes
 
   BUNDLES (convenience):
     <InjectAllPolyfillsOnLegacy>           - All polyfills based on TFM
     <InjectAllExtensions>                  - All extension utilities
+    <InjectAllLanguageFeaturePolyfills>    - All C# 14 language feature polyfills for netstandard2.0
 -->
 <Project>
 
@@ -40,6 +43,7 @@
     <InjectRequiredMemberOnLegacy Condition="'$(InjectRequiredMemberOnLegacy)' == ''">false</InjectRequiredMemberOnLegacy>
     <InjectCallerAttributesOnLegacy Condition="'$(InjectCallerAttributesOnLegacy)' == ''">false</InjectCallerAttributesOnLegacy>
     <InjectCompilerFeatureRequiredOnLegacy Condition="'$(InjectCompilerFeatureRequiredOnLegacy)' == ''">false</InjectCompilerFeatureRequiredOnLegacy>
+    <InjectSetsRequiredMembersOnLegacy Condition="'$(InjectSetsRequiredMembersOnLegacy)' == ''">false</InjectSetsRequiredMembersOnLegacy>
     <InjectUnreachableExceptionOnLegacy Condition="'$(InjectUnreachableExceptionOnLegacy)' == ''">false</InjectUnreachableExceptionOnLegacy>
     <InjectExperimentalAttributeOnLegacy Condition="'$(InjectExperimentalAttributeOnLegacy)' == ''">false</InjectExperimentalAttributeOnLegacy>
     <InjectIndexRangeOnLegacy Condition="'$(InjectIndexRangeOnLegacy)' == ''">false</InjectIndexRangeOnLegacy>
@@ -65,6 +69,8 @@
     <InjectCommonComparers Condition="'$(InjectCommonComparers)' == ''">false</InjectCommonComparers>
     <InjectStringOrdinalComparer Condition="'$(InjectStringOrdinalComparer)' == ''">false</InjectStringOrdinalComparer>
     <InjectFakeLogger Condition="'$(InjectFakeLogger)' == ''">false</InjectFakeLogger>
+    <InjectCodeFixProviderBase Condition="'$(InjectCodeFixProviderBase)' == ''">false</InjectCodeFixProviderBase>
+    <InjectSyntaxModifierExtensions Condition="'$(InjectSyntaxModifierExtensions)' == ''">false</InjectSyntaxModifierExtensions>
 
     <!-- General ANcpLua Extensions/Shared Resources - default to false - opt-in -->
     <EnableANcpLuaExtensions Condition="'$(EnableANcpLuaExtensions)' == ''">false</EnableANcpLuaExtensions>
@@ -75,6 +81,7 @@
     <!-- Bundles -->
     <InjectAllPolyfillsOnLegacy Condition="'$(InjectAllPolyfillsOnLegacy)' == ''">false</InjectAllPolyfillsOnLegacy>
     <InjectAllExtensions Condition="'$(InjectAllExtensions)' == ''">false</InjectAllExtensions>
+    <InjectAllLanguageFeaturePolyfills Condition="'$(InjectAllLanguageFeaturePolyfills)' == ''">false</InjectAllLanguageFeaturePolyfills>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -83,6 +90,7 @@
   <PropertyGroup Condition="'$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true'">
     <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
     <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
+    <InjectSetsRequiredMembersOnLegacy>true</InjectSetsRequiredMembersOnLegacy>
     <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
     <InjectCompilerFeatureRequiredOnLegacy>true</InjectCompilerFeatureRequiredOnLegacy>
     <InjectParamCollectionOnLegacy>true</InjectParamCollectionOnLegacy>

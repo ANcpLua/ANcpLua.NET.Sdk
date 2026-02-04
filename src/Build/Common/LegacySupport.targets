@@ -16,6 +16,7 @@
     <InjectNullabilityAttributesOnLegacy>true</InjectNullabilityAttributesOnLegacy>
     <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
     <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
+    <InjectSetsRequiredMembersOnLegacy>true</InjectSetsRequiredMembersOnLegacy>
     <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
     <InjectCompilerFeatureRequiredOnLegacy>true</InjectCompilerFeatureRequiredOnLegacy>
     <InjectUnreachableExceptionOnLegacy>true</InjectUnreachableExceptionOnLegacy>
@@ -44,6 +45,18 @@
     <EnableANcpLuaSharedResources>true</EnableANcpLuaSharedResources>
     <EnableANcpLuaSharedWorkflows>true</EnableANcpLuaSharedWorkflows>
     <InjectANcpLuaIntegrationTestHelpers>true</InjectANcpLuaIntegrationTestHelpers>
+  </PropertyGroup>
+
+  <!-- InjectAllLanguageFeaturePolyfills - All C# 14 language feature polyfills for netstandard2.0 -->
+  <PropertyGroup Condition="'$(InjectAllLanguageFeaturePolyfills)' == 'true'">
+    <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
+    <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
+    <InjectSetsRequiredMembersOnLegacy>true</InjectSetsRequiredMembersOnLegacy>
+    <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
+    <InjectCompilerFeatureRequiredOnLegacy>true</InjectCompilerFeatureRequiredOnLegacy>
+    <InjectParamCollectionOnLegacy>true</InjectParamCollectionOnLegacy>
+    <InjectIndexRangeOnLegacy>true</InjectIndexRangeOnLegacy>
+    <InjectNullabilityAttributesOnLegacy>true</InjectNullabilityAttributesOnLegacy>
   </PropertyGroup>
 
   <!-- Enable dependencies for SharedThrow -->
@@ -129,6 +142,11 @@
     <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
   </ItemGroup>
 
+  <!-- SetsRequiredMembersAttribute (< net7.0) - allows constructors to satisfy required members -->
+  <ItemGroup Condition="('$(InjectSetsRequiredMembersOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet7Polyfills)' == 'true'">
+    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/SetsRequiredMembersAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
+  </ItemGroup>
+
   <!-- CallerArgumentExpressionAttribute (< net6.0) -->
   <ItemGroup Condition="('$(InjectCallerAttributesOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet6Polyfills)' == 'true'">
     <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/CallerArgumentExpressionAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
@@ -209,6 +227,22 @@
     <!-- SDK-specific extensions that build on ANcpLua.Roslyn.Utilities -->
     <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/DiagnosticsExtensions.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
     <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/SyntaxValueProvider.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
+  </ItemGroup>
+
+  <!-- ─────────────────────────────────────────────────────────────────────────
+       CODE FIX HELPERS
+       CodeFixProviderBase<TSyntax> - base class for code fixes
+       ───────────────────────────────────────────────────────────────────────── -->
+  <ItemGroup Condition="'$(InjectCodeFixProviderBase)' == 'true'">
+    <Compile Include="$(_SharedSourcePath)Extensions/CodeFixes/CodeFixProviderBase.cs" LinkBase="Shared/Extensions/CodeFixes" Visible="false"/>
+  </ItemGroup>
+
+  <!-- ─────────────────────────────────────────────────────────────────────────
+       SYNTAX MODIFIER EXTENSIONS
+       SyntaxModifierExtensions - helpers for manipulating modifiers in code fixes
+       ───────────────────────────────────────────────────────────────────────── -->
+  <ItemGroup Condition="'$(InjectSyntaxModifierExtensions)' == 'true'">
+    <Compile Include="$(_SharedSourcePath)Extensions/SyntaxModifier/SyntaxModifierExtensions.cs" LinkBase="Shared/Extensions/SyntaxModifier" Visible="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────

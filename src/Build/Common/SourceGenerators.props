@@ -1,0 +1,89 @@
+<Project>
+  <!--
+    ═══════════════════════════════════════════════════════════════════════════
+    SOURCE GENERATOR / ANALYZER CONFIGURATION
+    ═══════════════════════════════════════════════════════════════════════════
+
+    This file provides configuration for Roslyn source generators and analyzers,
+    allowing them to pin specific Roslyn versions for broad compatibility while
+    still using Central Package Management.
+
+    USAGE:
+      <PropertyGroup>
+        <SourceGeneratorRoslynVersion>5.0.0</SourceGeneratorRoslynVersion>
+        <UseInterceptors>true</UseInterceptors>
+      </PropertyGroup>
+
+    PROPERTIES:
+      SourceGeneratorRoslynVersion - Pin Microsoft.CodeAnalysis.CSharp version
+                                     (default: from Version.props RoslynVersion)
+      UseInterceptors              - Enable C# interceptors feature
+                                     (auto-adds RSEXPERIMENTAL002 to NoWarn)
+
+    WHY THIS EXISTS:
+      Source generators must use older Roslyn versions (typically 5.0.0) for
+      compatibility with Visual Studio and older SDK versions. This creates
+      a conflict with CPM which wants to use a single version. The traditional
+      workaround is <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+      but this loses all CPM benefits. This SDK feature uses VersionOverride
+      to selectively pin only the Roslyn package while keeping CPM enabled.
+  -->
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       AUTO-DETECT SOURCE GENERATOR / ANALYZER PROJECTS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- Detect generator/analyzer projects by:
+         1. IsRoslynComponent=true (official MSBuild property)
+         2. Project name patterns (Analyzer, Generator, SourceGenerator)
+         3. Explicit opt-in via IsSourceGenerator=true -->
+    <_IsSourceGeneratorProject Condition="'$(IsRoslynComponent)' == 'true'">true</_IsSourceGeneratorProject>
+    <_IsSourceGeneratorProject Condition="$(MSBuildProjectName.Contains('Analyzer'))">true</_IsSourceGeneratorProject>
+    <_IsSourceGeneratorProject Condition="$(MSBuildProjectName.Contains('Generator'))">true</_IsSourceGeneratorProject>
+    <_IsSourceGeneratorProject Condition="$(MSBuildProjectName.Contains('SourceGenerator'))">true</_IsSourceGeneratorProject>
+    <_IsSourceGeneratorProject Condition="'$(IsSourceGenerator)' == 'true'">true</_IsSourceGeneratorProject>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       SOURCE GENERATOR ROSLYN VERSION OVERRIDE
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- When SourceGeneratorRoslynVersion is set, override the Roslyn package version
+       while keeping CPM enabled. This is the recommended approach for generators. -->
+  <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != ''">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"
+                      Version="$(SourceGeneratorRoslynVersion)"
+                      VersionOverride="$(SourceGeneratorRoslynVersion)"
+                      PrivateAssets="all"
+                      IsImplicitlyDefined="true"/>
+  </ItemGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       INTERCEPTORS SUPPORT
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- UseInterceptors enables C# interceptors feature (experimental)
+       Automatically suppresses RSEXPERIMENTAL002 warning -->
+  <PropertyGroup Condition="'$(UseInterceptors)' == 'true'">
+    <NoWarn>$(NoWarn);RSEXPERIMENTAL002</NoWarn>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       AUTO-CONFIGURATION FOR DETECTED GENERATORS
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- When a generator project is detected but SourceGeneratorRoslynVersion is not set,
+       default to the SDK's RoslynVersion (5.0.0) for broad compatibility -->
+  <PropertyGroup Condition="'$(_IsSourceGeneratorProject)' == 'true' AND '$(SourceGeneratorRoslynVersion)' == '' AND '$(ManagePackageVersionsCentrally)' == 'true'">
+    <!-- Don't auto-set SourceGeneratorRoslynVersion - let user opt-in explicitly.
+         This avoids unexpected behavior for projects that intentionally use
+         a newer Roslyn version or have their own version management. -->
+  </PropertyGroup>
+
+  <!-- Common generator project settings (opt-in via IsSourceGenerator or detection) -->
+  <PropertyGroup Condition="'$(_IsSourceGeneratorProject)' == 'true'">
+    <!-- EnforceExtendedAnalyzerRules ensures analyzer/generator best practices -->
+    <EnforceExtendedAnalyzerRules Condition="'$(EnforceExtendedAnalyzerRules)' == ''">true</EnforceExtendedAnalyzerRules>
+  </PropertyGroup>
+
+</Project>

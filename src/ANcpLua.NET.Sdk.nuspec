@@ -89,6 +89,8 @@
     <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
     <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="../eng/Extensions/SyntaxModifier/SyntaxModifierExtensions.cs" target="shared/Extensions/SyntaxModifier/"/>
+    <file src="../eng/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>

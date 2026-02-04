@@ -1,0 +1,33 @@
+<!--
+  Extensions.props - Extension injection configuration
+
+  This file defines properties that control which extensions
+  are injected into projects.
+
+  USAGE: Set any of these properties to 'true' in your project to inject:
+
+  ANALYZER EXTENSIONS:
+    <InjectDiagnosticAnalyzerBase>  - Base class for diagnostic analyzers
+-->
+<Project>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       DEFAULT VALUES
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <!-- Analyzer Extensions default to false - opt-in -->
+    <InjectDiagnosticAnalyzerBase Condition="'$(InjectDiagnosticAnalyzerBase)' == ''">false</InjectDiagnosticAnalyzerBase>
+  </PropertyGroup>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       EXTENSION INJECTION
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- DiagnosticAnalyzerBase - Base class for Roslyn analyzers -->
+  <ItemGroup Condition="'$(InjectDiagnosticAnalyzerBase)' == 'true'">
+    <Compile Include="$(MSBuildThisFileDirectory)../Extensions/DiagnosticAnalyzerBase.cs"
+             Link="Generated/DiagnosticAnalyzerBase.g.cs"
+             Visible="false"/>
+  </ItemGroup>
+
+</Project>
