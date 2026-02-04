@@ -18,6 +18,10 @@
   <PropertyGroup Label="SDK Version (Auto-generated)">
     <ANcpSdkPackageVersion>2.0.0</ANcpSdkPackageVersion>
   </PropertyGroup>
+  <PropertyGroup Label=".NET SDK">
+    <DotNetSdkVersion>10.0.102</DotNetSdkVersion>
+    <DotNetSdkRollForward>latestMinor</DotNetSdkRollForward>
+  </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        ROSLYN / CODE ANALYSIS

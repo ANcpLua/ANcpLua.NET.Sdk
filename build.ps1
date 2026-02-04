@@ -12,6 +12,21 @@ $ErrorActionPreference = "Stop"
 # VERSION INFO
 # =============================================================================
 Write-Host "Building version: $Version" -ForegroundColor Cyan
+$GlobalJsonPath = "global.json"
+if (-not (Test-Path $GlobalJsonPath)) {
+    throw "global.json not found at repository root."
+}
+
+$GlobalJson = Get-Content $GlobalJsonPath -Raw | ConvertFrom-Json
+$DotNetSdkVersion = $GlobalJson.sdk.version
+$DotNetSdkRollForward = $GlobalJson.sdk.rollForward
+
+if ([string]::IsNullOrWhiteSpace($DotNetSdkVersion)) {
+    throw "global.json missing sdk.version."
+}
+if ([string]::IsNullOrWhiteSpace($DotNetSdkRollForward)) {
+    throw "global.json missing sdk.rollForward."
+}
 
 # Generate Version.props with the package version and centralized dependency versions
 $VersionPropsPath = "src/Build/Common/Version.props"
@@ -35,6 +50,10 @@ $VersionPropsContent = @"
   -->
   <PropertyGroup Label="SDK Version (Auto-generated)">
     <ANcpSdkPackageVersion>$Version</ANcpSdkPackageVersion>
+  </PropertyGroup>
+  <PropertyGroup Label=".NET SDK">
+    <DotNetSdkVersion>$DotNetSdkVersion</DotNetSdkVersion>
+    <DotNetSdkRollForward>$DotNetSdkRollForward</DotNetSdkRollForward>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
