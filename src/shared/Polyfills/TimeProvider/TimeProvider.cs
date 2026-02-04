@@ -93,7 +93,6 @@ internal abstract class TimeProvider
 /// <summary>
 /// Represents a timer that can be changed or disposed.
 /// </summary>
-[ExcludeFromCodeCoverage]
 internal interface ITimer : IDisposable, IAsyncDisposable
 {
     /// <summary>
