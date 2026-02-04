@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)../../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" Link="Extensions/FakeLoggerExtensions.cs"/>
+    <Compile Include="$(MSBuildThisFileDirectory)../../src/shared/Extensions/FakeLogger/FakeLoggerExtensions.cs" Link="Extensions/FakeLoggerExtensions.cs"/>
   </ItemGroup>
 
 </Project>
