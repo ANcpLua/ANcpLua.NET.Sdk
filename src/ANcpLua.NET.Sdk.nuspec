@@ -59,38 +59,39 @@
     <file src="Testing/Testing.props" target="Testing/"/>
 
     <!-- Shared Sources - Polyfills -->
-    <file src="../eng/LegacySupport/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
-    <file src="../eng/LegacySupport/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/IsExternalInit/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="../eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
-    <file src="../eng/LegacySupport/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
-    <file src="../eng/LegacySupport/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMemberTypes.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/RequiresDynamicCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/RequiresUnreferencedCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/TrimAttributes/UnconditionalSuppressMessageAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="../eng/LegacySupport/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
-    <file src="../eng/LegacySupport/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
-    <file src="../eng/LegacySupport/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
-    <file src="../eng/LegacySupport/StringExtensions/StringExtensions.cs" target="shared/Polyfills/StringExtensions/"/>
-    <file src="../eng/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/Polyfills/"/>
-    <file src="../eng/MSBuild/Polyfills/Lock.cs" target="shared/Polyfills/"/>
-    <file src="../eng/MSBuild/Polyfills/TrimAttributes.cs" target="shared/Polyfills/"/>
+    <file src="shared/Polyfills/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
+    <file src="shared/Polyfills/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
+    <file src="shared/Polyfills/LanguageFeatures/CallerArgumentExpressionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="shared/Polyfills/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="shared/Polyfills/LanguageFeatures/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="shared/Polyfills/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="shared/Polyfills/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="shared/Polyfills/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
+    <file src="shared/Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
+    <file src="shared/Polyfills/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>
+    <file src="shared/Polyfills/TrimAttributes/DynamicallyAccessedMemberTypes.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="shared/Polyfills/TrimAttributes/DynamicallyAccessedMembersAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="shared/Polyfills/TrimAttributes/RequiresDynamicCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="shared/Polyfills/TrimAttributes/RequiresUnreferencedCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="shared/Polyfills/TrimAttributes/UnconditionalSuppressMessageAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
+    <file src="shared/Polyfills/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
+    <file src="shared/Polyfills/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
+    <file src="shared/Polyfills/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
+    <file src="shared/Polyfills/StringExtensions/StringExtensions.cs" target="shared/Polyfills/StringExtensions/"/>
+    <file src="shared/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/Polyfills/"/>
+    <file src="shared/MSBuild/Polyfills/Lock.cs" target="shared/Polyfills/"/>
+    <file src="shared/MSBuild/Polyfills/TrimAttributes.cs" target="shared/Polyfills/"/>
 
     <!-- Shared Sources - Other -->
-    <file src="../eng/Shared/Throw/Throw.cs" target="shared/Throw/"/>
-    <file src="../eng/Shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
-    <file src="../eng/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
-    <file src="../eng/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
-    <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="../eng/Extensions/CodeFixes/SyntaxModifierExtensions.cs" target="shared/Extensions/CodeFixes/"/>
-    <file src="../eng/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
+    <file src="shared/Throw/Throw.cs" target="shared/Throw/"/>
+    <file src="shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
+    <file src="shared/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
+    <file src="shared/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
+    <file src="shared/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="shared/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
+    <file src="shared/Extensions/CodeFixes/SyntaxModifierExtensions.cs" target="shared/Extensions/CodeFixes/"/>
+    <file src="shared/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
+    <file src="shared/Extensions/DiagnosticAnalyzerBase.cs" target="shared/Extensions/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>
