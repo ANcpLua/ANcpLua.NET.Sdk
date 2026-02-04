@@ -8,8 +8,6 @@ namespace ANcpLua.Sdk.Tests;
 /// </summary>
 public class PolyfillTests(PackageFixture fixture)
 {
-    private readonly PackageFixture _fixture = fixture;
-
     #region Individual Polyfill Activation Tests
 
     public static TheoryData<PolyfillDefinition> AllPolyfills => PolyfillTestDataSource.ActivationMatrix();
@@ -18,7 +16,7 @@ public class PolyfillTests(PackageFixture fixture)
     [MemberData(nameof(AllPolyfills))]
     public async Task Polyfill_Activates_When_Enabled(PolyfillDefinition polyfill)
     {
-        await using var project = SdkProjectBuilder.Create(_fixture);
+        await using var project = SdkProjectBuilder.Create(fixture);
 
         // Use Library since polyfills target netstandard2.0 which is library-only
         project
@@ -27,7 +25,7 @@ public class PolyfillTests(PackageFixture fixture)
             .WithTargetFramework(polyfill.MinimumTargetFramework);
 
         if (polyfill.RequiresLangVersionLatest)
-            project.WithLangVersion(Val.Latest);
+            project.WithLangVersion();
 
         var result = await project
             .AddSource("Smoke.cs", $$"""
@@ -54,7 +52,7 @@ public class PolyfillTests(PackageFixture fixture)
         if (!polyfill.HasNegativeTest)
             return;
 
-        await using var project = SdkProjectBuilder.Create(_fixture);
+        await using var project = SdkProjectBuilder.Create(fixture);
 
         // Use Library since polyfills target netstandard2.0 which is library-only
         project
@@ -62,7 +60,7 @@ public class PolyfillTests(PackageFixture fixture)
             .WithTargetFramework(polyfill.MinimumTargetFramework);
 
         if (polyfill.RequiresLangVersionLatest)
-            project.WithLangVersion(Val.Latest);
+            project.WithLangVersion();
 
         if (polyfill.DisablesSharedThrowForNegative)
             project.WithProperty(SdkProp.InjectSharedThrow, Val.False);
@@ -195,13 +193,13 @@ public class PolyfillTests(PackageFixture fixture)
     [MemberData(nameof(CombinationScenarios))]
     public async Task Polyfill_Combinations_Build_Successfully(PolyfillScenario scenario)
     {
-        await using var project = SdkProjectBuilder.Create(_fixture);
+        await using var project = SdkProjectBuilder.Create(fixture);
 
         // Use Library since polyfills target netstandard2.0 which is library-only
         project
             .WithOutputType(Val.Library)
             .WithTargetFramework(Tfm.NetStandard20)
-            .WithLangVersion(Val.Latest);
+            .WithLangVersion();
 
         foreach (var polyfillProp in scenario.PolyfillsToEnable)
             project.WithProperty(polyfillProp, Val.True);
@@ -256,10 +254,10 @@ public sealed class PolyfillScenario : IXunitSerializable
 
     void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
     {
-        Name = (string)info.GetValue(nameof(Name))!;
-        PolyfillsToEnable = (string[])info.GetValue(nameof(PolyfillsToEnable))!;
-        TestCode = (string)info.GetValue(nameof(TestCode))!;
-        AdditionalCode = (string)info.GetValue(nameof(AdditionalCode))!;
+        Name = info.GetValue<string>(nameof(Name)) ?? "";
+        PolyfillsToEnable = info.GetValue<string[]>(nameof(PolyfillsToEnable)) ?? [];
+        TestCode = info.GetValue<string>(nameof(TestCode)) ?? "";
+        AdditionalCode = info.GetValue<string>(nameof(AdditionalCode)) ?? "";
     }
 
     void IXunitSerializable.Serialize(IXunitSerializationInfo info)

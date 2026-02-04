@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.IO.Compression;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
@@ -762,7 +761,7 @@ public abstract class SdkTests(
         // Diagnostic: Check if the CI detection property was set
         var isGitHubActions = result.GetMsBuildPropertyValue("_IsGitHubActions");
         Assert.True(isGitHubActions == "true",
-            $"Expected _IsGitHubActions='true', but got '{isGitHubActions ?? "(null)"}'. " +
+            $"Expected _IsGitHubActions='true', but got '{isGitHubActions}'. " +
             "This indicates the GITHUB_ACTIONS environment variable was not properly read by MSBuild.");
 
         // Diagnostic: Check if the logger injection target executed

@@ -67,11 +67,11 @@ public sealed class PolyfillDefinition : IXunitSerializable
 
     void IXunitSerializable.Deserialize(IXunitSerializationInfo info)
     {
-        InjectionProperty = info.GetValue<string>(nameof(InjectionProperty))!;
-        RepositoryPath = info.GetValue<string>(nameof(RepositoryPath))!;
-        MinimumTargetFramework = info.GetValue<string>(nameof(MinimumTargetFramework))!;
-        ActivationCode = info.GetValue<string>(nameof(ActivationCode))!;
-        ExpectedType = info.GetValue<string>(nameof(ExpectedType))!;
+        InjectionProperty = info.GetValue<string>(nameof(InjectionProperty)) ?? "";
+        RepositoryPath = info.GetValue<string>(nameof(RepositoryPath)) ?? "";
+        MinimumTargetFramework = info.GetValue<string>(nameof(MinimumTargetFramework)) ?? "";
+        ActivationCode = info.GetValue<string>(nameof(ActivationCode)) ?? "";
+        ExpectedType = info.GetValue<string>(nameof(ExpectedType)) ?? "";
         HasNegativeTest = info.GetValue<bool>(nameof(HasNegativeTest));
         RequiresLangVersionLatest = info.GetValue<bool>(nameof(RequiresLangVersionLatest));
         DisablesSharedThrowForNegative = info.GetValue<bool>(nameof(DisablesSharedThrowForNegative));

@@ -534,13 +534,13 @@ public sealed class SdkProjectBuilder : ProjectBuilder
             psi.ArgumentList.Add("--project");
             psi.ArgumentList.Add(ProjectFilename ?? "ANcpLua.TestProject.csproj");
 
-            if (dashDashIndex >= 0)
+            if (dashDashIndex >= 0 && arguments is not null)
             {
                 // Add args before --, then /bl, then -- and remaining args
                 for (var i = 0; i < dashDashIndex; i++)
-                    psi.ArgumentList.Add(arguments![i]);
+                    psi.ArgumentList.Add(arguments[i]);
                 psi.ArgumentList.Add("/bl");
-                for (var i = dashDashIndex; i < arguments!.Length; i++)
+                for (var i = dashDashIndex; i < arguments.Length; i++)
                     psi.ArgumentList.Add(arguments[i]);
             }
             else
