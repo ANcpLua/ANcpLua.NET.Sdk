@@ -24,6 +24,8 @@
     <InjectSourceGenHelpers>               - EquatableArray, DiagnosticInfo, LocationInfo
     <InjectCommonComparers>                - StringOrdinalComparer
     <InjectCodeFixProviderBase>            - CodeFixProviderBase<TSyntax> base class for code fixes
+    <InjectSyntaxModifierExtensions>       - SyntaxModifierExtensions for manipulating syntax modifiers
+    <InjectDiagnosticAnalyzerBase>         - DiagnosticAnalyzerBase for Roslyn diagnostic analyzers
 
   BUNDLES (convenience):
     <InjectAllPolyfillsOnLegacy>           - All polyfills based on TFM
@@ -71,6 +73,7 @@
     <InjectFakeLogger Condition="'$(InjectFakeLogger)' == ''">false</InjectFakeLogger>
     <InjectCodeFixProviderBase Condition="'$(InjectCodeFixProviderBase)' == ''">false</InjectCodeFixProviderBase>
     <InjectSyntaxModifierExtensions Condition="'$(InjectSyntaxModifierExtensions)' == ''">false</InjectSyntaxModifierExtensions>
+    <InjectDiagnosticAnalyzerBase Condition="'$(InjectDiagnosticAnalyzerBase)' == ''">false</InjectDiagnosticAnalyzerBase>
 
     <!-- General ANcpLua Extensions/Shared Resources - default to false - opt-in -->
     <EnableANcpLuaExtensions Condition="'$(EnableANcpLuaExtensions)' == ''">false</EnableANcpLuaExtensions>

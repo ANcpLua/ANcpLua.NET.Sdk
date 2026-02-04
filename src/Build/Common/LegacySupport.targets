@@ -242,7 +242,15 @@
        SyntaxModifierExtensions - helpers for manipulating modifiers in code fixes
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectSyntaxModifierExtensions)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/SyntaxModifier/SyntaxModifierExtensions.cs" LinkBase="Shared/Extensions/SyntaxModifier" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/CodeFixes/SyntaxModifierExtensions.cs" LinkBase="Shared/Extensions/CodeFixes" Visible="false"/>
+  </ItemGroup>
+
+  <!-- ─────────────────────────────────────────────────────────────────────────
+       DIAGNOSTIC ANALYZER BASE
+       DiagnosticAnalyzerBase - base class for Roslyn diagnostic analyzers
+       ───────────────────────────────────────────────────────────────────────── -->
+  <ItemGroup Condition="'$(InjectDiagnosticAnalyzerBase)' == 'true'">
+    <Compile Include="$(_SharedSourcePath)Extensions/DiagnosticAnalyzerBase.cs" LinkBase="Shared/Extensions" Visible="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────

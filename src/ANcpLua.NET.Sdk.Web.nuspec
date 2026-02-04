@@ -89,6 +89,7 @@
     <file src="../eng/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
     <file src="../eng/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
+    <file src="../eng/Extensions/CodeFixes/SyntaxModifierExtensions.cs" target="shared/Extensions/CodeFixes/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>

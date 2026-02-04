@@ -6,14 +6,8 @@ namespace ANcpLua.Analyzers;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-/// <summary>
-/// Extension methods for working with syntax modifiers.
-/// </summary>
-internal static class SyntaxModifierExtensions
+public static class SyntaxModifierExtensions
 {
-    /// <summary>
-    /// Ensures a modifier exists in the token list, inserting it if missing.
-    /// </summary>
     public static SyntaxTokenList EnsureModifier(
         this SyntaxTokenList modifiers,
         SyntaxKind kind,
@@ -33,9 +27,6 @@ internal static class SyntaxModifierExtensions
         return modifiers.Insert(insertIndex, SyntaxFactory.Token(kind).WithTrailingTrivia(SyntaxFactory.Space));
     }
 
-    /// <summary>
-    /// Removes a modifier from the token list if present.
-    /// </summary>
     public static SyntaxTokenList RemoveModifier(this SyntaxTokenList modifiers, SyntaxKind kind)
     {
         var index = modifiers.IndexOf(kind);
@@ -63,10 +54,7 @@ internal static class SyntaxModifierExtensions
                SyntaxKind.ProtectedKeyword or SyntaxKind.InternalKeyword;
 }
 
-/// <summary>
-/// Where to insert a modifier in the token list.
-/// </summary>
-internal enum ModifierPosition
+public enum ModifierPosition
 {
     Start,
     AfterAccessibility,
