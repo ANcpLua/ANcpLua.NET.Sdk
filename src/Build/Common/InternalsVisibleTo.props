@@ -18,12 +18,16 @@
     <InternalsVisibleTo Include="$(AssemblyName).FunctionalTests" />
   </ItemGroup>
 
-  <!-- Add public key to InternalsVisibleTo when signing -->
-  <ItemGroup Condition="'$(SignAssembly)' == 'true' And '$(InternalsVisibleToPublicKey)' != ''">
-    <InternalsVisibleTo Update="@(InternalsVisibleTo)" Condition="'%(Key)' == ''">
-      <Key>$(InternalsVisibleToPublicKey)</Key>
-    </InternalsVisibleTo>
-  </ItemGroup>
+  <!-- Add public key to InternalsVisibleTo when signing (Target for proper batching) -->
+  <Target Name="_AddPublicKeyToInternalsVisibleTo"
+          BeforeTargets="CoreCompile"
+          Condition="'$(SignAssembly)' == 'true' And '$(InternalsVisibleToPublicKey)' != ''">
+    <ItemGroup>
+      <InternalsVisibleTo Update="@(InternalsVisibleTo)">
+        <Key Condition="'%(InternalsVisibleTo.Key)' == ''">$(InternalsVisibleToPublicKey)</Key>
+      </InternalsVisibleTo>
+    </ItemGroup>
+  </Target>
 
   <!-- Allow mocking frameworks access -->
   <ItemGroup Condition="'$(AllowMockingFrameworksAccess)' == 'true'">
