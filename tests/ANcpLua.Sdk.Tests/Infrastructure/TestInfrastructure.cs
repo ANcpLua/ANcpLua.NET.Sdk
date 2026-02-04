@@ -7,22 +7,22 @@ namespace ANcpLua.Sdk.Tests.Infrastructure;
 public static class RepositoryPaths
 {
     public const string DirectoryBuildProps = "Directory.Build.props";
-    public const string ThrowHelper = "eng/Shared/Throw/Throw.cs";
-    public const string StringOrdinalComparer = "eng/Extensions/Comparers/StringOrdinalComparer.cs";
-    public const string LockPolyfill = "eng/MSBuild/Polyfills/Lock.cs";
-    public const string DiagnosticClassesPolyfill = "eng/MSBuild/Polyfills/DiagnosticClasses.cs";
-    public const string TimeProviderPolyfill = "eng/LegacySupport/TimeProvider/TimeProvider.cs";
-    public const string IndexPolyfill = "eng/LegacySupport/IndexRange/Index.cs";
-    public const string IsExternalInitPolyfill = "eng/LegacySupport/IsExternalInit/IsExternalInit.cs";
-    public const string RequiredMemberPolyfill = "eng/LegacySupport/LanguageFeatures/RequiredMemberAttribute.cs";
-    public const string CompilerFeatureRequiredPolyfill = "eng/LegacySupport/LanguageFeatures/CompilerFeatureRequiredAttribute.cs";
-    public const string CallerArgumentExpressionPolyfill = "eng/LegacySupport/LanguageFeatures/CallerArgumentExpressionAttribute.cs";
-    public const string ParamCollectionPolyfill = "eng/LegacySupport/LanguageFeatures/ParamCollectionAttribute.cs";
-    public const string UnreachableExceptionPolyfill = "eng/LegacySupport/Exceptions/UnreachableException.cs";
-    public const string StackTraceHiddenPolyfill = "eng/LegacySupport/Diagnostics/StackTraceHiddenAttribute.cs";
-    public const string NullableAttributesPolyfill = "eng/LegacySupport/DiagnosticAttributes/NullableAttributes.cs";
-    public const string TrimAttributesPolyfill = "eng/LegacySupport/TrimAttributes/DynamicallyAccessedMembersAttribute.cs";
-    public const string ExperimentalAttributePolyfill = "eng/LegacySupport/Experimental/ExperimentalAttribute.cs";
+    public const string ThrowHelper = "src/shared/Throw/Throw.cs";
+    public const string StringOrdinalComparer = "src/shared/Extensions/Comparers/StringOrdinalComparer.cs";
+    public const string LockPolyfill = "src/shared/MSBuild/Polyfills/Lock.cs";
+    public const string DiagnosticClassesPolyfill = "src/shared/MSBuild/Polyfills/DiagnosticClasses.cs";
+    public const string TimeProviderPolyfill = "src/shared/Polyfills/TimeProvider/TimeProvider.cs";
+    public const string IndexPolyfill = "src/shared/Polyfills/IndexRange/Index.cs";
+    public const string IsExternalInitPolyfill = "src/shared/Polyfills/LanguageFeatures/IsExternalInit.cs";
+    public const string RequiredMemberPolyfill = "src/shared/Polyfills/LanguageFeatures/RequiredMemberAttribute.cs";
+    public const string CompilerFeatureRequiredPolyfill = "src/shared/Polyfills/LanguageFeatures/CompilerFeatureRequiredAttribute.cs";
+    public const string CallerArgumentExpressionPolyfill = "src/shared/Polyfills/LanguageFeatures/CallerArgumentExpressionAttribute.cs";
+    public const string ParamCollectionPolyfill = "src/shared/Polyfills/LanguageFeatures/ParamCollectionAttribute.cs";
+    public const string UnreachableExceptionPolyfill = "src/shared/Polyfills/Exceptions/UnreachableException.cs";
+    public const string StackTraceHiddenPolyfill = "src/shared/Polyfills/Diagnostics/StackTraceHiddenAttribute.cs";
+    public const string NullableAttributesPolyfill = "src/shared/Polyfills/DiagnosticAttributes/NullableAttributes.cs";
+    public const string TrimAttributesPolyfill = "src/shared/Polyfills/TrimAttributes/DynamicallyAccessedMembersAttribute.cs";
+    public const string ExperimentalAttributePolyfill = "src/shared/Polyfills/Experimental/ExperimentalAttribute.cs";
 }
 
 /// <summary>

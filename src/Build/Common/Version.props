@@ -16,7 +16,7 @@
       <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)"/>
   -->
   <PropertyGroup Label="SDK Version (Auto-generated)">
-    <ANcpSdkPackageVersion>1.9.0</ANcpSdkPackageVersion>
+    <ANcpSdkPackageVersion>999.9.9</ANcpSdkPackageVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
