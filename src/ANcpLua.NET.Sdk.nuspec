@@ -67,6 +67,7 @@
     <file src="shared/Polyfills/LanguageFeatures/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="shared/Polyfills/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="shared/Polyfills/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="shared/Polyfills/LanguageFeatures/SetsRequiredMembersAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="shared/Polyfills/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
     <file src="shared/Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
     <file src="shared/Polyfills/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>

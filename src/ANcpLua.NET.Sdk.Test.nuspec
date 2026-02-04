@@ -62,6 +62,12 @@
     <file src="Testing/Fixtures/KestrelTestBase.cs" target="Testing/Fixtures/"/>
     <file src="Testing/Fixtures/FakeLoggerExtensions.cs" target="Testing/Fixtures/"/>
 
+    <!-- Testing/AotTesting - AOT compatibility testing -->
+    <file src="Testing/AotTesting/AotTesting.props" target="Testing/AotTesting/"/>
+    <file src="Testing/AotTesting/AotTesting.targets" target="Testing/AotTesting/"/>
+    <file src="Testing/AotTesting/Directory.Build.props.txt" target="Testing/AotTesting/"/>
+    <file src="Testing/AotTesting/ProjectTemplate.csproj.txt" target="Testing/AotTesting/"/>
+
     <!-- Shared Sources - Polyfills -->
     <file src="shared/Polyfills/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
     <file src="shared/Polyfills/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
@@ -70,6 +76,7 @@
     <file src="shared/Polyfills/LanguageFeatures/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="shared/Polyfills/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="shared/Polyfills/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
+    <file src="shared/Polyfills/LanguageFeatures/SetsRequiredMembersAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
     <file src="shared/Polyfills/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
     <file src="shared/Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
     <file src="shared/Polyfills/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>
