@@ -28,6 +28,7 @@
     <file src="Build/Common/GlobalPackages.props" target="Build/Common/"/>
     <file src="Build/Common/TerminalLogger.props" target="Build/Common/"/>
     <file src="Build/Common/BuildCheck.props" target="Build/Common/"/>
+    <file src="Build/Common/SourceGenerators.props" target="Build/Common/"/>
     <file src="Build/Common/InternalsVisibleTo.props" target="Build/Common/"/>
     <file src="Build/Common/ArtifactStaging.targets" target="Build/Common/"/>
     <file src="Build/Common/ItemMetadata.targets" target="Build/Common/"/>

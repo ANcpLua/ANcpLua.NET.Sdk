@@ -12,6 +12,7 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="shared/**/*.cs"/>
     <Compile Remove="Testing/Fixtures/*.cs"/>
   </ItemGroup>
   <ItemGroup>
