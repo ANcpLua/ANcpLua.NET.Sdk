@@ -390,3 +390,15 @@ dotnet_diagnostic.AL0092.severity = suggestion
 # AL0093: Missing resource attributes (service.name, service.version)
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0093.severity = warning
+
+# AL0094: Avoid dynamic keyword in AOT/trimmed apps
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0094.severity = warning
+
+# AL0095: Avoid Expression.Compile() in AOT/trimmed apps
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0095.severity = warning
+
+# AL0096: Enable EventSourceSupport when PublishAot is set
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL0096.severity = warning
