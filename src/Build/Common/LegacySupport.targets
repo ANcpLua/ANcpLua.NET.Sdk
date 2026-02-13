@@ -102,12 +102,12 @@
        DynamicallyAccessedMembersAttribute, UnconditionalSuppressMessageAttribute
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="('$(InjectTrimAttributesOnLegacy)' == 'true' OR '$(InjectANcpLuaTrimAttributesPolyfills)' == 'true') AND '$(_NeedsNet5Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/TrimAttributes/*.cs" LinkBase="Shared/Polyfills/TrimAttributes" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/TrimAttributes/*.cs" LinkBase="Shared/Polyfills/TrimAttributes" InProject="false"/>
   </ItemGroup>
 
   <!-- RequiresDynamicCodeAttribute came in net7.0 -->
   <ItemGroup Condition="('$(InjectTrimAttributesOnLegacy)' == 'true' OR '$(InjectANcpLuaTrimAttributesPolyfills)' == 'true') AND '$(_NeedsNet7Polyfills)' == 'true' AND '$(_NeedsNet5Polyfills)' != 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/TrimAttributes/RequiresDynamicCodeAttribute.cs" LinkBase="Shared/Polyfills/TrimAttributes" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/TrimAttributes/RequiresDynamicCodeAttribute.cs" LinkBase="Shared/Polyfills/TrimAttributes" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -115,12 +115,12 @@
        AllowNull, DisallowNull, MaybeNull, NotNull, DoesNotReturn, etc.
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="('$(InjectNullabilityAttributesOnLegacy)' == 'true' OR '$(InjectANcpLuaNullabilityPolyfills)' == 'true') AND '$(_NeedsNetCoreApp31Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/DiagnosticAttributes/NullableAttributes.cs" LinkBase="Shared/Polyfills/NullabilityAttributes" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/DiagnosticAttributes/NullableAttributes.cs" LinkBase="Shared/Polyfills/NullabilityAttributes" InProject="false"/>
   </ItemGroup>
 
   <!-- MemberNotNull/MemberNotNullWhen came in net5.0 (always include if enabled, has #if guards) -->
   <ItemGroup Condition="('$(InjectNullabilityAttributesOnLegacy)' == 'true' OR '$(InjectANcpLuaNullabilityPolyfills)' == 'true') AND '$(_NeedsNet5Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/NullabilityAttributes/MemberNotNullAttributes.cs" LinkBase="Shared/Polyfills/NullabilityAttributes" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/NullabilityAttributes/MemberNotNullAttributes.cs" LinkBase="Shared/Polyfills/NullabilityAttributes" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -129,53 +129,53 @@
 
   <!-- IsExternalInit (< net5.0) - enables records -->
   <ItemGroup Condition="('$(InjectIsExternalInitOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet5Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/IsExternalInit.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/IsExternalInit.cs" LinkBase="Shared/Polyfills/LanguageFeatures" InProject="false"/>
   </ItemGroup>
 
   <!-- RequiredMemberAttribute (< net7.0) - enables 'required' keyword -->
   <ItemGroup Condition="('$(InjectRequiredMemberOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet7Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/RequiredMemberAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/RequiredMemberAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" InProject="false"/>
   </ItemGroup>
 
   <!-- CompilerFeatureRequiredAttribute (< net7.0) - required for 'required' keyword -->
   <ItemGroup Condition="('$(InjectCompilerFeatureRequiredOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet7Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" InProject="false"/>
   </ItemGroup>
 
   <!-- SetsRequiredMembersAttribute (< net7.0) - allows constructors to satisfy required members -->
   <ItemGroup Condition="('$(InjectSetsRequiredMembersOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet7Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/SetsRequiredMembersAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/SetsRequiredMembersAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" InProject="false"/>
   </ItemGroup>
 
   <!-- CallerArgumentExpressionAttribute (< net6.0) -->
   <ItemGroup Condition="('$(InjectCallerAttributesOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet6Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/CallerArgumentExpressionAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/CallerArgumentExpressionAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" InProject="false"/>
   </ItemGroup>
 
   <!-- Index and Range (< netcoreapp3.0 / netstandard2.1) - enables arr[^1], arr[1..3] -->
   <!-- These have #if guards: !NETCOREAPP3_0_OR_GREATER && !NETSTANDARD2_1_OR_GREATER -->
   <ItemGroup Condition="('$(InjectIndexRangeOnLegacy)' == 'true' OR '$(InjectANcpLuaIndexRangePolyfills)' == 'true') AND '$(_NeedsNetCoreApp31Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/IndexRange/Index.cs" LinkBase="Shared/Polyfills/IndexRange" Visible="false"/>
-    <Compile Include="$(_SharedSourcePath)Polyfills/IndexRange/Range.cs" LinkBase="Shared/Polyfills/IndexRange" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/IndexRange/Index.cs" LinkBase="Shared/Polyfills/IndexRange" InProject="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/IndexRange/Range.cs" LinkBase="Shared/Polyfills/IndexRange" InProject="false"/>
   </ItemGroup>
 
   <!-- ParamCollectionAttribute (< net9.0) - enables C# 13 params collections -->
   <ItemGroup Condition="('$(InjectParamCollectionOnLegacy)' == 'true' OR '$(InjectANcpLuaLanguageFeaturesPolyfills)' == 'true') AND '$(_NeedsNet9Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/ParamCollectionAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/LanguageFeatures/ParamCollectionAttribute.cs" LinkBase="Shared/Polyfills/LanguageFeatures" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
        EXCEPTIONS (< net7.0)
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="('$(InjectUnreachableExceptionOnLegacy)' == 'true' OR '$(InjectANcpLuaExceptionPolyfills)' == 'true') AND '$(_NeedsNet7Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/Exceptions/UnreachableException.cs" LinkBase="Shared/Polyfills/Exceptions" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/Exceptions/UnreachableException.cs" LinkBase="Shared/Polyfills/Exceptions" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
        EXPERIMENTAL (< net8.0)
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="('$(InjectExperimentalAttributeOnLegacy)' == 'true' OR '$(InjectANcpLuaExperimentalPolyfills)' == 'true') AND '$(_NeedsNet8Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/Experimental/ExperimentalAttribute.cs" LinkBase="Shared/Polyfills/Experimental" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/Experimental/ExperimentalAttribute.cs" LinkBase="Shared/Polyfills/Experimental" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -183,11 +183,11 @@
        StackTraceHiddenAttribute
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectDiagnosticClassesOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
-    <Compile Include="$(_SharedSourcePath)Polyfills/DiagnosticClasses.cs" LinkBase="Shared/Polyfills" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/DiagnosticClasses.cs" LinkBase="Shared/Polyfills" InProject="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="('$(InjectStackTraceHiddenOnLegacy)' == 'true' OR '$(InjectANcpLuaDiagnosticsPolyfills)' == 'true') AND '$(_NeedsNet6Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" LinkBase="Shared/Polyfills/Diagnostics" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" LinkBase="Shared/Polyfills/Diagnostics" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -199,7 +199,7 @@
        Microsoft.Shared.Diagnostics.Throw
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectSharedThrow)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Throw/Throw.cs" LinkBase="Shared/Throw" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Throw/Throw.cs" LinkBase="Shared/Throw" InProject="false"/>
     <Using Include="Microsoft.Shared.Diagnostics"/>
   </ItemGroup>
 
@@ -207,14 +207,14 @@
        FAKE LOGGER
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectFakeLogger)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/FakeLogger/FakeLoggerExtensions.cs" LinkBase="Shared/Extensions/FakeLogger" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/FakeLogger/FakeLoggerExtensions.cs" LinkBase="Shared/Extensions/FakeLogger" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
        INTEGRATION TESTS
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectANcpLuaIntegrationTestHelpers)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)IntegrationTests/*.cs" LinkBase="Shared/IntegrationTests" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)IntegrationTests/*.cs" LinkBase="Shared/IntegrationTests" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -225,8 +225,8 @@
   <ItemGroup Condition="'$(InjectSourceGenHelpers)' == 'true'">
     <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesSourcesVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesSourcesVersion)" PrivateAssets="all" IsImplicitlyDefined="true"/>
     <!-- SDK-specific extensions that build on ANcpLua.Roslyn.Utilities -->
-    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/DiagnosticsExtensions.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
-    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/SyntaxValueProvider.cs" LinkBase="Shared/Extensions/SourceGen" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/DiagnosticsExtensions.cs" LinkBase="Shared/Extensions/SourceGen" InProject="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/SyntaxValueProvider.cs" LinkBase="Shared/Extensions/SourceGen" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -234,7 +234,7 @@
        CodeFixProviderBase<TSyntax> - base class for code fixes
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectCodeFixProviderBase)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/CodeFixes/CodeFixProviderBase.cs" LinkBase="Shared/Extensions/CodeFixes" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/CodeFixes/CodeFixProviderBase.cs" LinkBase="Shared/Extensions/CodeFixes" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -242,7 +242,7 @@
        SyntaxModifierExtensions - helpers for manipulating modifiers in code fixes
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectSyntaxModifierExtensions)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/CodeFixes/SyntaxModifierExtensions.cs" LinkBase="Shared/Extensions/CodeFixes" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/CodeFixes/SyntaxModifierExtensions.cs" LinkBase="Shared/Extensions/CodeFixes" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -250,7 +250,7 @@
        DiagnosticAnalyzerBase - base class for Roslyn diagnostic analyzers
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectDiagnosticAnalyzerBase)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/DiagnosticAnalyzerBase.cs" LinkBase="Shared/Extensions" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/DiagnosticAnalyzerBase.cs" LinkBase="Shared/Extensions" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -258,14 +258,14 @@
        StringOrdinalComparer
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectCommonComparers)' == 'true' OR '$(InjectStringOrdinalComparer)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/Comparers/*.cs" LinkBase="Shared/Extensions/Comparers" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Extensions/Comparers/*.cs" LinkBase="Shared/Extensions/Comparers" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
        POLYFILLS - Lock & TimeProvider
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectLockPolyfill)' == 'true' AND '$(_NeedsNet9Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/Lock.cs" LinkBase="Shared/Polyfills" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/Lock.cs" LinkBase="Shared/Polyfills" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -275,11 +275,11 @@
        Fixes CA1307 and CA2249 compliance on netstandard2.0
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectStringExtensionsPolyfill)' == 'true' AND '$(_NeedsNetCoreApp31Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/StringExtensions/StringExtensions.cs" LinkBase="Shared/Polyfills/StringExtensions" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/StringExtensions/StringExtensions.cs" LinkBase="Shared/Polyfills/StringExtensions" InProject="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="('$(InjectTimeProviderPolyfill)' == 'true' OR '$(InjectANcpLuaTimeProviderPolyfill)' == 'true') AND '$(_NeedsNet8Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/TimeProvider/TimeProvider.cs" LinkBase="Shared/Polyfills" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Polyfills/TimeProvider/TimeProvider.cs" LinkBase="Shared/Polyfills" InProject="false"/>
     <!-- TimeProvider on legacy frameworks requires IAsyncDisposable and ValueTask -->
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(BclAsyncInterfacesVersion)" VersionOverride="$(BclAsyncInterfacesVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(TasksExtensionsVersion)" VersionOverride="$(TasksExtensionsVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
@@ -289,7 +289,7 @@
        WORKFLOWS
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(EnableANcpLuaSharedWorkflows)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Workflows/**/*.cs" LinkBase="Shared/Workflows" Visible="false"/>
+    <Compile Include="$(_SharedSourcePath)Workflows/**/*.cs" LinkBase="Shared/Workflows" InProject="false"/>
   </ItemGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════

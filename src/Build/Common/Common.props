@@ -117,10 +117,10 @@
   <ItemGroup>
     <!-- Shared injected test bases are packaged, not compiled (hidden from Solution Explorer) -->
     <Compile Remove="$(MSBuildThisFileDirectory)../../Testing/Fixtures/*.cs"/>
-    <None Include="$(MSBuildThisFileDirectory)../../Testing/Fixtures/*.cs" Pack="false" Visible="false"/>
+    <None Include="$(MSBuildThisFileDirectory)../../Testing/Fixtures/*.cs" Pack="false" InProject="false"/>
 
-    <!-- Add all editorconfig files (hidden from Solution Explorer) -->
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../../Config/*.editorconfig" Visible="false"/>
+    <!-- Add all editorconfig files (hidden from Solution Explorer via InProject) -->
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../../Config/*.editorconfig" InProject="false"/>
   </ItemGroup>
 
 </Project>

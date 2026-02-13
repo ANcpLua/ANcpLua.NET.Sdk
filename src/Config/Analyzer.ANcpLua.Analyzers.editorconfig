@@ -268,8 +268,9 @@ dotnet_diagnostic.AL0061.severity = warning
 dotnet_diagnostic.AL0062.severity = warning
 
 # AL0063: ActivitySource not registered with AddSource()
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0063.severity = warning
+# Enabled: True, Severity: suggestion
+# Note: May report false positives when AddSource() is in a different assembly
+dotnet_diagnostic.AL0063.severity = suggestion
 
 # AL0064: GenAI span missing required attributes
 # Enabled: True, Severity: warning
@@ -284,16 +285,18 @@ dotnet_diagnostic.AL0065.severity = warning
 dotnet_diagnostic.AL0066.severity = warning
 
 # AL0067: Meter not registered with AddMeter()
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0067.severity = warning
+# Enabled: True, Severity: suggestion
+# Note: May report false positives when AddMeter() is in a different assembly
+dotnet_diagnostic.AL0067.severity = suggestion
 
 # AL0068: Metric instrument name should follow naming conventions
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0068.severity = warning
 
 # AL0069: ServiceDefaults configuration incomplete
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0069.severity = warning
+# Enabled: True, Severity: suggestion
+# Note: May report false positives when configuration is in a shared helper method
+dotnet_diagnostic.AL0069.severity = suggestion
 
 # AL0070: Collector endpoint should use OTLP protocol
 # Enabled: True, Severity: warning
@@ -320,8 +323,9 @@ dotnet_diagnostic.AL0074.severity = warning
 dotnet_diagnostic.AL0075.severity = warning
 
 # AL0076: AddServiceDefaults called but AddOpenTelemetry missing
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0076.severity = warning
+# Enabled: True, Severity: suggestion
+# Note: May report false positives when OTel is configured in a different assembly
+dotnet_diagnostic.AL0076.severity = suggestion
 
 # AL0077: Duplicate instrumentation - method has both auto and manual tracing
 # Enabled: True, Severity: warning
@@ -372,8 +376,9 @@ dotnet_diagnostic.AL0087.severity = suggestion
 dotnet_diagnostic.AL0088.severity = warning
 
 # AL0089: OTEL_EXPORTER_OTLP_ENDPOINT not configured
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0089.severity = warning
+# Enabled: True, Severity: suggestion
+# Note: May report false positives when endpoint is set via runtime environment variable
+dotnet_diagnostic.AL0089.severity = suggestion
 
 # AL0090: OTLP exporter doesn't have compression enabled
 # Enabled: True, Severity: warning
@@ -388,8 +393,9 @@ dotnet_diagnostic.AL0091.severity = warning
 dotnet_diagnostic.AL0092.severity = suggestion
 
 # AL0093: Missing resource attributes (service.name, service.version)
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0093.severity = warning
+# Enabled: True, Severity: suggestion
+# Note: May report false positives when resource attributes are set by the consuming app
+dotnet_diagnostic.AL0093.severity = suggestion
 
 # AL0094: Avoid dynamic keyword in AOT/trimmed apps
 # Enabled: True, Severity: warning

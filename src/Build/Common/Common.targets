@@ -136,26 +136,26 @@
     <!-- Directory.Packages.props - for AL0017, AL0019 -->
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Packages.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Directory.Packages.props')"
-                     Visible="false"/>
+                     InProject="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Packages.props`, `$(MSBuildProjectDirectory)`))' != ''"
-                     Visible="false"/>
+                     InProject="false"/>
 
     <!-- Directory.Build.props - for AL0018 -->
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Build.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Directory.Build.props')"
-                     Visible="false"/>
+                     InProject="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Build.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Build.props`, `$(MSBuildProjectDirectory)`))' != ''"
-                     Visible="false"/>
+                     InProject="false"/>
 
     <!-- Version.props - for AL0019 -->
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Version.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Version.props')"
-                     Visible="false"/>
+                     InProject="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Version.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Version.props') AND '$([MSBuild]::GetPathOfFileAbove(`Version.props`, `$(MSBuildProjectDirectory)`))' != ''"
-                     Visible="false"/>
+                     InProject="false"/>
   </ItemGroup>
 
   <PropertyGroup>
@@ -232,8 +232,8 @@
   <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
@@ -284,7 +284,7 @@
         <PackageIcon>icon.png</PackageIcon>
       </PropertyGroup>
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)../../icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="$(MSBuildThisFileDirectory)../../icon.png" Pack="true" PackagePath="" InProject="false"/>
       </ItemGroup>
     </When>
   </Choose>
@@ -314,7 +314,7 @@
   <ItemGroup>
     <None Include="$(_PackageReadmeFilePath)" Pack="true" PackagePath="README.md" Condition="$(_PackageReadmeFilePath) != ''"/>
     <None Include="$(_PackageThirdPartyNoticesPath)" Pack="true" PackagePath="" Condition="$(_PackageThirdPartyNoticesPath) != ''"/>
-    <None Include="$(_LicensePath)" Pack="true" PackagePath="" Visible="false" Condition="$(_LicensePath) != ''"/>
+    <None Include="$(_LicensePath)" Pack="true" PackagePath="" InProject="false" Condition="$(_LicensePath) != ''"/>
   </ItemGroup>
 
 </Project>

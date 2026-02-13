@@ -44,7 +44,7 @@
 
     <!-- AdditionalFiles -->
     <AdditionalFiles>
-      <Visible>false</Visible>
+      <InProject>false</InProject>
     </AdditionalFiles>
   </ItemDefinitionGroup>
 
