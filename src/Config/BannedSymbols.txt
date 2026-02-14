@@ -7,7 +7,7 @@ M:System.DateTime.get_UtcNow
 M:System.DateTimeOffset.get_Now
 M:System.DateTimeOffset.get_UtcNow
 
-# Guards - use Throw.IfNull()
+# Guards - use Guard.NotNull() from ANcpLua.Roslyn.Utilities
 M:System.ArgumentNullException.ThrowIfNull(System.Object,System.String)
 M:System.ArgumentException.ThrowIfNullOrEmpty(System.String,System.String)
 M:System.ArgumentException.ThrowIfNullOrWhiteSpace(System.String,System.String)
