@@ -178,7 +178,7 @@
        StackTraceHiddenAttribute
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectDiagnosticClassesOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
-    <Compile Include="$(_SharedSourcePath)Polyfills/DiagnosticClasses.cs" LinkBase="Shared/Polyfills" InProject="false"/>
+    <Compile Include="$(_SharedSourcePath)MSBuild/Polyfills/DiagnosticClasses.cs" LinkBase="Shared/Polyfills" InProject="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="('$(InjectStackTraceHiddenOnLegacy)' == 'true' OR '$(InjectANcpLuaDiagnosticsPolyfills)' == 'true') AND '$(_NeedsNet6Polyfills)' == 'true'">
@@ -242,7 +242,7 @@
        POLYFILLS - Lock & TimeProvider
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectLockPolyfill)' == 'true' AND '$(_NeedsNet9Polyfills)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Polyfills/Lock.cs" LinkBase="Shared/Polyfills" InProject="false"/>
+    <Compile Include="$(_SharedSourcePath)MSBuild/Polyfills/Lock.cs" LinkBase="Shared/Polyfills" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────

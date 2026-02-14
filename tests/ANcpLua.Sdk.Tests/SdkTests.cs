@@ -23,13 +23,9 @@ public abstract class SdkTests(
     NetSdkVersion dotnetSdkVersion,
     SdkImportStyle sdkImportStyle)
 {
-    private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
-    private readonly PackageFixture _fixture = fixture;
-    private readonly SdkImportStyle _sdkImportStyle = sdkImportStyle;
-
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
-        SdkProjectBuilder.Create(_fixture, _sdkImportStyle, sdkName ?? SdkName)
-            .WithDotnetSdkVersion(_dotnetSdkVersion);
+        SdkProjectBuilder.Create(fixture, sdkImportStyle, sdkName ?? SdkName)
+            .WithDotnetSdkVersion(dotnetSdkVersion);
 
     [Fact]
     public void PackageReferenceAreValid()
@@ -972,7 +968,7 @@ public abstract class SdkTests(
 
         var expectedVersion = version;
         if (string.IsNullOrEmpty(expectedVersion))
-            expectedVersion = _dotnetSdkVersion switch
+            expectedVersion = dotnetSdkVersion switch
             {
                 NetSdkVersion.Net100 => "net10.0",
                 _ => throw new NotSupportedException()

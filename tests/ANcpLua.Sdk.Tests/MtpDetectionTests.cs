@@ -33,12 +33,9 @@ public abstract class MtpDetectionTests(
     private static readonly NuGetReference[] _tUnitPackages =
         [new("TUnit", "0.18.0")];
 
-    private readonly NetSdkVersion _dotnetSdkVersion = dotnetSdkVersion;
-    private readonly PackageFixture _fixture = fixture;
-
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
-        SdkProjectBuilder.Create(_fixture, SdkImportStyle.ProjectElement, sdkName ?? SdkTestName)
-            .WithDotnetSdkVersion(_dotnetSdkVersion);
+        SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName ?? SdkTestName)
+            .WithDotnetSdkVersion(dotnetSdkVersion);
 
     [Fact]
     public async Task XUnit3MtpV2_IsMTP()

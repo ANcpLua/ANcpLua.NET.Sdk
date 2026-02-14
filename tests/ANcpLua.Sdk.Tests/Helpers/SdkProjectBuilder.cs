@@ -343,7 +343,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                        </Project>
                        """;
 
-        AddFile(RepositoryPaths.DirectoryBuildProps, content);
+        AddFile("Directory.Build.props", content);
     }
 
     /// <inheritdoc />

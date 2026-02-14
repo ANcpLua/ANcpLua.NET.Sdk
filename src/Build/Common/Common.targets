@@ -358,7 +358,7 @@
     />
   </Target>
 
-  <!-- Disable packages -->
+  <!-- Disable packages (Rider XSD false positive: Remove-only Analyzer items are valid MSBuild) -->
   <Target Name="Disable_SponsorLink" BeforeTargets="CoreCompile" Condition="'$(Disable_SponsorLink)' != 'false'">
     <ItemGroup>
       <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'DevLooped.SponsorLink'"/>
