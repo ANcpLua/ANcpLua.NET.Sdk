@@ -24,8 +24,6 @@
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <_IsANcpLuaProject>$(MSBuildProjectName.StartsWith('ANcpLua', StringComparison.OrdinalIgnoreCase))</_IsANcpLuaProject>
 
-    <!-- SDK Defaults - inject essential shared code -->
-    <InjectSharedThrow Condition="'$(InjectSharedThrow)' == ''">true</InjectSharedThrow>
     <GenerateClaudeMd Condition="'$(GenerateClaudeMd)' == ''">true</GenerateClaudeMd>
   </PropertyGroup>
 

@@ -12,9 +12,6 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="shared/**/*.cs"/>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
   </ItemGroup>
 </Project>

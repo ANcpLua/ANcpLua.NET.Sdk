@@ -20,7 +20,6 @@
                                              Fixes CA1307 and CA2249 on netstandard2.0
 
   EXTENSIONS (Utility types):
-    <InjectSharedThrow>                    - Guard clause utilities (all TFMs)
     <InjectSourceGenHelpers>               - EquatableArray, DiagnosticInfo, LocationInfo
     <InjectCommonComparers>                - StringOrdinalComparer
     <InjectCodeFixProviderBase>            - CodeFixProviderBase<TSyntax> base class for code fixes
@@ -66,7 +65,7 @@
     <InjectANcpLuaTimeProviderPolyfill Condition="'$(InjectANcpLuaTimeProviderPolyfill)' == ''">false</InjectANcpLuaTimeProviderPolyfill>
     <InjectANcpLuaTrimAttributesPolyfills Condition="'$(InjectANcpLuaTrimAttributesPolyfills)' == ''">false</InjectANcpLuaTrimAttributesPolyfills>
 
-    <!-- Extensions default to false - opt-in (InjectSharedThrow default set in Common.props) -->
+    <!-- Extensions default to false - opt-in -->
     <InjectSourceGenHelpers Condition="'$(InjectSourceGenHelpers)' == ''">false</InjectSourceGenHelpers>
     <InjectCommonComparers Condition="'$(InjectCommonComparers)' == ''">false</InjectCommonComparers>
     <InjectStringOrdinalComparer Condition="'$(InjectStringOrdinalComparer)' == ''">false</InjectStringOrdinalComparer>

@@ -10,7 +10,6 @@
         <File Path="LICENSE.txt" />
         <File Path="README.md" />
         <File Path="CLAUDE.md" />
-        <File Path="build.ps1" />
     </Folder>
 
     <!-- SDK Packages -->

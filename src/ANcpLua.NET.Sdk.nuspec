@@ -59,36 +59,6 @@
     <!-- Testing - only in .Test SDK -->
     <file src="Testing/Testing.props" target="Testing/"/>
 
-    <!-- Shared Sources - Polyfills -->
-    <file src="shared/Polyfills/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
-    <file src="shared/Polyfills/IndexRange/Range.cs" target="shared/Polyfills/IndexRange/"/>
-    <file src="shared/Polyfills/LanguageFeatures/CallerArgumentExpressionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="shared/Polyfills/LanguageFeatures/CompilerFeatureRequiredAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="shared/Polyfills/LanguageFeatures/IsExternalInit.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="shared/Polyfills/LanguageFeatures/ParamCollectionAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="shared/Polyfills/LanguageFeatures/RequiredMemberAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="shared/Polyfills/LanguageFeatures/SetsRequiredMembersAttribute.cs" target="shared/Polyfills/LanguageFeatures/"/>
-    <file src="shared/Polyfills/DiagnosticAttributes/NullableAttributes.cs" target="shared/Polyfills/DiagnosticAttributes/"/>
-    <file src="shared/Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" target="shared/Polyfills/Diagnostics/"/>
-    <file src="shared/Polyfills/NullabilityAttributes/MemberNotNullAttributes.cs" target="shared/Polyfills/NullabilityAttributes/"/>
-    <file src="shared/Polyfills/TrimAttributes/DynamicallyAccessedMemberTypes.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="shared/Polyfills/TrimAttributes/DynamicallyAccessedMembersAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="shared/Polyfills/TrimAttributes/RequiresDynamicCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="shared/Polyfills/TrimAttributes/RequiresUnreferencedCodeAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="shared/Polyfills/TrimAttributes/UnconditionalSuppressMessageAttribute.cs" target="shared/Polyfills/TrimAttributes/"/>
-    <file src="shared/Polyfills/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
-    <file src="shared/Polyfills/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
-    <file src="shared/Polyfills/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
-    <file src="shared/Polyfills/StringExtensions/StringExtensions.cs" target="shared/Polyfills/StringExtensions/"/>
-    <file src="shared/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/MSBuild/Polyfills/"/>
-    <file src="shared/MSBuild/Polyfills/Lock.cs" target="shared/MSBuild/Polyfills/"/>
-    <!-- Shared Sources - Other -->
-    <file src="shared/Throw/Throw.cs" target="shared/Throw/"/>
-    <file src="shared/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
-    <file src="shared/Extensions/CodeFixes/SyntaxModifierExtensions.cs" target="shared/Extensions/CodeFixes/"/>
-    <file src="shared/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
-    <file src="shared/Extensions/DiagnosticAnalyzerBase.cs" target="shared/Extensions/"/>
-
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>
   </files>
