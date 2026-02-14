@@ -3,8 +3,41 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TEST FRAMEWORK INJECTION
+       Auto-inject AwesomeAssertions (always) and xUnit v3 MTP (unless skipped)
+       ═══════════════════════════════════════════════════════════════════════ -->
+
+  <!-- AwesomeAssertions is useful for any test framework (always injected) -->
+  <ItemGroup>
+    <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" VersionOverride="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="true"/>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ImplicitUsings)' == 'enable'">
+    <Using Include="AwesomeAssertions"/>
+  </ItemGroup>
+
+  <!-- Auto-inject xUnit v3 MTP (target-based so SkipXunitInjection auto-detection works) -->
+  <Target Name="_InjectTestFrameworkPackages"
+          BeforeTargets="BeforeBuild;Restore;CollectPackageReferences"
+          DependsOnTargets="_DetectTestFrameworksAndMTP"
+          Condition="'$(SkipXunitInjection)' != 'true'">
+    <ItemGroup>
+      <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" VersionOverride="$(XunitMtpVersion)" IsImplicitlyDefined="true"/>
+    </ItemGroup>
+    <!-- Configure MTP properties since we're injecting xUnit MTP -->
+    <PropertyGroup>
+      <_UsesMTP>true</_UsesMTP>
+      <_UsesXunitV3Mtp>true</_UsesXunitV3Mtp>
+      <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
+      <OutputType Condition="'$(OutputType)' == 'Library'">Exe</OutputType>
+      <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
+      <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)' == ''">--report-xunit-trx</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+  </Target>
+
   <!-- Add implicit using for xunit (via Target for correct timing - items require Target) -->
-  <Target Name="_InjectXunitUsings" BeforeTargets="BeforeBuild;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(ImplicitUsings)' == 'enable'">
+  <Target Name="_InjectXunitUsings" BeforeTargets="BeforeBuild;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP;_InjectTestFrameworkPackages" Condition="'$(ImplicitUsings)' == 'enable'">
     <!-- Filter xUnit packages using correct MSBuild syntax -->
     <ItemGroup>
       <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit'"/>
