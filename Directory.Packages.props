@@ -48,7 +48,6 @@
     <PackageVersion Include="Meziantou.Framework.FullPath" Version="$(MeziantouFullPathVersion)"/>
     <PackageVersion Include="Meziantou.Framework.TemporaryDirectory" Version="$(MeziantouTemporaryDirectoryVersion)"/>
     <PackageVersion Include="Meziantou.Framework.Threading" Version="$(MeziantouThreadingVersion)"/>
-    <PackageVersion Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(MeziantouParallelTestFrameworkVersion)"/>
   </ItemGroup>
 
   <!-- Testing -->

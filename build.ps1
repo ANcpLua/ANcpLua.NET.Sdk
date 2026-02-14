@@ -113,7 +113,6 @@ $VersionPropsContent = @"
     <MeziantouThreadingVersion>2.0.4</MeziantouThreadingVersion>
     <MeziantouDependencyScanningVersion>2.0.6</MeziantouDependencyScanningVersion>
     <MeziantouAnalyzerVersion>2.0.285</MeziantouAnalyzerVersion>
-    <MeziantouParallelTestFrameworkVersion>1.0.6</MeziantouParallelTestFrameworkVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
@@ -211,7 +210,6 @@ $VersionPropsContent = @"
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Aliases">
     <XunitMtpVersion>`$(XunitV3Version)</XunitMtpVersion>
-    <ParallelTestFrameworkVersion>`$(MeziantouParallelTestFrameworkVersion)</ParallelTestFrameworkVersion>
     <MvcTestingVersion>`$(AspNetCoreVersion)</MvcTestingVersion>
   </PropertyGroup>
 </Project>

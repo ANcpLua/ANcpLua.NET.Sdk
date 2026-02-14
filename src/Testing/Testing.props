@@ -43,7 +43,6 @@
   <!-- Auto-inject xunit packages (set SkipXunitInjection=true if using TUnit/NUnit/MSTest) -->
   <ItemGroup Condition="'$(IsTestProject)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard' and '$(SkipXunitInjection)' != 'true'">
     <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" VersionOverride="$(XunitMtpVersion)" IsImplicitlyDefined="false"/>
-    <PackageReference Include="Meziantou.Xunit.v3.ParallelTestFramework" Version="$(ParallelTestFrameworkVersion)" VersionOverride="$(ParallelTestFrameworkVersion)" IsImplicitlyDefined="false"/>
   </ItemGroup>
 
   <!-- AwesomeAssertions is useful for any test framework -->
