@@ -298,7 +298,6 @@
     <PropertyGroup>
       <_ClaudeMdFeatures></_ClaudeMdFeatures>
       <_ClaudeMdFeatures Condition="'$(UseRoslynUtilities)' == 'true'">$(_ClaudeMdFeatures)- Roslyn Utilities (EquatableArray, DiagnosticFlow)&#10;</_ClaudeMdFeatures>
-      <_ClaudeMdFeatures Condition="'$(EnableAotTesting)' == 'true'">$(_ClaudeMdFeatures)- AOT/Trim compatibility testing&#10;</_ClaudeMdFeatures>
     </PropertyGroup>
 
     <!-- Build banned APIs section -->

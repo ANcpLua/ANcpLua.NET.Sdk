@@ -18,7 +18,7 @@ dotnet run --project tools/SdkGenerator
 The generator creates the import chain for each SDK variant, ensuring:
 - Correct base SDK import (Microsoft.NET.Sdk vs Microsoft.NET.Sdk.Web)
 - Proper ordering of props/targets imports
-- Variant-specific features (Testing.props only for non-Web SDKs)
+- Variant-specific features per SDK type
 
 ### ConfigFilesGenerator
 

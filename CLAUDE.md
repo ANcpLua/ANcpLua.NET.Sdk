@@ -1,6 +1,6 @@
 # CLAUDE.md - ANcpLua.NET.Sdk
 
-Opinionated MSBuild SDK providing standardized defaults, policy enforcement, polyfills, and analyzer injection for .NET projects.
+Opinionated MSBuild SDK providing standardized defaults, policy enforcement, and analyzer injection for .NET projects.
 
 ## SDK Variants
 
@@ -32,11 +32,10 @@ Sdk.props
     +-> Common.props               # Core defaults (see below)
     |       |
     |       +-> ContinuousIntegrationBuild.props
-    |       +-> LegacySupport.props  # Polyfill switch definitions
+    |       +-> SourceGenerators.props  # Source generator/analyzer configuration
     |
     +-> Enforcement.props          # BANNED packages policy
     +-> DeterminismAndSourceLink.props  # Reproducible builds
-    +-> Testing.props              # Test project detection (ANcpLua.NET.Sdk, ANcpLua.NET.Sdk.Test only)
 
 Sdk.targets
     |
@@ -44,7 +43,6 @@ Sdk.targets
     +-> ItemMetadata.targets       # Auto-apply item metadata
     +-> Deduplication.targets      # Remove duplicate items
     +-> ArtifactStaging.targets    # Output organization
-    +-> LegacySupport.targets      # Polyfill file injection
 ```
 
 ## Auto-Detected Properties
@@ -74,61 +72,10 @@ Sdk.targets
 
 | Package                  | Reason                                     | Alternative                          |
 |--------------------------|--------------------------------------------|--------------------------------------|
-| `PolySharp`              | SDK provides polyfills                     | Use `Inject*OnLegacy` properties     |
+| `PolySharp`              | Polyfills in separate package              | Use `ANcpLua.Roslyn.Utilities.Polyfills` |
 | `FluentAssertions`       | License concerns                           | Use `AwesomeAssertions`              |
 | `Microsoft.NET.Test.Sdk` | Only when MTP enabled                      | MTP doesn't need VSTest              |
 | `DisableTransitiveProjectReferences` | Breaks CPM          | Use `CentralPackageTransitivePinningEnabled` |
-
-## Polyfill Opt-In
-
-All polyfills are **opt-in** (default: `false`). Set in your project file:
-
-```xml
-<PropertyGroup>
-  <!-- Individual polyfills -->
-  <InjectIndexRangeOnLegacy>true</InjectIndexRangeOnLegacy>
-  <InjectIsExternalInitOnLegacy>true</InjectIsExternalInitOnLegacy>
-  <InjectRequiredMemberOnLegacy>true</InjectRequiredMemberOnLegacy>
-  <InjectCallerAttributesOnLegacy>true</InjectCallerAttributesOnLegacy>
-  <InjectUnreachableExceptionOnLegacy>true</InjectUnreachableExceptionOnLegacy>
-  <InjectStringExtensionsPolyfill>true</InjectStringExtensionsPolyfill>
-  <InjectTimeProviderPolyfill>true</InjectTimeProviderPolyfill>
-
-  <!-- OR use bundle for all polyfills -->
-  <InjectAllPolyfillsOnLegacy>true</InjectAllPolyfillsOnLegacy>
-</PropertyGroup>
-```
-
-### Polyfill Reference
-
-| Property                              | Adds                                       | Required When         |
-|---------------------------------------|--------------------------------------------|-----------------------|
-| `InjectIndexRangeOnLegacy`            | `Index`, `Range` structs                   | before netcoreapp3.1  |
-| `InjectIsExternalInitOnLegacy`        | `IsExternalInit` (records)                 | before net5.0         |
-| `InjectRequiredMemberOnLegacy`        | `required` keyword support                 | before net7.0         |
-| `InjectCallerAttributesOnLegacy`      | `CallerArgumentExpression`                 | before net6.0         |
-| `InjectUnreachableExceptionOnLegacy`  | `UnreachableException`                     | before net7.0         |
-| `InjectExperimentalAttributeOnLegacy` | `ExperimentalAttribute`                    | before net8.0         |
-| `InjectNullabilityAttributesOnLegacy` | `MaybeNull`, `NotNull`, etc.               | before netcoreapp3.1  |
-| `InjectTrimAttributesOnLegacy`        | AOT/Trim attributes                        | before net5.0         |
-| `InjectStringExtensionsPolyfill`      | `string.Contains(StringComparison)`        | before netcoreapp2.1  |
-| `InjectTimeProviderPolyfill`          | `TimeProvider` abstract class              | before net8.0         |
-| `InjectLockPolyfill`                  | `Lock` class                               | before net10.0        |
-| `InjectSharedThrow`                   | Guard clause utilities                     | All TFMs (default: true) |
-
-## Extension Opt-In
-
-```xml
-<PropertyGroup>
-  <!-- Individual extensions -->
-  <InjectSharedThrow>true</InjectSharedThrow>          <!-- Guard clauses (enabled by default) -->
-  <InjectSourceGenHelpers>true</InjectSourceGenHelpers> <!-- EquatableArray, DiagnosticInfo -->
-  <InjectCommonComparers>true</InjectCommonComparers>   <!-- StringOrdinalComparer -->
-
-  <!-- OR use bundle for all extensions -->
-  <InjectAllExtensions>true</InjectAllExtensions>
-</PropertyGroup>
-```
 
 ## Analyzer Injection
 
@@ -212,9 +159,6 @@ dotnet build
 
 # Test
 dotnet test
-
-# Pack (creates NuGet packages)
-pwsh ./build.ps1 -Version <major.minor.patch>
 ```
 
 ## Version.props: Source of Truth
@@ -235,8 +179,6 @@ src/
     Packaging/        # NuGet packaging
   Config/             # EditorConfig, BannedSymbols
   Sdk/                # SDK entry points per variant
-  Testing/            # Test SDK infrastructure
-  shared/             # Injectable source files
 tests/
   ANcpLua.Sdk.Tests/  # SDK behavior tests
 tools/
