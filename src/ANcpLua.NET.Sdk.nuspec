@@ -20,8 +20,6 @@
     <file src="Build/Common/Common.targets" target="Build/Common/"/>
     <file src="Build/Common/Version.props" target="Build/Common/"/>
     <file src="Build/Common/ContinuousIntegrationBuild.props" target="Build/Common/"/>
-    <file src="Build/Common/LegacySupport.props" target="Build/Common/"/>
-    <file src="Build/Common/LegacySupport.targets" target="Build/Common/"/>
     <file src="Build/Common/Npm.targets" target="Build/Common/"/>
     <file src="Build/Common/Tests.targets" target="Build/Common/"/>
     <file src="Build/Common/ItemDefaults.props" target="Build/Common/"/>
@@ -55,9 +53,6 @@
     <file src="Config/BannedSymbols.txt" target="Config/"/>
     <file src="Config/BannedSymbols.NewtonsoftJson.txt" target="Config/"/>
     <file src="Config/default.runsettings" target="Config/"/>
-
-    <!-- Testing - only in .Test SDK -->
-    <file src="Testing/Testing.props" target="Testing/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>

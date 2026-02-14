@@ -7,7 +7,7 @@
       <_PolySharpRefs Include="@(PackageReference)" Condition="'%(Identity)' == 'PolySharp'"/>
     </ItemGroup>
     <Error Condition="'@(_PolySharpRefs)' != ''"
-           Text="POLICY: PolySharp is banned. SDK provides polyfills."/>
+           Text="POLICY: PolySharp is banned. Use ANcpLua.Roslyn.Utilities.Polyfills instead."/>
   </Target>
 
   <!-- NOTE: _EnforceNoPrivateAssetsAll removed in v1.3.12 - PrivateAssets='all' is legitimate

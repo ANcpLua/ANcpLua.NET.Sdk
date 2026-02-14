@@ -1,6 +1,6 @@
 # CLAUDE.md - src/
 
-SDK source files: MSBuild props/targets, configuration, and injectable code.
+SDK source files: MSBuild props/targets, configuration.
 
 ## Directory Structure
 
@@ -15,12 +15,6 @@ src/
     ANcpLua.NET.Sdk/
     ANcpLua.NET.Sdk.Web/
     ANcpLua.NET.Sdk.Test/
-  Testing/              # Test project infrastructure
-    AotTesting/         # AOT/Trim testing MSBuild orchestration
-  shared/               # Injectable source files
-    Polyfills/          # BCL polyfills for older TFMs
-    Extensions/         # Utility extensions (Comparers, CodeFixes)
-    Throw/              # Guard clause utilities
 ```
 
 ## SDK Entry Points
@@ -29,8 +23,8 @@ Each SDK variant has its own `Sdk.props` and `Sdk.targets` in `src/Sdk/<variant>
 
 | Variant              | Base SDK              | Key Differences                         |
 |----------------------|-----------------------|-----------------------------------------|
-| ANcpLua.NET.Sdk      | Microsoft.NET.Sdk     | Imports Testing.props                   |
-| ANcpLua.NET.Sdk.Web  | Microsoft.NET.Sdk.Web | No Testing.props (web apps aren't tests)|
+| ANcpLua.NET.Sdk      | Microsoft.NET.Sdk     | Standard .NET libraries/apps            |
+| ANcpLua.NET.Sdk.Web  | Microsoft.NET.Sdk.Web | ASP.NET Core web projects               |
 | ANcpLua.NET.Sdk.Test | Microsoft.NET.Sdk     | Sets `IsTestProject=true` unconditionally|
 
 ## Build/ Directory
@@ -43,14 +37,13 @@ Each SDK variant has its own `Sdk.props` and `Sdk.targets` in `src/Sdk/<variant>
 | `Common.props`              | Core defaults (LangVersion, Nullable, analyzers)      |
 | `Common.targets`            | Build-time targets, CLAUDE.md generation              |
 | `GlobalPackages.props`      | GlobalPackageReference for analyzer injection         |
-| `LegacySupport.props`       | Polyfill switch definitions (all default to false)    |
-| `LegacySupport.targets`     | Conditional polyfill file injection                   |
+| `SourceGenerators.props`    | Source generator/analyzer project configuration       |
 | `ContinuousIntegrationBuild.props` | CI detection and configuration                 |
 | `ItemDefaults.props`        | Default metadata for common item types                |
 | `InternalsVisibleTo.props`  | Simplified IVT syntax                                 |
 | `TerminalLogger.props`      | Terminal logger configuration                         |
 | `BuildCheck.props`          | MSBuild BuildCheck integration                        |
-| `Tests.targets`             | Test-specific targets (Microsoft.Extensions.Diagnostics.Testing) |
+| `Tests.targets`             | Test-specific targets                                 |
 | `ItemMetadata.targets`      | Auto-apply metadata to items                          |
 | `Deduplication.targets`     | Remove duplicate items                                |
 | `ArtifactStaging.targets`   | Output organization                                   |
@@ -70,41 +63,6 @@ Each SDK variant has its own `Sdk.props` and `Sdk.targets` in `src/Sdk/<variant>
 |------------------------|-----------------------------------------------------|
 | `AnalyzersPack.targets`| Layout enforcement for analyzer NuGet packages      |
 
-## Testing/ Directory
-
-| File                          | Purpose                                      |
-|-------------------------------|----------------------------------------------|
-| `Testing.props`               | Test project detection and auto-configuration|
-| `AotTesting/AotTesting.props` | AOT/Trim testing infrastructure              |
-
-## shared/ Directory
-
-Injectable source files organized by category:
-
-```
-shared/
-  Polyfills/
-    DiagnosticAttributes/   # NullableAttributes.cs
-    Diagnostics/            # StackTraceHiddenAttribute.cs
-    Exceptions/             # UnreachableException.cs
-    Experimental/           # ExperimentalAttribute.cs
-    IndexRange/             # Index.cs, Range.cs
-    LanguageFeatures/       # IsExternalInit, RequiredMember, CallerArgumentExpression, ParamCollection
-    NullabilityAttributes/  # MemberNotNullAttributes.cs
-    StringExtensions/       # StringExtensions.cs (Contains, Replace with StringComparison)
-    TimeProvider/           # TimeProvider.cs
-    TrimAttributes/         # AOT/Trim attributes
-  MSBuild/Polyfills/
-    DiagnosticClasses.cs    # ExcludeFromCodeCoverageAttribute polyfill
-    Lock.cs                 # Lock class polyfill
-  Extensions/
-    Comparers/              # StringOrdinalComparer.cs
-    CodeFixes/              # CodeFixProviderBase, SyntaxModifierExtensions
-    DiagnosticAnalyzerBase.cs  # Base class for Roslyn analyzers
-  Throw/
-    Throw.cs                # Guard clause utilities (Microsoft.Shared.Diagnostics.Throw)
-```
-
 ## Regenerating SDK Files
 
 The SDK entry points (`Sdk.props`, `Sdk.targets`) are generated:
@@ -120,5 +78,5 @@ This reads the structure from `src/Build/` and generates appropriate import chai
 1. **Props vs Targets**: Props files set properties/defaults, targets files define build actions
 2. **Guard patterns**: Use `Condition="'$(Property)' == ''"` to allow consumer override
 3. **GlobalPackageReference**: Used for analyzer injection (immutable when CPM enabled)
-4. **Polyfills**: All opt-in via `Inject*OnLegacy` properties
-5. **TFM detection**: Use `$(_NeedsNet*Polyfills)` computed properties in LegacySupport.targets
+4. **Roslyn Utilities**: Use `<UseRoslynUtilities>true</UseRoslynUtilities>` for source generator helpers
+5. **Polyfills**: Migrated to `ANcpLua.Roslyn.Utilities.Polyfills` NuGet package

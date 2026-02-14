@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)/ContinuousIntegrationBuild.props"/>
-  <Import Project="$(MSBuildThisFileDirectory)/LegacySupport.props"/>
   <Import Project="$(MSBuildThisFileDirectory)/SourceGenerators.props"/>
 
   <PropertyGroup Label="Git Detection">
