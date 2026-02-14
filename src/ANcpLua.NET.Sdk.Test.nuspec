@@ -58,15 +58,9 @@
 
     <!-- Testing - Test infrastructure -->
     <file src="Testing/Testing.props" target="Testing/"/>
-    <file src="Testing/Fixtures/IntegrationTestBase.cs" target="Testing/Fixtures/"/>
-    <file src="Testing/Fixtures/KestrelTestBase.cs" target="Testing/Fixtures/"/>
-    <file src="Testing/Fixtures/FakeLoggerExtensions.cs" target="Testing/Fixtures/"/>
 
     <!-- Testing/AotTesting - AOT compatibility testing -->
     <file src="Testing/AotTesting/AotTesting.props" target="Testing/AotTesting/"/>
-    <file src="Testing/AotTesting/AotTesting.targets" target="Testing/AotTesting/"/>
-    <file src="Testing/AotTesting/Directory.Build.props.txt" target="Testing/AotTesting/"/>
-    <file src="Testing/AotTesting/ProjectTemplate.csproj.txt" target="Testing/AotTesting/"/>
 
     <!-- Shared Sources - Polyfills -->
     <file src="shared/Polyfills/IndexRange/Index.cs" target="shared/Polyfills/IndexRange/"/>
@@ -96,9 +90,6 @@
     <file src="shared/Throw/Throw.cs" target="shared/Throw/"/>
     <file src="shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
     <file src="shared/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
-    <file src="shared/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
-    <file src="shared/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="shared/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
     <file src="shared/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
     <file src="shared/Extensions/DiagnosticAnalyzerBase.cs" target="shared/Extensions/"/>
     <file src="shared/Extensions/CodeFixes/SyntaxModifierExtensions.cs" target="shared/Extensions/CodeFixes/"/>

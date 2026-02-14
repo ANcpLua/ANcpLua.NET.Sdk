@@ -35,6 +35,5 @@
         <File Path="tools/CLAUDE.md" />
         <Project Path="tools/ConfigFilesGenerator/ConfigFilesGenerator.csproj" />
         <Project Path="tools/SdkGenerator/SdkGenerator.csproj" />
-        <Project Path="tools/SchemaGenerator/SchemaGenerator.csproj" />
     </Folder>
 </Solution>

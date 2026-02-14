@@ -1,7 +1,6 @@
 <Project>
   <PropertyGroup>
     <IsPackable>false</IsPackable>
-    <EnableCodeCoverage Condition="'$(EnableCodeCoverage)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'">true</EnableCodeCoverage>
   </PropertyGroup>
 
   <!-- Add implicit using for xunit (via Target for correct timing - items require Target) -->
@@ -21,31 +20,6 @@
   <!-- ═══════════════════════════════════════════════════════════════════════
        TEST EXTENSIONS (Auto-injected for test projects)
        ═══════════════════════════════════════════════════════════════════════ -->
-
-  <!-- FakeLogger for testing - auto-inject -->
-  <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(DiagnosticsTestingVersion)" VersionOverride="$(DiagnosticsTestingVersion)" IsImplicitlyDefined="true"/>
-    <Using Include="Microsoft.Extensions.Diagnostics.Testing"/>
-  </ItemGroup>
-  <ItemGroup Condition="'$(InjectFakeLogger)' != 'false'">
-    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Extensions\FakeLogger\*.cs" LinkBase="ANcpLua.Generated\FakeLogger" InProject="false"/>
-  </ItemGroup>
-
-  <!-- XunitLogger (ITestOutputHelper → ILogger bridge) -->
-  <ItemGroup Condition="'$(InjectXunitLogger)' == 'true'">
-    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\Samples\XunitLogger.cs" LinkBase="ANcpLua.Generated\Testing" InProject="false"/>
-    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\Samples\TextOutputHelperExtensions.cs" LinkBase="ANcpLua.Generated\Testing" InProject="false"/>
-  </ItemGroup>
-
-  <!-- Compiler helper for source generator tests -->
-  <ItemGroup Condition="'$(InjectCompilerHelper)' == 'true'">
-    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\CodeTests\Compiler.cs" LinkBase="ANcpLua.Generated\CodeTests" InProject="false"/>
-  </ItemGroup>
-
-  <!-- Integration test configurations (OpenAI, Anthropic) -->
-  <ItemGroup Condition="'$(InjectIntegrationTestConfigs)' == 'true'">
-    <Compile Include="$(MSBuildThisFileDirectory)..\..\eng\Shared\IntegrationTests\*.cs" LinkBase="ANcpLua.Generated\IntegrationTests" InProject="false"/>
-  </ItemGroup>
 
   <!-- GitHub Actions Test Reporting (via Target for correct timing) -->
   <Target Name="_InjectGitHubActionsLogger" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(_IsGitHubActions)' == 'true'">

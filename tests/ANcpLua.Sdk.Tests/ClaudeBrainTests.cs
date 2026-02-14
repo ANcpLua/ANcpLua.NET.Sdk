@@ -2,12 +2,10 @@ namespace ANcpLua.Sdk.Tests;
 
 public class ClaudeBrainTests(PackageFixture fixture)
 {
-    private readonly PackageFixture _fixture = fixture;
-
     [Fact]
-    public async Task ClaudeBrain_Generates_File_By_Default()
+    public async Task ClaudeBrain_Generates_Rich_Content_By_Default()
     {
-        await using var project = SdkProjectBuilder.Create(_fixture);
+        await using var project = SdkProjectBuilder.Create(fixture);
 
         project.AddFile("CLAUDE.md", "This is the root brain.");
 
@@ -23,14 +21,19 @@ public class ClaudeBrainTests(PackageFixture fixture)
 
         var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
 
-        Assert.Contains("See [Root CLAUDE.md]", content);
+        Assert.Contains("@import", content);
+        Assert.Contains("CLAUDE.md", content);
         Assert.Contains("# MyLibrary", content);
+        Assert.Contains("**Type:** Library", content);
+        Assert.Contains("**Framework:**", content);
+        Assert.Contains("**Language:** C#", content);
+        Assert.Contains("**SDK:** ANcpLua.NET.Sdk", content);
     }
 
     [Fact]
     public async Task ClaudeBrain_Does_Not_Generate_When_Disabled()
     {
-        await using var project = SdkProjectBuilder.Create(_fixture);
+        await using var project = SdkProjectBuilder.Create(fixture);
 
         project.AddFile("CLAUDE.md", "Root brain");
 
@@ -47,7 +50,7 @@ public class ClaudeBrainTests(PackageFixture fixture)
     [Fact]
     public async Task ClaudeBrain_Does_Not_Overwrite_Existing()
     {
-        await using var project = SdkProjectBuilder.Create(_fixture);
+        await using var project = SdkProjectBuilder.Create(fixture);
 
         project.AddFile("CLAUDE.md", "Root brain");
         project.AddFile("src/MyLibrary/CLAUDE.md", "Existing content");
@@ -61,5 +64,171 @@ public class ClaudeBrainTests(PackageFixture fixture)
         var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
 
         Assert.Equal("Existing content", content);
+    }
+
+    [Fact]
+    public async Task ClaudeBrain_Detects_Test_Project_Type()
+    {
+        await using var project = SdkProjectBuilder.Create(fixture);
+
+        project.AddFile("CLAUDE.md", "Root brain");
+
+        var result = await project
+            .WithFilename("tests/MyApp.Tests/MyApp.Tests.csproj")
+            .WithProperty("IsTestProject", Val.True)
+            .BuildAsync(["tests/MyApp.Tests/MyApp.Tests.csproj"]);
+
+        Assert.Equal(0, result.ExitCode);
+
+        var generatedFilePath = project.RootFolder / "tests/MyApp.Tests/CLAUDE.md";
+        Assert.True(File.Exists(generatedFilePath), "CLAUDE.md should have been generated for test project.");
+
+        var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
+
+        Assert.Contains("**Type:** Test Project", content);
+        Assert.Contains("## Test Configuration", content);
+        Assert.Contains("xUnit v3 with Microsoft Testing Platform", content);
+        Assert.Contains("AwesomeAssertions", content);
+    }
+
+    [Fact]
+    public async Task ClaudeBrain_Shows_Active_Polyfills()
+    {
+        await using var project = SdkProjectBuilder.Create(fixture);
+
+        project.AddFile("CLAUDE.md", "Root brain");
+
+        var result = await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
+            .WithProperties(
+                ("InjectIndexRangeOnLegacy", Val.True),
+                ("InjectIsExternalInitOnLegacy", Val.True))
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
+
+        Assert.Equal(0, result.ExitCode);
+
+        var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";
+        var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
+
+        Assert.Contains("## Active Polyfills", content);
+        Assert.Contains("Index/Range structs", content);
+        Assert.Contains("IsExternalInit (records)", content);
+    }
+
+    [Fact]
+    public async Task ClaudeBrain_Shows_Active_Extensions()
+    {
+        await using var project = SdkProjectBuilder.Create(fixture);
+
+        project.AddFile("CLAUDE.md", "Root brain");
+
+        var result = await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
+            .WithProperty("InjectCommonComparers", Val.True)
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
+
+        Assert.Equal(0, result.ExitCode);
+
+        var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";
+        var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
+
+        // InjectSharedThrow is true by default
+        Assert.Contains("## Active Extensions", content);
+        Assert.Contains("Throw guard clauses", content);
+        Assert.Contains("StringOrdinalComparer", content);
+    }
+
+    [Fact]
+    public async Task ClaudeBrain_Omits_Empty_Sections()
+    {
+        await using var project = SdkProjectBuilder.Create(fixture);
+
+        project.AddFile("CLAUDE.md", "Root brain");
+
+        var result = await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
+            .WithProperty("InjectSharedThrow", Val.False)
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
+
+        Assert.Equal(0, result.ExitCode);
+
+        var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";
+        var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
+
+        // No polyfills or extensions enabled, sections should be absent
+        Assert.DoesNotContain("## Active Polyfills", content);
+        Assert.DoesNotContain("## Active Extensions", content);
+        Assert.DoesNotContain("## Test Configuration", content);
+
+        // Banned APIs section should always be present
+        Assert.Contains("## Banned APIs", content);
+    }
+
+    [Fact]
+    public async Task ClaudeBrain_Dynamic_Import_Path_At_Depth_Two()
+    {
+        await using var project = SdkProjectBuilder.Create(fixture);
+
+        project.AddFile("CLAUDE.md", "Root brain");
+
+        var result = await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
+
+        Assert.Equal(0, result.ExitCode);
+
+        var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";
+        var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
+
+        // At depth 2 (src/MyLibrary/), relative path should be ../../CLAUDE.md
+        Assert.Contains("@import ../../CLAUDE.md", content);
+    }
+
+    [Fact]
+    public async Task ClaudeBrain_Dynamic_Import_Path_At_Depth_Three()
+    {
+        await using var project = SdkProjectBuilder.Create(fixture);
+
+        project.AddFile("CLAUDE.md", "Root brain");
+
+        var result = await project
+            .WithFilename("src/deep/nested/DeepProject.csproj")
+            .WithOutputType(Val.Library)
+            .BuildAsync(["src/deep/nested/DeepProject.csproj"]);
+
+        Assert.Equal(0, result.ExitCode);
+
+        var generatedFilePath = project.RootFolder / "src/deep/nested/CLAUDE.md";
+        var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
+
+        // At depth 3 (src/deep/nested/), relative path should be ../../../CLAUDE.md
+        Assert.Contains("@import ../../../CLAUDE.md", content);
+    }
+
+    [Fact]
+    public async Task ClaudeBrain_Shows_Banned_Apis_Section()
+    {
+        await using var project = SdkProjectBuilder.Create(fixture);
+
+        project.AddFile("CLAUDE.md", "Root brain");
+
+        var result = await project
+            .WithFilename("src/MyLibrary/MyLibrary.csproj")
+            .WithOutputType(Val.Library)
+            .WithProperty("InjectSharedThrow", Val.False)
+            .BuildAsync(["src/MyLibrary/MyLibrary.csproj"]);
+
+        Assert.Equal(0, result.ExitCode);
+
+        var generatedFilePath = project.RootFolder / "src/MyLibrary/CLAUDE.md";
+        var content = await File.ReadAllTextAsync(generatedFilePath, TestContext.Current.CancellationToken);
+
+        Assert.Contains("## Banned APIs", content);
+        Assert.Contains("TimeProvider", content);
+        Assert.Contains("System.Text.Json", content);
     }
 }

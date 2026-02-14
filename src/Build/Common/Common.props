@@ -64,18 +64,21 @@
     <AnalysisLevel>latest-all</AnalysisLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
-    <MSBuildTreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</MSBuildTreatWarningsAsErrors>
-    <TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
-    <EnforceCodeStyleInBuild Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</EnforceCodeStyleInBuild>
-
     <EnablePackageValidation Condition="'$(EnablePackageValidation)' == ''">true</EnablePackageValidation>
     <ManagePackageVersionsCentrally Condition="'$(ManagePackageVersionsCentrally)' == ''">true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled Condition="'$(CentralPackageTransitivePinningEnabled)' == ''">true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">
+    <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
   <ItemDefinitionGroup>
     <PackageReference>
-      <PrivateAssets></PrivateAssets>
+      <!-- Intentionally empty: clears inherited PrivateAssets defaults so all assets flow through -->
+      <PrivateAssets />
     </PackageReference>
   </ItemDefinitionGroup>
 
@@ -115,10 +118,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Shared injected test bases are packaged, not compiled (hidden from Solution Explorer) -->
-    <Compile Remove="$(MSBuildThisFileDirectory)../../Testing/Fixtures/*.cs"/>
-    <None Include="$(MSBuildThisFileDirectory)../../Testing/Fixtures/*.cs" Pack="false" InProject="false"/>
-
     <!-- Add all editorconfig files (hidden from Solution Explorer via InProject) -->
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../../Config/*.editorconfig" InProject="false"/>
   </ItemGroup>

@@ -72,14 +72,6 @@
        AUTO-CONFIGURATION FOR DETECTED GENERATORS
        ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- When a generator project is detected but SourceGeneratorRoslynVersion is not set,
-       default to the SDK's RoslynVersion (5.0.0) for broad compatibility -->
-  <PropertyGroup Condition="'$(_IsSourceGeneratorProject)' == 'true' AND '$(SourceGeneratorRoslynVersion)' == '' AND '$(ManagePackageVersionsCentrally)' == 'true'">
-    <!-- Don't auto-set SourceGeneratorRoslynVersion - let user opt-in explicitly.
-         This avoids unexpected behavior for projects that intentionally use
-         a newer Roslyn version or have their own version management. -->
-  </PropertyGroup>
-
   <!-- Common generator project settings (opt-in via IsSourceGenerator or detection) -->
   <PropertyGroup Condition="'$(_IsSourceGeneratorProject)' == 'true'">
     <!-- EnforceExtendedAnalyzerRules ensures analyzer/generator best practices -->

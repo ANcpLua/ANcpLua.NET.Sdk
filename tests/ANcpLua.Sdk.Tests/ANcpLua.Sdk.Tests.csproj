@@ -32,8 +32,5 @@
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 
-  <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)../../src/shared/Extensions/FakeLogger/FakeLoggerExtensions.cs" Link="Extensions/FakeLoggerExtensions.cs"/>
-  </ItemGroup>
 
 </Project>

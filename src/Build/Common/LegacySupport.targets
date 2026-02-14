@@ -32,7 +32,6 @@
     <InjectANcpLuaIndexRangePolyfills>true</InjectANcpLuaIndexRangePolyfills>
     <InjectANcpLuaLanguageFeaturesPolyfills>true</InjectANcpLuaLanguageFeaturesPolyfills>
     <InjectANcpLuaNullabilityPolyfills>true</InjectANcpLuaNullabilityPolyfills>
-    <InjectANcpLuaRangePolyfill>true</InjectANcpLuaRangePolyfill>
     <InjectANcpLuaTimeProviderPolyfill>true</InjectANcpLuaTimeProviderPolyfill>
     <InjectANcpLuaTrimAttributesPolyfills>true</InjectANcpLuaTrimAttributesPolyfills>
   </PropertyGroup>
@@ -41,10 +40,6 @@
     <InjectSharedThrow>true</InjectSharedThrow>
     <InjectSourceGenHelpers>true</InjectSourceGenHelpers>
     <InjectCommonComparers>true</InjectCommonComparers>
-    <EnableANcpLuaExtensions>true</EnableANcpLuaExtensions>
-    <EnableANcpLuaSharedResources>true</EnableANcpLuaSharedResources>
-    <EnableANcpLuaSharedWorkflows>true</EnableANcpLuaSharedWorkflows>
-    <InjectANcpLuaIntegrationTestHelpers>true</InjectANcpLuaIntegrationTestHelpers>
   </PropertyGroup>
 
   <!-- InjectAllLanguageFeaturePolyfills - All C# 14 language feature polyfills for netstandard2.0 -->
@@ -182,10 +177,6 @@
        DIAGNOSTICS (< net6.0)
        StackTraceHiddenAttribute
        ───────────────────────────────────────────────────────────────────────── -->
-  <ItemGroup Condition="'$(InjectDiagnosticClassesOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
-    <Compile Include="$(_SharedSourcePath)Polyfills/DiagnosticClasses.cs" LinkBase="Shared/Polyfills" InProject="false"/>
-  </ItemGroup>
-
   <ItemGroup Condition="('$(InjectStackTraceHiddenOnLegacy)' == 'true' OR '$(InjectANcpLuaDiagnosticsPolyfills)' == 'true') AND '$(_NeedsNet6Polyfills)' == 'true'">
     <Compile Include="$(_SharedSourcePath)Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" LinkBase="Shared/Polyfills/Diagnostics" InProject="false"/>
   </ItemGroup>
@@ -204,29 +195,11 @@
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
-       FAKE LOGGER
-       ───────────────────────────────────────────────────────────────────────── -->
-  <ItemGroup Condition="'$(InjectFakeLogger)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Extensions/FakeLogger/FakeLoggerExtensions.cs" LinkBase="Shared/Extensions/FakeLogger" InProject="false"/>
-  </ItemGroup>
-
-  <!-- ─────────────────────────────────────────────────────────────────────────
-       INTEGRATION TESTS
-       ───────────────────────────────────────────────────────────────────────── -->
-  <ItemGroup Condition="'$(InjectANcpLuaIntegrationTestHelpers)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)IntegrationTests/*.cs" LinkBase="Shared/IntegrationTests" InProject="false"/>
-  </ItemGroup>
-
-  <!-- ─────────────────────────────────────────────────────────────────────────
        SOURCE GENERATOR HELPERS
-       Base utilities (EquatableArray<T>, DiagnosticInfo, etc.) from source-only package
-       SDK-specific extensions (DiagnosticsExtensions, SyntaxValueProvider) embedded in SDK
+       EquatableArray<T>, DiagnosticInfo, etc. from source-only package
        ───────────────────────────────────────────────────────────────────────── -->
   <ItemGroup Condition="'$(InjectSourceGenHelpers)' == 'true'">
     <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesSourcesVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesSourcesVersion)" PrivateAssets="all" IsImplicitlyDefined="true"/>
-    <!-- SDK-specific extensions that build on ANcpLua.Roslyn.Utilities -->
-    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/DiagnosticsExtensions.cs" LinkBase="Shared/Extensions/SourceGen" InProject="false"/>
-    <Compile Include="$(_SharedSourcePath)Extensions/SourceGen/SyntaxValueProvider.cs" LinkBase="Shared/Extensions/SourceGen" InProject="false"/>
   </ItemGroup>
 
   <!-- ─────────────────────────────────────────────────────────────────────────
@@ -281,15 +254,8 @@
   <ItemGroup Condition="('$(InjectTimeProviderPolyfill)' == 'true' OR '$(InjectANcpLuaTimeProviderPolyfill)' == 'true') AND '$(_NeedsNet8Polyfills)' == 'true'">
     <Compile Include="$(_SharedSourcePath)Polyfills/TimeProvider/TimeProvider.cs" LinkBase="Shared/Polyfills" InProject="false"/>
     <!-- TimeProvider on legacy frameworks requires IAsyncDisposable and ValueTask -->
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(BclAsyncInterfacesVersion)" VersionOverride="$(BclAsyncInterfacesVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(TasksExtensionsVersion)" VersionOverride="$(TasksExtensionsVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'" IsImplicitlyDefined="true"/>
-  </ItemGroup>
-
-  <!-- ─────────────────────────────────────────────────────────────────────────
-       WORKFLOWS
-       ───────────────────────────────────────────────────────────────────────── -->
-  <ItemGroup Condition="'$(EnableANcpLuaSharedWorkflows)' == 'true'">
-    <Compile Include="$(_SharedSourcePath)Workflows/**/*.cs" LinkBase="Shared/Workflows" InProject="false"/>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="$(BclAsyncInterfacesVersion)" VersionOverride="$(BclAsyncInterfacesVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'"/>
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="$(TasksExtensionsVersion)" VersionOverride="$(TasksExtensionsVersion)" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net462'"/>
   </ItemGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════

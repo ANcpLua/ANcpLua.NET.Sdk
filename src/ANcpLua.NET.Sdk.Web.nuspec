@@ -87,9 +87,6 @@
     <file src="shared/Throw/Throw.cs" target="shared/Throw/"/>
     <file src="shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
     <file src="shared/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
-    <file src="shared/Extensions/FakeLogger/FakeLoggerExtensions.cs" target="shared/Extensions/FakeLogger/"/>
-    <file src="shared/Extensions/SourceGen/DiagnosticsExtensions.cs" target="shared/Extensions/SourceGen/"/>
-    <file src="shared/Extensions/SourceGen/SyntaxValueProvider.cs" target="shared/Extensions/SourceGen/"/>
     <file src="shared/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
     <file src="shared/Extensions/DiagnosticAnalyzerBase.cs" target="shared/Extensions/"/>
     <file src="shared/Extensions/CodeFixes/SyntaxModifierExtensions.cs" target="shared/Extensions/CodeFixes/"/>

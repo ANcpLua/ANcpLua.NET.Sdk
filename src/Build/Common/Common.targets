@@ -165,8 +165,8 @@
   </PropertyGroup>
 
   <!-- Ensure application can run with newer frameworks -->
-  <PropertyGroup>
-    <RollForward Condition="'$(RollForward)' == '' AND '$(IsTestProject)' != 'true'">LatestMajor</RollForward>
+  <PropertyGroup Condition="'$(RollForward)' == '' AND '$(IsTestProject)' != 'true'">
+    <RollForward>LatestMajor</RollForward>
   </PropertyGroup>
 
   <ItemGroup>
@@ -256,14 +256,103 @@
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        CLAUDE.MD AUTO-GENERATION
+       Generates a rich, context-aware CLAUDE.md per project with:
+       - Project type detection (Library, Test, Web, Source Generator)
+       - Target framework and language version
+       - Active polyfills and extensions
+       - Test configuration (xUnit, MTP, AwesomeAssertions)
+       - Analyzer and build settings
        ═══════════════════════════════════════════════════════════════════════ -->
   <Target Name="GenerateClaudeMd" BeforeTargets="Build" Condition="'$(GenerateClaudeMd)' == 'true' AND !Exists('$(MSBuildProjectDirectory)/CLAUDE.md')">
     <PropertyGroup>
       <_RootClaudeMd>$([MSBuild]::GetPathOfFileAbove('CLAUDE.md', '$(MSBuildProjectDirectory)'))</_RootClaudeMd>
+      <_RootClaudeMdRelative Condition="'$(_RootClaudeMd)' != ''">$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '$(_RootClaudeMd)'))</_RootClaudeMdRelative>
     </PropertyGroup>
+
+    <!-- SDK variant detection -->
+    <PropertyGroup>
+      <_ClaudeMdSdkVariant>ANcpLua.NET.Sdk</_ClaudeMdSdkVariant>
+      <_ClaudeMdSdkVariant Condition="'$(ANcpLuaSdkName)' != ''">$(ANcpLuaSdkName)</_ClaudeMdSdkVariant>
+    </PropertyGroup>
+
+    <!-- Project type detection -->
+    <PropertyGroup>
+      <_ClaudeMdProjectType>Library</_ClaudeMdProjectType>
+      <_ClaudeMdProjectType Condition="'$(OutputType)' == 'Exe' AND '$(IsTestProject)' != 'true'">Application</_ClaudeMdProjectType>
+      <_ClaudeMdProjectType Condition="'$(IsTestProject)' == 'true'">Test Project</_ClaudeMdProjectType>
+      <_ClaudeMdProjectType Condition="'$(IsIntegrationTestProject)' == 'true'">Integration Test Project</_ClaudeMdProjectType>
+      <_ClaudeMdProjectType Condition="'$(IsAnalyzerTestProject)' == 'true'">Analyzer Test Project</_ClaudeMdProjectType>
+      <_ClaudeMdProjectType Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">Web Application</_ClaudeMdProjectType>
+      <_ClaudeMdProjectType Condition="'$(UseRoslynUtilities)' == 'true' AND '$(TargetFrameworkIdentifier)' == '.NETStandard'">Source Generator</_ClaudeMdProjectType>
+    </PropertyGroup>
+
+    <!-- Build active polyfills list -->
+    <PropertyGroup>
+      <_ClaudeMdPolyfills></_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectIndexRangeOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- Index/Range structs&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectIsExternalInitOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- IsExternalInit (records)&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectRequiredMemberOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- required keyword&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectCallerAttributesOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- CallerArgumentExpression&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectUnreachableExceptionOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- UnreachableException&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectExperimentalAttributeOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- ExperimentalAttribute&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectNullabilityAttributesOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- Nullability attributes&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectTrimAttributesOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- Trim/AOT attributes&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectStringExtensionsPolyfill)' == 'true'">$(_ClaudeMdPolyfills)- String extensions (Contains/Replace with StringComparison)&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectTimeProviderPolyfill)' == 'true'">$(_ClaudeMdPolyfills)- TimeProvider&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectLockPolyfill)' == 'true'">$(_ClaudeMdPolyfills)- Lock class&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectParamCollectionOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- params collections&#10;</_ClaudeMdPolyfills>
+      <_ClaudeMdPolyfills Condition="'$(InjectStackTraceHiddenOnLegacy)' == 'true'">$(_ClaudeMdPolyfills)- StackTraceHidden&#10;</_ClaudeMdPolyfills>
+    </PropertyGroup>
+
+    <!-- Build active extensions list -->
+    <PropertyGroup>
+      <_ClaudeMdExtensions></_ClaudeMdExtensions>
+      <_ClaudeMdExtensions Condition="'$(InjectSharedThrow)' == 'true'">$(_ClaudeMdExtensions)- Throw guard clauses&#10;</_ClaudeMdExtensions>
+      <_ClaudeMdExtensions Condition="'$(InjectCommonComparers)' == 'true' OR '$(InjectStringOrdinalComparer)' == 'true'">$(_ClaudeMdExtensions)- StringOrdinalComparer&#10;</_ClaudeMdExtensions>
+      <_ClaudeMdExtensions Condition="'$(InjectSourceGenHelpers)' == 'true'">$(_ClaudeMdExtensions)- Source generator helpers (EquatableArray, DiagnosticInfo)&#10;</_ClaudeMdExtensions>
+      <_ClaudeMdExtensions Condition="'$(InjectCodeFixProviderBase)' == 'true'">$(_ClaudeMdExtensions)- CodeFixProviderBase&#10;</_ClaudeMdExtensions>
+      <_ClaudeMdExtensions Condition="'$(InjectDiagnosticAnalyzerBase)' == 'true'">$(_ClaudeMdExtensions)- DiagnosticAnalyzerBase&#10;</_ClaudeMdExtensions>
+      <_ClaudeMdExtensions Condition="'$(InjectSyntaxModifierExtensions)' == 'true'">$(_ClaudeMdExtensions)- SyntaxModifierExtensions&#10;</_ClaudeMdExtensions>
+    </PropertyGroup>
+
+    <!-- Build test config section -->
+    <PropertyGroup>
+      <_ClaudeMdTestConfig></_ClaudeMdTestConfig>
+      <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true' AND '$(SkipXunitInjection)' != 'true'">$(_ClaudeMdTestConfig)- xUnit v3 with Microsoft Testing Platform&#10;</_ClaudeMdTestConfig>
+      <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true' AND '$(SkipXunitInjection)' == 'true'">$(_ClaudeMdTestConfig)- Custom test framework (xUnit skipped)&#10;</_ClaudeMdTestConfig>
+      <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true'">$(_ClaudeMdTestConfig)- AwesomeAssertions&#10;</_ClaudeMdTestConfig>
+      <_ClaudeMdTestConfig Condition="'$(IsIntegrationTestProject)' == 'true'">$(_ClaudeMdTestConfig)- ASP.NET Core Mvc.Testing&#10;</_ClaudeMdTestConfig>
+      <_ClaudeMdTestConfig Condition="'$(UseRoslynUtilitiesTesting)' == 'true'">$(_ClaudeMdTestConfig)- Roslyn analyzer/generator testing&#10;</_ClaudeMdTestConfig>
+    </PropertyGroup>
+
+    <!-- Build SDK features section -->
+    <PropertyGroup>
+      <_ClaudeMdFeatures></_ClaudeMdFeatures>
+      <_ClaudeMdFeatures Condition="'$(UseRoslynUtilities)' == 'true'">$(_ClaudeMdFeatures)- Roslyn Utilities (EquatableArray, DiagnosticFlow)&#10;</_ClaudeMdFeatures>
+      <_ClaudeMdFeatures Condition="'$(EnableAotTesting)' == 'true'">$(_ClaudeMdFeatures)- AOT/Trim compatibility testing&#10;</_ClaudeMdFeatures>
+    </PropertyGroup>
+
+    <!-- Build banned APIs section -->
+    <PropertyGroup>
+      <_ClaudeMdBannedApis></_ClaudeMdBannedApis>
+      <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `TimeProvider` instead of current-time APIs&#10;</_ClaudeMdBannedApis>
+      <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `Lock` instead of `object` for locking&#10;</_ClaudeMdBannedApis>
+      <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `System.Text.Json` instead of Newtonsoft&#10;</_ClaudeMdBannedApis>
+    </PropertyGroup>
+
+    <!-- Assemble the full content -->
+    <PropertyGroup>
+      <_ClaudeMdContent>@import $(_RootClaudeMdRelative)&#10;&#10;# $(MSBuildProjectName)&#10;&#10;**Type:** $(_ClaudeMdProjectType)  &#10;**Framework:** $(TargetFramework)  &#10;**Language:** C# $(LangVersion)  &#10;**SDK:** $(_ClaudeMdSdkVariant)</_ClaudeMdContent>
+      <_ClaudeMdContent Condition="'$(_ClaudeMdPolyfills)' != ''">$(_ClaudeMdContent)&#10;&#10;## Active Polyfills&#10;&#10;$(_ClaudeMdPolyfills)</_ClaudeMdContent>
+      <_ClaudeMdContent Condition="'$(_ClaudeMdExtensions)' != ''">$(_ClaudeMdContent)&#10;&#10;## Active Extensions&#10;&#10;$(_ClaudeMdExtensions)</_ClaudeMdContent>
+      <_ClaudeMdContent Condition="'$(_ClaudeMdTestConfig)' != ''">$(_ClaudeMdContent)&#10;&#10;## Test Configuration&#10;&#10;$(_ClaudeMdTestConfig)</_ClaudeMdContent>
+      <_ClaudeMdContent Condition="'$(_ClaudeMdFeatures)' != ''">$(_ClaudeMdContent)&#10;&#10;## SDK Features&#10;&#10;$(_ClaudeMdFeatures)</_ClaudeMdContent>
+      <_ClaudeMdContent>$(_ClaudeMdContent)&#10;&#10;## Banned APIs&#10;&#10;$(_ClaudeMdBannedApis)</_ClaudeMdContent>
+    </PropertyGroup>
+
     <WriteLinesToFile
       File="$(MSBuildProjectDirectory)/CLAUDE.md"
-      Lines="---&#10;See [Root CLAUDE.md]($(_RootClaudeMd)) for project context.&#10;---&#10;&#10;# $(MSBuildProjectName)&#10;&#10;Project-specific context goes here."
+      Lines="$(_ClaudeMdContent)"
       Overwrite="true"
       Condition="'$(_RootClaudeMd)' != ''"
     />
@@ -307,8 +396,11 @@
     <Authors Condition="'$(Authors)' == '' AND '$(_IsANcpLuaProject)' == 'true'">ANcpLua</Authors>
     <Company Condition="'$(Company)' == '' AND '$(_IsANcpLuaProject)' == 'true'">ANcpLua</Company>
 
-    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' AND '$(_IsANcpLuaProject)' == 'true'">MIT</PackageLicenseExpression>
     <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' AND '$(_PackageReadmeFilePath)' != ''">README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(PackageLicenseExpression)' == '' AND '$(_IsANcpLuaProject)' == 'true'">
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>

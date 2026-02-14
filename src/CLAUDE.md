@@ -77,8 +77,6 @@ Each SDK variant has its own `Sdk.props` and `Sdk.targets` in `src/Sdk/<variant>
 |--------------------------|--------------------------------------------------|
 | `Testing.props`          | Test project detection and auto-configuration    |
 | `AotTesting/AotTesting.props` | AOT/Trim testing infrastructure             |
-| `AotTesting/AotTesting.targets` | AOT/Trim testing targets                  |
-| `Fixtures/*.cs`          | Injectable test base classes                     |
 
 ## shared/ Directory
 
@@ -100,12 +98,8 @@ shared/
     Lock.cs                 # Lock class polyfill
   Extensions/
     Comparers/              # StringOrdinalComparer.cs
-    FakeLogger/             # FakeLoggerExtensions.cs
-    SourceGen/              # DiagnosticsExtensions.cs, SyntaxValueProvider.cs
   Throw/
     Throw.cs                # Guard clause utilities (Microsoft.Shared.Diagnostics.Throw)
-  IntegrationTests/         # Integration test helpers
-  Workflows/                # Shared workflow utilities
 ```
 
 ## Regenerating SDK Files

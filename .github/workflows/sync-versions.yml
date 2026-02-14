@@ -2,7 +2,7 @@ name: Sync Version.props
 on:
   push:
     branches: [main]
-    paths: ['src/common/Version.props']
+    paths: ['src/Build/Common/Version.props']
   workflow_dispatch:
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
           repository: ANcpLua/ANcpLua.Analyzers
           token: ${{ secrets.CROSS_REPO_TOKEN }}
           path: analyzers
-      - run: cp sdk/src/common/Version.props analyzers/Version.props
+      - run: cp sdk/src/Build/Common/Version.props analyzers/Version.props
       - uses: peter-evans/create-pull-request@v8
         id: cpr
         with:

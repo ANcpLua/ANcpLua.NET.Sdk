@@ -49,7 +49,6 @@
     <InjectUnreachableExceptionOnLegacy Condition="'$(InjectUnreachableExceptionOnLegacy)' == ''">false</InjectUnreachableExceptionOnLegacy>
     <InjectExperimentalAttributeOnLegacy Condition="'$(InjectExperimentalAttributeOnLegacy)' == ''">false</InjectExperimentalAttributeOnLegacy>
     <InjectIndexRangeOnLegacy Condition="'$(InjectIndexRangeOnLegacy)' == ''">false</InjectIndexRangeOnLegacy>
-    <InjectDiagnosticClassesOnLegacy Condition="'$(InjectDiagnosticClassesOnLegacy)' == ''">false</InjectDiagnosticClassesOnLegacy>
     <InjectStackTraceHiddenOnLegacy Condition="'$(InjectStackTraceHiddenOnLegacy)' == ''">false</InjectStackTraceHiddenOnLegacy>
     <InjectLockPolyfill Condition="'$(InjectLockPolyfill)' == ''">false</InjectLockPolyfill>
     <InjectTimeProviderPolyfill Condition="'$(InjectTimeProviderPolyfill)' == ''">false</InjectTimeProviderPolyfill>
@@ -61,8 +60,8 @@
     <InjectANcpLuaExperimentalPolyfills Condition="'$(InjectANcpLuaExperimentalPolyfills)' == ''">false</InjectANcpLuaExperimentalPolyfills>
     <InjectANcpLuaIndexRangePolyfills Condition="'$(InjectANcpLuaIndexRangePolyfills)' == ''">false</InjectANcpLuaIndexRangePolyfills>
     <InjectANcpLuaLanguageFeaturesPolyfills Condition="'$(InjectANcpLuaLanguageFeaturesPolyfills)' == ''">false</InjectANcpLuaLanguageFeaturesPolyfills>
+    <InjectParamCollectionOnLegacy Condition="'$(InjectParamCollectionOnLegacy)' == ''">false</InjectParamCollectionOnLegacy>
     <InjectANcpLuaNullabilityPolyfills Condition="'$(InjectANcpLuaNullabilityPolyfills)' == ''">false</InjectANcpLuaNullabilityPolyfills>
-    <InjectANcpLuaRangePolyfill Condition="'$(InjectANcpLuaRangePolyfill)' == ''">false</InjectANcpLuaRangePolyfill>
     <InjectANcpLuaTimeProviderPolyfill Condition="'$(InjectANcpLuaTimeProviderPolyfill)' == ''">false</InjectANcpLuaTimeProviderPolyfill>
     <InjectANcpLuaTrimAttributesPolyfills Condition="'$(InjectANcpLuaTrimAttributesPolyfills)' == ''">false</InjectANcpLuaTrimAttributesPolyfills>
 
@@ -70,16 +69,11 @@
     <InjectSourceGenHelpers Condition="'$(InjectSourceGenHelpers)' == ''">false</InjectSourceGenHelpers>
     <InjectCommonComparers Condition="'$(InjectCommonComparers)' == ''">false</InjectCommonComparers>
     <InjectStringOrdinalComparer Condition="'$(InjectStringOrdinalComparer)' == ''">false</InjectStringOrdinalComparer>
-    <InjectFakeLogger Condition="'$(InjectFakeLogger)' == ''">false</InjectFakeLogger>
     <InjectCodeFixProviderBase Condition="'$(InjectCodeFixProviderBase)' == ''">false</InjectCodeFixProviderBase>
     <InjectSyntaxModifierExtensions Condition="'$(InjectSyntaxModifierExtensions)' == ''">false</InjectSyntaxModifierExtensions>
     <InjectDiagnosticAnalyzerBase Condition="'$(InjectDiagnosticAnalyzerBase)' == ''">false</InjectDiagnosticAnalyzerBase>
 
-    <!-- General ANcpLua Extensions/Shared Resources - default to false - opt-in -->
-    <EnableANcpLuaExtensions Condition="'$(EnableANcpLuaExtensions)' == ''">false</EnableANcpLuaExtensions>
-    <EnableANcpLuaSharedResources Condition="'$(EnableANcpLuaSharedResources)' == ''">false</EnableANcpLuaSharedResources>
-    <EnableANcpLuaSharedWorkflows Condition="'$(EnableANcpLuaSharedWorkflows)' == ''">false</EnableANcpLuaSharedWorkflows>
-    <InjectANcpLuaIntegrationTestHelpers Condition="'$(InjectANcpLuaIntegrationTestHelpers)' == ''">false</InjectANcpLuaIntegrationTestHelpers>
+    <!-- General ANcpLua Shared Resources - default to false - opt-in -->
 
     <!-- Bundles -->
     <InjectAllPolyfillsOnLegacy Condition="'$(InjectAllPolyfillsOnLegacy)' == ''">false</InjectAllPolyfillsOnLegacy>

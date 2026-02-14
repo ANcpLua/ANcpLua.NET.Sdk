@@ -57,12 +57,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(MvcTestingVersion)" VersionOverride="$(MvcTestingVersion)"/>
   </ItemGroup>
 
-  <!-- Auto-inject integration test base classes (set InjectIntegrationTestFixtures=false to disable) -->
-  <ItemGroup Condition="'$(IsIntegrationTestProject)' == 'true' and '$(InjectIntegrationTestFixtures)' != 'false'">
-    <Compile Include="$(MSBuildThisFileDirectory)../Testing/Fixtures/IntegrationTestBase.cs" Link="__Generated__/IntegrationTestBase.cs" InProject="false"/>
-    <Compile Include="$(MSBuildThisFileDirectory)../Testing/Fixtures/KestrelTestBase.cs" Link="__Generated__/KestrelTestBase.cs" InProject="false"/>
-    <Compile Include="$(MSBuildThisFileDirectory)../Testing/Fixtures/FakeLoggerExtensions.cs" Link="__Generated__/FakeLoggerExtensions.cs" InProject="false"/>
-  </ItemGroup>
+  <!-- Integration test base classes moved to ANcpLua.Roslyn.Utilities.Testing.WebTesting
+       Use <UseRoslynUtilitiesTesting>true</UseRoslynUtilitiesTesting> for IntegrationTestBase, KestrelTestBase, FakeLoggerExtensions -->
 
   <!-- Opt-in: Roslyn analyzer/generator test infrastructure
        Enable with: <UseRoslynUtilitiesTesting>true</UseRoslynUtilitiesTesting>

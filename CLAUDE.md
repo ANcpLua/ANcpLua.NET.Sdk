@@ -124,7 +124,6 @@ All polyfills are **opt-in** (default: `false`). Set in your project file:
   <InjectSharedThrow>true</InjectSharedThrow>          <!-- Guard clauses (enabled by default) -->
   <InjectSourceGenHelpers>true</InjectSourceGenHelpers> <!-- EquatableArray, DiagnosticInfo -->
   <InjectCommonComparers>true</InjectCommonComparers>   <!-- StringOrdinalComparer -->
-  <InjectFakeLogger>true</InjectFakeLogger>             <!-- Test logging helpers -->
 
   <!-- OR use bundle for all extensions -->
   <InjectAllExtensions>true</InjectAllExtensions>
@@ -149,7 +148,7 @@ Opt-out: `<DisableANcpLuaAnalyzers>true</DisableANcpLuaAnalyzers>`
 When `IsTestProject=true`, the SDK automatically:
 
 1. Sets `OutputType=Exe` (for MTP)
-2. Injects `xunit.v3.mtp-v2` and `Meziantou.Xunit.v3.ParallelTestFramework`
+2. Injects `xunit.v3.mtp-v2`
 3. Injects `AwesomeAssertions` and its analyzer
 4. Adds global usings: `Xunit`, `AwesomeAssertions`
 5. Configures TRX reporting: `--report-xunit-trx`

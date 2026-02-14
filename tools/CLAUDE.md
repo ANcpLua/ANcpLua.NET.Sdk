@@ -32,23 +32,12 @@ dotnet run --project tools/ConfigFilesGenerator
 - `src/Config/Analyzer.*.editorconfig` - All analyzer rule IDs for explicit severity control
 - `src/Config/BannedSymbols.*.txt` - Banned symbols from library public API surfaces
 
-### SchemaGenerator
-
-Generates JSON schemas for SDK configuration and validation:
-
-```bash
-dotnet run --project tools/SchemaGenerator
-```
-
-**Output:** JSON schema files for SDK property validation
-
 ## When to Run Each Tool
 
 | Tool                 | Run When                                                    |
 |----------------------|-------------------------------------------------------------|
 | SdkGenerator         | After modifying SDK import structure or adding new variants |
 | ConfigFilesGenerator | After updating analyzer package versions in Version.props   |
-| SchemaGenerator      | After modifying SDK configuration options                   |
 
 ## Implementation Notes
 

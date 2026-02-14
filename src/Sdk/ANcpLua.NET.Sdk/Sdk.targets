@@ -1,38 +1,6 @@
 <Project>
   <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
 
-  <Target Name="_GenerateProjectClaudeMd"
-          AfterTargets="Build"
-          Condition="'$(GenerateClaudeMd)' == 'true' AND !Exists('$(ProjectDir)CLAUDE.md')">
-
-    <PropertyGroup>
-      <_RootClaudeMd>$([MSBuild]::GetPathOfFileAbove('CLAUDE.md', '$(MSBuildProjectDirectory)/..'))</_RootClaudeMd>
-      <_RelativePath Condition="'$(_RootClaudeMd)' != ''">$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '$(_RootClaudeMd)'))</_RelativePath>
-
-      <!-- Project type detection -->
-      <_ProjectType Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">Web API</_ProjectType>
-      <_ProjectType Condition="'$(IsTestProject)' == 'true'">Test</_ProjectType>
-      <_ProjectType Condition="'$(_ProjectType)' == ''">Library</_ProjectType>
-    </PropertyGroup>
-
-    <ItemGroup>
-      <_ClaudeMdLines Include="@import $(_RelativePath)"/>
-      <_ClaudeMdLines Include=" "/>
-      <_ClaudeMdLines Include="%23 $(MSBuildProjectName)"/>
-      <_ClaudeMdLines Include=" "/>
-      <_ClaudeMdLines Include="- Type: $(_ProjectType)"/>
-      <_ClaudeMdLines Include="- Framework: $(TargetFramework)"/>
-    </ItemGroup>
-
-    <Message Text="[ANcpLua.NET.Sdk] Generated CLAUDE.md linking to $(_RelativePath)" Importance="High" Condition="'$(_RootClaudeMd)' != ''"/>
-
-    <WriteLinesToFile
-      File="$(ProjectDir)CLAUDE.md"
-      Lines="@(_ClaudeMdLines)"
-      Overwrite="true"
-      Condition="'$(_RootClaudeMd)' != ''"/>
-  </Target>
-
   <!-- Analyzer pack layout enforcement (dev-only, not included in nupkg) -->
   <Import Project="$(MSBuildThisFileDirectory)../../Build/Packaging/AnalyzersPack.targets"
           Condition="Exists('$(MSBuildThisFileDirectory)../../Build/Packaging/AnalyzersPack.targets')"/>

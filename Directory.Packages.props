@@ -6,6 +6,9 @@
 
     All version variables are defined in src/Build/Common/Version.props.
     This file only declares WHICH packages are used, not their versions.
+
+    NOTE: SDK-injected packages (AwesomeAssertions, Analyzers, SourceLink, xunit)
+    use VersionOverride in their .props files and do NOT need entries here.
   -->
 
   <!-- Import centralized versions (this SDK owns Version.props) -->
@@ -26,19 +29,9 @@
 
   <!-- Microsoft.Extensions -->
   <ItemGroup Label="Microsoft.Extensions">
-    <PackageVersion Include="Microsoft.AspNetCore.Diagnostics.Middleware" Version="$(MicrosoftExtensionsVersion)"/>
-    <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="$(AspNetCoreVersion)"/>
-    <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="$(AspNetCoreVersion)"/>
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="$(MicrosoftBclAsyncInterfacesVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.Compliance.Redaction" Version="$(MicrosoftExtensionsVersion)"/>
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(MicrosoftExtensionsVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(AspNetCoreVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="$(MicrosoftExtensionsVersion)"/>
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(AspNetCoreVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="$(MicrosoftExtensionsVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.Telemetry" Version="$(MicrosoftExtensionsVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.Telemetry.Abstractions" Version="$(MicrosoftExtensionsVersion)"/>
-    <PackageVersion Include="Microsoft.Deployment.DotNet.Releases" Version="$(MicrosoftDeploymentDotNetReleasesVersion)"/>
   </ItemGroup>
 
   <!-- Meziantou -->
@@ -47,7 +40,6 @@
     <PackageVersion Include="Meziantou.Framework.DependencyScanning" Version="$(MeziantouDependencyScanningVersion)"/>
     <PackageVersion Include="Meziantou.Framework.FullPath" Version="$(MeziantouFullPathVersion)"/>
     <PackageVersion Include="Meziantou.Framework.TemporaryDirectory" Version="$(MeziantouTemporaryDirectoryVersion)"/>
-    <PackageVersion Include="Meziantou.Framework.Threading" Version="$(MeziantouThreadingVersion)"/>
   </ItemGroup>
 
   <!-- Testing -->
@@ -56,8 +48,6 @@
     <PackageVersion Include="ANcpLua.Roslyn.Utilities.Testing.Aot" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
     <PackageVersion Include="xunit.v3.mtp-v2" Version="$(XunitV3Version)"/>
     <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)"/>
-    <PackageVersion Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)"/>
-    <PackageVersion Include="AwesomeAssertions.Analyzers" Version="$(AwesomeAssertionsAnalyzersVersion)"/>
   </ItemGroup>
 
   <!-- Build/Tools -->
@@ -66,19 +56,6 @@
     <PackageVersion Include="MSBuild.StructuredLogger" Version="$(MSBuildStructuredLoggerVersion)"/>
     <PackageVersion Include="NuGet.Protocol" Version="$(NuGetVersion)"/>
     <PackageVersion Include="NuGet.Packaging" Version="$(NuGetVersion)"/>
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="$(MicrosoftSourceLinkVersion)"/>
-    <PackageVersion Include="Microsoft.OpenApi" Version="$(MicrosoftOpenApiVersion)"/>
-    <PackageVersion Include="Microsoft.OpenApi.Readers" Version="$(MicrosoftOpenApiReadersVersion)"/>
     <PackageVersion Include="YamlDotNet" Version="$(YamlDotNetVersion)"/>
-  </ItemGroup>
-
-  <!-- OpenTelemetry -->
-  <ItemGroup Label="OpenTelemetry">
-    <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="$(OpenTelemetryVersion)"/>
-    <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="$(OpenTelemetryVersion)"/>
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="$(OpenTelemetryVersion)"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="$(OpenTelemetryVersion)"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="$(OpenTelemetryVersion)"/>
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="$(OpenTelemetryVersion)"/>
   </ItemGroup>
 </Project>

@@ -4,8 +4,8 @@
     CENTRALIZED PACKAGE VERSIONS - Single Source of Truth
     ═══════════════════════════════════════════════════════════════════════════
 
-    This file is auto-generated during build by build.ps1.
-    To update versions, modify the heredoc in build.ps1.
+    This file is the source of truth for all package versions.
+    Edit this file directly when bumping versions.
 
     This file defines ALL shared package versions used across:
     - ANcpLua.NET.Sdk (this SDK)
@@ -127,7 +127,7 @@
 
   <!-- ═══════════════════════════════════════════════════════════════════════
        OPENTELEMETRY
-       Used by: Web projects (qyl ServiceDefaults)
+       Used by: Consumer web projects
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="OpenTelemetry">
     <OpenTelemetryVersion>1.15.0</OpenTelemetryVersion>
@@ -156,9 +156,9 @@
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
-       LEGACY POLYFILLS (netstandard2.0 support)
-       Used by: SDK (LegacySupport)
-       ═══════════════════════════════════════════════════════════════════════ -->
+      LEGACY POLYFILLS (netstandard2.0 support)
+      Used by: SDK (LegacySupport)
+      ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Legacy Polyfills">
     <BclAsyncInterfacesVersion>6.0.0</BclAsyncInterfacesVersion>
     <TasksExtensionsVersion>4.5.4</TasksExtensionsVersion>
