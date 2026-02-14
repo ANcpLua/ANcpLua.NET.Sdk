@@ -36,7 +36,7 @@ dotnet_diagnostic.MA0006.severity = silent
 # MA0007: Add a comma after the last value
 # Help link: https://github.com/Meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0007.md
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.MA0007.severity = suggestion
+dotnet_diagnostic.MA0007.severity = none
 
 # MA0008: Add StructLayoutAttribute
 # Help link: https://github.com/Meziantou/Meziantou.Analyzer/blob/main/docs/Rules/MA0008.md
