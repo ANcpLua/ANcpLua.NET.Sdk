@@ -177,6 +177,10 @@
        DIAGNOSTICS (< net6.0)
        StackTraceHiddenAttribute
        ───────────────────────────────────────────────────────────────────────── -->
+  <ItemGroup Condition="'$(InjectDiagnosticClassesOnLegacy)' == 'true' AND ('$(TargetFramework)' == 'netstandard2.0' OR '$(TargetFramework)' == 'net472')">
+    <Compile Include="$(_SharedSourcePath)Polyfills/DiagnosticClasses.cs" LinkBase="Shared/Polyfills" InProject="false"/>
+  </ItemGroup>
+
   <ItemGroup Condition="('$(InjectStackTraceHiddenOnLegacy)' == 'true' OR '$(InjectANcpLuaDiagnosticsPolyfills)' == 'true') AND '$(_NeedsNet6Polyfills)' == 'true'">
     <Compile Include="$(_SharedSourcePath)Polyfills/Diagnostics/StackTraceHiddenAttribute.cs" LinkBase="Shared/Polyfills/Diagnostics" InProject="false"/>
   </ItemGroup>

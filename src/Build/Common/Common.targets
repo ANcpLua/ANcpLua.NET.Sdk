@@ -266,7 +266,7 @@
   <Target Name="GenerateClaudeMd" BeforeTargets="Build" Condition="'$(GenerateClaudeMd)' == 'true' AND !Exists('$(MSBuildProjectDirectory)/CLAUDE.md')">
     <PropertyGroup>
       <_RootClaudeMd>$([MSBuild]::GetPathOfFileAbove('CLAUDE.md', '$(MSBuildProjectDirectory)'))</_RootClaudeMd>
-      <_RootClaudeMdRelative Condition="'$(_RootClaudeMd)' != ''">$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '$(_RootClaudeMd)'))</_RootClaudeMdRelative>
+      <_RootClaudeMdRelative Condition="'$(_RootClaudeMd)' != ''">$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '$(_RootClaudeMd)').Replace('\','/'))</_RootClaudeMdRelative>
     </PropertyGroup>
 
     <!-- SDK variant detection -->
