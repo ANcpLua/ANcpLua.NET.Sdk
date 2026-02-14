@@ -40,18 +40,24 @@
     <!-- Build/Packaging - Analyzer pack layout -->
     <file src="Build/Packaging/AnalyzersPack.targets" target="Build/Packaging/"/>
 
-    <!-- Config - EditorConfig and analyzer settings -->
-    <file src="Config/Analyzers.editorconfig" target="Config/"/>
-    <file src="Config/Analyzer.ANcpLua.Analyzers.editorconfig" target="Config/"/>
-    <file src="Config/Analyzer.Meziantou.Analyzer.editorconfig" target="Config/"/>
-    <file src="Config/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="Config/"/>
-    <file src="Config/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="Config/"/>
-    <file src="Config/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="Config/"/>
-    <file src="Config/CodingStyle.editorconfig" target="Config/"/>
-    <file src="Config/NamingConvention.editorconfig" target="Config/"/>
-    <file src="Config/GeneratedFiles.editorconfig" target="Config/"/>
-    <file src="Config/BannedSymbols.txt" target="Config/"/>
-    <file src="Config/BannedSymbols.NewtonsoftJson.txt" target="Config/"/>
+    <!-- Config/Analyzers - Analyzer editorconfig settings -->
+    <file src="Config/Analyzers/Global.editorconfig" target="Config/Analyzers/"/>
+    <file src="Config/Analyzers/ANcpLua.editorconfig" target="Config/Analyzers/"/>
+    <file src="Config/Analyzers/Meziantou.editorconfig" target="Config/Analyzers/"/>
+    <file src="Config/Analyzers/Roslyn.editorconfig" target="Config/Analyzers/"/>
+    <file src="Config/Analyzers/BannedApis.editorconfig" target="Config/Analyzers/"/>
+    <file src="Config/Analyzers/NetAnalyzers.editorconfig" target="Config/Analyzers/"/>
+
+    <!-- Config/Style - Code style editorconfig settings -->
+    <file src="Config/Style/CodingStyle.editorconfig" target="Config/Style/"/>
+    <file src="Config/Style/NamingConvention.editorconfig" target="Config/Style/"/>
+    <file src="Config/Style/GeneratedFiles.editorconfig" target="Config/Style/"/>
+
+    <!-- Config/BannedSymbols - Banned API symbol lists -->
+    <file src="Config/BannedSymbols/Default.txt" target="Config/BannedSymbols/"/>
+    <file src="Config/BannedSymbols/NewtonsoftJson.txt" target="Config/BannedSymbols/"/>
+
+    <!-- Config root -->
     <file src="Config/default.runsettings" target="Config/"/>
 
     <file src="../LICENSE.txt" target=""/>

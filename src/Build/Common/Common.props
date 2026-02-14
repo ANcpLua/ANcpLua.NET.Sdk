@@ -116,7 +116,7 @@
 
   <ItemGroup>
     <!-- Add all editorconfig files (hidden from Solution Explorer via InProject) -->
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../../Config/*.editorconfig" InProject="false"/>
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../../Config/**/*.editorconfig" InProject="false"/>
   </ItemGroup>
 
 </Project>

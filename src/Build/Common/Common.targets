@@ -231,8 +231,8 @@
   <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/Default.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
@@ -243,7 +243,7 @@
 
   <Target Name="EmbedBannedSymbolsInBinLog" AfterTargets="CoreCompile">
     <ItemGroup>
-      <EmbedInBinlog Include="@(AdditionalFiles)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '^BannedSymbols(\..+)?\.txt$'))"/>
+      <EmbedInBinlog Include="@(AdditionalFiles)" Condition="$([System.String]::new('%(FullPath)').Contains('BannedSymbols')) AND '%(Extension)' == '.txt'"/>
     </ItemGroup>
   </Target>
 
