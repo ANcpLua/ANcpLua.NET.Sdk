@@ -22,7 +22,12 @@
           BeforeTargets="BeforeBuild;Restore;CollectPackageReferences"
           DependsOnTargets="_DetectTestFrameworksAndMTP"
           Condition="'$(SkipXunitInjection)' != 'true'">
+    <!-- Check if xUnit is already present (user-supplied or from another source) -->
     <ItemGroup>
+      <_ExistingXunit Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3' OR '%(Identity)' == 'xunit.v3.mtp-v1' OR '%(Identity)' == 'xunit.v3.mtp-v2' OR '%(Identity)' == 'xunit.v3.mtp-off'"/>
+    </ItemGroup>
+    <!-- Only inject if not already present (avoids NETSDK1023 duplicate warning) -->
+    <ItemGroup Condition="'@(_ExistingXunit)' == ''">
       <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" VersionOverride="$(XunitMtpVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
     <!-- Configure MTP properties since we're injecting xUnit MTP -->
@@ -30,7 +35,8 @@
       <_UsesMTP>true</_UsesMTP>
       <_UsesXunitV3Mtp>true</_UsesXunitV3Mtp>
       <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
-      <OutputType Condition="'$(OutputType)' == 'Library'">Exe</OutputType>
+      <!-- Only auto-set OutputType if user didn't explicitly enable MTP (let safety guard warn instead) -->
+      <OutputType Condition="'$(OutputType)' == 'Library' AND '$(_MTPExplicitlySet)' != 'true'">Exe</OutputType>
       <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
       <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)' == ''">--report-xunit-trx</TestingPlatformCommandLineArguments>
     </PropertyGroup>
