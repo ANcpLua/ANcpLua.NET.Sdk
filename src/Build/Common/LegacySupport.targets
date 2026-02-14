@@ -34,6 +34,7 @@
     <InjectANcpLuaNullabilityPolyfills>true</InjectANcpLuaNullabilityPolyfills>
     <InjectANcpLuaTimeProviderPolyfill>true</InjectANcpLuaTimeProviderPolyfill>
     <InjectANcpLuaTrimAttributesPolyfills>true</InjectANcpLuaTrimAttributesPolyfills>
+    <InjectDiagnosticClassesOnLegacy>true</InjectDiagnosticClassesOnLegacy>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(InjectAllExtensions)' == 'true'">

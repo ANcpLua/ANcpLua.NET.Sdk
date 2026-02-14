@@ -20,11 +20,6 @@
         <Project Path="src/ANcpLua.NET.Sdk.Test.csproj" />
     </Folder>
 
-    <!-- Engineering (Polyfills, Extensions, Shared) -->
-    <Folder Name="/eng/">
-        <File Path="eng/CLAUDE.md" />
-        <File Path="eng/Directory.Build.props" />
-    </Folder>
     <!-- Tests -->
     <Folder Name="/tests/">
         <Project Path="tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj" />

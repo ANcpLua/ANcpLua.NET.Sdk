@@ -82,13 +82,11 @@
     <file src="shared/Polyfills/Exceptions/UnreachableException.cs" target="shared/Polyfills/Exceptions/"/>
     <file src="shared/Polyfills/Experimental/ExperimentalAttribute.cs" target="shared/Polyfills/Experimental/"/>
     <file src="shared/Polyfills/TimeProvider/TimeProvider.cs" target="shared/Polyfills/TimeProvider/"/>
-    <file src="shared/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/Polyfills/"/>
-    <file src="shared/MSBuild/Polyfills/Lock.cs" target="shared/Polyfills/"/>
-    <file src="shared/MSBuild/Polyfills/TrimAttributes.cs" target="shared/Polyfills/"/>
-
+    <file src="shared/Polyfills/StringExtensions/StringExtensions.cs" target="shared/Polyfills/StringExtensions/"/>
+    <file src="shared/MSBuild/Polyfills/DiagnosticClasses.cs" target="shared/MSBuild/Polyfills/"/>
+    <file src="shared/MSBuild/Polyfills/Lock.cs" target="shared/MSBuild/Polyfills/"/>
     <!-- Shared Sources - Other -->
     <file src="shared/Throw/Throw.cs" target="shared/Throw/"/>
-    <file src="shared/CodeTests/Compiler.cs" target="shared/CodeTests/"/>
     <file src="shared/Extensions/Comparers/StringOrdinalComparer.cs" target="shared/Extensions/Comparers/"/>
     <file src="shared/Extensions/CodeFixes/CodeFixProviderBase.cs" target="shared/Extensions/CodeFixes/"/>
     <file src="shared/Extensions/DiagnosticAnalyzerBase.cs" target="shared/Extensions/"/>

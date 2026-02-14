@@ -438,7 +438,7 @@ internal static partial class Throw
 
 #if NET7_0_OR_GREATER
     /// <summary>
-    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// Throws an <see cref="T:System.Diagnostics.UnreachableException"/>.
     /// </summary>
     /// <param name="message">A message that describes the error.</param>
     /// <param name="memberName">Caller member name when <paramref name="message"/> is <see langword="null"/>.</param>
@@ -457,7 +457,7 @@ internal static partial class Throw
             BuildUnreachableMessage(message, memberName, filePath, lineNumber));
 
     /// <summary>
-    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// Throws an <see cref="T:System.Diagnostics.UnreachableException"/>.
     /// </summary>
     /// <param name="condition">The condition that should have prevented this code path.</param>
     /// <param name="message">A message that describes the error.</param>
@@ -483,7 +483,7 @@ internal static partial class Throw
     }
 
     /// <summary>
-    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// Throws an <see cref="T:System.Diagnostics.UnreachableException"/>.
     /// </summary>
     /// <typeparam name="T">The return type for unreachable code paths.</typeparam>
     /// <param name="message">A message that describes the error.</param>
@@ -503,7 +503,7 @@ internal static partial class Throw
             BuildUnreachableMessage(message, memberName, filePath, lineNumber));
 
     /// <summary>
-    /// Throws an <see cref="System.Diagnostics.UnreachableException"/>.
+    /// Throws an <see cref="T:System.Diagnostics.UnreachableException"/>.
     /// </summary>
     /// <typeparam name="T">The return type for unreachable code paths.</typeparam>
     /// <param name="condition">The condition that should have prevented this code path.</param>
@@ -530,7 +530,7 @@ internal static partial class Throw
     }
 
     /// <summary>
-    /// Throws an <see cref="System.Diagnostics.UnreachableException"/> when the condition is <see langword="true"/>.
+    /// Throws an <see cref="T:System.Diagnostics.UnreachableException"/> when the condition is <see langword="true"/>.
     /// </summary>
     /// <param name="condition">The condition that should never be true.</param>
     /// <param name="message">A message that describes the error.</param>

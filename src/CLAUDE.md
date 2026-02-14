@@ -16,11 +16,10 @@ src/
     ANcpLua.NET.Sdk.Web/
     ANcpLua.NET.Sdk.Test/
   Testing/              # Test project infrastructure
-    Fixtures/           # Injectable test base classes
     AotTesting/         # AOT/Trim testing MSBuild orchestration
   shared/               # Injectable source files
     Polyfills/          # BCL polyfills for older TFMs
-    Extensions/         # Utility extensions (Comparers, SourceGen, FakeLogger)
+    Extensions/         # Utility extensions (Comparers, CodeFixes)
     Throw/              # Guard clause utilities
 ```
 
@@ -73,10 +72,10 @@ Each SDK variant has its own `Sdk.props` and `Sdk.targets` in `src/Sdk/<variant>
 
 ## Testing/ Directory
 
-| File                     | Purpose                                          |
-|--------------------------|--------------------------------------------------|
-| `Testing.props`          | Test project detection and auto-configuration    |
-| `AotTesting/AotTesting.props` | AOT/Trim testing infrastructure             |
+| File                          | Purpose                                      |
+|-------------------------------|----------------------------------------------|
+| `Testing.props`               | Test project detection and auto-configuration|
+| `AotTesting/AotTesting.props` | AOT/Trim testing infrastructure              |
 
 ## shared/ Directory
 
@@ -90,14 +89,18 @@ shared/
     Exceptions/             # UnreachableException.cs
     Experimental/           # ExperimentalAttribute.cs
     IndexRange/             # Index.cs, Range.cs
-    LanguageFeatures/       # IsExternalInit, RequiredMember, CallerArgumentExpression
+    LanguageFeatures/       # IsExternalInit, RequiredMember, CallerArgumentExpression, ParamCollection
     NullabilityAttributes/  # MemberNotNullAttributes.cs
     StringExtensions/       # StringExtensions.cs (Contains, Replace with StringComparison)
     TimeProvider/           # TimeProvider.cs
     TrimAttributes/         # AOT/Trim attributes
+  MSBuild/Polyfills/
+    DiagnosticClasses.cs    # ExcludeFromCodeCoverageAttribute polyfill
     Lock.cs                 # Lock class polyfill
   Extensions/
     Comparers/              # StringOrdinalComparer.cs
+    CodeFixes/              # CodeFixProviderBase, SyntaxModifierExtensions
+    DiagnosticAnalyzerBase.cs  # Base class for Roslyn analyzers
   Throw/
     Throw.cs                # Guard clause utilities (Microsoft.Shared.Diagnostics.Throw)
 ```

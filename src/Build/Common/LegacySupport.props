@@ -53,6 +53,7 @@
     <InjectLockPolyfill Condition="'$(InjectLockPolyfill)' == ''">false</InjectLockPolyfill>
     <InjectTimeProviderPolyfill Condition="'$(InjectTimeProviderPolyfill)' == ''">false</InjectTimeProviderPolyfill>
     <InjectStringExtensionsPolyfill Condition="'$(InjectStringExtensionsPolyfill)' == ''">false</InjectStringExtensionsPolyfill>
+    <InjectDiagnosticClassesOnLegacy Condition="'$(InjectDiagnosticClassesOnLegacy)' == ''">false</InjectDiagnosticClassesOnLegacy>
 
     <!-- ANcpLua Polyfills - default to false - opt-in -->
     <InjectANcpLuaDiagnosticsPolyfills Condition="'$(InjectANcpLuaDiagnosticsPolyfills)' == ''">false</InjectANcpLuaDiagnosticsPolyfills>
