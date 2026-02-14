@@ -231,8 +231,8 @@
   <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/Default.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">

@@ -54,8 +54,8 @@
     <file src="Config/Style/GeneratedFiles.editorconfig" target="Config/Style/"/>
 
     <!-- Config/BannedSymbols - Banned API symbol lists -->
-    <file src="Config/BannedSymbols/Default.txt" target="Config/BannedSymbols/"/>
-    <file src="Config/BannedSymbols/NewtonsoftJson.txt" target="Config/BannedSymbols/"/>
+    <file src="Config/BannedSymbols/BannedSymbols.txt" target="Config/BannedSymbols/"/>
+    <file src="Config/BannedSymbols/BannedSymbols.NewtonsoftJson.txt" target="Config/BannedSymbols/"/>
 
     <!-- Config root -->
     <file src="Config/default.runsettings" target="Config/"/>
