@@ -34,21 +34,33 @@ jobs:
       package_version: ${{ steps.compute-version.outputs.package_version }}
     steps:
         - uses: actions/checkout@v6
+          with:
+            fetch-depth: 0
+            fetch-tags: true
         - uses: actions/setup-dotnet@v5
         - id: compute-version
           run: |
-            try
+            $LatestTag = git describe --tags --abbrev=0 2>$null
+            if ($LatestTag -and $LatestTag -match '^v([0-9]+\.[0-9]+\.[0-9]+)$')
             {
-                # Match version like 1.1.X or 1.0.X
-                $(Invoke-WebRequest "https://www.nuget.org/api/v2/package/ANcpLua.NET.Sdk/").BaseResponse.RequestMessage.RequestUri -match "ANcpLua\.net\.sdk\.(\d+)\.(\d+)\.(\d+)\.nupkg"
-                $Major = [int]$Matches.1
-                $Minor = [int]$Matches.2
-                $Patch = [int]$Matches.3 + 1
-                $NewVersion = "$Major.$Minor.$Patch"
+                $NewVersion = $Matches[1]
+                Write-Host "Using tag version: $NewVersion"
             }
-            catch
+            else
             {
-                $NewVersion = "1.1.3"
+                try
+                {
+                    # Match version like 1.1.X or 1.0.X
+                    $(Invoke-WebRequest "https://www.nuget.org/api/v2/package/ANcpLua.NET.Sdk/").BaseResponse.RequestMessage.RequestUri -match "ANcpLua\.net\.sdk\.(\d+)\.(\d+)\.(\d+)\.nupkg"
+                    $Major = [int]$Matches.1
+                    $Minor = [int]$Matches.2
+                    $Patch = [int]$Matches.3 + 1
+                    $NewVersion = "$Major.$Minor.$Patch"
+                }
+                catch
+                {
+                    $NewVersion = "1.1.3"
+                }
             }
 
             Write-Host "New version: $NewVersion"
