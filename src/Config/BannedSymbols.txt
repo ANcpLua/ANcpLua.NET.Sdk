@@ -1,11 +1,8 @@
-P:System.DateTime.Now;Use System.DateTime.UtcNow instead
-P:System.DateTimeOffset.Now;Use System.DateTimeOffset.UtcNow instead
-
 # DateTime - use TimeProvider.System.GetUtcNow()
-M:System.DateTime.get_Now
-M:System.DateTime.get_UtcNow
-M:System.DateTimeOffset.get_Now
-M:System.DateTimeOffset.get_UtcNow
+P:System.DateTime.Now;Use TimeProvider.System.GetUtcNow() instead
+P:System.DateTime.UtcNow;Use TimeProvider.System.GetUtcNow() instead
+P:System.DateTimeOffset.Now;Use TimeProvider.System.GetUtcNow() instead
+P:System.DateTimeOffset.UtcNow;Use TimeProvider.System.GetUtcNow() instead
 
 # Guards - use Guard.NotNull() from ANcpLua.Roslyn.Utilities
 M:System.ArgumentNullException.ThrowIfNull(System.Object,System.String)
