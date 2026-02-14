@@ -134,3 +134,6 @@ csharp_preserve_single_line_statements = false
 csharp_prefer_static_local_function = true
 dotnet_code_quality_unused_parameters = all
 
+# IDE0130: Namespace does not match folder structure
+dotnet_diagnostic.IDE0130.severity = none
+
