@@ -135,25 +135,31 @@
     <!-- Directory.Packages.props - for AL0017, AL0019 -->
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Packages.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Directory.Packages.props')"
+                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
                      InProject="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Packages.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
                      InProject="false"/>
 
     <!-- Directory.Build.props - for AL0018 -->
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Build.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Directory.Build.props')"
+                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
                      InProject="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Build.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Build.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
                      InProject="false"/>
 
     <!-- Version.props - for AL0019 -->
     <AdditionalFiles Include="$(MSBuildProjectDirectory)/Version.props"
                      Condition="Exists('$(MSBuildProjectDirectory)/Version.props')"
+                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
                      InProject="false"/>
     <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Version.props', '$(MSBuildProjectDirectory)'))"
                      Condition="!Exists('$(MSBuildProjectDirectory)/Version.props') AND '$([MSBuild]::GetPathOfFileAbove(`Version.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
                      InProject="false"/>
   </ItemGroup>
 
@@ -231,8 +237,8 @@
   <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
 
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.txt" Link="SDK/Config/BannedSymbols/%(Filename)%(Extension)" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.NewtonsoftJson.txt" Link="SDK/Config/BannedSymbols/%(Filename)%(Extension)" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
@@ -339,7 +345,7 @@
         <PackageIcon>icon.png</PackageIcon>
       </PropertyGroup>
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)../../icon.png" Pack="true" PackagePath="" InProject="false"/>
+        <None Include="$(MSBuildThisFileDirectory)../../icon.png" Pack="true" PackagePath="" Link="SDK/Package/icon.png" InProject="false"/>
       </ItemGroup>
     </When>
   </Choose>
@@ -372,7 +378,7 @@
   <ItemGroup>
     <None Include="$(_PackageReadmeFilePath)" Pack="true" PackagePath="README.md" Condition="$(_PackageReadmeFilePath) != ''"/>
     <None Include="$(_PackageThirdPartyNoticesPath)" Pack="true" PackagePath="" Condition="$(_PackageThirdPartyNoticesPath) != ''"/>
-    <None Include="$(_LicensePath)" Pack="true" PackagePath="" InProject="false" Condition="$(_LicensePath) != ''"/>
+    <None Include="$(_LicensePath)" Pack="true" PackagePath="" Link="SDK/Package/%(Filename)%(Extension)" InProject="false" Condition="$(_LicensePath) != ''"/>
   </ItemGroup>
 
 </Project>
