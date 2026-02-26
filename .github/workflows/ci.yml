@@ -4,6 +4,7 @@ on:
     branches:
       - "main"
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -134,7 +135,16 @@ jobs:
       - name: Must Publish Packages
         id: has_changes
         run: |
-          $PreviousTag = git describe --tags --abbrev=0 2>$null
+          # When HEAD is tagged (release commit), diff against the PREVIOUS tag
+          # to detect changes. Without this, git diff $tag HEAD is always empty.
+          $ExactTag = git describe --tags --exact-match HEAD 2>$null
+          if ($ExactTag) {
+            Write-Host "HEAD is tagged: $ExactTag — finding previous tag"
+            $PreviousTag = git describe --tags --abbrev=0 "$ExactTag~1" 2>$null
+          } else {
+            $PreviousTag = git describe --tags --abbrev=0 2>$null
+          }
+
           if ($PreviousTag) {
             Write-Host "Previous tag: $PreviousTag"
             $Changes = git diff --name-only $PreviousTag HEAD -- '*.nuspec' 'src/**/*'
