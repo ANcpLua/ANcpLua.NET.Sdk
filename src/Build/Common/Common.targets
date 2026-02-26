@@ -292,7 +292,7 @@
 
     <!-- Build test config section -->
     <PropertyGroup>
-      <_ClaudeMdTestConfig></_ClaudeMdTestConfig>
+      <_ClaudeMdTestConfig/>
       <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true' AND '$(SkipXunitInjection)' != 'true'">$(_ClaudeMdTestConfig)- xUnit v3 with Microsoft Testing Platform&#10;</_ClaudeMdTestConfig>
       <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true' AND '$(SkipXunitInjection)' == 'true'">$(_ClaudeMdTestConfig)- Custom test framework (xUnit skipped)&#10;</_ClaudeMdTestConfig>
       <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true'">$(_ClaudeMdTestConfig)- AwesomeAssertions&#10;</_ClaudeMdTestConfig>
@@ -302,13 +302,13 @@
 
     <!-- Build SDK features section -->
     <PropertyGroup>
-      <_ClaudeMdFeatures></_ClaudeMdFeatures>
+      <_ClaudeMdFeatures/>
       <_ClaudeMdFeatures Condition="'$(UseRoslynUtilities)' == 'true'">$(_ClaudeMdFeatures)- Roslyn Utilities (EquatableArray, DiagnosticFlow)&#10;</_ClaudeMdFeatures>
     </PropertyGroup>
 
     <!-- Build banned APIs section -->
     <PropertyGroup>
-      <_ClaudeMdBannedApis></_ClaudeMdBannedApis>
+      <_ClaudeMdBannedApis/>
       <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `TimeProvider` instead of current-time APIs&#10;</_ClaudeMdBannedApis>
       <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `Lock` instead of `object` for locking&#10;</_ClaudeMdBannedApis>
       <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `System.Text.Json` instead of Newtonsoft&#10;</_ClaudeMdBannedApis>

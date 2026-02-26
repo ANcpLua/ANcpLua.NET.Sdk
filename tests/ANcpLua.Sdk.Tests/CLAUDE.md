@@ -23,10 +23,11 @@ dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-
 Tests use `ProjectBuilder` to create isolated .NET projects and validate SDK behavior:
 
 ```csharp
-await using var project = CreateProjectBuilder();
-project.AddCsprojFile([("OutputType", "Library")]);
-project.AddFile("sample.cs", "public class Sample { }");
-var result = await project.BuildAsync();
+await using var project = SdkProjectBuilder.Create(fixture);
+var result = await project
+    .WithOutputType("Library")
+    .AddSource("sample.cs", "public class Sample { }")
+    .BuildAsync();
 result.AssertSuccess();
 ```
 
@@ -97,14 +98,11 @@ Example:
 [Fact]
 public async Task NewFeature_WhenEnabled_ShouldWork()
 {
-    await using var project = CreateProjectBuilder();
-    project.AddCsprojFile([
-        ("TargetFramework", "net10.0"),
-        ("NewFeature", "true")
-    ]);
-    project.AddFile("test.cs", "public class Test { }");
-
-    var result = await project.BuildAsync();
+    await using var project = SdkProjectBuilder.Create(fixture);
+    var result = await project
+        .WithProperty("NewFeature", "true")
+        .AddSource("test.cs", "public class Test { }")
+        .BuildAsync();
 
     result.AssertSuccess();
     result.AssertPropertyValue("NewFeature", "true");

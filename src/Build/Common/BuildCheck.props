@@ -1,14 +1,14 @@
 <Project>
   <!--
     ═══════════════════════════════════════════════════════════════════════════
-    BUILDCHECK INTEGRATION (.NET 9+)
+    BUILDCHECK INTEGRATION (.NET 10+ / MSBuild 18.0+)
     ═══════════════════════════════════════════════════════════════════════════
 
     BuildCheck runs at MSBuild evaluation time and catches common antipatterns.
     Docs: https://learn.microsoft.com/en-us/dotnet/core/tools/buildcheck-rules
   -->
 
-  <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '17.8'))">
+  <PropertyGroup Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '18.0'))">
     <RunBuildCheck Condition="'$(DisableBuildCheck)' != 'true'">true</RunBuildCheck>
 
     <!-- Treat as errors in CI -->
@@ -17,7 +17,7 @@
 
   <!-- Rule Configuration -->
   <PropertyGroup Label="BuildCheck Rules"
-                 Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '17.8'))">
+                 Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(MSBuildVersion)', '18.0'))">
     <!-- BC0101: Shared output path - MUST be error -->
     <BC0101Severity>Error</BC0101Severity>
 
