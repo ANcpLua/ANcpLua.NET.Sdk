@@ -175,7 +175,7 @@ jobs:
               & dotnet nuget push "$($file.FullName)" --api-key "$env:NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
-      - run: gh release create "${{ needs.compute_version.outputs.package_version }}" --generate-notes
+      - run: gh release create "${{ needs.compute_version.outputs.package_version }}" --generate-notes || echo "Release already exists, skipping"
         if: ${{ steps.has_changes.outputs.has_changes == 'true' && github.ref == 'refs/heads/main' }}
         env:
           GH_TOKEN: ${{ github.token }}
