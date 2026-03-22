@@ -20,10 +20,20 @@
   <PropertyGroup>
     <_StderrRedirect Condition="'$(OS)' == 'Windows_NT'"> 2&gt;nul</_StderrRedirect>
     <_StderrRedirect Condition="'$(OS)' != 'Windows_NT'"> 2&gt;/dev/null</_StderrRedirect>
+
+    <!-- Resolve git to a trusted absolute path so repo-local binary planting cannot hijack Exec. -->
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(GitExe)' != '' and $([System.IO.Path]::IsPathRooted('$(GitExe)'))">$(GitExe)</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' != 'Windows_NT' and Exists('/usr/bin/git')">/usr/bin/git</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' != 'Windows_NT' and Exists('/usr/local/bin/git')">/usr/local/bin/git</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(ProgramW6432)\Git\cmd\git.exe')">$(ProgramW6432)\Git\cmd\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(ProgramFiles)\Git\cmd\git.exe')">$(ProgramFiles)\Git\cmd\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(ProgramFiles)\Git\bin\git.exe')">$(ProgramFiles)\Git\bin\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(LocalAppData)\Programs\Git\cmd\git.exe')">$(LocalAppData)\Programs\Git\cmd\git.exe</_GitExe>
   </PropertyGroup>
 
   <Target Name="_ANcpLuaComputeGitMetadata" BeforeTargets="InitializeSourceControlInformation;GenerateNuspec">
-    <Exec Command="git -C &quot;$(MSBuildProjectDirectory)&quot; rev-parse --show-toplevel$(_StderrRedirect)"
+    <Exec Command="&quot;$(_GitExe)&quot; -C &quot;$(MSBuildProjectDirectory)&quot; rev-parse --show-toplevel$(_StderrRedirect)"
+          Condition="'$(_GitExe)' != ''"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
@@ -44,7 +54,7 @@
       <NoWarn>$(NoWarn);NETSDK1018</NoWarn>
     </PropertyGroup>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; config --get remote.origin.url$(_StderrRedirect)"
+    <Exec Command="&quot;$(_GitExe)&quot; -C &quot;$(_GitRoot)&quot; config --get remote.origin.url$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
@@ -53,7 +63,7 @@
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitOriginUrlRaw"/>
     </Exec>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; symbolic-ref --quiet HEAD$(_StderrRedirect)"
+    <Exec Command="&quot;$(_GitExe)&quot; -C &quot;$(_GitRoot)&quot; symbolic-ref --quiet HEAD$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
@@ -62,7 +72,7 @@
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchRefRaw"/>
     </Exec>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse --abbrev-ref HEAD$(_StderrRedirect)"
+    <Exec Command="&quot;$(_GitExe)&quot; -C &quot;$(_GitRoot)&quot; rev-parse --abbrev-ref HEAD$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
@@ -71,7 +81,7 @@
       <Output TaskParameter="ConsoleOutput" PropertyName="_GitBranchNameRaw"/>
     </Exec>
 
-    <Exec Command="git -C &quot;$(_GitRoot)&quot; rev-parse HEAD$(_StderrRedirect)"
+    <Exec Command="&quot;$(_GitExe)&quot; -C &quot;$(_GitRoot)&quot; rev-parse HEAD$(_StderrRedirect)"
           ConsoleToMSBuild="true"
           IgnoreExitCode="true"
           StandardOutputImportance="Low"
