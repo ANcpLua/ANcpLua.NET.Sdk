@@ -108,7 +108,7 @@
     <CodeCoverageVersion>18.4.1</CodeCoverageVersion>
     <TestSdkVersion>18.3.0</TestSdkVersion>
     <DiagnosticsTestingVersion>10.4.0</DiagnosticsTestingVersion>
-    <GitHubActionsLoggerMTPVersion>3.0.1</GitHubActionsLoggerMTPVersion>
+    <GitHubActionsLoggerMTPVersion>3.0.2</GitHubActionsLoggerMTPVersion>
     <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
   </PropertyGroup>
 
