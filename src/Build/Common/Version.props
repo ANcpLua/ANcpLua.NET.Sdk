@@ -85,7 +85,7 @@
     <MeziantouFullPathVersion>1.1.16</MeziantouFullPathVersion>
     <MeziantouTemporaryDirectoryVersion>1.0.35</MeziantouTemporaryDirectoryVersion>
     <MeziantouThreadingVersion>2.0.4</MeziantouThreadingVersion>
-    <MeziantouDependencyScanningVersion>2.0.8</MeziantouDependencyScanningVersion>
+    <MeziantouDependencyScanningVersion>2.0.9</MeziantouDependencyScanningVersion>
     <MeziantouAnalyzerVersion>3.0.22</MeziantouAnalyzerVersion>
   </PropertyGroup>
 
