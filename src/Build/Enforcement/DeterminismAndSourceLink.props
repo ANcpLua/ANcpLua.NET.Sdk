@@ -25,10 +25,11 @@
     <_GitExe Condition="'$(_GitExe)' == '' and '$(GitExe)' != '' and $([System.IO.Path]::IsPathRooted('$(GitExe)'))">$(GitExe)</_GitExe>
     <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' != 'Windows_NT' and Exists('/usr/bin/git')">/usr/bin/git</_GitExe>
     <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' != 'Windows_NT' and Exists('/usr/local/bin/git')">/usr/local/bin/git</_GitExe>
-    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(ProgramW6432)\Git\cmd\git.exe')">$(ProgramW6432)\Git\cmd\git.exe</_GitExe>
-    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(ProgramFiles)\Git\cmd\git.exe')">$(ProgramFiles)\Git\cmd\git.exe</_GitExe>
-    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(ProgramFiles)\Git\bin\git.exe')">$(ProgramFiles)\Git\bin\git.exe</_GitExe>
-    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and Exists('$(LocalAppData)\Programs\Git\cmd\git.exe')">$(LocalAppData)\Programs\Git\cmd\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and '$(ProgramW6432)' != '' and Exists('$(ProgramW6432)\Git\cmd\git.exe')">$(ProgramW6432)\Git\cmd\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and '$(ProgramFiles(x86))' != '' and Exists('$(ProgramFiles(x86))\Git\cmd\git.exe')">$(ProgramFiles(x86))\Git\cmd\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and '$(ProgramFiles)' != '' and Exists('$(ProgramFiles)\Git\cmd\git.exe')">$(ProgramFiles)\Git\cmd\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and '$(ProgramFiles)' != '' and Exists('$(ProgramFiles)\Git\bin\git.exe')">$(ProgramFiles)\Git\bin\git.exe</_GitExe>
+    <_GitExe Condition="'$(_GitExe)' == '' and '$(OS)' == 'Windows_NT' and '$(LocalAppData)' != '' and Exists('$(LocalAppData)\Programs\Git\cmd\git.exe')">$(LocalAppData)\Programs\Git\cmd\git.exe</_GitExe>
   </PropertyGroup>
 
   <Target Name="_ANcpLuaComputeGitMetadata" BeforeTargets="InitializeSourceControlInformation;GenerateNuspec">
