@@ -48,6 +48,7 @@
     <PackageVersion Include="ANcpLua.Roslyn.Utilities.Testing.Aot" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
     <PackageVersion Include="xunit.v3.mtp-v2" Version="$(XunitV3Version)"/>
     <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)"/>
+    <PackageVersion Include="Microsoft.Testing.Platform" Version="$(MTPExtensionsVersion)"/>
   </ItemGroup>
 
   <!-- Build/Tools -->

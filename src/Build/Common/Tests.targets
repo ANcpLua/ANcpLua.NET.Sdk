@@ -63,8 +63,10 @@
   <!-- GitHub Actions Test Reporting (via Target for correct timing) -->
   <Target Name="_InjectGitHubActionsLogger" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(_IsGitHubActions)' == 'true'">
     <!-- MTP: GitHubActionsTestLogger auto-registers -->
+    <!-- Pin Microsoft.Testing.Platform to match the logger's dependency (xunit.v3.mtp ships an older MTP) -->
     <ItemGroup>
       <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)" VersionOverride="$(GitHubActionsLoggerMTPVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Platform" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
   </Target>
 
