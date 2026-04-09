@@ -9,12 +9,15 @@
     2. Version.props must be imported (provides the version variables)
     3. All version variables must be defined in Version.props
 
-    Errors:
-      AL0017: Hardcoded version detected
+    MSBuild errors (ALSDK prefix — not Roslyn analyzers, not configurable via editorconfig):
+      AL0018:    Version.props not imported (also validated by Roslyn analyzer)
+      ALSDK0001: xUnit v3 on .NET 10+ requires xunit.v3.mtp-v2
+      ALSDK0002: MTP test project must have OutputType=Exe
+
+    Roslyn analyzers (AL prefix — configurable via editorconfig, validated at compile time):
+      AL0017: Hardcoded version in Directory.Packages.props
       AL0018: Version.props not imported
       AL0019: Undefined version variable
-      AL0020: Duplicate package version
-      AL0021: Version.props symlink missing (non-SDK projects)
 
     To disable (not recommended):
       <DisableVersionEnforcement>true</DisableVersionEnforcement>
@@ -35,22 +38,24 @@
       Condition="'$(RoslynVersion)' == ''"/>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
-         AL0022: Validate xUnit v3 + .NET 10 uses correct package
+         ALSDK0001: Validate xUnit v3 + .NET 10 uses correct package
+         (MSBuild-level check — not a Roslyn analyzer)
          ═══════════════════════════════════════════════════════════════════════ -->
     <ItemGroup>
       <_PlainXunitV3 Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'"/>
     </ItemGroup>
 
     <Warning
-      Code="AL0022"
+      Code="ALSDK0001"
       Text="xunit.v3 on .NET 10+ requires xunit.v3.mtp-v2 package. Plain xunit.v3 uses MTP v1 which is incompatible with .NET 10 SDK. Replace with xunit.v3.mtp-v2."
       Condition="'@(_PlainXunitV3)' != '' AND '$(TargetFramework)' == 'net10.0'"/>
 
     <!-- ═══════════════════════════════════════════════════════════════════════
-         AL0023: Validate MTP test projects have OutputType=Exe
+         ALSDK0002: Validate MTP test projects have OutputType=Exe
+         (MSBuild-level check — not a Roslyn analyzer)
          ═══════════════════════════════════════════════════════════════════════ -->
     <Error
-      Code="AL0023"
+      Code="ALSDK0002"
       Text="MTP test project must have OutputType=Exe. Current: $(OutputType). Microsoft Testing Platform requires executable test assemblies."
       Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' != 'Exe' AND '$(IsTestProject)' != 'false'"/>
 
