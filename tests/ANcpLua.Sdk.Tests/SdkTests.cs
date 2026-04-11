@@ -1002,7 +1002,8 @@ public abstract class SdkTests(
     [Fact]
     public async Task NpmInstall()
     {
-        await using var project = CreateProject(SdkWebName);
+        await using var project = CreateProject(SdkWebName)
+            .WithProperty("EnableDefaultNpmPackageFile", "true");
 
         project.AddFile("package.json", """
             {
@@ -1029,7 +1030,8 @@ public abstract class SdkTests(
     [Fact]
     public async Task NpmRestore()
     {
-        await using var project = CreateProject(SdkWebName);
+        await using var project = CreateProject(SdkWebName)
+            .WithProperty("EnableDefaultNpmPackageFile", "true");
 
         project.AddFile("package.json", """
             {
@@ -1052,9 +1054,35 @@ public abstract class SdkTests(
     }
 
     [Fact]
-    public async Task Npm_Dotnet_Build_sln()
+    public async Task NpmRestore_DefaultAutoDetectionDisabled()
     {
         await using var project = CreateProject(SdkWebName);
+
+        project.AddFile("package.json", """
+            {
+              "name": "sample",
+              "version": "1.0.0",
+              "private": true,
+              "devDependencies": {
+                "is-number": "7.0.0"
+              }
+            }
+            """);
+
+        var result = await project
+            .AddSource("Program.cs", "Console.WriteLine();")
+            .RestoreAsync();
+
+        Assert.Equal(0, result.ExitCode);
+        Assert.False(File.Exists(project.RootFolder / "package-lock.json"));
+        Assert.False(File.Exists(project.RootFolder / "node_modules" / ".npm-install-stamp"));
+    }
+
+    [Fact]
+    public async Task Npm_Dotnet_Build_sln()
+    {
+        await using var project = CreateProject(SdkWebName)
+            .WithProperty("EnableDefaultNpmPackageFile", "true");
 
         var slnFile = project.AddFile("sample.slnx", """
             <Solution>
@@ -1087,7 +1115,8 @@ public abstract class SdkTests(
     [InlineData("publish")]
     public async Task Npm_Dotnet_sln(string command)
     {
-        await using var project = CreateProject(SdkWebName);
+        await using var project = CreateProject(SdkWebName)
+            .WithProperty("EnableDefaultNpmPackageFile", "true");
 
         var slnFile = project.AddFile("sample.slnx", """
             <Solution>
@@ -1170,7 +1199,8 @@ public abstract class SdkTests(
     [Fact]
     public async Task Npm_Dotnet_Build_RestoreLockedMode_Fail()
     {
-        await using var project = CreateProject(SdkWebName);
+        await using var project = CreateProject(SdkWebName)
+            .WithProperty("EnableDefaultNpmPackageFile", "true");
 
         project.AddFile("package.json", """
             {
@@ -1195,7 +1225,8 @@ public abstract class SdkTests(
     [InlineData("/p:ContinuousIntegrationBuild=true")]
     public async Task Npm_Dotnet_Build_Ci_Success(string command)
     {
-        await using var project = CreateProject(SdkWebName);
+        await using var project = CreateProject(SdkWebName)
+            .WithProperty("EnableDefaultNpmPackageFile", "true");
 
         project.AddFile("package.json", """
             {
