@@ -44,14 +44,25 @@ jobs:
             $LatestTag = git describe --tags --abbrev=0 2>$null
             if ($LatestTag -and $LatestTag -match '^v([0-9]+\.[0-9]+\.[0-9]+)$')
             {
-                $NewVersion = $Matches[1]
-                Write-Host "Using tag version: $NewVersion"
+                $Major = [int]$Matches[1]
+                $Minor = [int]$Matches[2]
+                $Patch = [int]$Matches[3]
+
+                # If HEAD is exactly the tag, reuse the version; otherwise bump patch
+                $ExactTag = git describe --tags --exact-match HEAD 2>$null
+                if ($ExactTag -eq $LatestTag) {
+                    $NewVersion = "$Major.$Minor.$Patch"
+                    Write-Host "HEAD is tagged $LatestTag — using version: $NewVersion"
+                } else {
+                    $Patch++
+                    $NewVersion = "$Major.$Minor.$Patch"
+                    Write-Host "Commits after $LatestTag — bumped to: $NewVersion"
+                }
             }
             else
             {
                 try
                 {
-                    # Match version like 1.1.X or 1.0.X
                     $(Invoke-WebRequest "https://www.nuget.org/api/v2/package/ANcpLua.NET.Sdk/").BaseResponse.RequestMessage.RequestUri -match "ANcpLua\.net\.sdk\.(\d+)\.(\d+)\.(\d+)\.nupkg"
                     $Major = [int]$Matches.1
                     $Minor = [int]$Matches.2
