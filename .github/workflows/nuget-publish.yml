@@ -49,8 +49,8 @@ jobs:
                 $Patch = [int]$Matches[3]
 
                 # If HEAD is exactly the tag, reuse the version; otherwise bump patch
-                $ExactTag = git describe --tags --exact-match HEAD 2>$null
-                if ($ExactTag -eq $LatestTag) {
+                $ExactTag = git tag --points-at HEAD | Where-Object { $_ -eq $LatestTag }
+                if ($ExactTag) {
                     $NewVersion = "$Major.$Minor.$Patch"
                     Write-Host "HEAD is tagged $LatestTag — using version: $NewVersion"
                 } else {
