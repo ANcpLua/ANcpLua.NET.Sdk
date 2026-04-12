@@ -182,7 +182,15 @@ jobs:
               & dotnet nuget push "$($file.FullName)" --api-key "${{ steps.nuget-login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
           }
 
-      - run: gh release create "${{ needs.compute_version.outputs.package_version }}" --generate-notes || echo "Release already exists, skipping"
+      - name: Create GitHub release
         if: steps.has_changes.outputs.has_changes == 'true'
+        shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.compute_version.outputs.package_version }}
+        run: |
+          if gh release view "$VERSION" >/dev/null 2>&1; then
+            echo "Release $VERSION already exists, skipping"
+          else
+            gh release create "$VERSION" --generate-notes --title "$VERSION"
+          fi
