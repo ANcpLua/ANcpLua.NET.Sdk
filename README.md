@@ -12,7 +12,7 @@ Opinionated MSBuild SDK for .NET projects.
 // global.json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "1.6.21"
+    "ANcpLua.NET.Sdk": "2.25.7"
   }
 }
 ```

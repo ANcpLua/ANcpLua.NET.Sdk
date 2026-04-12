@@ -40,6 +40,7 @@ Sdk.props
 Sdk.targets
     |
     +-> Microsoft.NET.Sdk[.Web]    # Base SDK targets
+    +-> AnalyzersPack.targets      # Analyzer nupkg layout (conditional)
     +-> ItemMetadata.targets       # Auto-apply item metadata
     +-> Deduplication.targets      # Remove duplicate items
     +-> ArtifactStaging.targets    # Output organization
@@ -177,12 +178,17 @@ src/
     Common/           # Core props/targets
     Enforcement/      # Policy enforcement
     Packaging/        # NuGet packaging
-  Config/             # EditorConfig, BannedSymbols
+  Config/
+    Analyzers/        # Analyzer configuration
+    BannedSymbols/    # BannedApiAnalyzers txt files
+    Style/            # EditorConfig and code style
   Sdk/                # SDK entry points per variant
+    ANcpLua.NET.Sdk/
+    ANcpLua.NET.Sdk.Test/
+    ANcpLua.NET.Sdk.Web/
 tests/
   ANcpLua.Sdk.Tests/  # SDK behavior tests
 tools/
   SdkGenerator/       # Generates Sdk.props/Sdk.targets
   ConfigFilesGenerator/ # Generates editorconfig
-eng/                  # Build infrastructure
 ```
