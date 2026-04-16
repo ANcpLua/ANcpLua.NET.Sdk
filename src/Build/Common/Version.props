@@ -127,8 +127,8 @@
        Used by: Web projects
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Microsoft.Extensions">
-    <MicrosoftExtensionsVersion>10.4.0</MicrosoftExtensionsVersion>
-    <AspNetCoreVersion>10.0.5</AspNetCoreVersion>
+    <MicrosoftExtensionsVersion>10.5.0</MicrosoftExtensionsVersion>
+    <AspNetCoreVersion>10.0.6</AspNetCoreVersion>
     <MicrosoftBclAsyncInterfacesVersion>10.0.5</MicrosoftBclAsyncInterfacesVersion>
   </PropertyGroup>
 
