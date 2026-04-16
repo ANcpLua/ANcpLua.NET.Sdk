@@ -145,7 +145,7 @@
        Used by: SDK
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup Label="Build Tools">
-    <NuGetVersion>7.3.0</NuGetVersion>
+    <NuGetVersion>7.3.1</NuGetVersion>
     <MSBuildStructuredLoggerVersion>2.3.154</MSBuildStructuredLoggerVersion>
     <MicrosoftSourceLinkVersion>10.0.201</MicrosoftSourceLinkVersion>
     <MicrosoftDeploymentDotNetReleasesVersion>1.0.1</MicrosoftDeploymentDotNetReleasesVersion>
