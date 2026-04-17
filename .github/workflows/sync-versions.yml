@@ -14,18 +14,9 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      # Mint a short-lived installation token from the "ANcpLua Version Sync"
-      # GitHub App. Replaces CROSS_REPO_TOKEN PAT (expired 2026-04-02).
-      #
-      # One-time setup by repo owner:
-      #   1. Create GitHub App (https://github.com/settings/apps/new):
-      #      - Repository permissions: Contents=R/W, Pull requests=R/W
-      #      - No webhook, no user-level access
-      #   2. Install on ANcpLua/ANcpLua.NET.Sdk AND ANcpLua/ANcpLua.Analyzers
-      #   3. Add repo secrets here (ANcpLua.NET.Sdk):
-      #      - SYNC_APP_ID            (App ID, numeric)
-      #      - SYNC_APP_PRIVATE_KEY   (full .pem contents)
-      #   4. Delete old CROSS_REPO_TOKEN secret
+      # Mint a short-lived installation token from a dedicated GitHub App.
+      # Replaces CROSS_REPO_TOKEN PAT which expired 2026-04-02.
+      # Setup + rotation + failure modes: docs/SYNC.md
       - name: Mint App installation token
         id: app-token
         uses: actions/create-github-app-token@v2
