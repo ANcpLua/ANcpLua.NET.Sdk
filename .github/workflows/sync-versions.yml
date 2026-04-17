@@ -1,33 +1,69 @@
 name: Sync Version.props
+
 on:
   push:
     branches: [main]
     paths: ['src/Build/Common/Version.props']
   workflow_dispatch:
 
+# Minimal baseline — every cross-repo action uses the App token below.
+permissions:
+  contents: read
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      # Mint a short-lived installation token from the "ANcpLua Version Sync"
+      # GitHub App. Replaces CROSS_REPO_TOKEN PAT (expired 2026-04-02).
+      #
+      # One-time setup by repo owner:
+      #   1. Create GitHub App (https://github.com/settings/apps/new):
+      #      - Repository permissions: Contents=R/W, Pull requests=R/W
+      #      - No webhook, no user-level access
+      #   2. Install on ANcpLua/ANcpLua.NET.Sdk AND ANcpLua/ANcpLua.Analyzers
+      #   3. Add repo secrets here (ANcpLua.NET.Sdk):
+      #      - SYNC_APP_ID            (App ID, numeric)
+      #      - SYNC_APP_PRIVATE_KEY   (full .pem contents)
+      #   4. Delete old CROSS_REPO_TOKEN secret
+      - name: Mint App installation token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.SYNC_APP_ID }}
+          private-key: ${{ secrets.SYNC_APP_PRIVATE_KEY }}
+          owner: ANcpLua
+          repositories: ANcpLua.Analyzers
+
       - uses: actions/checkout@v6
         with:
           path: sdk
+
       - uses: actions/checkout@v6
         with:
           repository: ANcpLua/ANcpLua.Analyzers
-          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           path: analyzers
-      - run: cp sdk/src/Build/Common/Version.props analyzers/Version.props
-      - uses: peter-evans/create-pull-request@v8
+
+      - name: Copy SDK Version.props → Analyzers
+        run: cp sdk/src/Build/Common/Version.props analyzers/Version.props
+
+      - name: Open sync PR (skipped if no diff)
         id: cpr
+        uses: peter-evans/create-pull-request@v8
         with:
           path: analyzers
-          token: ${{ secrets.CROSS_REPO_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
           branch: auto/sync-version-props
-          title: 'chore: sync Version.props from SDK'
           delete-branch: true
-      - name: Enable auto-merge
+          title: 'chore: sync Version.props from SDK'
+          commit-message: 'chore: sync Version.props from SDK'
+          body: |
+            Automated sync triggered by ANcpLua.NET.Sdk commit
+            ${{ github.server_url }}/${{ github.repository }}/commit/${{ github.sha }}
+
+      - name: Enable auto-merge on the sync PR
         if: steps.cpr.outputs.pull-request-number
-        run: gh pr merge ${{ steps.cpr.outputs.pull-request-number }} --repo ANcpLua/ANcpLua.Analyzers --squash --auto
+        run: gh pr merge "${{ steps.cpr.outputs.pull-request-number }}" --repo ANcpLua/ANcpLua.Analyzers --squash --auto
         env:
-          GH_TOKEN: ${{ secrets.CROSS_REPO_TOKEN }}
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
