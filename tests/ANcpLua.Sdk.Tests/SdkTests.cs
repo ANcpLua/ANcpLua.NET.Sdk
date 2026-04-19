@@ -724,9 +724,20 @@ public abstract class SdkTests(
     {
         await using var project = CreateProject();
 
+        // Project name contains "Analyzer" → SDK treats it as a Roslyn component
+        // (_IsSourceGeneratorProject=true, EnforceExtendedAnalyzerRules=true, auto-pinned
+        // Microsoft.CodeAnalysis.CSharp). The source must follow analyzer rules:
+        // no Console use (RS1035), no top-level statements.
         var result = await project
             .WithFilename("ANcpLua.Analyzer.csproj")
-            .AddSource("Program.cs", "Console.WriteLine();")
+            .WithOutputType(Val.Library)
+            .WithTargetFramework(Tfm.NetStandard20)
+            .AddSource("Sample.cs", """
+                namespace Sample;
+
+                /// <summary>Sample placeholder for analyzer-named project.</summary>
+                public class Sample { }
+                """)
             .BuildAsync();
 
         Assert.Equal(0, result.ExitCode);

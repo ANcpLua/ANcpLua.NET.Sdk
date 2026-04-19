@@ -9,14 +9,23 @@
     still using Central Package Management.
 
     USAGE:
+      Detected generator/analyzer projects (name contains Generator/Analyzer/
+      SourceGenerator, or IsRoslynComponent=true, or IsSourceGenerator=true)
+      automatically get Microsoft.CodeAnalysis.CSharp pinned to 5.0.0 via
+      VersionOverride. No csproj change required.
+
+      Override the default only when the generator needs a different Roslyn
+      (e.g., 4.11.0 for VS 2022 17.11 compat):
+
       <PropertyGroup>
-        <SourceGeneratorRoslynVersion>5.0.0</SourceGeneratorRoslynVersion>
+        <SourceGeneratorRoslynVersion>4.11.0</SourceGeneratorRoslynVersion>
         <UseInterceptors>true</UseInterceptors>
       </PropertyGroup>
 
     PROPERTIES:
-      SourceGeneratorRoslynVersion - Pin Microsoft.CodeAnalysis.CSharp version
-                                     (default: from Version.props RoslynVersion)
+      SourceGeneratorRoslynVersion - Pin Microsoft.CodeAnalysis.CSharp version.
+                                     Auto-defaults to 5.0.0 for detected
+                                     generators. Set explicitly to override.
       UseInterceptors              - Enable C# interceptors feature
                                      (auto-adds RSEXPERIMENTAL002 to NoWarn)
 
@@ -34,13 +43,19 @@
        ═══════════════════════════════════════════════════════════════════════ -->
   <PropertyGroup>
     <!-- Detect generator/analyzer projects by:
-         1. IsRoslynComponent=true (official MSBuild property)
-         2. Project name patterns (Analyzer, Generator, SourceGenerator)
-         3. Explicit opt-in via IsSourceGenerator=true -->
+         1. Project name patterns (Analyzer, Generator) — case insensitive so
+            both "Foo.Generator" and "foo.generators" match.
+         2. IsRoslynComponent=true — reliable only when passed as a global
+            CLI property ("dotnet build -p:IsRoslynComponent=true"). Values
+            set in the csproj PropertyGroup or in Directory.Build.props are
+            evaluated AFTER this file imports (via CustomBeforeDirectoryBuildProps
+            in Sdk.props) and therefore do NOT trigger detection. Use the name
+            pattern or the IsSourceGenerator fallback below instead.
+         3. Explicit opt-in via IsSourceGenerator=true — same timing caveat. -->
+    <_LowerProjectName>$(MSBuildProjectName.ToLowerInvariant())</_LowerProjectName>
     <_IsSourceGeneratorProject Condition="'$(IsRoslynComponent)' == 'true'">true</_IsSourceGeneratorProject>
-    <_IsSourceGeneratorProject Condition="$(MSBuildProjectName.Contains('Analyzer'))">true</_IsSourceGeneratorProject>
-    <_IsSourceGeneratorProject Condition="$(MSBuildProjectName.Contains('Generator'))">true</_IsSourceGeneratorProject>
-    <_IsSourceGeneratorProject Condition="$(MSBuildProjectName.Contains('SourceGenerator'))">true</_IsSourceGeneratorProject>
+    <_IsSourceGeneratorProject Condition="$(_LowerProjectName.Contains('analyzer'))">true</_IsSourceGeneratorProject>
+    <_IsSourceGeneratorProject Condition="$(_LowerProjectName.Contains('generator'))">true</_IsSourceGeneratorProject>
     <_IsSourceGeneratorProject Condition="'$(IsSourceGenerator)' == 'true'">true</_IsSourceGeneratorProject>
   </PropertyGroup>
 
@@ -48,8 +63,16 @@
        SOURCE GENERATOR ROSLYN VERSION OVERRIDE
        ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- When SourceGeneratorRoslynVersion is set, override the Roslyn package version
-       while keeping CPM enabled. This is the recommended approach for generators. -->
+  <!-- 5.0.0 is the conservative lower bound for generator hosts running
+       .NET 10 SDK and VS 2022 17.12+ / Rider 2024.3+.
+       Generators that need broader compat can set SourceGeneratorRoslynVersion
+       explicitly (e.g. 4.11.0 for .NET 9 SDK hosts, 4.8.0 for .NET 8 SDK). -->
+  <PropertyGroup Condition="'$(_IsSourceGeneratorProject)' == 'true' and '$(SourceGeneratorRoslynVersion)' == ''">
+    <SourceGeneratorRoslynVersion>5.0.0</SourceGeneratorRoslynVersion>
+  </PropertyGroup>
+
+  <!-- When SourceGeneratorRoslynVersion is set (auto-defaulted above or consumer-provided),
+       override the Roslyn package version while keeping CPM enabled. -->
   <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != ''">
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"
                       Version="$(SourceGeneratorRoslynVersion)"
