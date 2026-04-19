@@ -4,7 +4,7 @@
     "version": "10.0.202"
   },
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk.Test": "2.25.8"
+    "ANcpLua.NET.Sdk.Test": "2.25.11"
   },
   "test": {
     "runner": "Microsoft.Testing.Platform"
