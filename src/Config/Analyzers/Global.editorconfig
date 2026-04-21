@@ -81,8 +81,11 @@ dotnet_diagnostic.IDE0037.severity = silent
 # Use pattern matching to avoid is check followed by a cast (without variable)
 dotnet_diagnostic.IDE0038.severity = suggestion
 
-# Use local function instead of lambda
-dotnet_diagnostic.IDE0039.severity = suggestion
+# Use local function instead of lambda — polarizing. Static lambdas
+# (`static () => ...`) are the preferred shape in Roslyn-heavy code and
+# most modern C# style, which clashes with IDE0039's local-function push.
+# Silenced; authors choose the shape that fits the call site.
+dotnet_diagnostic.IDE0039.severity = silent
 
 # Add accessibility modifiers
 dotnet_diagnostic.IDE0040.severity = warning
@@ -150,14 +153,28 @@ dotnet_diagnostic.IDE0078.severity = suggestion
 # Prefer null check over type check
 dotnet_diagnostic.IDE0150.severity = suggestion
 
-# Namespace declaration preferences
-dotnet_diagnostic.IDE0161.severity = suggestion
+# Namespace declaration preferences — `file_scoped` is already set as the
+# preference in CodingStyle.editorconfig. Diagnostic silenced for the same
+# reason as IDE0065: pre-C#-10 block-scoped namespaces in downstream code
+# can't be migrated file-by-file without qualifying relative usings, and
+# modern code already uses the file-scoped shape by convention.
+dotnet_diagnostic.IDE0161.severity = none
+
+# Braces when multiline — preference set in CodingStyle.editorconfig
+# (when_multiline). Passive editing should not nag on single-line
+# branchless if/while/for.
+dotnet_diagnostic.IDE0011.severity = none
 
 # Lambda expression can be removed
 dotnet_diagnostic.IDE0200.severity = suggestion
 
-# Convert to top-level statements
-dotnet_diagnostic.IDE0210.severity = suggestion
+# Convert to top-level statements — opt-in per project. Services that keep
+# an explicit `public static class Program { public static int Main(...) }`
+# for AOT, R2R, or specific MSBuild entry-point behavior should not be
+# nagged on every open. Top-level statements are still the preferred
+# shape for new simple console apps; Rider's "Convert to top-level
+# statements" action remains available when the author opts in.
+dotnet_diagnostic.IDE0210.severity = none
 
 # Null check can be simplified
 dotnet_diagnostic.IDE0270.severity = silent
