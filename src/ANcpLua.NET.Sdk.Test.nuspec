@@ -43,7 +43,6 @@
     <!-- Config/Analyzers - Analyzer editorconfig settings -->
     <file src="Config/Analyzers/Global.editorconfig" target="Config/Analyzers/"/>
     <file src="Config/Analyzers/ANcpLua.editorconfig" target="Config/Analyzers/"/>
-    <file src="Config/Analyzers/Meziantou.editorconfig" target="Config/Analyzers/"/>
     <file src="Config/Analyzers/Roslyn.editorconfig" target="Config/Analyzers/"/>
     <file src="Config/Analyzers/BannedApis.editorconfig" target="Config/Analyzers/"/>
     <file src="Config/Analyzers/NetAnalyzers.editorconfig" target="Config/Analyzers/"/>
