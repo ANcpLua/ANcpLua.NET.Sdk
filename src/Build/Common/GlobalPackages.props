@@ -30,11 +30,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>analyzers</IncludeAssets>
     </GlobalPackageReference>
-
-    <GlobalPackageReference Include="JonSkeet.RoslynAnalyzers" Version="$(JonSkeetAnalyzersVersion)">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>analyzers</IncludeAssets>
-    </GlobalPackageReference>
   </ItemGroup>
 
   <!-- CPM DISABLED: Fallback to regular PackageReference -->
@@ -45,11 +40,6 @@
     </PackageReference>
 
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="$(BannedApiAnalyzersVersion)" IsImplicitlyDefined="true">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>analyzers</IncludeAssets>
-    </PackageReference>
-
-    <PackageReference Include="JonSkeet.RoslynAnalyzers" Version="$(JonSkeetAnalyzersVersion)" IsImplicitlyDefined="true">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>analyzers</IncludeAssets>
     </PackageReference>
