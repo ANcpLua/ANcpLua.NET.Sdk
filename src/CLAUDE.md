@@ -78,5 +78,5 @@ This reads the structure from `src/Build/` and generates appropriate import chai
 1. **Props vs Targets**: Props files set properties/defaults, targets files define build actions
 2. **Guard patterns**: Use `Condition="'$(Property)' == ''"` to allow consumer override
 3. **GlobalPackageReference**: Used for analyzer injection (immutable when CPM enabled)
-4. **Roslyn Utilities**: Use `<UseRoslynUtilities>true</UseRoslynUtilities>` for source generator helpers
-5. **Polyfills**: Migrated to `ANcpLua.Roslyn.Utilities.Polyfills` NuGet package
+4. **First-party libs**: `ANcpLua.Roslyn.Utilities` / `.Agents` / `.Analyzers` are NOT pinned or auto-injected by the SDK — consumers reference them explicitly with their own `$(ANcpLua*Version)` variables (decoupled release cadence)
+5. **Polyfills**: Shipped via the `ANcpLua.Roslyn.Utilities.Polyfills` NuGet package (consumer-referenced)

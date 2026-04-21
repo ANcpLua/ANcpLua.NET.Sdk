@@ -287,7 +287,6 @@
       <_ClaudeMdProjectType Condition="'$(IsIntegrationTestProject)' == 'true'">Integration Test Project</_ClaudeMdProjectType>
       <_ClaudeMdProjectType Condition="'$(IsAnalyzerTestProject)' == 'true'">Analyzer Test Project</_ClaudeMdProjectType>
       <_ClaudeMdProjectType Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">Web Application</_ClaudeMdProjectType>
-      <_ClaudeMdProjectType Condition="'$(UseRoslynUtilities)' == 'true' AND '$(TargetFrameworkIdentifier)' == '.NETStandard'">Source Generator</_ClaudeMdProjectType>
     </PropertyGroup>
 
     <!-- Build test config section -->
@@ -297,13 +296,11 @@
       <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true' AND '$(SkipXunitInjection)' == 'true'">$(_ClaudeMdTestConfig)- Custom test framework (xUnit skipped)&#10;</_ClaudeMdTestConfig>
       <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true'">$(_ClaudeMdTestConfig)- AwesomeAssertions&#10;</_ClaudeMdTestConfig>
       <_ClaudeMdTestConfig Condition="'$(IsIntegrationTestProject)' == 'true'">$(_ClaudeMdTestConfig)- ASP.NET Core Mvc.Testing&#10;</_ClaudeMdTestConfig>
-      <_ClaudeMdTestConfig Condition="'$(UseRoslynUtilitiesTesting)' == 'true'">$(_ClaudeMdTestConfig)- Roslyn analyzer/generator testing&#10;</_ClaudeMdTestConfig>
     </PropertyGroup>
 
     <!-- Build SDK features section -->
     <PropertyGroup>
       <_ClaudeMdFeatures/>
-      <_ClaudeMdFeatures Condition="'$(UseRoslynUtilities)' == 'true'">$(_ClaudeMdFeatures)- Roslyn Utilities (EquatableArray, DiagnosticFlow)&#10;</_ClaudeMdFeatures>
     </PropertyGroup>
 
     <!-- Build banned APIs section -->

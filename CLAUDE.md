@@ -108,25 +108,19 @@ Opt-out of xUnit injection (for TUnit/NUnit/MSTest):
 </PropertyGroup>
 ```
 
-## Roslyn Utilities Integration
+## First-Party Library References
 
-For source generators targeting netstandard2.0:
-
-```xml
-<PropertyGroup>
-  <UseRoslynUtilities>true</UseRoslynUtilities>
-</PropertyGroup>
-```
-
-This adds `ANcpLua.Roslyn.Utilities.Sources` (embedded) for netstandard2.0 or `ANcpLua.Roslyn.Utilities` (runtime) for newer TFMs.
-
-For analyzer/generator testing:
+The SDK does NOT pin or auto-inject `ANcpLua.Roslyn.Utilities`, `ANcpLua.Agents`, or `ANcpLua.Analyzers`. Consumers reference them like any other NuGet dep. Example for a source generator:
 
 ```xml
-<PropertyGroup>
-  <UseRoslynUtilitiesTesting>true</UseRoslynUtilitiesTesting>
-</PropertyGroup>
+<!-- Directory.Packages.props -->
+<PackageVersion Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesVersion)"/>
+
+<!-- consumer csproj (netstandard2.0) -->
+<PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" PrivateAssets="all"/>
 ```
+
+For runtime consumers (net10.0+) use `ANcpLua.Roslyn.Utilities` instead of `.Sources`. Define `ANcpLuaRoslynUtilitiesVersion` in the consumer's own `Version.props`.
 
 ## Consumer Usage
 

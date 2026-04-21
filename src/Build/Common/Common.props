@@ -94,25 +94,24 @@
        .NET 8+ includes SourceLink by default. Since this SDK requires .NET 10+,
        SourceLink is always available without a package reference. -->
 
-  <!-- Opt-in: ANcpLua.Roslyn.Utilities (core Roslyn helpers)
-       Enable with: <UseRoslynUtilities>true</UseRoslynUtilities>
+  <!-- NOTE: ANcpLua.Roslyn.Utilities is a first-party library with its own release
+       cadence. The SDK no longer auto-injects it — consumers reference it
+       explicitly like any other NuGet dep:
 
-       Provides: EquatableArray<T>, DiagnosticInfo, DiagnosticFlow<T>,
-                 AwaitableContext, CollectionContext, symbol extensions
+         Directory.Packages.props:
+           <PackageVersion Include="ANcpLua.Roslyn.Utilities" Version="$(ANcpLuaRoslynUtilitiesVersion)"/>
+           <PackageVersion Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesVersion)"/>
 
-       For netstandard2.0 (generators): uses .Sources package (bundled in output)
-       For net10.0+ (runtime): uses regular package reference -->
-  <ItemGroup Condition="'$(UseRoslynUtilities)' == 'true' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
-    <PackageReference Include="ANcpLua.Roslyn.Utilities" Version="$(ANcpLuaRoslynUtilitiesVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesVersion)"/>
-  </ItemGroup>
-  <ItemGroup Condition="'$(UseRoslynUtilities)' == 'true' and '$(TargetFrameworkIdentifier)' == '.NETStandard'">
-    <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesSourcesVersion)" VersionOverride="$(ANcpLuaRoslynUtilitiesSourcesVersion)" PrivateAssets="all"/>
-  </ItemGroup>
+         Consumer csproj (net10.0+):
+           <PackageReference Include="ANcpLua.Roslyn.Utilities"/>
 
-  <!-- GlobalUsings for Roslyn utilities (when opted-in, non-netstandard only) -->
-  <ItemGroup Condition="'$(UseRoslynUtilities)' == 'true' and '$(ImplicitUsings)' == 'enable' and '$(TargetFrameworkIdentifier)' != '.NETStandard'">
-    <Using Include="ANcpLua.Roslyn.Utilities"/>
-  </ItemGroup>
+         Consumer csproj (netstandard2.0 source generators):
+           <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" PrivateAssets="all"/>
+
+       Rationale: the previous opt-in auto-injection forced a 3-ceremony release
+       (lib release → SDK bump → consumer SDK update) for every lib feature and
+       the "LOCAL OVERRIDES" escape was the de-facto normal path. Explicit
+       references keep deploy-order decoupled. -->
 
   <ItemGroup>
     <!-- Add all editorconfig files (hidden from Solution Explorer via InProject, Link provides virtual folder in Show All Files) -->

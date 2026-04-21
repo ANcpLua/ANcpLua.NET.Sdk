@@ -15,6 +15,13 @@
   <!-- Conditional to avoid double-import from eng/Directory.Build.props -->
   <Import Project="$(MSBuildThisFileDirectory)src/Build/Common/Version.props" Condition="'$(RoslynVersion)' == ''"/>
 
+  <!-- SDK-internal consumer of first-party libs (not shipped; not part of the SDK contract).
+       The SDK's own test project uses ANcpLua.Roslyn.Utilities.Testing like any other
+       consumer — define the variable here so the analyzer lint and CPM stay happy. -->
+  <PropertyGroup Label="SDK-internal first-party pins">
+    <ANcpLuaRoslynUtilitiesTestingVersion>1.56.0</ANcpLuaRoslynUtilitiesTestingVersion>
+  </PropertyGroup>
+
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
@@ -44,8 +51,8 @@
 
   <!-- Testing -->
   <ItemGroup Label="Testing">
+    <!-- SDK-internal self-test consumer of a first-party lib; variable at top of file. -->
     <PackageVersion Include="ANcpLua.Roslyn.Utilities.Testing" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
-    <PackageVersion Include="ANcpLua.Roslyn.Utilities.Testing.Aot" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
     <PackageVersion Include="xunit.v3.mtp-v2" Version="$(XunitV3Version)"/>
     <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)"/>
     <PackageVersion Include="Microsoft.Testing.Platform" Version="$(MTPExtensionsVersion)"/>

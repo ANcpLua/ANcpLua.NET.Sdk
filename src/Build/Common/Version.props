@@ -5,27 +5,28 @@
     ═══════════════════════════════════════════════════════════════════════════
 
     This file is packed into the ANcpLua.NET.Sdk NuGet and imported automatically
-    for any project declaring <Project Sdk="ANcpLua.NET.Sdk">. Downstream repos
-    (ANcpLua.Roslyn.Utilities, ANcpLua.Analyzers, qyl, consumers) get these
-    `$(…Version)` properties for free via MSBuild SDK resolution.
+    for any project declaring <Project Sdk="ANcpLua.NET.Sdk">. It pins versions
+    for SHARED INFRASTRUCTURE only — Roslyn, testing frameworks, Meziantou,
+    Microsoft.Extensions, OpenTelemetry, analyzer tooling.
+
+    FIRST-PARTY LIBS (ANcpLua.Roslyn.Utilities, ANcpLua.Agents, ANcpLua.Analyzers)
+    are NOT pinned here. Each consumer owns its own version in its root
+    Version.props. Rationale: the SDK pinning first-party libs created a
+    3-ceremony release (lib release → SDK bump → consumer SDK update) for every
+    lib feature, and the "LOCAL OVERRIDES" escape was the de-facto normal path.
+    Consumers now reference first-party libs directly via <PackageReference>
+    with their own <PackageVersion> entries, managed by Renovate/Dependabot
+    like any other NuGet dep.
 
     DISTRIBUTION MODEL: NuGet, not symlinks. The SDK is the source of truth via
-    the published nupkg — downstream repos are NOT cross-repo-symlinked to this
-    file (git doesn't allow that cleanly across repositories).
-
-    LOCAL OVERRIDES: A downstream repo MAY keep its own root-level Version.props
-    to pin versions AHEAD of the currently-published SDK. The local file is
-    imported by that repo's Directory.Packages.props AFTER the SDK-shipped
-    values, so "last wins" — locals override. Prune local entries once the SDK
-    publishes with matching versions. Drift is a signal a consumer has stale
-    local overrides, not a broken symlink.
+    the published nupkg for shared infrastructure.
 
     USAGE in a Directory.Packages.props:
       <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(RoslynVersion)"/>
 
     EDIT RULE: bump versions here for cross-cutting changes (Roslyn, testing
-    frameworks, Microsoft.Extensions, Microsoft.Agents, etc.). Dependabot
-    groups and SDK publish pipeline handle propagation downstream.
+    frameworks, Microsoft.Extensions, Microsoft.Agents, etc.). Do NOT add
+    ANcpLua.* first-party package versions — those live in consumer repos.
   -->
   <PropertyGroup Label="SDK Version (Auto-generated)">
     <ANcpSdkPackageVersion>999.9.9</ANcpSdkPackageVersion>
@@ -43,41 +44,6 @@
   <PropertyGroup Label="Roslyn">
     <RoslynVersion>5.3.0</RoslynVersion>
     <RoslynAnalyzersVersion>5.3.0</RoslynAnalyzersVersion>
-  </PropertyGroup>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       ROSLYN.UTILITIES (Runtime package)
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Label="Roslyn.Utilities">
-    <ANcpLuaRoslynUtilitiesVersion>1.53.0</ANcpLuaRoslynUtilitiesVersion>
-  </PropertyGroup>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       ROSLYN.UTILITIES.SOURCES (Source-only package for generators)
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Label="Roslyn.Utilities.Sources">
-    <ANcpLuaRoslynUtilitiesSourcesVersion>1.53.0</ANcpLuaRoslynUtilitiesSourcesVersion>
-  </PropertyGroup>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       ROSLYN.UTILITIES.POLYFILLS (Source-only polyfills for netstandard2.0)
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Label="Roslyn.Utilities.Polyfills">
-    <ANcpLuaRoslynUtilitiesPolyfillsVersion>1.53.0</ANcpLuaRoslynUtilitiesPolyfillsVersion>
-  </PropertyGroup>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       ROSLYN.UTILITIES.TESTING (Analyzer/CodeFix/Generator test infrastructure)
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Label="Roslyn.Utilities.Testing">
-    <ANcpLuaRoslynUtilitiesTestingVersion>1.53.0</ANcpLuaRoslynUtilitiesTestingVersion>
-  </PropertyGroup>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       ROSLYN.UTILITIES.TESTING.WORKFLOWS (MAF workflow test infrastructure)
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup Label="Roslyn.Utilities.Testing.Workflows">
-    <ANcpLuaRoslynUtilitiesTestingWorkflowsVersion>1.53.0</ANcpLuaRoslynUtilitiesTestingWorkflowsVersion>
   </PropertyGroup>
 
   <!-- ═══════════════════════════════════════════════════════════════════════
