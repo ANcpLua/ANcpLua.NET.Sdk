@@ -1,7 +1,7 @@
 {
   "sdk": {
     "rollForward": "latestPatch",
-    "version": "10.0.202"
+    "version": "10.0.203"
   },
   "msbuild-sdks": {
     "ANcpLua.NET.Sdk.Test": "2.25.11"
