@@ -38,6 +38,7 @@ Opinionated MSBuild SDK for .NET projects.
 
 - [ANcpLua.Analyzers](https://github.com/ANcpLua/ANcpLua.Analyzers) — Custom Roslyn analyzers (auto-injected)
 - [ANcpLua.Roslyn.Utilities](https://github.com/ANcpLua/ANcpLua.Roslyn.Utilities) — Source generator utilities
+- [ANcpLua.Agents](https://github.com/ANcpLua/ANcpLua.Agents) — MAF runtime helpers + agent test infrastructure
 
 ---
 
