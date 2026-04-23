@@ -1,4 +1,9 @@
 <Project>
+  <!--
+    ANcpSdkPackageVersion is a placeholder stamped at pack time by build.ps1 from the
+    CI-computed version (see .github/workflows/nuget-publish.yml compute_version job).
+    Do not set a real version here — the placeholder is intentional.
+  -->
   <PropertyGroup Label="SDK Version (Auto-generated)">
     <ANcpSdkPackageVersion>999.9.9</ANcpSdkPackageVersion>
   </PropertyGroup>

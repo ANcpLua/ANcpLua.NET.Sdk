@@ -181,7 +181,10 @@ jobs:
 
           if ($PreviousTag) {
             Write-Host "Previous tag: $PreviousTag"
-            $Changes = git diff --name-only $PreviousTag HEAD -- '*.nuspec' 'src/**/*'
+            # tests/**/* is included so test-only fixes (e.g. the CA1852 Sample class seal
+            # for v3.3.1) still count as publishable changes — the earlier omission meant a
+            # green CI silently skipped publish with no signal.
+            $Changes = git diff --name-only $PreviousTag HEAD -- '*.nuspec' 'src/**/*' 'tests/**/*'
           } else {
             Write-Host "No previous tag found, checking all files"
             $Changes = $true
@@ -192,7 +195,7 @@ jobs:
             echo "has_changes=true" >> $env:GITHUB_OUTPUT
             exit 0
           } else {
-            Write-Host "No changes detected in .nuspec or src/ files"
+            Write-Host "No changes detected in .nuspec, src/, or tests/ files"
             echo "has_changes=false" >> $env:GITHUB_OUTPUT
             exit 0
           }
@@ -221,8 +224,12 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ needs.compute_version.outputs.package_version }}
         run: |
-          if gh release view "$VERSION" >/dev/null 2>&1; then
-            echo "Release $VERSION already exists, skipping"
+          # Tag name matches the convention used by the human/CLI (v3.3.1, not 3.3.1).
+          # Older runs used the bare "$VERSION" which created a second tag alongside the
+          # pre-existing vX.Y.Z — see repo tags page for the historical duplicates.
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping"
           else
-            gh release create "$VERSION" --generate-notes --title "$VERSION"
+            gh release create "$TAG" --generate-notes --title "$TAG"
           fi
