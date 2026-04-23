@@ -7,18 +7,12 @@
     <_IsSourceGeneratorProject Condition="'$(IsSourceGenerator)' == 'true'">true</_IsSourceGeneratorProject>
   </PropertyGroup>
 
-  <!-- 5.0.0: lower bound compatible with .NET 10 SDK + VS 2022 17.12 / Rider 2024.3 -->
+  <!-- Matches $(RoslynVersion) in Version.props; keep in sync when bumping Roslyn -->
   <PropertyGroup Condition="'$(_IsSourceGeneratorProject)' == 'true' and '$(SourceGeneratorRoslynVersion)' == ''">
-    <SourceGeneratorRoslynVersion>5.0.0</SourceGeneratorRoslynVersion>
+    <SourceGeneratorRoslynVersion>5.3.0</SourceGeneratorRoslynVersion>
   </PropertyGroup>
 
-  <!--
-    Consumers opt out with <DisableImplicitRoslynPackageReference>true</DisableImplicitRoslynPackageReference>
-    and supply their own Microsoft.CodeAnalysis.CSharp PackageReference. This makes generator projects
-    self-describing so IDE language servers (Roslyn LSP, OmniSharp, Rider) resolve the reference without
-    relying on the SDK's early-import chain — a chain that breaks silently when the LSP's MSBuild
-    workspace evaluates Sdk.props before our Common.props import takes effect.
-  -->
+  <!-- DisableImplicitRoslynPackageReference=true lets generator projects supply Microsoft.CodeAnalysis.CSharp themselves, avoiding LSP evaluation-order fragility -->
   <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != '' and '$(DisableImplicitRoslynPackageReference)' != 'true'">
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"
                       Version="$(SourceGeneratorRoslynVersion)"
