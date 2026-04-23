@@ -72,8 +72,14 @@
   </PropertyGroup>
 
   <!-- When SourceGeneratorRoslynVersion is set (auto-defaulted above or consumer-provided),
-       override the Roslyn package version while keeping CPM enabled. -->
-  <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != ''">
+       override the Roslyn package version while keeping CPM enabled.
+
+       Consumers can opt out with <DisableImplicitRoslynPackageReference>true</DisableImplicitRoslynPackageReference>
+       and supply their own Microsoft.CodeAnalysis.CSharp PackageReference. This makes generator
+       projects self-describing so IDE language servers (Roslyn LSP, OmniSharp, Rider) resolve the
+       reference without relying on the SDK's early-import chain — a chain that breaks silently when
+       the LSP's MSBuild workspace evaluates Sdk.props before Common.props imports take effect. -->
+  <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != '' and '$(DisableImplicitRoslynPackageReference)' != 'true'">
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"
                       Version="$(SourceGeneratorRoslynVersion)"
                       VersionOverride="$(SourceGeneratorRoslynVersion)"
