@@ -30,8 +30,22 @@
     <file src="Build/Enforcement/DeterminismAndSourceLink.props" target="Build/Enforcement/"/>
     <file src="Build/Enforcement/VersionEnforcement.targets" target="Build/Enforcement/"/>
 
-    <!-- Config - Analyzer, style, banned-symbol, and test settings -->
-    <file src="Config/*" target="Config/"/>
+    <!-- Config - Analyzer, style, banned-symbol, and test settings
+         (enumerated, not globbed — NuGet pack on Windows does not expand Config/*) -->
+    <file src="Config/Analyzer.ANcpLua.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/ANcpLua.NET.Sdk.SingleFileApp.editorconfig" target="Config/"/>
+    <file src="Config/ANcpLua.NET.Sdk.Web.editorconfig" target="Config/"/>
+    <file src="Config/BannedSymbols.txt" target="Config/"/>
+    <file src="Config/BannedSymbols.NewtonsoftJson.txt" target="Config/"/>
+    <file src="Config/CodingStyle.editorconfig" target="Config/"/>
+    <file src="Config/Compiler.editorconfig" target="Config/"/>
+    <file src="Config/GeneratedFiles.editorconfig" target="Config/"/>
+    <file src="Config/Global.editorconfig" target="Config/"/>
+    <file src="Config/NamingConvention.editorconfig" target="Config/"/>
+    <file src="Config/default.runsettings" target="Config/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>
