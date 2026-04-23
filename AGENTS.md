@@ -15,59 +15,45 @@ Opinionated MSBuild SDK providing standardized defaults, policy enforcement, and
 ```
 Sdk.props
     |
-    +-> Version.props              # Package version constants
+    +-> Version.props              # Package version constants (source of truth)
     +-> GlobalPackages.props       # GlobalPackageReference (analyzers, SBOM)
-    |       |
-    |       +-> ANcpLua.Analyzers, BannedApiAnalyzers, JonSkeet.RoslynAnalyzers
-    |       +-> Microsoft.Sbom.Targets (if IsPackable=true)
-    |       +-> AwesomeAssertions.Analyzers (if IsTestProject=true)
-    |
     +-> Microsoft.NET.Sdk[.Web]    # Base SDK import
-    |
-    +-> ItemDefaults.props         # AdditionalFiles, InternalsVisibleTo
-    +-> InternalsVisibleTo.props   # Simplified IVT syntax
-    +-> TerminalLogger.props       # Terminal logger configuration
-    +-> BuildCheck.props           # MSBuild BuildCheck integration
-    |
-    +-> Common.props               # Core defaults (see below)
-    |       |
-    |       +-> ContinuousIntegrationBuild.props
-    |       +-> SourceGenerators.props  # Source generator/analyzer configuration
-    |
-    +-> Enforcement.props          # BANNED packages policy
+    +-> Enforcement.props          # Policy enforcement
     +-> DeterminismAndSourceLink.props  # Reproducible builds
 
-Sdk.targets
+Common.props  (via CustomBeforeDirectoryBuildProps)
     |
-    +-> Microsoft.NET.Sdk[.Web]    # Base SDK targets
-    +-> AnalyzersPack.targets      # Analyzer nupkg layout (conditional)
-    +-> ItemMetadata.targets       # Auto-apply item metadata
-    +-> Deduplication.targets      # Remove duplicate items
-    +-> ArtifactStaging.targets    # Output organization
+    +-> ContinuousIntegrationBuild.props  # CI detection
+    +-> SourceGenerators.props            # Auto-pin Roslyn 5.0.0 for generators
+
+Common.targets  (via BeforeMicrosoftNETSdkTargets)
+    |
+    +-> Tests.targets               # Test framework injection (IsTestProject)
+    +-> Npm.targets                 # Opt-in npm integration
+    +-> VersionEnforcement.targets  # AL0018 import check
 ```
 
 ## Auto-Detected Properties
 
 | Property                   | Detection Logic                                                          |
 |----------------------------|--------------------------------------------------------------------------|
-| `IsTestProject`            | Name ends with `.Tests`/`.Test` OR directory contains `tests`            |
-| `IsIntegrationTestProject` | Directory contains `Integration` or `E2E` OR references `.Web`/`.Api`    |
-| `IsAnalyzerTestProject`    | Name contains `Analyzer` or `Analyzers`                                  |
-| `_ANcpLuaInGitRepo`        | `.git` folder found via `GetDirectoryNameOfFileAbove`                    |
+| `IsTestProject`            | `ANcpLuaSdkName == ANcpLua.NET.Sdk.Test`, or root Directory.Build.targets name match |
+| `ANcpLuaSingleFileApp`     | `FileBasedProgram == true` (.NET 10+ `#:sdk` directive)                   |
+| `_IsSourceGeneratorProject` | Project name contains `generator` or `analyzer` (case-insensitive), or `IsRoslynComponent=true`, or `IsSourceGenerator=true` |
 
 ## Core Defaults (Common.props)
 
-| Property                              | Value      | Notes                                      |
-|---------------------------------------|------------|--------------------------------------------|
-| `LangVersion`                         | `latest`   | Always use latest C# features              |
-| `Nullable`                            | `enable`   | NRTs enabled by default                    |
-| `ImplicitUsings`                      | `enable`   | Global usings enabled                      |
-| `Deterministic`                       | `true`     | Reproducible builds                        |
-| `EnableNETAnalyzers`                  | `true`     | .NET analyzers enabled                     |
+| Property                              | Value        | Notes                                    |
+|---------------------------------------|--------------|------------------------------------------|
+| `LangVersion`                         | `latest`     | Always use latest C# features            |
+| `Nullable`                            | `enable`     | NRTs enabled by default                  |
+| `ImplicitUsings`                      | `enable`     | Global usings enabled                    |
+| `Deterministic`                       | `true`       | Reproducible builds                      |
+| `EnableNETAnalyzers`                  | `true`       | .NET analyzers enabled                   |
 | `AnalysisLevel`                       | `latest-all` | All analysis rules                       |
-| `TreatWarningsAsErrors`               | `true`     | In CI or Release builds                    |
-| `ManagePackageVersionsCentrally`      | `true`     | CPM required                               |
-| `CentralPackageTransitivePinningEnabled` | `true`  | Transitive pinning enabled                 |
+| `TreatWarningsAsErrors`               | `true`       | In CI or Release builds                  |
+| `ManagePackageVersionsCentrally`      | `true`       | CPM required                             |
+| `CentralPackageTransitivePinningEnabled` | `true`    | Transitive pinning enabled               |
 
 ## Banned Packages (Policy Enforcement)
 
@@ -86,8 +72,7 @@ Analyzers are injected via `GlobalPackageReference` (immutable when CPM enabled)
 |----------------------------------------|----------------------------------|
 | `ANcpLua.Analyzers`                    | Custom code quality rules        |
 | `Microsoft.CodeAnalysis.BannedApiAnalyzers` | Banned API enforcement       |
-| `JonSkeet.RoslynAnalyzers`             | NodaTime best practices          |
-| `AwesomeAssertions.Analyzers`          | Test assertion best practices    |
+| `AwesomeAssertions.Analyzers`          | Test assertion best practices (test projects only) |
 
 Opt-out: `<DisableANcpLuaAnalyzers>true</DisableANcpLuaAnalyzers>`
 
@@ -108,9 +93,22 @@ Opt-out of xUnit injection (for TUnit/NUnit/MSTest):
 </PropertyGroup>
 ```
 
+## Source Generator Roslyn Pin
+
+Projects whose name contains `generator` or `analyzer` get
+`Microsoft.CodeAnalysis.CSharp` pinned to `SourceGeneratorRoslynVersion` (default
+`5.0.0`) via `VersionOverride`, keeping CPM enabled. Override:
+
+```xml
+<PropertyGroup>
+  <SourceGeneratorRoslynVersion>4.11.0</SourceGeneratorRoslynVersion>
+</PropertyGroup>
+```
+
 ## First-Party Library References
 
-The SDK does NOT pin or auto-inject `ANcpLua.Roslyn.Utilities`, `ANcpLua.Agents`, or `ANcpLua.Analyzers`. Consumers reference them like any other NuGet dep. Example for a source generator:
+The SDK does NOT pin or auto-inject `ANcpLua.Roslyn.Utilities`, `ANcpLua.Agents`,
+or `ANcpLua.Analyzers`. Consumers reference them like any other NuGet dep.
 
 ```xml
 <!-- Directory.Packages.props -->
@@ -120,7 +118,7 @@ The SDK does NOT pin or auto-inject `ANcpLua.Roslyn.Utilities`, `ANcpLua.Agents`
 <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" PrivateAssets="all"/>
 ```
 
-For runtime consumers (net10.0+) use `ANcpLua.Roslyn.Utilities` instead of `.Sources`. Define `ANcpLuaRoslynUtilitiesVersion` in the consumer's own `Version.props`.
+For runtime consumers (net10.0+) use `ANcpLua.Roslyn.Utilities` instead of `.Sources`.
 
 ## Consumer Usage
 
@@ -158,11 +156,8 @@ dotnet test
 
 ## Version.props: Source of Truth
 
-`src/Build/Common/Version.props` defines ALL package versions used across the SDK ecosystem:
-
-- ANcpLua.NET.Sdk (this repo)
-- ANcpLua.Roslyn.Utilities (via symlink)
-- ANcpLua.Analyzers (via auto-sync GitHub Action)
+`src/Build/Common/Version.props` defines ALL package versions used across the SDK
+ecosystem.
 
 ## Directory Structure
 
@@ -170,12 +165,11 @@ dotnet test
 src/
   Build/
     Common/           # Core props/targets
-    Enforcement/      # Policy enforcement
-    Packaging/        # NuGet packaging
+    Enforcement/      # Policy enforcement, determinism, version checks
   Config/
-    Analyzers/        # Analyzer configuration
+    Analyzers/        # Analyzer editorconfig
     BannedSymbols/    # BannedApiAnalyzers txt files
-    Style/            # EditorConfig and code style
+    Style/            # EditorConfig code style
   Sdk/                # SDK entry points per variant
     ANcpLua.NET.Sdk/
     ANcpLua.NET.Sdk.Test/

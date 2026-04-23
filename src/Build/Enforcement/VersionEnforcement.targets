@@ -1,95 +1,34 @@
 <Project>
-  <!--
-    ═══════════════════════════════════════════════════════════════════════════
-    VERSION MANAGEMENT ENFORCEMENT TARGETS
-    ═══════════════════════════════════════════════════════════════════════════
+  <!-- Expose Directory.Packages.props / Directory.Build.props / Version.props to ANcpLua.Analyzers (AL0017-AL0019) -->
+  <ItemGroup Condition="'$(DisableVersionAnalyzer)' != 'true'">
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\Directory.Packages.props"
+                     Condition="Exists('$(MSBuildProjectDirectory)\Directory.Packages.props')"
+                     Visible="false" />
+    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
+                     Condition="!Exists('$(MSBuildProjectDirectory)\Directory.Packages.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Packages.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Visible="false" />
 
-    These targets enforce the centralized version management architecture:
-    1. All package versions must use $(VariableName) syntax, not hardcoded
-    2. Version.props must be imported (provides the version variables)
-    3. All version variables must be defined in Version.props
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\Directory.Build.props"
+                     Condition="Exists('$(MSBuildProjectDirectory)\Directory.Build.props')"
+                     Visible="false" />
+    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildProjectDirectory)'))"
+                     Condition="!Exists('$(MSBuildProjectDirectory)\Directory.Build.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Build.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Visible="false" />
 
-    MSBuild errors (ALSDK prefix — not Roslyn analyzers, not configurable via editorconfig):
-      AL0018:    Version.props not imported (also validated by Roslyn analyzer)
-      ALSDK0001: xUnit v3 on .NET 10+ requires xunit.v3.mtp-v2
-      ALSDK0002: MTP test project must have OutputType=Exe
+    <AdditionalFiles Include="$(MSBuildProjectDirectory)\Version.props"
+                     Condition="Exists('$(MSBuildProjectDirectory)\Version.props')"
+                     Visible="false" />
+    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Version.props', '$(MSBuildProjectDirectory)'))"
+                     Condition="!Exists('$(MSBuildProjectDirectory)\Version.props') AND '$([MSBuild]::GetPathOfFileAbove(`Version.props`, `$(MSBuildProjectDirectory)`))' != ''"
+                     Visible="false" />
+  </ItemGroup>
 
-    Roslyn analyzers (AL prefix — configurable via editorconfig, validated at compile time):
-      AL0017: Hardcoded version in Directory.Packages.props
-      AL0018: Version.props not imported
-      AL0019: Undefined version variable
-
-    To disable (not recommended):
-      <DisableVersionEnforcement>true</DisableVersionEnforcement>
-  -->
-
-  <!-- Skip enforcement during restore (properties may not be resolved yet) -->
-  <Target Name="_ValidateVersionManagement"
+  <Target Name="_ValidateVersionPropsImported"
           BeforeTargets="Build"
           Condition="'$(DisableVersionEnforcement)' != 'true' AND '$(DesignTimeBuild)' != 'true'">
-
-    <!-- ═══════════════════════════════════════════════════════════════════════
-         AL0018: Validate Version.props is imported
-         Check that key version properties are defined (proves import worked)
-         ═══════════════════════════════════════════════════════════════════════ -->
     <Error
       Code="AL0018"
-      Text="Version.props not imported. All version variables must come from ANcpLua.NET.Sdk's Version.props. If using Sdk='ANcpLua.NET.Sdk', this should be automatic. Otherwise, import Version.props explicitly."
-      Condition="'$(RoslynVersion)' == ''"/>
-
-    <!-- ═══════════════════════════════════════════════════════════════════════
-         ALSDK0001: Validate xUnit v3 + .NET 10 uses correct package
-         (MSBuild-level check — not a Roslyn analyzer)
-         ═══════════════════════════════════════════════════════════════════════ -->
-    <ItemGroup>
-      <_PlainXunitV3 Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'"/>
-    </ItemGroup>
-
-    <Warning
-      Code="ALSDK0001"
-      Text="xunit.v3 on .NET 10+ requires xunit.v3.mtp-v2 package. Plain xunit.v3 uses MTP v1 which is incompatible with .NET 10 SDK. Replace with xunit.v3.mtp-v2."
-      Condition="'@(_PlainXunitV3)' != '' AND '$(TargetFramework)' == 'net10.0'"/>
-
-    <!-- ═══════════════════════════════════════════════════════════════════════
-         ALSDK0002: Validate MTP test projects have OutputType=Exe
-         (MSBuild-level check — not a Roslyn analyzer)
-         ═══════════════════════════════════════════════════════════════════════ -->
-    <Error
-      Code="ALSDK0002"
-      Text="MTP test project must have OutputType=Exe. Current: $(OutputType). Microsoft Testing Platform requires executable test assemblies."
-      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' != 'Exe' AND '$(IsTestProject)' != 'false'"/>
-
+      Text="Version.props not imported. Expected ANcpLua.NET.Sdk's Version.props to provide $(RoslynVersion). Import Sdk='ANcpLua.NET.Sdk' or Version.props explicitly."
+      Condition="'$(RoslynVersion)' == ''" />
   </Target>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       REPORT: Show version source for debugging
-       Runs at high verbosity or when explicitly requested
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <Target Name="_ReportVersionSource"
-          BeforeTargets="Build"
-          Condition="'$(ReportVersionSource)' == 'true' OR '$(MSBuildVerbosity)' == 'diag'">
-
-    <Message Importance="high" Text="═══════════════════════════════════════════════════════════════════════════"/>
-    <Message Importance="high" Text="ANcpLua.NET.Sdk Version Enforcement Report"/>
-    <Message Importance="high" Text="═══════════════════════════════════════════════════════════════════════════"/>
-    <Message Importance="high" Text="Project: $(MSBuildProjectName)"/>
-    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────"/>
-    <Message Importance="high" Text="Core Versions:"/>
-    <Message Importance="high" Text="  RoslynVersion             = $(RoslynVersion)"/>
-    <Message Importance="high" Text="  RoslynAnalyzersVersion    = $(RoslynAnalyzersVersion)"/>
-    <Message Importance="high" Text="  AnalyzerTestingVersion    = $(AnalyzerTestingVersion)"/>
-    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────"/>
-    <Message Importance="high" Text="Testing Versions:"/>
-    <Message Importance="high" Text="  XunitV3Version            = $(XunitV3Version)"/>
-    <Message Importance="high" Text="  AwesomeAssertionsVersion  = $(AwesomeAssertionsVersion)"/>
-    <Message Importance="high" Text="  MTPExtensionsVersion      = $(MTPExtensionsVersion)"/>
-    <Message Importance="high" Text="──────────────────────────────────────────────────────────────────────────"/>
-    <Message Importance="high" Text="Framework Versions:"/>
-    <Message Importance="high" Text="  MeziantouFrameworkVersion = $(MeziantouFrameworkVersion)"/>
-    <Message Importance="high" Text="  MicrosoftExtensionsVersion= $(MicrosoftExtensionsVersion)"/>
-    <Message Importance="high" Text="  OpenTelemetryVersion      = $(OpenTelemetryVersion)"/>
-    <Message Importance="high" Text="══════════════════════════════════════════════════════════════════════════"/>
-
-  </Target>
-
 </Project>

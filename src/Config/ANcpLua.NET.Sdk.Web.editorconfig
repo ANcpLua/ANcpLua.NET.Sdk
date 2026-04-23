@@ -1,0 +1,6 @@
+# global_level must be higher than the base editorconfig files
+is_global = true
+global_level = 1
+
+# CA1002: Do not expose generic lists
+dotnet_diagnostic.CA1002.severity = none

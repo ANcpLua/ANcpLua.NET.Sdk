@@ -3,12 +3,83 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       TEST FRAMEWORK INJECTION
-       Auto-inject AwesomeAssertions (always) and xUnit v3 MTP (unless skipped)
-       ═══════════════════════════════════════════════════════════════════════ -->
+  <PropertyGroup>
+    <_MTPExplicitlySet Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">true</_MTPExplicitlySet>
+    <_UsesMTP Condition="'$(UseMicrosoftTestingPlatform)' == 'true' OR '$(EnableNUnitRunner)' == 'true' OR '$(EnableMSTestRunner)' == 'true'">true</_UsesMTP>
+  </PropertyGroup>
 
-  <!-- AwesomeAssertions is useful for any test framework (always injected) -->
+  <PropertyGroup Condition="'$(_UsesMTP)' == 'true'">
+    <OutputType Condition="'$(OutputType)' == 'Library' AND '$(_MTPExplicitlySet)' != 'true'">Exe</OutputType>
+    <OutputType Condition="'$(OutputType)' == ''">Exe</OutputType>
+    <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
+    <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
+  </PropertyGroup>
+
+  <Target Name="_DetectTestFrameworksAndMTP" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" Condition="'$(_ANcpLuaTestDetectionDone)' != 'true'">
+    <PropertyGroup>
+      <_ANcpLuaTestDetectionDone>true</_ANcpLuaTestDetectionDone>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_TUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'TUnit'"/>
+      <_NUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'NUnit'"/>
+      <_MSTestPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'MSTest.TestFramework'"/>
+      <_XunitMtpV1Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'"/>
+      <_XunitMtpV2Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'"/>
+      <_XunitMtpOffPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-off'"/>
+      <_MtpExtPkg Include="@(PackageReference)" Condition="$([System.String]::new('%(Identity)').StartsWith('Microsoft.Testing.Extensions'))"/>
+    </ItemGroup>
+
+    <PropertyGroup>
+      <SkipXunitInjection Condition="'@(_TUnitPkg)' != ''">true</SkipXunitInjection>
+      <SkipXunitInjection Condition="'@(_NUnitPkg)' != ''">true</SkipXunitInjection>
+      <SkipXunitInjection Condition="'@(_MSTestPkg)' != ''">true</SkipXunitInjection>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(_UsesMTP)' != 'true'">
+      <_UsesMTP Condition="'@(_TUnitPkg)' != ''">true</_UsesMTP>
+      <_UsesTUnit Condition="'@(_TUnitPkg)' != ''">true</_UsesTUnit>
+      <_UsesMTP Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesMTP>
+      <_UsesXunitV3Mtp Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesXunitV3Mtp>
+      <_UsesMTP Condition="'@(_XunitMtpV2Pkg)' != ''">true</_UsesMTP>
+      <_UsesXunitV3Mtp Condition="'@(_XunitMtpV2Pkg)' != ''">true</_UsesXunitV3Mtp>
+      <_UsesMTP Condition="'@(_MtpExtPkg)' != ''">true</_UsesMTP>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'@(_XunitMtpOffPkg)' != ''">
+      <_UsesMTP>false</_UsesMTP>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(_UsesMTP)' == 'true'">
+      <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
+      <OutputType Condition="'$(OutputType)' == 'Library' AND '$(_MTPExplicitlySet)' != 'true'">Exe</OutputType>
+      <OutputType Condition="'$(OutputType)' == ''">Exe</OutputType>
+      <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'@(_XunitMtpV1Pkg)' != '' OR '@(_XunitMtpV2Pkg)' != ''">
+      <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)' == ''">--report-xunit-trx</TestingPlatformCommandLineArguments>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'@(_TUnitPkg)' != '' OR ('$(EnableNUnitRunner)' == 'true') OR ('$(EnableMSTestRunner)' == 'true')">
+      <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(CodeCoverageVersion)" VersionOverride="$(CodeCoverageVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+      <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
+    </ItemGroup>
+
+    <Message Text="ANcpLua.SDK Test Detection: _UsesMTP=$(_UsesMTP), _UsesXunitV3Mtp=$(_UsesXunitV3Mtp), _UsesTUnit=$(_UsesTUnit), SkipXunitInjection=$(SkipXunitInjection)" Importance="low"/>
+  </Target>
+
+  <Target Name="_ValidateMTPConfiguration" BeforeTargets="Build" Condition="'$(IsTestProject)' == 'true'" DependsOnTargets="_DetectTestFrameworksAndMTP">
+    <Warning
+      Code="ANCPSDK001"
+      Text="MTP is enabled (UseMicrosoftTestingPlatform=true) but OutputType is 'Library'. MTP test projects must be executables. Set OutputType=Exe or disable MTP."
+      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' == 'Library'"/>
+  </Target>
+
   <ItemGroup>
     <PackageReference Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)" VersionOverride="$(AwesomeAssertionsVersion)" IsImplicitlyDefined="true"/>
   </ItemGroup>
@@ -17,34 +88,31 @@
     <Using Include="AwesomeAssertions"/>
   </ItemGroup>
 
-  <!-- Auto-inject xUnit v3 MTP (target-based so SkipXunitInjection auto-detection works) -->
+  <!-- xUnit v3 MTP: target-based so SkipXunitInjection auto-detection runs first -->
   <Target Name="_InjectTestFrameworkPackages"
           BeforeTargets="BeforeBuild;Restore;CollectPackageReferences"
           DependsOnTargets="_DetectTestFrameworksAndMTP"
           Condition="'$(SkipXunitInjection)' != 'true'">
-    <!-- Check if xUnit is already present (user-supplied or from another source) -->
     <ItemGroup>
       <_ExistingXunit Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3' OR '%(Identity)' == 'xunit.v3.mtp-v1' OR '%(Identity)' == 'xunit.v3.mtp-v2' OR '%(Identity)' == 'xunit.v3.mtp-off'"/>
     </ItemGroup>
-    <!-- Only inject if not already present (avoids NETSDK1023 duplicate warning) -->
+    <!-- avoid NETSDK1023 when user already references xUnit -->
     <ItemGroup Condition="'@(_ExistingXunit)' == ''">
       <PackageReference Include="xunit.v3.mtp-v2" Version="$(XunitMtpVersion)" VersionOverride="$(XunitMtpVersion)" IsImplicitlyDefined="true"/>
     </ItemGroup>
-    <!-- Configure MTP properties since we're injecting xUnit MTP -->
     <PropertyGroup>
       <_UsesMTP>true</_UsesMTP>
       <_UsesXunitV3Mtp>true</_UsesXunitV3Mtp>
       <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
-      <!-- Only auto-set OutputType if user didn't explicitly enable MTP (let safety guard warn instead) -->
+      <!-- skip auto-OutputType when user set MTP explicitly so _ValidateMTPConfiguration can warn -->
       <OutputType Condition="'$(OutputType)' == 'Library' AND '$(_MTPExplicitlySet)' != 'true'">Exe</OutputType>
       <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
       <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)' == ''">--report-xunit-trx</TestingPlatformCommandLineArguments>
     </PropertyGroup>
   </Target>
 
-  <!-- Add implicit using for xunit (via Target for correct timing - items require Target) -->
+  <!-- xUnit implicit using: Target-scoped because items resolve after props phase -->
   <Target Name="_InjectXunitUsings" BeforeTargets="BeforeBuild;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP;_InjectTestFrameworkPackages" Condition="'$(ImplicitUsings)' == 'enable'">
-    <!-- Filter xUnit packages using correct MSBuild syntax -->
     <ItemGroup>
       <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit'"/>
       <_XunitUsings Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3'"/>
@@ -56,14 +124,25 @@
     </ItemGroup>
   </Target>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       TEST EXTENSIONS (Auto-injected for test projects)
-       ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- GitHub Actions metadata for flaky-run post-mortem -->
+  <Target Name="LogGitHubActionsMetadata" BeforeTargets="VSTest;_MTPBuild" Condition="'$(_IsGitHubActions)' == 'true'">
+    <PropertyGroup>
+      <_GitHubJobIdEscaped>$(GITHUB_JOB.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_GitHubJobIdEscaped>
+      <_GitHubWorkflowEscaped>$(GITHUB_WORKFLOW.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_GitHubWorkflowEscaped>
+      <_GitHubRunIdEscaped>$(GITHUB_RUN_ID.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_GitHubRunIdEscaped>
+      <_GitHubRunNumberEscaped>$(GITHUB_RUN_NUMBER.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_GitHubRunNumberEscaped>
+      <_GitHubRunAttemptEscaped>$(GITHUB_RUN_ATTEMPT.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_GitHubRunAttemptEscaped>
+      <_RunnerNameEscaped>$(RUNNER_NAME.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_RunnerNameEscaped>
+      <_RunnerOsEscaped>$(RUNNER_OS.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_RunnerOsEscaped>
+      <_RunnerArchEscaped>$(RUNNER_ARCH.Replace('\', '\\').Replace('"', '\"').Replace('$([System.Environment]::NewLine)', '\n'))</_RunnerArchEscaped>
+      <_GitHubMetadataJson>{"github_job_id":"$(_GitHubJobIdEscaped)","github_workflow":"$(_GitHubWorkflowEscaped)","github_run_id":"$(_GitHubRunIdEscaped)","github_run_number":"$(_GitHubRunNumberEscaped)","github_run_attempt":"$(_GitHubRunAttemptEscaped)","runner_name":"$(_RunnerNameEscaped)","runner_os":"$(_RunnerOsEscaped)","runner_arch":"$(_RunnerArchEscaped)"}</_GitHubMetadataJson>
+    </PropertyGroup>
+    <Message Text="GitHub Actions Metadata: $(_GitHubMetadataJson)" Importance="high"/>
+  </Target>
 
-  <!-- GitHub Actions Test Reporting (via Target for correct timing) -->
+  <!-- GitHub Actions test reporting -->
   <Target Name="_InjectGitHubActionsLogger" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" DependsOnTargets="_DetectTestFrameworksAndMTP" Condition="'$(_IsGitHubActions)' == 'true'">
-    <!-- MTP: GitHubActionsTestLogger auto-registers -->
-    <!-- Pin Microsoft.Testing.Platform to match the logger's dependency (xunit.v3.mtp ships an older MTP) -->
+    <!-- pin Microsoft.Testing.Platform because xunit.v3.mtp ships an older MTP -->
     <ItemGroup>
       <PackageReference Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)" VersionOverride="$(GitHubActionsLoggerMTPVersion)" IsImplicitlyDefined="true"/>
       <PackageReference Include="Microsoft.Testing.Platform" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>

@@ -1,14 +1,16 @@
-﻿using Meziantou.Framework;
+using Meziantou.Framework;
 
 var rootFolder = GetRootFolderPath();
 var sdkRootPath = rootFolder / "src" / "Sdk";
 
-var sdks = new (string SdkName, string BaseSdkName)[]
+var sdks = new (string SdkName, string BaseSdkName, string TestProjectLine)[]
 {
-    ("ANcpLua.NET.Sdk", "Microsoft.NET.Sdk"), ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web")
+    ("ANcpLua.NET.Sdk", "Microsoft.NET.Sdk", ""),
+    ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web", ""),
+    ("ANcpLua.NET.Sdk.Test", "Microsoft.NET.Sdk", ""),
 };
 
-foreach (var (sdkName, baseSdkName) in sdks)
+foreach (var (sdkName, baseSdkName, _) in sdks)
 {
     var propsPath = sdkRootPath / sdkName / "Sdk.props";
     var targetsPath = sdkRootPath / sdkName / "Sdk.targets";
@@ -21,19 +23,27 @@ foreach (var (sdkName, baseSdkName) in sdks)
                                             <ANcpLuaSdkName>{sdkName}</ANcpLuaSdkName>
                                             <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
 
-                                            <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../common/Common.props</CustomBeforeDirectoryBuildProps>
-                                            <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../common/Common.targets</BeforeMicrosoftNETSdkTargets>
+                                            <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)..\Build\Common\Common.props</CustomBeforeDirectoryBuildProps>
+                                            <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)..\Build\Common\Common.targets</BeforeMicrosoftNETSdkTargets>
                                           </PropertyGroup>
 
-                                          <Import Project="Sdk.props" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
-                                          <Import Project="$(MSBuildThisFileDirectory)../common/Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'"/>
+                                          <Import Project="$(MSBuildThisFileDirectory)..\Build\Common\Version.props" />
+                                          <Import Project="$(MSBuildThisFileDirectory)..\Build\Common\GlobalPackages.props" />
+
+                                          <Import Project="Sdk.props" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'" />
+                                          <Import Project="$(MSBuildThisFileDirectory)..\Build\Common\Common.props" Condition="'$(_MustImportMicrosoftNETSdk)' != 'true'" />
+
+                                          <Import Project="$(MSBuildThisFileDirectory)..\Build\Enforcement\Enforcement.props" />
+                                          <Import Project="$(MSBuildThisFileDirectory)..\Build\Enforcement\DeterminismAndSourceLink.props" />
                                         </Project>
+
                                         """);
 
     File.WriteAllText(targetsPath.Value, $"""
                                           <Project>
-                                            <Import Project="Sdk.targets" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
+                                            <Import Project="Sdk.targets" Sdk="{baseSdkName}" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'" />
                                           </Project>
+
                                           """);
 
     Console.WriteLine($"Generated {sdkName}");

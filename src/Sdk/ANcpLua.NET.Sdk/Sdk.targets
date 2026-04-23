@@ -1,12 +1,3 @@
 <Project>
-  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'"/>
-
-  <!-- Analyzer pack layout enforcement (dev-only, not included in nupkg) -->
-  <Import Project="$(MSBuildThisFileDirectory)../../Build/Packaging/AnalyzersPack.targets"
-          Condition="Exists('$(MSBuildThisFileDirectory)../../Build/Packaging/AnalyzersPack.targets')"/>
-
-  <!-- Enhanced Features (targets phase) -->
-  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/ItemMetadata.targets"/>
-  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/Deduplication.targets"/>
-  <Import Project="$(MSBuildThisFileDirectory)../Build/Common/ArtifactStaging.targets"/>
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" Condition="'$(_MustImportMicrosoftNETSdk)' == 'true'" />
 </Project>

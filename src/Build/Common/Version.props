@@ -1,16 +1,4 @@
 <Project>
-  <!--
-    SOURCE OF TRUTH for package versions used by ANcpLua.NET.Sdk and its
-    consumers (via the published nupkg).
-
-    SHIPPED INFRASTRUCTURE: Roslyn, testing frameworks, Meziantou,
-    Microsoft.Extensions, OpenTelemetry, analyzer tooling.
-
-    NOT SHIPPED HERE: ANcpLua.Roslyn.Utilities / .Agents / .Analyzers.
-    Consumers own their own pins via their own Version.props. The SDK pinning
-    first-party libs previously forced a 3-step release ceremony for every
-    lib feature; explicit consumer references decouple deploy order.
-  -->
   <PropertyGroup Label="SDK Version (Auto-generated)">
     <ANcpSdkPackageVersion>999.9.9</ANcpSdkPackageVersion>
   </PropertyGroup>

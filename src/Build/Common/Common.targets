@@ -1,177 +1,53 @@
 <Project>
-  <!-- Default TargetFramework to latest .NET if not specified -->
-  <PropertyGroup>
-    <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == ''">net$(NETCoreAppMaximumVersion)</TargetFramework>
-  </PropertyGroup>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       AUTO-DETECT TEST/MTP PROJECTS (Smart SDK)
-
-       Property-based detection (during import phase):
-       - EnableNUnitRunner / EnableMSTestRunner / UseMicrosoftTestingPlatform
-
-       Package-based detection (via Target, runs before build):
-       - Test frameworks: xunit, xunit.v3, NUnit, MSTest.TestFramework, TUnit
-       - MTP signals: xunit.v3.mtp-v1/v2, TUnit, Microsoft.Testing.Extensions.*
-       ═══════════════════════════════════════════════════════════════════════ -->
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       STEP 1: Property-based MTP detection (works during import)
-       Case-insensitive comparison - MSBuild compares strings case-insensitively
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <PropertyGroup>
-    <!-- Track if user explicitly set UseMicrosoftTestingPlatform=true (for warning purposes) -->
-    <_MTPExplicitlySet Condition="'$(UseMicrosoftTestingPlatform)' == 'true'">true</_MTPExplicitlySet>
-    <!-- Explicit opt-in via property enables MTP -->
-    <_UsesMTP Condition="'$(UseMicrosoftTestingPlatform)' == 'true' OR '$(EnableNUnitRunner)' == 'true' OR '$(EnableMSTestRunner)' == 'true'">true</_UsesMTP>
-  </PropertyGroup>
-
-  <!-- MTP auto-configuration when detected via property -->
-  <PropertyGroup Condition="'$(_UsesMTP)' == 'true'">
-    <!-- Auto-set OutputType to Exe ONLY if MTP was not explicitly set by user with OutputType=Library -->
-    <!-- If user explicitly set UseMicrosoftTestingPlatform=true AND OutputType=Library, don't auto-correct (warn instead via _ValidateMTPConfiguration) -->
-    <OutputType Condition="'$(OutputType)' == 'Library' AND '$(_MTPExplicitlySet)' != 'true'">Exe</OutputType>
-    <OutputType Condition="'$(OutputType)' == ''">Exe</OutputType>
-    <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
-    <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
-  </PropertyGroup>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       STEP 2: Package-based MTP detection (via Target - item functions require Target)
-       Runs very early to set properties before other targets use them
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <Target Name="_DetectTestFrameworksAndMTP" BeforeTargets="BeforeBuild;Restore;CollectPackageReferences" Condition="'$(_ANcpLuaTestDetectionDone)' != 'true'">
-    <PropertyGroup>
-      <_ANcpLuaTestDetectionDone>true</_ANcpLuaTestDetectionDone>
-    </PropertyGroup>
-
-    <!-- Filter test framework packages -->
-    <ItemGroup>
-      <_TUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'TUnit'"/>
-      <_NUnitPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'NUnit'"/>
-      <_MSTestPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'MSTest.TestFramework'"/>
-      <_XunitMtpV1Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v1'"/>
-      <_XunitMtpV2Pkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-v2'"/>
-      <_XunitMtpOffPkg Include="@(PackageReference)" Condition="'%(Identity)' == 'xunit.v3.mtp-off'"/>
-      <_MtpExtPkg Include="@(PackageReference)" Condition="$([System.String]::new('%(Identity)').StartsWith('Microsoft.Testing.Extensions'))"/>
-    </ItemGroup>
-
-    <!-- Skip xunit injection when other test frameworks are present -->
-    <PropertyGroup>
-      <SkipXunitInjection Condition="'@(_TUnitPkg)' != ''">true</SkipXunitInjection>
-      <SkipXunitInjection Condition="'@(_NUnitPkg)' != ''">true</SkipXunitInjection>
-      <SkipXunitInjection Condition="'@(_MSTestPkg)' != ''">true</SkipXunitInjection>
-    </PropertyGroup>
-
-    <!-- Detect MTP usage (strict) - only EXPLICIT MTP signals -->
-    <PropertyGroup Condition="'$(_UsesMTP)' != 'true'">
-      <!-- TUnit is always MTP -->
-      <_UsesMTP Condition="'@(_TUnitPkg)' != ''">true</_UsesMTP>
-      <_UsesTUnit Condition="'@(_TUnitPkg)' != ''">true</_UsesTUnit>
-      <!-- xUnit v3 MTP packages (have their own MTP implementation, don't inject standard extensions) -->
-      <_UsesMTP Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesMTP>
-      <_UsesXunitV3Mtp Condition="'@(_XunitMtpV1Pkg)' != ''">true</_UsesXunitV3Mtp>
-      <_UsesMTP Condition="'@(_XunitMtpV2Pkg)' != ''">true</_UsesMTP>
-      <_UsesXunitV3Mtp Condition="'@(_XunitMtpV2Pkg)' != ''">true</_UsesXunitV3Mtp>
-      <!-- Microsoft.Testing.Extensions.* packages -->
-      <_UsesMTP Condition="'@(_MtpExtPkg)' != ''">true</_UsesMTP>
-    </PropertyGroup>
-
-    <!-- xunit.v3.mtp-off explicitly opts OUT of MTP -->
-    <PropertyGroup Condition="'@(_XunitMtpOffPkg)' != ''">
-      <_UsesMTP>false</_UsesMTP>
-    </PropertyGroup>
-
-    <!-- Set UseMicrosoftTestingPlatform and configure MTP mode -->
-    <PropertyGroup Condition="'$(_UsesMTP)' == 'true'">
-      <UseMicrosoftTestingPlatform Condition="'$(UseMicrosoftTestingPlatform)' == ''">true</UseMicrosoftTestingPlatform>
-      <!-- Auto-set OutputType to Exe ONLY if MTP was not explicitly set by user with OutputType=Library -->
-      <OutputType Condition="'$(OutputType)' == 'Library' AND '$(_MTPExplicitlySet)' != 'true'">Exe</OutputType>
-      <OutputType Condition="'$(OutputType)' == ''">Exe</OutputType>
-      <TestingPlatformDotnetTestSupport Condition="'$(TestingPlatformDotnetTestSupport)' == ''">true</TestingPlatformDotnetTestSupport>
-    </PropertyGroup>
-
-    <!-- Use item-based condition directly since property may not be updated in same target -->
-    <PropertyGroup Condition="'@(_XunitMtpV1Pkg)' != '' OR '@(_XunitMtpV2Pkg)' != ''">
-      <TestingPlatformCommandLineArguments Condition="'$(TestingPlatformCommandLineArguments)' == ''">--report-xunit-trx</TestingPlatformCommandLineArguments>
-    </PropertyGroup>
-
-    <!-- Inject MTP extensions for non-xunit MTP frameworks (TUnit, NUnit MTP, MSTest MTP) -->
-    <!-- xunit.v3.mtp has its own implementation, skip for those -->
-    <ItemGroup Condition="'@(_TUnitPkg)' != '' OR ('$(EnableNUnitRunner)' == 'true') OR ('$(EnableMSTestRunner)' == 'true')">
-      <PackageReference Include="Microsoft.Testing.Extensions.CrashDump" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.HangDump" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="$(CodeCoverageVersion)" VersionOverride="$(CodeCoverageVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.Retry" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-      <PackageReference Include="Microsoft.Testing.Extensions.HotReload" Version="$(MTPExtensionsVersion)" VersionOverride="$(MTPExtensionsVersion)" IsImplicitlyDefined="true"/>
-    </ItemGroup>
-
-    <Message Text="ANcpLua.SDK Test Detection: _UsesMTP=$(_UsesMTP), _UsesXunitV3Mtp=$(_UsesXunitV3Mtp), _UsesTUnit=$(_UsesTUnit), SkipXunitInjection=$(SkipXunitInjection)" Importance="low"/>
-  </Target>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       SAFETY GUARD: Detect contradictory MTP/OutputType state
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <Target Name="_ValidateMTPConfiguration" BeforeTargets="Build" Condition="'$(IsTestProject)' == 'true'" DependsOnTargets="_DetectTestFrameworksAndMTP">
-    <Warning
-      Code="ANCPSDK001"
-      Text="MTP is enabled (UseMicrosoftTestingPlatform=true) but OutputType is 'Library'. MTP test projects must be executables. Set OutputType=Exe or disable MTP."
-      Condition="'$(UseMicrosoftTestingPlatform)' == 'true' AND '$(OutputType)' == 'Library'"/>
-  </Target>
-
-  <Import Project="$(MSBuildThisFileDirectory)/Tests.targets" Condition="'$(IsTestProject)' == 'true'"/>
-  <Import Project="$(MSBuildThisFileDirectory)/Npm.targets"/>
-  <Import Project="$(MSBuildThisFileDirectory)/../Enforcement/VersionEnforcement.targets"/>
-
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       ADDITIONAL FILES FOR ANALYZERS
-       Expose .props files to analyzers for version management validation
-       AL0017: Directory.Packages.props (hardcoded versions)
-       AL0018: Directory.Build.props (Version.props import check)
-       AL0019: Version.props (undefined variable check)
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <ItemGroup Condition="'$(DisableVersionAnalyzer)' != 'true'">
-    <!-- Directory.Packages.props - for AL0017, AL0019 -->
-    <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Packages.props"
-                     Condition="Exists('$(MSBuildProjectDirectory)/Directory.Packages.props')"
-                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
-                     InProject="false"/>
-    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Packages.props', '$(MSBuildProjectDirectory)'))"
-                     Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Packages.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Packages.props`, `$(MSBuildProjectDirectory)`))' != ''"
-                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
-                     InProject="false"/>
-
-    <!-- Directory.Build.props - for AL0018 -->
-    <AdditionalFiles Include="$(MSBuildProjectDirectory)/Directory.Build.props"
-                     Condition="Exists('$(MSBuildProjectDirectory)/Directory.Build.props')"
-                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
-                     InProject="false"/>
-    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildProjectDirectory)'))"
-                     Condition="!Exists('$(MSBuildProjectDirectory)/Directory.Build.props') AND '$([MSBuild]::GetPathOfFileAbove(`Directory.Build.props`, `$(MSBuildProjectDirectory)`))' != ''"
-                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
-                     InProject="false"/>
-
-    <!-- Version.props - for AL0019 -->
-    <AdditionalFiles Include="$(MSBuildProjectDirectory)/Version.props"
-                     Condition="Exists('$(MSBuildProjectDirectory)/Version.props')"
-                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
-                     InProject="false"/>
-    <AdditionalFiles Include="$([MSBuild]::GetPathOfFileAbove('Version.props', '$(MSBuildProjectDirectory)'))"
-                     Condition="!Exists('$(MSBuildProjectDirectory)/Version.props') AND '$([MSBuild]::GetPathOfFileAbove(`Version.props`, `$(MSBuildProjectDirectory)`))' != ''"
-                     Link="SDK/VersionManagement/%(Filename)%(Extension)"
-                     InProject="false"/>
-  </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)Tests.targets" Condition="'$(IsTestProject)' == 'true'" />
+  <Import Project="$(MSBuildThisFileDirectory)Npm.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)..\Enforcement\VersionEnforcement.targets" />
 
   <PropertyGroup>
-    <!-- SBOM generation: enabled on CI builds, disabled locally (user can override) -->
+    <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == '' AND '$(NETCoreAppMaximumVersion)' != ''">net$(NETCoreAppMaximumVersion)</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <GenerateSBOM Condition="'$(GenerateSBOM)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'">true</GenerateSBOM>
-    <GenerateSBOM Condition="'$(GenerateSBOM)' == ''">false</GenerateSBOM>
   </PropertyGroup>
 
-  <!-- Ensure application can run with newer frameworks -->
-  <PropertyGroup Condition="'$(RollForward)' == '' AND '$(IsTestProject)' != 'true'">
-    <RollForward>LatestMajor</RollForward>
+  <!-- GitHub Actions: container support for web projects -->
+  <PropertyGroup Condition="'$(_IsGitHubActions)' == 'true' AND '$(UsingMicrosoftNETSdkWeb)' == 'true'">
+    <EnableSdkContainerSupport Condition="'$(EnableSdkContainerSupport)' == ''">true</EnableSdkContainerSupport>
+    <ContainerRegistry Condition="'$(ContainerRegistry)' == ''">ghcr.io</ContainerRegistry>
+    <_GitHubRepositoryOwner Condition="'$(_GitHubRepositoryOwner)' == '' AND '$(GITHUB_REPOSITORY_OWNER)' != ''">$(GITHUB_REPOSITORY_OWNER)</_GitHubRepositoryOwner>
+    <_GitHubRepositoryOwner Condition="'$(_GitHubRepositoryOwner)' == '' AND '$(GITHUB_REPOSITORY)' != ''">$([System.Text.RegularExpressions.Regex]::Replace('$(GITHUB_REPOSITORY)', '^([^/]+)/.*$', '$1'))</_GitHubRepositoryOwner>
+    <_GitHubRepositoryName Condition="'$(_GitHubRepositoryName)' == '' AND '$(GITHUB_REPOSITORY)' != ''">$([System.Text.RegularExpressions.Regex]::Replace('$(GITHUB_REPOSITORY)', '^[^/]+/', ''))</_GitHubRepositoryName>
+    <_GitHubRepositoryNameNormalized Condition="'$(_GitHubRepositoryNameNormalized)' == '' AND '$(_GitHubRepositoryName)' != ''">$([System.Text.RegularExpressions.Regex]::Replace('$(_GitHubRepositoryName)', '[^0-9A-Za-z]+', '-'))</_GitHubRepositoryNameNormalized>
+    <_GitHubRepositoryNameKebabCase Condition="'$(_GitHubRepositoryNameKebabCase)' == '' AND '$(_GitHubRepositoryNameNormalized)' != ''">$([System.String]::Copy($([System.Text.RegularExpressions.Regex]::Replace('$(_GitHubRepositoryNameNormalized)', '([a-z0-9])([A-Z])', '$1-$2'))).ToLowerInvariant())</_GitHubRepositoryNameKebabCase>
+    <ContainerRepository Condition="'$(ContainerRepository)' == '' AND '$(_GitHubRepositoryOwner)' != '' AND '$(_GitHubRepositoryNameKebabCase)' != ''">$(_GitHubRepositoryOwner)/$(_GitHubRepositoryNameKebabCase)</ContainerRepository>
+    <_IsGitHubMain Condition="'$(_IsGitHubMain)' == '' AND ('$(GITHUB_REF_NAME)' == 'main' OR '$(GITHUB_REF)' == 'refs/heads/main')">true</_IsGitHubMain>
+    <ContainerImageTagsMainVersionPrefix Condition="'$(ContainerImageTagsMainVersionPrefix)' == ''">1.0</ContainerImageTagsMainVersionPrefix>
+    <ContainerImageTagsIncludeLatest Condition="'$(ContainerImageTagsIncludeLatest)' == ''">true</ContainerImageTagsIncludeLatest>
+    <_ContainerImageTagsLatestSuffix Condition="'$(ContainerImageTagsIncludeLatest)' == 'true'">;latest</_ContainerImageTagsLatestSuffix>
+    <ContainerImageTags Condition="'$(ContainerImageTags)' == '' AND '$(_IsGitHubMain)' == 'true' AND '$(GITHUB_RUN_NUMBER)' != ''">$(ContainerImageTagsMainVersionPrefix).$(GITHUB_RUN_NUMBER)$(_ContainerImageTagsLatestSuffix)</ContainerImageTags>
+    <ContainerImageTags Condition="'$(ContainerImageTags)' == '' AND '$(_IsGitHubMain)' != 'true' AND '$(GITHUB_SHA)' != ''">0.0.1-preview.$(GITHUB_SHA)</ContainerImageTags>
+  </PropertyGroup>
+
+  <!-- GitHub Actions: tag-based versioning -->
+  <PropertyGroup Condition="'$(_IsGitHubActions)' == 'true'">
+    <_IsGitHubMain Condition="'$(_IsGitHubMain)' == '' AND ('$(GITHUB_REF_NAME)' == 'main' OR '$(GITHUB_REF)' == 'refs/heads/main')">true</_IsGitHubMain>
+    <_GitHubTagName Condition="'$(GITHUB_REF_TYPE)' == 'tag'">$(GITHUB_REF_NAME)</_GitHubTagName>
+    <_GitHubTagName Condition="'$(_GitHubTagName)' == '' AND $([System.Text.RegularExpressions.Regex]::IsMatch('$(GITHUB_REF)', '^refs/tags/'))">$([System.Text.RegularExpressions.Regex]::Replace('$(GITHUB_REF)', '^refs/tags/', ''))</_GitHubTagName>
+    <_GitHubTagVersion Condition="'$(_GitHubTagName)' != ''">$([System.Text.RegularExpressions.Regex]::Replace('$(_GitHubTagName)', '^[vV](?=\d)', ''))</_GitHubTagVersion>
+    <_GitHubTagVersionIsValid Condition="'$(_GitHubTagVersion)' != ''">$([System.Text.RegularExpressions.Regex]::IsMatch('$(_GitHubTagVersion)', '^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?(?:\+[0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*)?$'))</_GitHubTagVersionIsValid>
+    <_GitHubBaseVersion Condition="'$(Version)' != ''">$(Version)</_GitHubBaseVersion>
+    <_GitHubBaseVersion Condition="'$(_GitHubBaseVersion)' == '' AND '$(VersionPrefix)' != ''">$(VersionPrefix)</_GitHubBaseVersion>
+    <Version Condition="'$(_GitHubTagVersionIsValid)' == 'true'">$(_GitHubTagVersion)</Version>
+    <Version Condition="'$(_GitHubTagVersionIsValid)' != 'true' AND '$(_IsGitHubMain)' != 'true' AND '$(GITHUB_SHA)' != '' AND '$(_GitHubBaseVersion)' != ''">$(_GitHubBaseVersion)-build-$(GITHUB_SHA)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RollForward Condition="'$(RollForward)' == '' AND '$(IsTestProject)' != 'true'">LatestMajor</RollForward>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackAsTool Condition="'$(PackAsTool)' == '' AND '$(OutputType)' == 'Exe' AND '$(IsTestProject)' != 'true'">true</PackAsTool>
   </PropertyGroup>
 
   <ItemGroup>
@@ -181,201 +57,92 @@
     </AssemblyAttribute>
   </ItemGroup>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════════
-       CONDITIONAL PACKAGE CONFIGURATION (Phase 2 - Update Attribute Patterns)
-       ═══════════════════════════════════════════════════════════════════════════ -->
-
-  <!-- Auto-configure Analyzer packages -->
-  <Target Name="_ConfigureAnalyzerPackages"
-          BeforeTargets="ResolvePackageAssets">
-    <ItemGroup>
-      <PackageReference Update="@(PackageReference)"
-                        Condition="$([System.String]::new('%(Identity)').EndsWith('Analyzers')) Or
-                                   $([System.String]::new('%(Identity)').Contains('.Analyzer'))">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>analyzers</IncludeAssets>
-      </PackageReference>
-    </ItemGroup>
-  </Target>
-
-  <!-- Auto-configure Source Generator packages -->
-  <Target Name="_ConfigureGeneratorPackages"
-          BeforeTargets="ResolvePackageAssets">
-    <ItemGroup>
-      <PackageReference Update="@(PackageReference)"
-                        Condition="$([System.String]::new('%(Identity)').Contains('Generator')) Or
-                                   $([System.String]::new('%(Identity)').EndsWith('.Sources'))">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>analyzers;build</IncludeAssets>
-      </PackageReference>
-    </ItemGroup>
-  </Target>
-
-  <!-- Auto-configure Tool packages with GeneratePathProperty -->
-  <Target Name="_ConfigureToolPackages"
-          BeforeTargets="ResolvePackageAssets">
-    <ItemGroup>
-      <PackageReference Update="@(PackageReference)"
-                        Condition="$([System.String]::new('%(Identity)').Contains('Tool')) Or
-                                   $([System.String]::new('%(Identity)').Contains('CLI'))">
-        <GeneratePathProperty>true</GeneratePathProperty>
-      </PackageReference>
-    </ItemGroup>
-  </Target>
-
-  <!-- Test packages: Make private -->
-  <Target Name="_ConfigureTestPackages"
-          BeforeTargets="ResolvePackageAssets"
-          Condition="'$(IsTestProject)' == 'true'">
-    <ItemGroup>
-      <PackageReference Update="xunit.v3;xunit.v3.mtp-v2;TUnit;AwesomeAssertions;Shouldly;NSubstitute;Moq;FakeItEasy">
-        <PrivateAssets>all</PrivateAssets>
-      </PackageReference>
-    </ItemGroup>
-  </Target>
-
-  <!-- SDK-injected analyzer packages are now handled via GlobalPackages.props -->
-
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.txt" Link="SDK/Config/BannedSymbols/%(Filename)%(Extension)" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" InProject="false"/>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)../../Config/BannedSymbols/BannedSymbols.NewtonsoftJson.txt" Link="SDK/Config/BannedSymbols/%(Filename)%(Extension)" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" InProject="false"/>
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\Config\BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\Config\BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
-    <Using Include="System.Diagnostics.CodeAnalysis"/>
-    <Using Include="System.Globalization"/>
-    <Using Include="System.Text"/>
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+    <Using Include="System.Globalization" />
+    <Using Include="System.Text" />
   </ItemGroup>
 
   <Target Name="EmbedBannedSymbolsInBinLog" AfterTargets="CoreCompile">
     <ItemGroup>
-      <EmbedInBinlog Include="@(AdditionalFiles)" Condition="$([System.String]::new('%(FullPath)').Contains('BannedSymbols')) AND '%(Extension)' == '.txt'"/>
+      <EmbedInBinlog Include="@(AdditionalFiles)" Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('%(Filename)%(Extension)', '^BannedSymbols(\..+)?\.txt$'))" />
     </ItemGroup>
   </Target>
 
   <Target Name="EmbedEditorConfigInBinLog" AfterTargets="CoreCompile">
     <ItemGroup>
-      <EmbedInBinlog Include="@(EditorConfigFiles)"/>
+      <EmbedInBinlog Include="@(EditorConfigFiles)" />
     </ItemGroup>
   </Target>
 
-  <!-- ═══════════════════════════════════════════════════════════════════════
-       CLAUDE.MD AUTO-GENERATION
-       Generates a rich, context-aware CLAUDE.md per project with:
-       - Project type detection (Library, Test, Web, Source Generator)
-       - Target framework and language version
-       - Test configuration (xUnit, MTP, AwesomeAssertions)
-       - Analyzer and build settings
-       ═══════════════════════════════════════════════════════════════════════ -->
-  <Target Name="GenerateClaudeMd" BeforeTargets="Build" Condition="'$(GenerateClaudeMd)' == 'true' AND !Exists('$(MSBuildProjectDirectory)/CLAUDE.md')">
+  <!-- Embed GitHub Actions environment variables in binlog -->
+  <Target Name="EmbedGitHubActionsEnvironmentVariablesInBinLog" AfterTargets="CoreCompile" Condition="'$(_IsGitHubActions)' == 'true'">
     <PropertyGroup>
-      <_RootClaudeMd>$([MSBuild]::GetPathOfFileAbove('CLAUDE.md', '$(MSBuildProjectDirectory)'))</_RootClaudeMd>
-      <_RootClaudeMdRelative Condition="'$(_RootClaudeMd)' != ''">$([MSBuild]::MakeRelative('$(MSBuildProjectDirectory)', '$(_RootClaudeMd)').Replace('\','/'))</_RootClaudeMdRelative>
+      <_GitHubJobId>$(GITHUB_JOB)</_GitHubJobId>
+      <_GitHubWorkflow>$(GITHUB_WORKFLOW)</_GitHubWorkflow>
+      <_GitHubAction>$(GITHUB_ACTION)</_GitHubAction>
+      <_GitHubRunId>$(GITHUB_RUN_ID)</_GitHubRunId>
+      <_GitHubRunNumber>$(GITHUB_RUN_NUMBER)</_GitHubRunNumber>
+      <_GitHubRunAttempt>$(GITHUB_RUN_ATTEMPT)</_GitHubRunAttempt>
+      <_GitHubRepository>$(GITHUB_REPOSITORY)</_GitHubRepository>
+      <_GitHubRepositoryOwner>$(GITHUB_REPOSITORY_OWNER)</_GitHubRepositoryOwner>
+      <_GitHubRef>$(GITHUB_REF)</_GitHubRef>
+      <_GitHubRefName>$(GITHUB_REF_NAME)</_GitHubRefName>
+      <_GitHubSha>$(GITHUB_SHA)</_GitHubSha>
+      <_GitHubActor>$(GITHUB_ACTOR)</_GitHubActor>
+      <_RunnerName>$(RUNNER_NAME)</_RunnerName>
+      <_RunnerOs>$(RUNNER_OS)</_RunnerOs>
+      <_RunnerArch>$(RUNNER_ARCH)</_RunnerArch>
     </PropertyGroup>
-
-    <!-- SDK variant detection -->
-    <PropertyGroup>
-      <_ClaudeMdSdkVariant>ANcpLua.NET.Sdk</_ClaudeMdSdkVariant>
-      <_ClaudeMdSdkVariant Condition="'$(ANcpLuaSdkName)' != ''">$(ANcpLuaSdkName)</_ClaudeMdSdkVariant>
-    </PropertyGroup>
-
-    <!-- Project type detection -->
-    <PropertyGroup>
-      <_ClaudeMdProjectType>Library</_ClaudeMdProjectType>
-      <_ClaudeMdProjectType Condition="'$(OutputType)' == 'Exe' AND '$(IsTestProject)' != 'true'">Application</_ClaudeMdProjectType>
-      <_ClaudeMdProjectType Condition="'$(IsTestProject)' == 'true'">Test Project</_ClaudeMdProjectType>
-      <_ClaudeMdProjectType Condition="'$(IsIntegrationTestProject)' == 'true'">Integration Test Project</_ClaudeMdProjectType>
-      <_ClaudeMdProjectType Condition="'$(IsAnalyzerTestProject)' == 'true'">Analyzer Test Project</_ClaudeMdProjectType>
-      <_ClaudeMdProjectType Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">Web Application</_ClaudeMdProjectType>
-    </PropertyGroup>
-
-    <!-- Build test config section -->
-    <PropertyGroup>
-      <_ClaudeMdTestConfig/>
-      <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true' AND '$(SkipXunitInjection)' != 'true'">$(_ClaudeMdTestConfig)- xUnit v3 with Microsoft Testing Platform&#10;</_ClaudeMdTestConfig>
-      <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true' AND '$(SkipXunitInjection)' == 'true'">$(_ClaudeMdTestConfig)- Custom test framework (xUnit skipped)&#10;</_ClaudeMdTestConfig>
-      <_ClaudeMdTestConfig Condition="'$(IsTestProject)' == 'true'">$(_ClaudeMdTestConfig)- AwesomeAssertions&#10;</_ClaudeMdTestConfig>
-      <_ClaudeMdTestConfig Condition="'$(IsIntegrationTestProject)' == 'true'">$(_ClaudeMdTestConfig)- ASP.NET Core Mvc.Testing&#10;</_ClaudeMdTestConfig>
-    </PropertyGroup>
-
-    <!-- Build SDK features section -->
-    <PropertyGroup>
-      <_ClaudeMdFeatures/>
-    </PropertyGroup>
-
-    <!-- Build banned APIs section -->
-    <PropertyGroup>
-      <_ClaudeMdBannedApis/>
-      <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `TimeProvider` instead of current-time APIs&#10;</_ClaudeMdBannedApis>
-      <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `Lock` instead of `object` for locking&#10;</_ClaudeMdBannedApis>
-      <_ClaudeMdBannedApis>$(_ClaudeMdBannedApis)- Use `System.Text.Json` instead of Newtonsoft&#10;</_ClaudeMdBannedApis>
-    </PropertyGroup>
-
-    <!-- Assemble the full content -->
-    <PropertyGroup>
-      <_ClaudeMdContent>@import $(_RootClaudeMdRelative)&#10;&#10;# $(MSBuildProjectName)&#10;&#10;**Type:** $(_ClaudeMdProjectType)  &#10;**Framework:** $(TargetFramework)  &#10;**Language:** C# $(LangVersion)  &#10;**SDK:** $(_ClaudeMdSdkVariant)</_ClaudeMdContent>
-      <_ClaudeMdContent Condition="'$(_ClaudeMdTestConfig)' != ''">$(_ClaudeMdContent)&#10;&#10;## Test Configuration&#10;&#10;$(_ClaudeMdTestConfig)</_ClaudeMdContent>
-      <_ClaudeMdContent Condition="'$(_ClaudeMdFeatures)' != ''">$(_ClaudeMdContent)&#10;&#10;## SDK Features&#10;&#10;$(_ClaudeMdFeatures)</_ClaudeMdContent>
-      <_ClaudeMdContent>$(_ClaudeMdContent)&#10;&#10;## Banned APIs&#10;&#10;$(_ClaudeMdBannedApis)</_ClaudeMdContent>
-    </PropertyGroup>
-
-    <WriteLinesToFile
-      File="$(MSBuildProjectDirectory)/CLAUDE.md"
-      Lines="$(_ClaudeMdContent)"
-      Overwrite="true"
-      Condition="'$(_RootClaudeMd)' != ''"
-    />
   </Target>
 
-  <!-- Disable packages (Rider XSD false positive: Remove-only Analyzer items are valid MSBuild) -->
+  <!-- Remove analyzers that nag on source-generated code -->
   <Target Name="Disable_SponsorLink" BeforeTargets="CoreCompile" Condition="'$(Disable_SponsorLink)' != 'false'">
     <ItemGroup>
-      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'DevLooped.SponsorLink'"/>
-      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'Moq.CodeAnalysis'"/>
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'DevLooped.SponsorLink'" />
+      <Analyzer Remove="@(Analyzer)" Condition="'%(Analyzer.Filename)' == 'Moq.CodeAnalysis'" />
     </ItemGroup>
   </Target>
 
   <!-- NuGet Package -->
   <Choose>
-    <When Condition="'$(PackageIcon)' == '' AND '$(_IsANcpLuaProject)' == 'true' AND Exists('$(MSBuildThisFileDirectory)../../icon.png')">
+    <When Condition="'$(PackageIcon)' == '' AND '$(_IsANcpLuaProject)' == 'true' AND Exists('$(MSBuildThisFileDirectory)..\..\icon.png')">
       <PropertyGroup>
         <PackageIcon>icon.png</PackageIcon>
       </PropertyGroup>
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)../../icon.png" Pack="true" PackagePath="" Link="SDK/Package/icon.png" InProject="false"/>
+        <None Include="$(MSBuildThisFileDirectory)..\..\icon.png" Pack="true" PackagePath="" Visible="false" />
       </ItemGroup>
     </When>
   </Choose>
 
   <PropertyGroup>
-    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)/README.md')">$(MSBuildProjectDirectory)/README.md</_PackageReadmeFilePath>
-    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)/readme.md')">$(MSBuildProjectDirectory)/readme.md</_PackageReadmeFilePath>
-    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)/Readme.md')">$(MSBuildProjectDirectory)/Readme.md</_PackageReadmeFilePath>
-    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)/ReadMe.md')">$(MSBuildProjectDirectory)/ReadMe.md</_PackageReadmeFilePath>
-
+    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\README.md')">$(MSBuildProjectDirectory)\README.md</_PackageReadmeFilePath>
+    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\readme.md')">$(MSBuildProjectDirectory)\readme.md</_PackageReadmeFilePath>
+    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\Readme.md')">$(MSBuildProjectDirectory)\Readme.md</_PackageReadmeFilePath>
+    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND Exists('$(MSBuildProjectDirectory)\ReadMe.md')">$(MSBuildProjectDirectory)\ReadMe.md</_PackageReadmeFilePath>
     <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('README.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('README.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
     <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('readme.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
-    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('Readme.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('Readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
-    <_PackageReadmeFilePath Condition="'$(_PackageReadmeFilePath)' == '' AND '$(SearchReadmeFileAbove)' == 'true' AND Exists($([MSBuild]::GetPathOfFileAbove('ReadMe.md', '$(MSBuildProjectDirectory)')))">$([MSBuild]::GetPathOfFileAbove('ReadMe.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
 
-    <_PackageThirdPartyNoticesPath Condition="Exists('$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.TXT')">$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.TXT</_PackageThirdPartyNoticesPath>
+    <_PackageThirdPartyNoticesPath Condition="Exists('$(MSBuildProjectDirectory)\THIRD-PARTY-NOTICES.TXT')">$(MSBuildProjectDirectory)\THIRD-PARTY-NOTICES.TXT</_PackageThirdPartyNoticesPath>
 
     <_LicensePath Condition="Exists($([MSBuild]::GetPathOfFileAbove('LICENSE.txt')))">$([MSBuild]::GetPathOfFileAbove('LICENSE.txt'))</_LicensePath>
 
     <Authors Condition="'$(Authors)' == '' AND '$(_IsANcpLuaProject)' == 'true'">ANcpLua</Authors>
     <Company Condition="'$(Company)' == '' AND '$(_IsANcpLuaProject)' == 'true'">ANcpLua</Company>
 
+    <PackageLicenseExpression Condition="'$(PackageLicenseExpression)' == '' AND '$(_IsANcpLuaProject)' == 'true'">MIT</PackageLicenseExpression>
     <PackageReadmeFile Condition="'$(PackageReadmeFile)' == '' AND '$(_PackageReadmeFilePath)' != ''">README.md</PackageReadmeFile>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(PackageLicenseExpression)' == '' AND '$(_IsANcpLuaProject)' == 'true'">
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  </PropertyGroup>
-
   <ItemGroup>
-    <None Include="$(_PackageReadmeFilePath)" Pack="true" PackagePath="README.md" Condition="$(_PackageReadmeFilePath) != ''"/>
-    <None Include="$(_PackageThirdPartyNoticesPath)" Pack="true" PackagePath="" Condition="$(_PackageThirdPartyNoticesPath) != ''"/>
-    <None Include="$(_LicensePath)" Pack="true" PackagePath="" Link="SDK/Package/%(Filename)%(Extension)" InProject="false" Condition="$(_LicensePath) != ''"/>
+    <None Include="$(_PackageReadmeFilePath)" Pack="true" PackagePath="README.md" Condition="$(_PackageReadmeFilePath) != ''" />
+    <None Include="$(_PackageThirdPartyNoticesPath)" Pack="true" PackagePath="" Condition="$(_PackageThirdPartyNoticesPath) != ''" />
+    <None Include="$(_LicensePath)" Pack="true" PackagePath="" Visible="false" Condition="$(_LicensePath) != ''" />
   </ItemGroup>
-
 </Project>

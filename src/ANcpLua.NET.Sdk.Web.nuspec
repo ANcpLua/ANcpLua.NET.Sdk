@@ -22,42 +22,16 @@
     <file src="Build/Common/ContinuousIntegrationBuild.props" target="Build/Common/"/>
     <file src="Build/Common/Npm.targets" target="Build/Common/"/>
     <file src="Build/Common/Tests.targets" target="Build/Common/"/>
-    <file src="Build/Common/ItemDefaults.props" target="Build/Common/"/>
     <file src="Build/Common/GlobalPackages.props" target="Build/Common/"/>
-    <file src="Build/Common/TerminalLogger.props" target="Build/Common/"/>
-    <file src="Build/Common/BuildCheck.props" target="Build/Common/"/>
     <file src="Build/Common/SourceGenerators.props" target="Build/Common/"/>
-    <file src="Build/Common/InternalsVisibleTo.props" target="Build/Common/"/>
-    <file src="Build/Common/ArtifactStaging.targets" target="Build/Common/"/>
-    <file src="Build/Common/ItemMetadata.targets" target="Build/Common/"/>
-    <file src="Build/Common/Deduplication.targets" target="Build/Common/"/>
 
-    <!-- Build/Enforcement - Determinism and SourceLink -->
+    <!-- Build/Enforcement - Policy, determinism, version checks -->
     <file src="Build/Enforcement/Enforcement.props" target="Build/Enforcement/"/>
     <file src="Build/Enforcement/DeterminismAndSourceLink.props" target="Build/Enforcement/"/>
     <file src="Build/Enforcement/VersionEnforcement.targets" target="Build/Enforcement/"/>
 
-    <!-- Build/Packaging - Analyzer pack layout -->
-    <file src="Build/Packaging/AnalyzersPack.targets" target="Build/Packaging/"/>
-
-    <!-- Config/Analyzers - Analyzer editorconfig settings -->
-    <file src="Config/Analyzers/Global.editorconfig" target="Config/Analyzers/"/>
-    <file src="Config/Analyzers/ANcpLua.editorconfig" target="Config/Analyzers/"/>
-    <file src="Config/Analyzers/Roslyn.editorconfig" target="Config/Analyzers/"/>
-    <file src="Config/Analyzers/BannedApis.editorconfig" target="Config/Analyzers/"/>
-    <file src="Config/Analyzers/NetAnalyzers.editorconfig" target="Config/Analyzers/"/>
-
-    <!-- Config/Style - Code style editorconfig settings -->
-    <file src="Config/Style/CodingStyle.editorconfig" target="Config/Style/"/>
-    <file src="Config/Style/NamingConvention.editorconfig" target="Config/Style/"/>
-    <file src="Config/Style/GeneratedFiles.editorconfig" target="Config/Style/"/>
-
-    <!-- Config/BannedSymbols - Banned API symbol lists -->
-    <file src="Config/BannedSymbols/BannedSymbols.txt" target="Config/BannedSymbols/"/>
-    <file src="Config/BannedSymbols/BannedSymbols.NewtonsoftJson.txt" target="Config/BannedSymbols/"/>
-
-    <!-- Config root -->
-    <file src="Config/default.runsettings" target="Config/"/>
+    <!-- Config - Analyzer, style, banned-symbol, and test settings -->
+    <file src="Config/*" target="Config/"/>
 
     <file src="../LICENSE.txt" target=""/>
     <file src="../README.md" target=""/>

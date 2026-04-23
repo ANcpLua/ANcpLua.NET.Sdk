@@ -1,57 +1,35 @@
 <Project>
-  <!-- Guard to prevent double-import (MSB4011) -->
-  <PropertyGroup>
-    <_ANcpLuaCommonPropsImported>true</_ANcpLuaCommonPropsImported>
-  </PropertyGroup>
-
-  <Import Project="$(MSBuildThisFileDirectory)/ContinuousIntegrationBuild.props"/>
-  <Import Project="$(MSBuildThisFileDirectory)/SourceGenerators.props"/>
-
-  <PropertyGroup Label="Git Detection">
-    <_ANcpLuaGitDir Condition="'$(_ANcpLuaGitDir)' == ''">$([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildProjectDirectory)', '.git'))</_ANcpLuaGitDir>
-    <_ANcpLuaInGitRepo Condition="'$(_ANcpLuaGitDir)' != ''">true</_ANcpLuaInGitRepo>
-    <_ANcpLuaInGitRepo Condition="'$(_ANcpLuaInGitRepo)' == ''">false</_ANcpLuaInGitRepo>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(_ANcpLuaInGitRepo)' != 'true'">
-    <EnableSourceLink>false</EnableSourceLink>
-    <EnableSourceControlManagerQueries>false</EnableSourceControlManagerQueries>
-    <!-- Don't set PublishRepositoryUrl to false - let default (true) apply -->
-  </PropertyGroup>
+  <Import Project="$(MSBuildThisFileDirectory)ContinuousIntegrationBuild.props" />
+  <Import Project="$(MSBuildThisFileDirectory)SourceGenerators.props" />
 
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <_IsANcpLuaProject>$(MSBuildProjectName.StartsWith('ANcpLua', StringComparison.OrdinalIgnoreCase))</_IsANcpLuaProject>
-
-    <GenerateClaudeMd Condition="'$(GenerateClaudeMd)' == ''">true</GenerateClaudeMd>
-  </PropertyGroup>
-
-  <!-- Enable interceptors for ASP.NET Core projects (OpenAPI generator) -->
-  <PropertyGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">
-    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
   </PropertyGroup>
 
   <PropertyGroup>
-    <!-- Publish the repository URL in the built .nupkg (in the NuSpec <Repository> element) -->
-    <PublishRepositoryUrl Condition="'$(PublishRepositoryUrl)' == ''">true</PublishRepositoryUrl>
+    <IsTestProject Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.Test'">true</IsTestProject>
+  </PropertyGroup>
 
-    <!-- DebugType is set in DeterminismAndSourceLink.props (portable + snupkg) -->
-    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
-    <EmbedUntrackedSources Condition="'$(EmbedUntrackedSources)' == ''">true</EmbedUntrackedSources>
-    <IncludeSourceRevisionInInformationalVersion Condition="'$(IncludeSourceRevisionInInformationalVersion)' == ''">true</IncludeSourceRevisionInInformationalVersion>
-    <!-- Only enable if we're in a git repo - see _ANcpLuaInGitRepo detection above -->
-    <EnableSourceControlManagerQueries Condition="'$(EnableSourceControlManagerQueries)' == '' and '$(_ANcpLuaInGitRepo)' == 'true'">true</EnableSourceControlManagerQueries>
-    <EnableSourceLink Condition="'$(EnableSourceLink)' == '' and '$(_ANcpLuaInGitRepo)' == 'true'">true</EnableSourceLink>
+  <PropertyGroup>
+    <_DefaultNetCoreAppVersion Condition="'$(_DefaultNetCoreAppVersion)' == ''">$(NETCoreAppMaximumVersion)</_DefaultNetCoreAppVersion>
+    <_DefaultNetCoreAppVersion Condition="'$(_DefaultNetCoreAppVersion)' == '' AND '$(NETCoreSdkVersion)' != ''">$([System.Text.RegularExpressions.Regex]::Replace('$(NETCoreSdkVersion)', '^(\d+)\.(\d+).*$', '$1.$2'))</_DefaultNetCoreAppVersion>
+    <_ProjectDeclaresTargetFramework Condition="Exists('$(MSBuildProjectFullPath)')">$([System.Text.RegularExpressions.Regex]::IsMatch($([System.IO.File]::ReadAllText('$(MSBuildProjectFullPath)')), 'TargetFrameworks?'))</_ProjectDeclaresTargetFramework>
+    <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == '' AND '$(_ProjectDeclaresTargetFramework)' != 'True' AND '$(_DefaultNetCoreAppVersion)' != ''">net$(_DefaultNetCoreAppVersion)</TargetFramework>
+    <TargetFramework Condition="'$(TargetFramework)' == '' AND '$(TargetFrameworks)' == ''">net10.0</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1573;CS1591;CA1014</NoWarn>
 
-    <!--
-        Disabling static graph restore due to a bug related to NuGetAuditSuppress.
-        See: https://github.com/NuGet/Home/issues/14300
-      -->
-    <RestoreUseStaticGraphEvaluation>false</RestoreUseStaticGraphEvaluation>
+    <RestoreUseStaticGraphEvaluation>true</RestoreUseStaticGraphEvaluation>
     <RestoreSerializeGlobalProperties>true</RestoreSerializeGlobalProperties>
 
     <ReportAnalyzer>true</ReportAnalyzer>
@@ -60,24 +38,15 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisLevel>latest-all</AnalysisLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
+    <LangVersion>latest</LangVersion>
+    <MSBuildTreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</MSBuildTreatWarningsAsErrors>
+    <TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</EnforceCodeStyleInBuild>
+
     <EnablePackageValidation Condition="'$(EnablePackageValidation)' == ''">true</EnablePackageValidation>
     <ManagePackageVersionsCentrally Condition="'$(ManagePackageVersionsCentrally)' == ''">true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled Condition="'$(CentralPackageTransitivePinningEnabled)' == ''">true</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">
-    <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-  </PropertyGroup>
-
-  <ItemDefinitionGroup>
-    <PackageReference>
-      <!-- Intentionally empty: clears inherited PrivateAssets defaults so all assets flow through -->
-      <PrivateAssets />
-    </PackageReference>
-  </ItemDefinitionGroup>
 
   <PropertyGroup Label="NuGet Audit">
     <NuGetAudit>true</NuGetAudit>
@@ -90,32 +59,22 @@
     <AccelerateBuildsInVisualStudio>true</AccelerateBuildsInVisualStudio>
   </PropertyGroup>
 
-  <!-- NOTE: Microsoft.SourceLink.GitHub is NOT injected here.
-       .NET 8+ includes SourceLink by default. Since this SDK requires .NET 10+,
-       SourceLink is always available without a package reference. -->
+  <!-- ASP.NET Core OpenAPI interceptors namespace -->
+  <PropertyGroup Condition="'$(UsingMicrosoftNETSdkWeb)' == 'true'">
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
+  </PropertyGroup>
 
-  <!-- NOTE: ANcpLua.Roslyn.Utilities is a first-party library with its own release
-       cadence. The SDK no longer auto-injects it — consumers reference it
-       explicitly like any other NuGet dep:
-
-         Directory.Packages.props:
-           <PackageVersion Include="ANcpLua.Roslyn.Utilities" Version="$(ANcpLuaRoslynUtilitiesVersion)"/>
-           <PackageVersion Include="ANcpLua.Roslyn.Utilities.Sources" Version="$(ANcpLuaRoslynUtilitiesVersion)"/>
-
-         Consumer csproj (net10.0+):
-           <PackageReference Include="ANcpLua.Roslyn.Utilities"/>
-
-         Consumer csproj (netstandard2.0 source generators):
-           <PackageReference Include="ANcpLua.Roslyn.Utilities.Sources" PrivateAssets="all"/>
-
-       Rationale: the previous opt-in auto-injection forced a 3-ceremony release
-       (lib release → SDK bump → consumer SDK update) for every lib feature and
-       the "LOCAL OVERRIDES" escape was the de-facto normal path. Explicit
-       references keep deploy-order decoupled. -->
+  <!-- File-based apps (.NET 10+): FileBasedProgram is set by the SDK for #:sdk directive -->
+  <PropertyGroup>
+    <ANcpLuaSingleFileApp Condition="'$(ANcpLuaSingleFileApp)' == '' AND '$(FileBasedProgram)' == 'true'">true</ANcpLuaSingleFileApp>
+  </PropertyGroup>
 
   <ItemGroup>
-    <!-- Add all editorconfig files (hidden from Solution Explorer via InProject, Link provides virtual folder in Show All Files) -->
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../../Config/**/*.editorconfig" Link="SDK/Config/%(RecursiveDir)%(Filename)%(Extension)" InProject="false"/>
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\*.editorconfig"
+                       Exclude="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk*.editorconfig" />
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\$(ANcpLuaSdkName).editorconfig"
+                       Condition="'$(ANcpLuaSdkName)' != '' AND Exists('$(MSBuildThisFileDirectory)..\..\Config\$(ANcpLuaSdkName).editorconfig')" />
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk.SingleFileApp.editorconfig"
+                       Condition="'$(ANcpLuaSingleFileApp)' == 'true'" />
   </ItemGroup>
-
 </Project>
