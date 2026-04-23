@@ -1,6 +1,6 @@
-# CLAUDE.md - ANcpLua.NET.Sdk
+# AGENTS.md — ANcpLua.NET.Sdk
 
-Opinionated MSBuild SDK providing standardized defaults, policy enforcement, and analyzer injection for .NET projects.
+Opinionated MSBuild SDK providing standardized defaults, policy enforcement, and analyzer injection for .NET projects. `CLAUDE.md` symlinks here.
 
 ## SDK Variants
 
@@ -24,10 +24,10 @@ Sdk.props
 Common.props  (via CustomBeforeDirectoryBuildProps)
     |
     +-> ContinuousIntegrationBuild.props  # CI detection
-    +-> SourceGenerators.props            # Auto-pin Roslyn 5.0.0 for generators
 
 Common.targets  (via BeforeMicrosoftNETSdkTargets)
     |
+    +-> SourceGenerators.targets    # Auto-pin RoslynVersion for generators
     +-> Tests.targets               # Test framework injection (IsTestProject)
     +-> Npm.targets                 # Opt-in npm integration
     +-> VersionEnforcement.targets  # AL0018 import check
@@ -97,7 +97,8 @@ Opt-out of xUnit injection (for TUnit/NUnit/MSTest):
 
 Projects whose name contains `generator` or `analyzer` get
 `Microsoft.CodeAnalysis.CSharp` pinned to `SourceGeneratorRoslynVersion` (default
-`5.0.0`) via `VersionOverride`, keeping CPM enabled. Override the version:
+`$(RoslynVersion)` from `Version.props`) via `VersionOverride`, keeping CPM
+enabled. Override the version:
 
 ```xml
 <PropertyGroup>
@@ -120,7 +121,7 @@ injection and declare the reference explicitly:
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"
-                      VersionOverride="5.0.0"
+                      VersionOverride="$(SourceGeneratorRoslynVersion)"
                       PrivateAssets="all" />
   </ItemGroup>
 </Project>
