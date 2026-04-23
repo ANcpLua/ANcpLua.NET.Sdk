@@ -9,7 +9,13 @@ src/
   Build/
     Common/             # Core .props/.targets files
     Enforcement/        # Policy enforcement, determinism, version checks
-  Config/               # EditorConfig files, BannedSymbols.txt
+  Config/               # Flat layout since v3.3.0 (was nested in Analyzers/Style/BannedSymbols/)
+                        #   - Analyzer.*.editorconfig   (per-analyzer rule tuning)
+                        #   - Global.editorconfig       (is_global=true, authoritative)
+                        #   - CodingStyle / NamingConvention / Compiler / GeneratedFiles
+                        #   - ANcpLua.NET.Sdk.*.editorconfig (per-variant)
+                        #   - BannedSymbols[.NewtonsoftJson].txt
+                        #   - default.runsettings
   Sdk/                  # SDK entry points (one per variant)
     ANcpLua.NET.Sdk/
     ANcpLua.NET.Sdk.Web/
