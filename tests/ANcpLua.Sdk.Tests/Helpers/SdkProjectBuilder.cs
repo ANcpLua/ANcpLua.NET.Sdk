@@ -403,6 +403,12 @@ public sealed class SdkProjectBuilder : ProjectBuilder
             foreach (var file in System.IO.Directory.GetFiles(Directory.FullPath, "*", SearchOption.AllDirectories))
             {
                 Output.WriteLine("File: " + file);
+                if (Path.GetExtension(file).Equals(".binlog", StringComparison.OrdinalIgnoreCase))
+                {
+                    Output.WriteLine("<binary file skipped>");
+                    continue;
+                }
+
                 var content = await File.ReadAllTextAsync(file);
                 Output.WriteLine(XmlSanitizer.SanitizeForXml(content));
             }

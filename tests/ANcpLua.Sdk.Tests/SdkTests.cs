@@ -45,8 +45,9 @@ public abstract class SdkTests(
                 foreach (var node in nodes)
                 {
                     var versionAttr = node.Attribute("Version");
-                    if (versionAttr is null)
-                        Assert.Fail("Missing Version attribute on " + node);
+                    var versionOverrideAttr = node.Attribute("VersionOverride");
+                    if (versionAttr is null && versionOverrideAttr is null)
+                        Assert.Fail("Missing Version or VersionOverride attribute on " + node);
                 }
             }
 

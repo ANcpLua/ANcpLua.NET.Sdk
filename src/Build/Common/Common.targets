@@ -1,4 +1,5 @@
 <Project>
+  <Import Project="$(MSBuildThisFileDirectory)SourceGenerators.targets" />
   <Import Project="$(MSBuildThisFileDirectory)Tests.targets" Condition="'$(IsTestProject)' == 'true'" />
   <Import Project="$(MSBuildThisFileDirectory)Npm.targets" />
   <Import Project="$(MSBuildThisFileDirectory)..\Enforcement\VersionEnforcement.targets" />

@@ -1,6 +1,5 @@
 <Project>
   <Import Project="$(MSBuildThisFileDirectory)ContinuousIntegrationBuild.props" />
-  <Import Project="$(MSBuildThisFileDirectory)SourceGenerators.props" />
 
   <PropertyGroup>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>

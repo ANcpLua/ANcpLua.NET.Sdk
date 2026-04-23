@@ -8,6 +8,7 @@
   <Target Name="ComputeNpmPackageMetadata">
     <PropertyGroup>
       <NpmRestoreLockedMode Condition="'$(NpmRestoreLockedMode)' == '' AND ('$(RestoreLockedMode)' == 'true' OR '$(ContinuousIntegrationBuild)' == 'true')">true</NpmRestoreLockedMode>
+      <NpmCacheDirectory Condition="'$(NpmCacheDirectory)' == ''">$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(BaseIntermediateOutputPath)', 'npm-cache'))</NpmCacheDirectory>
       <_NpmRestoreCommand Condition="'$(NpmRestoreLockedMode)' != 'true'">install</_NpmRestoreCommand>
       <_NpmRestoreCommand Condition="'$(NpmRestoreLockedMode)' == 'true'">ci</_NpmRestoreCommand>
     </PropertyGroup>
@@ -28,7 +29,7 @@
   <!-- Run npm install for each NpmPackageFile -->
   <Target Name="NpmRestore" DependsOnTargets="ComputeNpmPackageMetadata;NpmRestoreForce" Inputs="@(NpmPackageFile)" Outputs="%(NpmPackageFile.StampFile)" BeforeTargets="Restore;CollectPackageReferences">
     <Message Importance="high" Text="Installing npm packages for %(NpmPackageFile.Identity)"/>
-    <Exec Command="%(NpmPackageFile.RestoreCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)"/>
+    <Exec Command="%(NpmPackageFile.RestoreCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)" EnvironmentVariables="NPM_CONFIG_CACHE=$(NpmCacheDirectory)"/>
     <Touch Files="%(NpmPackageFile.StampFile)" AlwaysCreate="true"/>
   </Target>
 
@@ -42,7 +43,7 @@
 
   <!-- dotnet msbuild /t:NpmInstall -->
   <Target Name="NpmInstall" DependsOnTargets="ComputeNpmPackageMetadata">
-    <Exec Command="%(NpmPackageFile.InstallCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)"/>
+    <Exec Command="%(NpmPackageFile.InstallCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)" EnvironmentVariables="NPM_CONFIG_CACHE=$(NpmCacheDirectory)"/>
   </Target>
 
   <Target Name="EmbedNpmLockFileInBinLog" DependsOnTargets="ComputeNpmPackageMetadata" AfterTargets="CoreCompile">

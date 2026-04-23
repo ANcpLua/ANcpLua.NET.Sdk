@@ -7,13 +7,18 @@
     <_IsSourceGeneratorProject Condition="'$(IsSourceGenerator)' == 'true'">true</_IsSourceGeneratorProject>
   </PropertyGroup>
 
-  <!-- Matches $(RoslynVersion) in Version.props; keep in sync when bumping Roslyn -->
   <PropertyGroup Condition="'$(_IsSourceGeneratorProject)' == 'true' and '$(SourceGeneratorRoslynVersion)' == ''">
-    <SourceGeneratorRoslynVersion>5.3.0</SourceGeneratorRoslynVersion>
+    <SourceGeneratorRoslynVersion>$(RoslynVersion)</SourceGeneratorRoslynVersion>
   </PropertyGroup>
 
-  <!-- DisableImplicitRoslynPackageReference=true lets generator projects supply Microsoft.CodeAnalysis.CSharp themselves, avoiding LSP evaluation-order fragility -->
-  <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != '' and '$(DisableImplicitRoslynPackageReference)' != 'true'">
+  <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != '' and '$(DisableImplicitRoslynPackageReference)' != 'true' and '$(ManagePackageVersionsCentrally)' == 'true'">
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"
+                      VersionOverride="$(SourceGeneratorRoslynVersion)"
+                      PrivateAssets="all"
+                      IsImplicitlyDefined="true" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(SourceGeneratorRoslynVersion)' != '' and '$(DisableImplicitRoslynPackageReference)' != 'true' and '$(ManagePackageVersionsCentrally)' != 'true'">
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"
                       Version="$(SourceGeneratorRoslynVersion)"
                       VersionOverride="$(SourceGeneratorRoslynVersion)"

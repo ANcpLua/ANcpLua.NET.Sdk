@@ -23,7 +23,7 @@
     <file src="Build/Common/Npm.targets" target="Build/Common/"/>
     <file src="Build/Common/Tests.targets" target="Build/Common/"/>
     <file src="Build/Common/GlobalPackages.props" target="Build/Common/"/>
-    <file src="Build/Common/SourceGenerators.props" target="Build/Common/"/>
+    <file src="Build/Common/SourceGenerators.targets" target="Build/Common/"/>
 
     <!-- Build/Enforcement - Policy, determinism, version checks -->
     <file src="Build/Enforcement/Enforcement.props" target="Build/Enforcement/"/>
