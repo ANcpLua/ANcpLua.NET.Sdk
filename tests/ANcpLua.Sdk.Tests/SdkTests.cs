@@ -401,7 +401,7 @@ public abstract class SdkTests(
             .AddSource("Program.cs", """
                 _ = "";
 
-                class Sample
+                sealed class Sample
                 {
                     public static void A()
                     {
