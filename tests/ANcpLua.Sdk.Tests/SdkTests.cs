@@ -959,6 +959,28 @@ public abstract class SdkTests(
         Assert.Fail("Attribute not found");
     }
 
+    [Fact]
+    public async Task MultiTargetFrameworks_BothOutputsBuilt()
+    {
+        // Regression: SDK's Common.props props-phase TargetFramework default used to fire
+        // before csproj evaluation, silently collapsing <TargetFrameworks>net10.0;netstandard2.0</TargetFrameworks>
+        // to net10.0 only. Verify both TFM outputs exist.
+        await using var project = CreateProject()
+            .WithFilename("Sample.csproj")
+            .WithOutputType(Val.Library)
+            .WithProperty("TargetFramework", "")
+            .WithProperty("TargetFrameworks", "net10.0;netstandard2.0")
+            .AddSource("Sample.cs", "namespace Sample; public class Foo { }");
+
+        var result = await project.BuildAsync();
+
+        Assert.True(result.ExitCode is 0, result.Output.ToString());
+        var net10 = Directory.GetFiles(project.RootFolder / "bin" / "Debug" / "net10.0", "Sample.dll");
+        var ns20 = Directory.GetFiles(project.RootFolder / "bin" / "Debug" / "netstandard2.0", "Sample.dll");
+        Assert.Single(net10);
+        Assert.Single(ns20);
+    }
+
     [Theory]
     [InlineData("TargetFramework", "")]
     [InlineData("TargetFrameworks", "")]
