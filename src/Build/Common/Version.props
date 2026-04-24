@@ -28,8 +28,8 @@
 
   <PropertyGroup Label="Meziantou">
     <MeziantouFrameworkVersion>5.0.15</MeziantouFrameworkVersion>
-    <MeziantouFullPathVersion>1.1.18</MeziantouFullPathVersion>
-    <MeziantouTemporaryDirectoryVersion>1.0.37</MeziantouTemporaryDirectoryVersion>
+    <MeziantouFullPathVersion>1.1.19</MeziantouFullPathVersion>
+    <MeziantouTemporaryDirectoryVersion>1.0.38</MeziantouTemporaryDirectoryVersion>
     <MeziantouThreadingVersion>2.0.4</MeziantouThreadingVersion>
     <MeziantouDependencyScanningVersion>2.0.10</MeziantouDependencyScanningVersion>
   </PropertyGroup>
@@ -63,10 +63,10 @@
     <MicrosoftExtensionsAIAbstractionsVersion>10.5.0</MicrosoftExtensionsAIAbstractionsVersion>
     <MicrosoftExtensionsAIOpenAIVersion>10.5.0</MicrosoftExtensionsAIOpenAIVersion>
     <AspNetCoreVersion>10.0.7</AspNetCoreVersion>
-    <MicrosoftBclAsyncInterfacesVersion>10.0.6</MicrosoftBclAsyncInterfacesVersion>
-    <BclAsyncInterfacesVersion>10.0.6</BclAsyncInterfacesVersion>
+    <MicrosoftBclAsyncInterfacesVersion>10.0.7</MicrosoftBclAsyncInterfacesVersion>
+    <BclAsyncInterfacesVersion>10.0.7</BclAsyncInterfacesVersion>
     <BclHashCodeVersion>6.0.0</BclHashCodeVersion>
-    <SystemThreadingChannelsVersion>10.0.6</SystemThreadingChannelsVersion>
+    <SystemThreadingChannelsVersion>10.0.7</SystemThreadingChannelsVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="OpenTelemetry">
