@@ -69,12 +69,19 @@
     <ANcpLuaSingleFileApp Condition="'$(ANcpLuaSingleFileApp)' == '' AND '$(FileBasedProgram)' == 'true'">true</ANcpLuaSingleFileApp>
   </PropertyGroup>
 
+  <!-- IDE tree hygiene: Link groups SDK-injected editorconfig files under a virtual
+       '$(ANcpLuaSdkName)\Config' folder in Rider / VS Solution Explorer instead of
+       scattering them at the project root. MSBuild items with absolute paths outside
+       the project cone render at root by default; Link is the documented container. -->
   <ItemGroup>
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\*.editorconfig"
-                       Exclude="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk*.editorconfig" />
+                       Exclude="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk*.editorconfig"
+                       Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\$(ANcpLuaSdkName).editorconfig"
-                       Condition="'$(ANcpLuaSdkName)' != '' AND Exists('$(MSBuildThisFileDirectory)..\..\Config\$(ANcpLuaSdkName).editorconfig')" />
+                       Condition="'$(ANcpLuaSdkName)' != '' AND Exists('$(MSBuildThisFileDirectory)..\..\Config\$(ANcpLuaSdkName).editorconfig')"
+                       Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk.SingleFileApp.editorconfig"
-                       Condition="'$(ANcpLuaSingleFileApp)' == 'true'" />
+                       Condition="'$(ANcpLuaSingleFileApp)' == 'true'"
+                       Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

@@ -58,9 +58,11 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <!-- Visible="false" + Link: Rider ignores Visible on absolute out-of-cone paths;
+       Link collects them under the SDK virtual folder when Visible is disregarded. -->
   <ItemGroup>
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\Config\BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false" />
-    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\Config\BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\Config\BannedSymbols.txt" Condition="'$(IncludeDefaultBannedSymbols)' != 'false'" Visible="false" Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\..\Config\BannedSymbols.NewtonsoftJson.txt" Condition="'$(BannedNewtonsoftJsonSymbols)' != 'false'" Visible="false" Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(Language)' == 'C#' AND ('$(ImplicitUsings)' == 'true' or '$(ImplicitUsings)' == 'enable')">
@@ -117,7 +119,7 @@
         <PackageIcon>icon.png</PackageIcon>
       </PropertyGroup>
       <ItemGroup>
-        <None Include="$(MSBuildThisFileDirectory)..\..\icon.png" Pack="true" PackagePath="" Visible="false" />
+        <None Include="$(MSBuildThisFileDirectory)..\..\icon.png" Pack="true" PackagePath="" Visible="false" Link="$(ANcpLuaSdkName)\%(Filename)%(Extension)" />
       </ItemGroup>
     </When>
   </Choose>
