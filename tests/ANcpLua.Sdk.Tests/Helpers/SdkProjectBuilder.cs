@@ -49,8 +49,44 @@ public sealed class SdkProjectBuilder : ProjectBuilder
 {
     private readonly PackageFixture _fixture;
     private readonly List<XElement> _additionalProjectElements = [];
+    private readonly Dictionary<string, string> _extraProperties = new(StringComparer.Ordinal);
     private SdkImportStyle _sdkImportStyle;
     private string _sdkName;
+
+    /// <summary>
+    ///     The TargetFramework value, or <c>null</c> if not set.
+    /// </summary>
+    /// <remarks>
+    ///     Singular MSBuild property — exposed as a typed slot so that repeated
+    ///     <see cref="WithTargetFramework" /> calls (or
+    ///     <see cref="WithProperty(string, string)" /> with name
+    ///     <see cref="Prop.TargetFramework" />) overwrite instead of producing
+    ///     duplicate <c>&lt;TargetFramework&gt;</c> elements in the emitted csproj.
+    /// </remarks>
+    public string? TargetFramework { get; private set; }
+
+    /// <summary>
+    ///     The OutputType value, or <c>null</c> if not set (defaults to <c>Exe</c> at emission time).
+    /// </summary>
+    /// <remarks>
+    ///     Singular MSBuild property — exposed as a typed slot so that repeated
+    ///     <see cref="WithOutputType" /> calls (or
+    ///     <see cref="WithProperty(string, string)" /> with name
+    ///     <see cref="Prop.OutputType" />) overwrite instead of producing
+    ///     duplicate <c>&lt;OutputType&gt;</c> elements in the emitted csproj.
+    /// </remarks>
+    public string? OutputType { get; private set; }
+
+    /// <summary>
+    ///     Read-only view of the additional MSBuild properties beyond the typed
+    ///     <see cref="TargetFramework" /> and <see cref="OutputType" /> slots.
+    /// </summary>
+    /// <remarks>
+    ///     Set semantics — calling <see cref="WithProperty(string, string)" /> twice
+    ///     with the same name overwrites the value, ensuring at most one element per
+    ///     property name is emitted in the csproj.
+    /// </remarks>
+    public IReadOnlyDictionary<string, string> ExtraProperties => _extraProperties;
 
     /// <summary>
     ///     Creates a new SDK project builder with the specified configuration.
@@ -144,45 +180,79 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     /// <summary>
     ///     Sets the target framework for the project.
     /// </summary>
+    /// <remarks>
+    ///     Idempotent — repeated calls overwrite the typed <see cref="TargetFramework" /> slot;
+    ///     the emitted csproj contains exactly one <c>&lt;TargetFramework&gt;</c> element.
+    /// </remarks>
     public new SdkProjectBuilder WithTargetFramework(string tfm)
     {
-        base.WithTargetFramework(tfm);
+        TargetFramework = tfm;
         return this;
     }
 
     /// <summary>
     ///     Sets the output type of the project.
     /// </summary>
+    /// <remarks>
+    ///     Idempotent — repeated calls overwrite the typed <see cref="OutputType" /> slot;
+    ///     the emitted csproj contains exactly one <c>&lt;OutputType&gt;</c> element.
+    /// </remarks>
     public new SdkProjectBuilder WithOutputType(string type)
     {
-        base.WithOutputType(type);
+        OutputType = type;
         return this;
     }
 
     /// <summary>
     ///     Sets the C# language version for the project.
     /// </summary>
+    /// <remarks>
+    ///     Idempotent — repeated calls overwrite the entry in <see cref="ExtraProperties" />.
+    /// </remarks>
     public new SdkProjectBuilder WithLangVersion(string version = Val.Latest)
     {
-        base.WithLangVersion(version);
+        _extraProperties[Prop.LangVersion] = version;
         return this;
     }
 
     /// <summary>
-    ///     Sets an arbitrary MSBuild property on the project.
+    ///     Sets an arbitrary MSBuild property on the project (set, not append).
     /// </summary>
+    /// <remarks>
+    ///     <para>
+    ///         Routes the singular slots <see cref="Prop.TargetFramework" /> and
+    ///         <see cref="Prop.OutputType" /> to the typed properties so that any
+    ///         caller can reach them via either the typed setter or the generic API
+    ///         without producing duplicate elements in the emitted csproj. All other
+    ///         names go into <see cref="ExtraProperties" /> with overwrite semantics.
+    ///     </para>
+    /// </remarks>
     public new SdkProjectBuilder WithProperty(string name, string value)
     {
-        base.WithProperty(name, value);
+        switch (name)
+        {
+            case Prop.TargetFramework:
+                TargetFramework = value;
+                break;
+            case Prop.OutputType:
+                OutputType = value;
+                break;
+            default:
+                _extraProperties[name] = value;
+                break;
+        }
+
         return this;
     }
 
     /// <summary>
-    ///     Sets multiple MSBuild properties on the project.
+    ///     Sets multiple MSBuild properties on the project (set, not append).
     /// </summary>
     public new SdkProjectBuilder WithProperties(params (string Key, string Value)[] properties)
     {
-        base.WithProperties(properties);
+        foreach (var (key, value) in properties)
+            WithProperty(key, value);
+
         return this;
     }
 
@@ -354,9 +424,17 @@ public sealed class SdkProjectBuilder : ProjectBuilder
             : RootSdk;
         var innerSdkXmlElement = _sdkImportStyle == SdkImportStyle.SdkElement ? GetSdkElementContent(_sdkName) : string.Empty;
 
-        var propertiesElement = new XElement("PropertyGroup");
-        foreach (var prop in Properties)
-            propertiesElement.Add(new XElement(prop.Key, prop.Value));
+        var propertiesElement = new XElement("PropertyGroup",
+            new XElement("ErrorLog", $"{SarifFileName},version=2.1"),
+            new XElement("ManagePackageVersionsCentrally", "false"),
+            new XElement("ANcpLuaSdkSkipCPMEnforcement", "true"),
+            new XElement("OutputType", OutputType ?? "exe"));
+
+        if (TargetFramework is not null)
+            propertiesElement.Add(new XElement("TargetFramework", TargetFramework));
+
+        foreach (var (key, value) in _extraProperties)
+            propertiesElement.Add(new XElement(key, value));
 
         var packagesElement = new XElement("ItemGroup");
         foreach (var package in NuGetPackages)
@@ -364,19 +442,9 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                 new XAttribute("Include", package.Name),
                 new XAttribute("Version", package.Version)));
 
-        // Only set default OutputType=exe if user didn't explicitly set it via WithOutputType
-        var hasExplicitOutputType = Properties.Any(p => p.Key == Prop.OutputType);
-        var defaultOutputType = hasExplicitOutputType ? "" : "<OutputType>exe</OutputType>";
-
         var content = $"""
                        <Project Sdk="{rootSdkName}">
                            {innerSdkXmlElement}
-                           <PropertyGroup>
-                               {defaultOutputType}
-                               <ErrorLog>{SarifFileName},version=2.1</ErrorLog>
-                               <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
-                               <ANcpLuaSdkSkipCPMEnforcement>true</ANcpLuaSdkSkipCPMEnforcement>
-                           </PropertyGroup>
                            {propertiesElement}
                            {packagesElement}
                            {string.Join('\n', _additionalProjectElements.Select(static e => e.ToString()))}
