@@ -1,0 +1,50 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["0 */6 * * *"],
+  "timezone": "UTC",
+  "dependencyDashboard": true,
+  "commitMessagePrefix": "deps:",
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "ANcpLua first-party deps consumed by self-test (cross-repo, safe to auto-bump)",
+      "groupName": "ancplua-sdk",
+      "matchPackageNames": ["/^ANcpLua\\./"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Roslyn analyzers + reference assemblies",
+      "groupName": "roslyn",
+      "matchPackageNames": ["/^Microsoft\\.CodeAnalysis/", "/^Basic\\.Reference\\.Assemblies/"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Test infrastructure (xUnit, MTP, coverlet)",
+      "groupName": "testing",
+      "matchPackageNames": ["/^xunit/", "/^Microsoft\\.NET\\.Test/", "/^coverlet/", "/^Microsoft\\.Testing/"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "ASP.NET Core + Microsoft.Extensions",
+      "groupName": "aspnetcore",
+      "matchPackageNames": ["/^Microsoft\\.AspNetCore/", "/^Microsoft\\.Extensions/"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Major bumps require manual review",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    },
+    {
+      "description": "Block self-bumps — SDK does not auto-bump its own packages (boot-strap concern; ANcpLua.NET.Sdk.Test 3.4.1 self-pin is intentional)",
+      "matchPackageNames": ["/^ANcpLua\\.NET\\.Sdk/"],
+      "enabled": false
+    }
+  ]
+}
