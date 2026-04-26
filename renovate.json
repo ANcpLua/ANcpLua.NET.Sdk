@@ -42,6 +42,13 @@
       "labels": ["dependencies", "major"]
     },
     {
+      "description": "Block .NET SDK previews — stable channel only",
+      "matchManagers": ["dotnet-sdk"],
+      "matchPackageNames": ["dotnet-sdk"],
+      "ignoreUnstable": true,
+      "allowedVersions": "/^[0-9]+\\.[0-9]+\\.[0-9]+$/"
+    },
+    {
       "description": "Block self-bumps — SDK does not auto-bump its own packages (boot-strap concern; ANcpLua.NET.Sdk.Test 3.4.1 self-pin is intentional)",
       "matchPackageNames": ["/^ANcpLua\\.NET\\.Sdk/"],
       "enabled": false
