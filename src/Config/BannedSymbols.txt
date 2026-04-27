@@ -8,6 +8,13 @@ P:System.DateTimeOffset.UtcNow;Use TimeProvider.System.GetUtcNow() instead
 M:System.ArgumentNullException.ThrowIfNull(System.Object,System.String);Use Guard.NotNull(value) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
 M:System.ArgumentException.ThrowIfNullOrEmpty(System.String,System.String);Use Guard.NotNullOrEmpty(value) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
 M:System.ArgumentException.ThrowIfNullOrWhiteSpace(System.String,System.String);Use Guard.NotNullOrWhiteSpace(value) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
+M:System.ArgumentOutOfRangeException.ThrowIfZero(System.Int32,System.String);Use Guard.NotZero(value) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
+M:System.ArgumentOutOfRangeException.ThrowIfNegative(System.Int32,System.String);Use Guard.NotNegative(value) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
+M:System.ArgumentOutOfRangeException.ThrowIfNegativeOrZero(System.Int32,System.String);Use Guard.Positive(value) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
+M:System.ArgumentOutOfRangeException.ThrowIfGreaterThan``1(``0,``0,System.String);Use Guard.NotGreaterThan(value, max) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
+M:System.ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual``1(``0,``0,System.String);Use Guard.LessThan(value, max) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
+M:System.ArgumentOutOfRangeException.ThrowIfLessThan``1(``0,``0,System.String);Use Guard.NotLessThan(value, min) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
+M:System.ArgumentOutOfRangeException.ThrowIfLessThanOrEqual``1(``0,``0,System.String);Use Guard.GreaterThan(value, min) from ANcpLua.Roslyn.Utilities (auto-fix: AL0137)
 
 # NOT banned: SemaphoreSlim (valid for async), lock keyword (can't ban)
 P:System.IO.FileSystemInfo.CreationTime;Use CreationTimeUtc instead
@@ -44,12 +51,12 @@ M:System.Enum.TryParse(System.Type,System.ReadOnlySpan{System.Char},System.Objec
 M:System.Enum.TryParse``1(System.String,``0@);Use an overload with a ignoreCase argument
 M:System.Enum.TryParse``1(System.ReadOnlySpan{System.Char},``0@);Use an overload with a ignoreCase argument
 
-M:System.Math.Round(System.Decimal);Use an overload with a MidpointRounding argument
-M:System.Math.Round(System.Decimal,System.Int32);Use an overload with a MidpointRounding argument
-M:System.Math.Round(System.Double);Use an overload with a MidpointRounding argument
-M:System.Math.Round(System.Double,System.Int32);Use an overload with a MidpointRounding argument
-M:System.MathF.Round(System.Single);Use an overload with a MidpointRounding argument
-M:System.MathF.Round(System.Single,System.Int32);Use an overload with a MidpointRounding argument
+M:System.Math.Round(System.Decimal);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+M:System.Math.Round(System.Decimal,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+M:System.Math.Round(System.Double);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+M:System.Math.Round(System.Double,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+M:System.MathF.Round(System.Single);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+M:System.MathF.Round(System.Single,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
 
 M:System.Globalization.CultureInfo.#ctor(System.String);Use CultureInfo.GetCultureInfo
 
