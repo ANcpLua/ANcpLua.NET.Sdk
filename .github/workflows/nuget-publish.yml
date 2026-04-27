@@ -25,10 +25,10 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: ${{ github.head_ref || github.ref_name }}
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
       - name: Create artifacts directory
         run: mkdir -p artifacts
       - run: dotnet run --project=tools/ConfigFilesGenerator/ConfigFilesGenerator.csproj
@@ -55,11 +55,11 @@ jobs:
     outputs:
       package_version: ${{ steps.compute-version.outputs.package_version }}
     steps:
-        - uses: actions/checkout@v6
+        - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
           with:
             fetch-depth: 0
             fetch-tags: true
-        - uses: actions/setup-dotnet@v5
+        - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
         - id: compute-version
           run: |
             $LatestTag = git describe --tags --abbrev=0 2>$null
@@ -103,12 +103,12 @@ jobs:
     needs: [compute_version]
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
       - name: Create artifacts directory
         run: New-Item -ItemType Directory -Force -Path artifacts
       - run: ./build.ps1 -Version ${{ needs.compute_version.outputs.package_version }}
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: nuget
           if-no-files-found: error
@@ -123,14 +123,14 @@ jobs:
     runs-on: ${{ matrix.runs-on }}
     needs: [create_nuget, compute_version]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: nuget
           path: ${{ env.NUGET_DIRECTORY }}
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
         with:
           dotnet-version: '10.0.x'
       - run: Get-ChildItem "${{ env.NUGET_DIRECTORY }}/*" -Recurse
@@ -143,7 +143,7 @@ jobs:
             CI: true
             NUGET_DIRECTORY: ${{ env.NUGET_DIRECTORY }}
             PACKAGE_VERSION: ${{ needs.compute_version.outputs.package_version }}
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
           name: test_results_${{ matrix.runs-on }}
@@ -157,14 +157,14 @@ jobs:
       contents: write
       id-token: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: nuget
           path: ${{ env.NUGET_DIRECTORY }}
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@c2fa09f4bde5ebb9d1777cf28262a3eb3db3ced7 # v5
 
       - name: Must Publish Packages
         id: has_changes
@@ -203,7 +203,7 @@ jobs:
       - name: Authenticate to NuGet (trusted publishing)
         if: steps.has_changes.outputs.has_changes == 'true'
         id: nuget-login
-        uses: NuGet/login@v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
         with:
           user: ANcpLua
 
