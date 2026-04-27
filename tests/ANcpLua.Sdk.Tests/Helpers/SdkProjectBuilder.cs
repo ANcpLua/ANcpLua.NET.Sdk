@@ -257,6 +257,19 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     }
 
     /// <summary>
+    ///     Records the value of one or more MSBuild properties during the build for later assertion.
+    /// </summary>
+    /// <remarks>
+    ///     Convenience shadow that returns <see cref="SdkProjectBuilder" /> for fluent chaining.
+    ///     See <see cref="ProjectBuilder.RecordProperties" /> for semantics.
+    /// </remarks>
+    public new SdkProjectBuilder RecordProperties(params string[] propertyNames)
+    {
+        base.RecordProperties(propertyNames);
+        return this;
+    }
+
+    /// <summary>
     ///     Adds a source file to the project.
     /// </summary>
     public new SdkProjectBuilder AddSource(string filename, string content)
@@ -424,8 +437,12 @@ public sealed class SdkProjectBuilder : ProjectBuilder
             : RootSdk;
         var innerSdkXmlElement = _sdkImportStyle == SdkImportStyle.SdkElement ? GetSdkElementContent(_sdkName) : string.Empty;
 
+        // Per-TFM SARIF path — single-targeted builds get one BuildOutput.<tfm>.sarif,
+        // cross-targeting gets one per TFM. ProjectBuilder.LoadSarifAsync transparently
+        // merges. Eliminates the cross-targeting concatenation race that produced
+        // invalid JSON in MultiTargetFrameworks_BothOutputsBuilt on Windows.
         var propertiesElement = new XElement("PropertyGroup",
-            new XElement("ErrorLog", $"{SarifFileName},version=2.1"),
+            new XElement("ErrorLog", "BuildOutput.$(TargetFramework).sarif,version=2.1"),
             new XElement("ManagePackageVersionsCentrally", "false"),
             new XElement("ANcpLuaSdkSkipCPMEnforcement", "true"),
             new XElement("OutputType", OutputType ?? "exe"));
@@ -448,6 +465,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                            {propertiesElement}
                            {packagesElement}
                            {string.Join('\n', _additionalProjectElements.Select(static e => e.ToString()))}
+                       {GetRecordPropertiesTargetXml()}
                        </Project>
                        """;
 
@@ -578,20 +596,40 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         Output?.WriteLine("Process exit code: " + result.ExitCode);
         Output?.WriteLine(XmlSanitizer.SanitizeForXml(result.Output.ToString()));
 
-        // Parse SARIF
-        var sarifPath = Directory.FullPath / SarifFileName;
+        // SARIF: per-TFM file under cross-targeting; pick up every BuildOutput*.sarif and merge.
+        var sarifFiles = System.IO.Directory.EnumerateFiles(Directory.FullPath, "BuildOutput*.sarif")
+            .OrderBy(static f => f, StringComparer.Ordinal)
+            .ToList();
         SarifFile? sarif = null;
-        if (File.Exists(sarifPath))
+        if (sarifFiles.Count == 1)
         {
-            var bytes = await File.ReadAllBytesAsync(sarifPath);
+            var bytes = await File.ReadAllBytesAsync(sarifFiles[0]);
             sarif = JsonSerializer.Deserialize<SarifFile>(bytes);
-            if (sarif is not null)
-                Output?.WriteLine("Sarif result:\n" +
-                                  XmlSanitizer.SanitizeForXml(string.Join("\n",
-                                      sarif.AllResults().Select(static r => r.ToString()))));
         }
+        else if (sarifFiles.Count > 1)
+        {
+            var allRuns = new List<SarifFileRun>();
+            foreach (var path in sarifFiles)
+            {
+                var bytes = await File.ReadAllBytesAsync(path);
+                var perTfm = JsonSerializer.Deserialize<SarifFile>(bytes);
+                if (perTfm?.Runs is not null)
+                    allRuns.AddRange(perTfm.Runs);
+            }
+            sarif = new SarifFile { Runs = [.. allRuns] };
+        }
+
+        if (sarif is not null)
+            Output?.WriteLine("Sarif result:\n" +
+                              XmlSanitizer.SanitizeForXml(string.Join("\n",
+                                  sarif.AllResults().Select(static r => r.ToString()))));
         else
-            Output?.WriteLine("Sarif file not found: " + sarifPath);
+            Output?.WriteLine("No BuildOutput*.sarif files found in " + Directory.FullPath);
+
+        // Recorded properties — written by the inline _WriteRecordedProperties target,
+        // one obj/recorded.<tfm>.properties file per TFM. Deterministic across Windows
+        // cold-cache parallel restore (the binlog-event loss that motivated this rewrite).
+        var recordedProperties = LoadRecordedProperties(Directory.FullPath);
 
         // Attach binlog to TestContext
         var binlogContent = await File.ReadAllBytesAsync(Directory.FullPath / "msbuild.binlog");
@@ -608,7 +646,10 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         if (result.Output.Any(static line => line.Text.Contains("Could not resolve SDK")))
             Assert.Fail("The SDK cannot be found, expected version: " + _fixture.Version);
 
-        return new BuildResult(result.ExitCode, result.Output, sarif, binlogContent);
+        return new BuildResult(result.ExitCode, result.Output, sarif, binlogContent)
+        {
+            RecordedProperties = recordedProperties
+        };
     }
 
     /// <inheritdoc />

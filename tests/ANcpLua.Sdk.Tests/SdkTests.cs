@@ -23,9 +23,24 @@ public abstract class SdkTests(
     NetSdkVersion dotnetSdkVersion,
     SdkImportStyle sdkImportStyle)
 {
+    private static readonly string[] _recordedProperties =
+    [
+        "LangVersion",
+        "PublishRepositoryUrl",
+        "DebugType",
+        "EmbedAllSources",
+        "EnableNETAnalyzers",
+        "AnalysisLevel",
+        "EnablePackageValidation",
+        "RollForward",
+        "GenerateSBOM",
+        "_IsGitHubActions"
+    ];
+
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, sdkImportStyle, sdkName ?? SdkName)
-            .WithDotnetSdkVersion(dotnetSdkVersion);
+            .WithDotnetSdkVersion(dotnetSdkVersion)
+            .RecordProperties(_recordedProperties);
 
     [Fact]
     public void PackageReferenceAreValid()
@@ -75,14 +90,14 @@ public abstract class SdkTests(
                 """)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("LangVersion", "latest");
-        result.ShouldHavePropertyValue("PublishRepositoryUrl", "true");
-        result.ShouldHavePropertyValue("DebugType", "portable");
-        result.ShouldHavePropertyValue("EmbedAllSources", "true");
-        result.ShouldHavePropertyValue("EnableNETAnalyzers", "true");
-        result.ShouldHavePropertyValue("AnalysisLevel", "latest-all");
-        result.ShouldHavePropertyValue("EnablePackageValidation", "true");
-        result.ShouldHavePropertyValue("RollForward", "LatestMajor");
+        result.ShouldHaveRecordedProperty("LangVersion", "latest");
+        result.ShouldHaveRecordedProperty("PublishRepositoryUrl", "true");
+        result.ShouldHaveRecordedProperty("DebugType", "portable");
+        result.ShouldHaveRecordedProperty("EmbedAllSources", "true");
+        result.ShouldHaveRecordedProperty("EnableNETAnalyzers", "true");
+        result.ShouldHaveRecordedProperty("AnalysisLevel", "latest-all");
+        result.ShouldHaveRecordedProperty("EnablePackageValidation", "true");
+        result.ShouldHaveRecordedProperty("RollForward", "LatestMajor");
     }
 
     [Fact]
@@ -92,7 +107,7 @@ public abstract class SdkTests(
 
         var result = await project.BuildAsync();
 
-        result.ShouldHavePropertyValue("RollForward", null);
+        result.ShouldHaveRecordedProperty("RollForward", null);
     }
 
     [Fact]
@@ -105,7 +120,7 @@ public abstract class SdkTests(
             .AddSource("sample.cs", "Console.WriteLine();")
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("LangVersion", "preview");
+        result.ShouldHaveRecordedProperty("LangVersion", "preview");
     }
 
     [Fact]
@@ -118,7 +133,7 @@ public abstract class SdkTests(
             .AddSource("Program.cs", "Console.WriteLine();")
             .PackAsync();
 
-        result.ShouldHavePropertyValue("GenerateSBOM", "true");
+        result.ShouldHaveRecordedProperty("GenerateSBOM", "true");
 
         var nupkgFile = Directory.GetFiles(project.RootFolder, "*.nupkg", SearchOption.AllDirectories).Single();
         await using var archive = await ZipFile.OpenReadAsync(nupkgFile, TestContext.Current.CancellationToken);
@@ -151,7 +166,7 @@ public abstract class SdkTests(
             .AddSource("sample.cs", "Console.WriteLine();")
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("RollForward", "Minor");
+        result.ShouldHaveRecordedProperty("RollForward", "Minor");
     }
 
     [Fact]
@@ -163,7 +178,7 @@ public abstract class SdkTests(
             .WithOutputType(Val.Library)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("RollForward", "LatestMajor");
+        result.ShouldHaveRecordedProperty("RollForward", "LatestMajor");
     }
 
     [Fact]
@@ -767,7 +782,7 @@ public abstract class SdkTests(
         Assert.Equal(0, result.ExitCode);
 
         // Diagnostic: Check if the CI detection property was set
-        var isGitHubActions = result.GetMsBuildPropertyValue("_IsGitHubActions");
+        var isGitHubActions = result.GetRecordedProperty("_IsGitHubActions");
         Assert.True(isGitHubActions == "true",
             $"Expected _IsGitHubActions='true', but got '{isGitHubActions}'. " +
             "This indicates the GITHUB_ACTIONS environment variable was not properly read by MSBuild.");

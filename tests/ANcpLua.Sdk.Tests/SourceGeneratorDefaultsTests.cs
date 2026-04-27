@@ -8,6 +8,13 @@ namespace ANcpLua.Sdk.Tests;
 ///     generator / analyzer projects, pins <c>Microsoft.CodeAnalysis.CSharp</c>
 ///     via <c>VersionOverride</c>, and honors explicit overrides.
 /// </summary>
+/// <remarks>
+///     Property assertions go through <c>RecordProperties</c> + <c>ShouldHaveRecordedProperty</c>
+///     (mirrors <c>dotnet/sdk</c>'s <c>GetValuesCommand</c>) — written by an inline
+///     <c>_WriteRecordedProperties</c> target during the build, one file per TFM.
+///     This sidesteps the binlog property-event loss that produced the original
+///     <c>NameContainsAnalyzer</c> Windows cold-cache flake.
+/// </remarks>
 public sealed class SourceGeneratorDefaultsNet100Tests(PackageFixture fixture)
     : SourceGeneratorDefaultsTests(fixture, NetSdkVersion.Net100);
 
@@ -15,9 +22,17 @@ public abstract class SourceGeneratorDefaultsTests(
     PackageFixture fixture,
     NetSdkVersion dotnetSdkVersion)
 {
+    private static readonly string[] _recordedProperties =
+    [
+        "_IsSourceGeneratorProject",
+        "SourceGeneratorRoslynVersion",
+        "RoslynVersion"
+    ];
+
     private SdkProjectBuilder CreateProject(string sdkName = SdkName) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName)
-            .WithDotnetSdkVersion(dotnetSdkVersion);
+            .WithDotnetSdkVersion(dotnetSdkVersion)
+            .RecordProperties(_recordedProperties);
 
     [Fact]
     public async Task NameContainsGeneratorUpperCase_AutoDefaultsRoslynVersion()
@@ -108,8 +123,8 @@ public abstract class SourceGeneratorDefaultsTests(
             .AddSource("Sample.cs", "public class Sample { }")
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("_IsSourceGeneratorProject", null);
-        result.ShouldHavePropertyValue("SourceGeneratorRoslynVersion", null);
+        result.ShouldHaveRecordedProperty("_IsSourceGeneratorProject", null);
+        result.ShouldHaveRecordedProperty("SourceGeneratorRoslynVersion", null);
     }
 
     [Fact]
@@ -125,8 +140,8 @@ public abstract class SourceGeneratorDefaultsTests(
             .AddSource("Gen.cs", "public class Gen { }")
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("_IsSourceGeneratorProject", "true");
-        result.ShouldHavePropertyValue("SourceGeneratorRoslynVersion", "4.11.0");
+        result.ShouldHaveRecordedProperty("_IsSourceGeneratorProject", "true");
+        result.ShouldHaveRecordedProperty("SourceGeneratorRoslynVersion", "4.11.0");
     }
 
     [Fact]
@@ -168,25 +183,25 @@ public abstract class SourceGeneratorDefaultsTests(
             .AddSource("Gen.cs", "public class Gen { }")
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("_IsSourceGeneratorProject", "true");
-        result.ShouldHavePropertyValue("SourceGeneratorRoslynVersion", GetRequiredProperty(result, "RoslynVersion"));
+        result.ShouldHaveRecordedProperty("_IsSourceGeneratorProject", "true");
+        result.ShouldHaveRecordedProperty("SourceGeneratorRoslynVersion", GetRequiredRecordedProperty(result, "RoslynVersion"));
         Assert.DoesNotContain(result.GetMsBuildItems("PackageReference"),
             static item => item.Contains("Microsoft.CodeAnalysis.CSharp", StringComparison.Ordinal));
     }
 
     private static void AssertUsesDefaultRoslynVersion(BuildResult result)
     {
-        result.ShouldHavePropertyValue("_IsSourceGeneratorProject", "true");
-        result.ShouldHavePropertyValue("SourceGeneratorRoslynVersion", GetRequiredProperty(result, "RoslynVersion"));
+        result.ShouldHaveRecordedProperty("_IsSourceGeneratorProject", "true");
+        result.ShouldHaveRecordedProperty("SourceGeneratorRoslynVersion", GetRequiredRecordedProperty(result, "RoslynVersion"));
         Assert.Contains(result.GetMsBuildItems("PackageReference"),
             static item => item.Contains("Microsoft.CodeAnalysis.CSharp", StringComparison.Ordinal));
     }
 
-    private static string GetRequiredProperty(BuildResult result, string propertyName)
+    private static string GetRequiredRecordedProperty(BuildResult result, string propertyName)
     {
-        var value = result.GetMsBuildPropertyValue(propertyName);
+        var value = result.GetRecordedProperty(propertyName);
         if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidOperationException($"{propertyName} was not evaluated.");
+            throw new InvalidOperationException($"{propertyName} was not recorded.");
 
         return value;
     }

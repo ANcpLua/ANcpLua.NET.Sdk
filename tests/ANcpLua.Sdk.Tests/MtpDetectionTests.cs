@@ -33,9 +33,19 @@ public abstract class MtpDetectionTests(
     private static readonly NuGetReference[] _tUnitPackages =
         [new("TUnit", "0.18.0")];
 
+    private static readonly string[] _recordedProperties =
+    [
+        "IsTestProject",
+        "UseMicrosoftTestingPlatform",
+        "OutputType",
+        "TestingPlatformDotnetTestSupport",
+        "TestingPlatformCommandLineArguments"
+    ];
+
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName ?? SdkTestName)
-            .WithDotnetSdkVersion(dotnetSdkVersion);
+            .WithDotnetSdkVersion(dotnetSdkVersion)
+            .RecordProperties(_recordedProperties);
 
     [Fact]
     public async Task XUnit3MtpV2_IsMTP()
@@ -57,10 +67,10 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("IsTestProject", "true");
-        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
-        result.ShouldHavePropertyValue("OutputType", "exe");
-        result.ShouldHavePropertyValue("TestingPlatformDotnetTestSupport", "true");
+        result.ShouldHaveRecordedProperty("IsTestProject", "true");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("TestingPlatformDotnetTestSupport", "true");
     }
 
     [Fact]
@@ -110,7 +120,7 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        var cliArgs = result.GetMsBuildPropertyValue("TestingPlatformCommandLineArguments");
+        var cliArgs = result.GetRecordedProperty("TestingPlatformCommandLineArguments");
         Assert.Contains("--report-xunit-trx", cliArgs);
         Assert.DoesNotContain("--report-trx ", cliArgs);
         Assert.DoesNotContain("--crashdump", cliArgs);
@@ -136,8 +146,8 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
-        result.ShouldHavePropertyValue("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
     }
 
     [Fact]
@@ -165,8 +175,8 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
-        result.ShouldHavePropertyValue("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
     }
 
     [Fact]
@@ -194,8 +204,8 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
-        result.ShouldHavePropertyValue("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
     }
 
     [Fact]
@@ -222,9 +232,9 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("IsTestProject", "true");
-        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
-        result.ShouldHavePropertyValue("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("IsTestProject", "true");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
     }
 
     [Fact]
@@ -333,7 +343,7 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        result.ShouldHavePropertyValue("UseMicrosoftTestingPlatform", "true");
-        result.ShouldHavePropertyValue("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
     }
 }
