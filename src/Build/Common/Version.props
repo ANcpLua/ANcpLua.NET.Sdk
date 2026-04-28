@@ -102,8 +102,6 @@
     <AzureIdentityVersion>1.21.0</AzureIdentityVersion>
     <AnthropicSDKVersion>5.10.0</AnthropicSDKVersion>
     <OllamaSharpVersion>5.4.25</OllamaSharpVersion>
-    <MsccGenerativeAIVersion>3.1.0</MsccGenerativeAIVersion>
-    <MsccGenerativeAIMicrosoftVersion>3.1.0</MsccGenerativeAIMicrosoftVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Workflow Testing">
