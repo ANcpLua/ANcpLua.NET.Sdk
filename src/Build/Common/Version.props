@@ -53,7 +53,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
-    <ANcpLuaAnalyzersVersion>1.27.4</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>1.29.0</ANcpLuaAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
   </PropertyGroup>
