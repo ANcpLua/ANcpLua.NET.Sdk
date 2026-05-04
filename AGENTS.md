@@ -285,6 +285,13 @@ ANcpLua.Agents
 
 ### Release flow
 
+Tagging is automated, not manual:
+
 1. Push to `main` via PR — CI runs, auto-merge bots handle dep bumps
-2. Tag `vX.Y.Z` on `main` — publish workflow pushes to NuGet
+2. On merge to `main`, the `publish` workflow:
+   - `compute_version` reads the latest `v*` tag and bumps the patch (`v3.4.14` → `3.4.15`); reuses the tag's version when HEAD is exactly the tag
+   - `Must Publish Packages` gate fires only if `*.nuspec`, `src/**/*`, or `tests/**/*` changed (docs-only PRs skip deploy)
+   - `deploy` job pushes packages to NuGet via trusted publishing, then `gh release create v$VERSION` creates the GitHub release **and the tag** in one step
 3. NuGet indexes in ~4-8 minutes — downstream repos pick up via Renovate
+
+Manual `git tag vX.Y.Z` on `main` is **not** part of the flow — the workflow owns version computation and tag creation. To force a minor/major bump instead of the auto-patch, push a tag manually before the workflow runs (compute_version honors the existing tag on HEAD).
