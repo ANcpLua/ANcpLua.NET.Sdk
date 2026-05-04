@@ -18,22 +18,22 @@ public abstract class MtpDetectionTests(
     PackageFixture fixture,
     NetSdkVersion dotnetSdkVersion)
 {
-    private static readonly NuGetReference[] _xUnit3MtpV1Packages =
+    private static readonly NuGetReference[] s_xUnit3MtpV1Packages =
         [new("xunit.v3.mtp-v1", "3.2.1")];
 
-    private static readonly NuGetReference[] _xUnit3MtpV2Packages =
+    private static readonly NuGetReference[] s_xUnit3MtpV2Packages =
         [new("xunit.v3.mtp-v2", "3.2.1")];
 
-    private static readonly NuGetReference[] _nUnitMtpPackages =
+    private static readonly NuGetReference[] s_nUnitMtpPackages =
         [new("NUnit", "4.3.2"), new("NUnit3TestAdapter", "5.0.0")];
 
-    private static readonly NuGetReference[] _msTestMtpPackages =
+    private static readonly NuGetReference[] s_msTestMtpPackages =
         [new("MSTest.TestFramework", "3.8.3"), new("MSTest.TestAdapter", "3.8.3")];
 
-    private static readonly NuGetReference[] _tUnitPackages =
+    private static readonly NuGetReference[] s_tUnitPackages =
         [new("TUnit", "0.18.0")];
 
-    private static readonly string[] _recordedProperties =
+    private static readonly string[] s_recordedProperties =
     [
         "IsTestProject",
         "UseMicrosoftTestingPlatform",
@@ -45,14 +45,14 @@ public abstract class MtpDetectionTests(
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName ?? SdkTestName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
-            .RecordProperties(_recordedProperties);
+            .RecordProperties(s_recordedProperties);
 
     [Fact]
     public async Task XUnit3MtpV2_IsMTP()
     {
         await using var project = CreateProject(SdkName);
 
-        foreach (var pkg in _xUnit3MtpV2Packages)
+        foreach (var pkg in s_xUnit3MtpV2Packages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -78,7 +78,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject();
 
-        foreach (var pkg in _xUnit3MtpV2Packages)
+        foreach (var pkg in s_xUnit3MtpV2Packages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -106,7 +106,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject();
 
-        foreach (var pkg in _xUnit3MtpV2Packages)
+        foreach (var pkg in s_xUnit3MtpV2Packages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -132,7 +132,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject();
 
-        foreach (var pkg in _xUnit3MtpV1Packages)
+        foreach (var pkg in s_xUnit3MtpV1Packages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -155,7 +155,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject(SdkName);
 
-        foreach (var pkg in _nUnitMtpPackages)
+        foreach (var pkg in s_nUnitMtpPackages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -184,7 +184,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject(SdkName);
 
-        foreach (var pkg in _msTestMtpPackages)
+        foreach (var pkg in s_msTestMtpPackages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -213,7 +213,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject(SdkName);
 
-        foreach (var pkg in _tUnitPackages)
+        foreach (var pkg in s_tUnitPackages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -242,7 +242,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject(SdkName);
 
-        foreach (var pkg in _tUnitPackages)
+        foreach (var pkg in s_tUnitPackages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -270,7 +270,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject(SdkName);
 
-        foreach (var pkg in _tUnitPackages)
+        foreach (var pkg in s_tUnitPackages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -300,7 +300,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject();
 
-        foreach (var pkg in _xUnit3MtpV2Packages)
+        foreach (var pkg in s_xUnit3MtpV2Packages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
@@ -328,7 +328,7 @@ public abstract class MtpDetectionTests(
     {
         await using var project = CreateProject();
 
-        foreach (var pkg in _xUnit3MtpV2Packages)
+        foreach (var pkg in s_xUnit3MtpV2Packages)
             project.WithPackage(pkg.Name, pkg.Version);
 
         var result = await project
