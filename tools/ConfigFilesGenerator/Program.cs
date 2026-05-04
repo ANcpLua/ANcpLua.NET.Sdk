@@ -22,9 +22,9 @@ using NuGet.Versioning;
 var rootFolder = GetRootFolderPath();
 
 var writtenFiles = 0;
-await GenerateEditorConfigForCompilerAnalyzers();
-await GenerateEditorConfigForAnalyzers();
-await GenerateBanSymbolsForNewtonsoftJson();
+await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
+await GenerateEditorConfigForAnalyzers().ConfigureAwait(false);
+await GenerateBanSymbolsForNewtonsoftJson().ConfigureAwait(false);
 
 Console.WriteLine($"{writtenFiles} configuration files written");
 if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color").WaitForExit();
@@ -35,18 +35,18 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
 {
     var configurationFilePath = rootFolder / "src" / "Config" / "Compiler.editorconfig";
     var rules = new HashSet<AnalyzerRule>();
-    foreach (var assembly in await GetCompilerAnalyzerReferences())
-        foreach (var type in GetLoadableTypes(assembly))
-        {
-            if (type.IsAbstract || type.IsInterface) continue;
-            if (!typeof(DiagnosticAnalyzer).IsAssignableFrom(type)) continue;
-            if (Activator.CreateInstance(type) is not DiagnosticAnalyzer analyzer) continue;
-            foreach (var diagnostic in analyzer.SupportedDiagnostics)
-                rules.Add(new AnalyzerRule(diagnostic.Id,
-                    diagnostic.Title.ToString(CultureInfo.InvariantCulture).Trim(), diagnostic.HelpLinkUri,
-                    diagnostic.IsEnabledByDefault, diagnostic.DefaultSeverity,
-                    diagnostic.IsEnabledByDefault ? diagnostic.DefaultSeverity : null));
-        }
+    foreach (var assembly in await GetCompilerAnalyzerReferences().ConfigureAwait(false))
+    foreach (var type in GetLoadableTypes(assembly))
+    {
+        if (type.IsAbstract || type.IsInterface) continue;
+        if (!typeof(DiagnosticAnalyzer).IsAssignableFrom(type)) continue;
+        if (Activator.CreateInstance(type) is not DiagnosticAnalyzer analyzer) continue;
+        foreach (var diagnostic in analyzer.SupportedDiagnostics)
+            rules.Add(new AnalyzerRule(diagnostic.Id,
+                diagnostic.Title.ToString(CultureInfo.InvariantCulture).Trim(), diagnostic.HelpLinkUri,
+                diagnostic.IsEnabledByDefault, diagnostic.DefaultSeverity,
+                diagnostic.IsEnabledByDefault ? diagnostic.DefaultSeverity : null));
+    }
 
     var configuredRuleIds = GetRuleIdsConfiguredOutside(configurationFilePath);
     rules.RemoveWhere(rule => configuredRuleIds.Contains(rule.Id));
@@ -91,7 +91,7 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
                 return;
 
         configurationFilePath.CreateParentDirectory();
-        await File.WriteAllTextAsync(configurationFilePath, text);
+        await File.WriteAllTextAsync(configurationFilePath, text).ConfigureAwait(false);
         Interlocked.Increment(ref writtenFiles);
 
         static string GetSeverity(DiagnosticSeverity? severity) => severity switch
@@ -115,7 +115,8 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
 
     foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
     {
-        if (string.Equals(Path.GetFullPath(editorconfig), Path.GetFullPath(configurationFilePath.Value), StringComparison.OrdinalIgnoreCase))
+        if (string.Equals(Path.GetFullPath(editorconfig), Path.GetFullPath(configurationFilePath.Value),
+                StringComparison.OrdinalIgnoreCase))
             continue;
 
         foreach (var rule in GetConfiguration(FullPath.FromPath(editorconfig)).Rules)
@@ -127,7 +128,7 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
 
 static async Task<Assembly[]> GetCompilerAnalyzerReferences()
 {
-    var sdkPath = await GetDotNetSdkPath();
+    var sdkPath = await GetDotNetSdkPath().ConfigureAwait(false);
     var sdkCompilerAnalyzersPath = sdkPath / "Sdks" / "Microsoft.NET.Sdk" / "codestyle" / "cs";
     if (!Directory.Exists(sdkCompilerAnalyzersPath))
         throw new InvalidOperationException($"Cannot find compiler analyzers in '{sdkCompilerAnalyzersPath}'");
@@ -148,8 +149,8 @@ static async Task<Assembly[]> GetCompilerAnalyzerReferences()
 
 static async Task<FullPath> GetDotNetSdkPath()
 {
-    var sdkVersion = (await RunProcess("dotnet", "--version")).Trim();
-    var listSdks = await RunProcess("dotnet", "--list-sdks");
+    var sdkVersion = (await RunProcess("dotnet", "--version").ConfigureAwait(false)).Trim();
+    var listSdks = await RunProcess("dotnet", "--list-sdks").ConfigureAwait(false);
     foreach (var line in listSdks.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
     {
         if (!line.StartsWith(sdkVersion + " ", StringComparison.Ordinal)) continue;
@@ -172,14 +173,16 @@ static async Task<string> RunProcess(string fileName, string arguments)
         RedirectStandardError = true,
         UseShellExecute = false,
     };
-    using var process = Process.Start(psi) ?? throw new InvalidOperationException($"Cannot start '{fileName} {arguments}'");
+    using var process = Process.Start(psi) ??
+                        throw new InvalidOperationException($"Cannot start '{fileName} {arguments}'");
     var stdoutTask = process.StandardOutput.ReadToEndAsync();
     var stderrTask = process.StandardError.ReadToEndAsync();
-    await process.WaitForExitAsync();
-    var stdout = await stdoutTask;
-    var stderr = await stderrTask;
+    await process.WaitForExitAsync().ConfigureAwait(false);
+    var stdout = await stdoutTask.ConfigureAwait(false);
+    var stderr = await stderrTask.ConfigureAwait(false);
     if (process.ExitCode != 0)
-        throw new InvalidOperationException($"'{fileName} {arguments}' failed (exit {process.ExitCode}):{Environment.NewLine}{stderr}");
+        throw new InvalidOperationException(
+            $"'{fileName} {arguments}' failed (exit {process.ExitCode}):{Environment.NewLine}{stderr}");
     return stdout;
 }
 
@@ -194,21 +197,36 @@ static Assembly[] LoadAssembliesFromDisk(string[] assemblyPaths, string[] probeF
             .FirstOrDefault(File.Exists);
         if (assemblyPath is null)
             return AppDomain.CurrentDomain.GetAssemblies()
-                .FirstOrDefault(a => string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase));
-        try { return context.LoadFromAssemblyPath(assemblyPath); }
-        catch (Exception ex) { Console.WriteLine($"Failed to load {assemblyPath}\n{ex}"); return null; }
+                .FirstOrDefault(a =>
+                    string.Equals(a.GetName().Name, assemblyName.Name, StringComparison.OrdinalIgnoreCase));
+        try
+        {
+            return context.LoadFromAssemblyPath(assemblyPath);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load {assemblyPath}\n{ex}");
+            return null;
+        }
     };
 
     var result = new List<Assembly>();
     foreach (var path in assemblyPaths)
-        try { result.Add(context.LoadFromAssemblyPath(path)); }
-        catch (Exception ex) { Console.WriteLine($"Failed to load {path}\n{ex}"); }
+        try
+        {
+            result.Add(context.LoadFromAssemblyPath(path));
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to load {path}\n{ex}");
+        }
+
     return [.. result];
 }
 
 async Task GenerateEditorConfigForAnalyzers()
 {
-    var packages = await GetAllReferencedNuGetPackages();
+    var packages = await GetAllReferencedNuGetPackages().ConfigureAwait(false);
     await Parallel.ForEachAsync(packages, async (item, cancellationToken) =>
     {
         var (packageId, packageVersion) = item;
@@ -217,7 +235,7 @@ async Task GenerateEditorConfigForAnalyzers()
         var configurationFilePath = GetAnalyzerConfigurationFilePath(packageId);
 
         var rules = new HashSet<AnalyzerRule>();
-        foreach (var assembly in await GetAnalyzerReferences(packageId, packageVersion))
+        foreach (var assembly in await GetAnalyzerReferences(packageId, packageVersion).ConfigureAwait(false))
         foreach (var type in GetLoadableTypes(assembly))
         {
             if (type.IsAbstract || type.IsInterface)
@@ -277,7 +295,7 @@ async Task GenerateEditorConfigForAnalyzers()
                     return;
 
             configurationFilePath.CreateParentDirectory();
-            await File.WriteAllTextAsync(configurationFilePath, text, cancellationToken);
+            await File.WriteAllTextAsync(configurationFilePath, text, cancellationToken).ConfigureAwait(false);
             Interlocked.Increment(ref writtenFiles);
 
             static string GetSeverity(DiagnosticSeverity? severity)
@@ -293,7 +311,7 @@ async Task GenerateEditorConfigForAnalyzers()
                 };
             }
         }
-    });
+    }).ConfigureAwait(false);
 }
 
 async Task GenerateBanSymbolsForNewtonsoftJson()
@@ -301,8 +319,9 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
     var bannedSymbolsFilePath = rootFolder / "src" / "Config" / "BannedSymbols.NewtonsoftJson.txt";
     var bannedSymbols = new HashSet<string>(StringComparer.Ordinal);
 
-    var package = await DownloadNuGetPackage("Newtonsoft.Json", null, NullLogger.Instance, CancellationToken.None);
-    var libItems = await package.PackageReader.GetLibItemsAsync(CancellationToken.None);
+    var package = await DownloadNuGetPackage("Newtonsoft.Json", null, NullLogger.Instance, CancellationToken.None)
+        .ConfigureAwait(false);
+    var libItems = await package.PackageReader.GetLibItemsAsync(CancellationToken.None).ConfigureAwait(false);
 
     var compatibleFrameworks = libItems.Where(item =>
         DefaultCompatibilityProvider.Instance.IsCompatible(NuGetFramework.Parse("net10.0"), item.TargetFramework));
@@ -341,7 +360,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
             return;
 
     bannedSymbolsFilePath.CreateParentDirectory();
-    await File.WriteAllTextAsync(bannedSymbolsFilePath, text);
+    await File.WriteAllTextAsync(bannedSymbolsFilePath, text).ConfigureAwait(false);
     Interlocked.Increment(ref writtenFiles);
 }
 
@@ -356,7 +375,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
     using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
-    var resource = await repository.GetResourceAsync<PackageMetadataResource>();
+    var resource = await repository.GetResourceAsync<PackageMetadataResource>().ConfigureAwait(false);
 
     await foreach (var package in GetReferencedNuGetPackages())
     {
@@ -364,7 +383,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         if (version is null)
         {
             var metadata = await resource.GetMetadataAsync(package.Id, true, false, cache, NullLogger.Instance,
-                CancellationToken.None);
+                CancellationToken.None).ConfigureAwait(false);
             var latestPackage = metadata.MaxBy(static m => m.Identity.Version)
                                 ?? throw new InvalidOperationException($"No versions found for package '{package.Id}'");
             version = latestPackage.Identity.Version;
@@ -372,7 +391,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
         var packageIdentity = new PackageIdentity(package.Id, version);
         await ListAllPackageDependencies(packageIdentity, [repository], NuGetFramework.AnyFramework, cache,
-            NullLogger.Instance, foundPackages, CancellationToken.None);
+            NullLogger.Instance, foundPackages, CancellationToken.None).ConfigureAwait(false);
     }
 
     return [.. foundPackages.Select(static p => (p.Id, p.Version))];
@@ -391,9 +410,11 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
         foreach (var repository in sourceRepositories)
         {
-            var dependencyInfoResource = await repository.GetResourceAsync<DependencyInfoResource>();
+            var dependencyInfoResource =
+                await repository.GetResourceAsync<DependencyInfoResource>().ConfigureAwait(false);
             var dependencyInfo =
-                await dependencyInfoResource.ResolvePackage(package, framework, cache, logger, cancellationToken);
+                await dependencyInfoResource.ResolvePackage(package, framework, cache, logger, cancellationToken)
+                    .ConfigureAwait(false);
 
             if (dependencyInfo is null) continue;
 
@@ -406,14 +427,14 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
                     cache,
                     logger,
                     dependencies,
-                    cancellationToken);
+                    cancellationToken).ConfigureAwait(false);
         }
     }
 }
 
 async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
 {
-    var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null);
+    var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
     foreach (var item in result)
 
         if (item.Type is DependencyType.NuGet && item.Name is not null &&
@@ -446,7 +467,7 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
     var logger = NullLogger.Instance;
     var cancellationToken = CancellationToken.None;
 
-    var package = await DownloadNuGetPackage(packageId, version, logger, cancellationToken);
+    var package = await DownloadNuGetPackage(packageId, version, logger, cancellationToken).ConfigureAwait(false);
     var result = new List<Assembly>();
     var files = package.PackageReader.GetFiles("analyzers");
     var filesGroupedByFolder = files.GroupBy(Path.GetDirectoryName).ToArray();
@@ -592,13 +613,13 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
 
     using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3(source);
-    var resource = await repository.GetResourceAsync<FindPackageByIdResource>();
+    var resource = await repository.GetResourceAsync<FindPackageByIdResource>().ConfigureAwait(false);
 
     if (version is null)
     {
-        var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>();
+        var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>().ConfigureAwait(false);
         var metadata = await metadataResource.GetMetadataAsync(packageId, true, false, cache, NullLogger.Instance,
-            CancellationToken.None);
+            CancellationToken.None).ConfigureAwait(false);
         var latestPackage = metadata.MaxBy(static m => m.Identity.Version)
                             ?? throw new InvalidOperationException($"No versions found for package '{packageId}'");
         version = latestPackage.Identity.Version;
@@ -614,7 +635,7 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
             packageStream,
             cache,
             logger,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
 
         packageStream.Seek(0, SeekOrigin.Begin);
 
@@ -626,7 +647,7 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
             Guid.Empty,
             ClientPolicyContext.GetClientPolicy(settings, logger),
             logger,
-            cancellationToken);
+            cancellationToken).ConfigureAwait(false);
     }
 
     return package;
@@ -672,6 +693,7 @@ internal static partial class Patterns
 {
     public static readonly Regex DiagnosticSeverity = MyRegex();
 
-    [GeneratedRegex(@"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9_]+).severity\s*=\s*(?<Severity>[a-z]+)", RegexOptions.Compiled)]
+    [GeneratedRegex(@"^dotnet_diagnostic\.(?<RuleId>[a-zA-Z0-9_]+).severity\s*=\s*(?<Severity>[a-z]+)",
+        RegexOptions.Compiled)]
     private static partial Regex MyRegex();
 }
