@@ -1,0 +1,332 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+#
+# ANcpLua.NET.Sdk — MSBuild SDK + analyzer injection + Version.props
+# Stack: C#/.NET, MSBuild props/targets, .nuspec packaging
+# Release: Pattern A — auto-bump on push to main (compute_version → patch+1)
+#
+# Schema-validated against: https://coderabbit.ai/integrations/schema.v2.json
+#
+
+language: en-US
+tone_instructions: >-
+  Principal-engineer review. Direct, concise. Flag structural violations as blocking.
+  Focus: AOT safety, MSBuild correctness, analyzer-injection contract,
+  no suppression policy.
+early_access: true
+enable_free_tier: false
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  high_level_summary: true
+  high_level_summary_in_walkthrough: false
+  review_status: true
+  review_details: true
+  commit_status: true
+  fail_commit_status: true
+  collapse_walkthrough: true
+  changed_files_summary: false
+  sequence_diagrams: false
+  estimate_code_review_effort: false
+  assess_linked_issues: true
+  related_issues: false
+  related_prs: false
+  suggested_labels: false
+  suggested_reviewers: false
+  auto_assign_reviewers: false
+  in_progress_fortune: false
+  poem: false
+  enable_prompt_for_ai_agents: true
+
+  labeling_instructions:
+    - label: 'area:sdk'
+      instructions: 'Apply when the PR modifies src/Sdk/ or the SDK csproj/nuspec.'
+    - label: 'area:build'
+      instructions: 'Apply when the PR modifies src/Build/ or MSBuild props/targets.'
+    - label: 'area:config'
+      instructions: 'Apply when the PR modifies src/Config/.'
+    - label: 'area:test-sdk'
+      instructions: 'Apply when the PR modifies the .Test.csproj or test SDK.'
+    - label: 'area:web-sdk'
+      instructions: 'Apply when the PR modifies the .Web.csproj or Web SDK.'
+    - label: 'area:tools'
+      instructions: 'Apply when the PR modifies tools/.'
+    - label: 'area:tests'
+      instructions: 'Apply when the PR modifies tests/.'
+    - label: 'area:infra'
+      instructions: 'Apply when the PR modifies .github/, eng/, or root build infrastructure.'
+    - label: 'breaking'
+      instructions: >-
+        Apply when the PR introduces breaking changes to SDK contract:
+        analyzer injection list, default props/targets, package version policy.
+  auto_apply_labels: true
+
+  path_filters:
+    - 'src/**'
+    - 'tests/**'
+    - 'tools/**'
+    - 'eng/**'
+    - '.github/**'
+    - '*.props'
+    - '*.targets'
+    - '*.slnx'
+    - '*.nuspec'
+    - 'global.json'
+    - 'NuGet.config'
+    - 'Directory.*.props'
+    - 'Directory.*.targets'
+    - '!**/*.g.cs'
+    - '!**/*.Designer.cs'
+    - '!**/bin/**'
+    - '!**/obj/**'
+    - '!**/artifacts/**'
+
+  path_instructions:
+    - path: 'src/**/*.cs'
+      instructions: |
+        C# 14 with preview features. File-scoped namespaces; primary constructors;
+        required init properties; switch expressions over if-else.
+
+        ARCHITECTURAL INVARIANTS — flag violations as blocking:
+        - No `DateTime.Now`/`DateTime.UtcNow` — use `TimeProvider.System`.
+        - No `.Result`/`.Wait()`/`.GetAwaiter().GetResult()` — `await` always.
+        - No `ISourceGenerator` — use `IIncrementalGenerator`.
+        - No null-forgiving `!` — rewrite the code.
+        - No `dynamic`/`ExpandoObject` — use typed contracts.
+        - Storing `ISymbol` in incremental models — extract value-equatable data.
+        - `params T[]` where `params ReadOnlySpan<T>` works (C# 13+).
+        - Suppressions only for documented exceptions (preview API markers,
+          AOT-verified safe code, `netstandard2.0` analyzer projects).
+
+    - path: 'src/Sdk/**'
+      instructions: |
+        The SDK guts — props/targets imported by every consumer project.
+        Review for: stable property names (renames break consumers), correct
+        ordering of imports (consumer overrides win), and that new defaults
+        opt-out cleanly. Flag any property without a `<PropertyGroup Condition>`
+        guard that lets consumers override.
+
+        Analyzer injection: this SDK injects ANcpLua.Analyzers via PackageReference
+        with PrivateAssets="all". Flag any change that breaks injection (wrong
+        IncludeAssets, missing analyzer asset).
+
+    - path: 'src/Build/**'
+      instructions: |
+        Build targets shared across .NET.Sdk, .Test, .Web variants. Review for:
+        target-name collisions with consumer csproj (use unique prefixes), correct
+        BeforeTargets/AfterTargets ordering, and idempotent execution (target
+        should be safe to run twice).
+
+    - path: '**/*.props'
+      instructions: |
+        MSBuild property files. Review for: condition guards on every override
+        (consumer must be able to opt out), no `<RemoveAttributes>` on items
+        that consumers may have set, and that defaults are sensible without
+        forcing a downstream cascade.
+
+    - path: '**/*.targets'
+      instructions: |
+        MSBuild target files. Review for: correct target dependency declaration
+        (DependsOnTargets / BeforeTargets / AfterTargets), input/output
+        declarations for incremental builds, and no shell-out to platform-
+        specific commands without an OS guard.
+
+    - path: '**/*.nuspec'
+      instructions: |
+        NuGet package manifest. Review for: correct package id, correct
+        dependency version ranges (no float-to-latest in stable releases),
+        proper file globs (no .pdb in release packages unless symbol package),
+        and that contentFiles paths match what's in src/.
+
+    - path: 'tests/**/*.cs'
+      instructions: |
+        xUnit + FluentAssertions. AAA pattern. NSubstitute for mocks.
+        Flag: blocking-async patterns (`Task.Run(() => x.Result)`), missing
+        `async Task` (sync-void), `Thread.Sleep` instead of `await Task.Delay`,
+        tests asserting on private state via reflection.
+
+    - path: 'tools/**'
+      instructions: |
+        Internal tooling — config file generators, build helpers. Lower bar than
+        production src/, but still flag obvious bugs (missing null check that
+        crashes the build, hardcoded paths, swallowed exceptions).
+
+    - path: '.github/workflows/**'
+      instructions: |
+        Pin third-party actions to SHA. First-party (actions/*) tag-pin OK.
+        Concurrency groups required on push-triggered workflows.
+        Secrets via env: not inline. No secrets in logs.
+        Minimal permissions per job.
+        Pattern A release: changes to compute_version logic affect every push to
+        main — flag carefully.
+
+    - path: 'AGENTS.md'
+      instructions: |
+        Coordination file for AI agents. Review for: consistency with actual repo
+        structure, accurate references to CLAUDE.md, and that release-flow
+        documentation matches nuget-publish.yml behavior.
+
+  auto_review:
+    enabled: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
+    drafts: false
+    ignore_title_keywords:
+      - 'deps('
+      - '[skip ci]'
+      - '[skip review]'
+      - 'wip'
+    labels: []
+    base_branches: []
+    ignore_usernames:
+      - 'dependabot[bot]'
+      - 'renovate[bot]'
+
+  finishing_touches:
+    docstrings:
+      enabled: false
+    unit_tests:
+      enabled: false
+
+  pre_merge_checks:
+    docstrings:
+      mode: 'off'
+    title:
+      mode: error
+      requirements: |
+        Conventional commits: feat|fix|refactor|chore|docs|test|ci|perf|deps.
+        Under 72 chars, no trailing period.
+        Examples: feat(sdk): add WarningsAsErrors default,
+        fix(build): correct analyzer injection IncludeAssets
+    description:
+      mode: warning
+    issue_assessment:
+      mode: warning
+    custom_checks:
+      - mode: error
+        name: 'No DateTime.Now/UtcNow'
+        instructions: |
+          Scan added/modified C# files for `DateTime.Now` or `DateTime.UtcNow`.
+          Pass if none. Fail if any usage — use `TimeProvider.System` instead.
+          Exception: test fixtures with explicit reason commented inline.
+      - mode: error
+        name: 'No .Result/.Wait() blocking async'
+        instructions: |
+          Scan added/modified C# files for `.Result`, `.Wait()`, or
+          `.GetAwaiter().GetResult()`. Pass if none. Fail if any blocking-async
+          pattern — `await` always.
+      - mode: warning
+        name: 'No null-forgiving operator without justification'
+        instructions: |
+          Scan added/modified C# files for `!` (null-forgiving). Pass if none.
+          Fail if any `!` is added without an inline comment explaining why
+          the code can't be rewritten to avoid it. Per repo policy: rewrite,
+          don't suppress.
+      - mode: warning
+        name: 'No suppression of fixable diagnostics'
+        instructions: |
+          Scan added/modified C# files for `#pragma warning disable` or
+          `[SuppressMessage]` attributes. Pass if none added. Fail if any
+          added without inline comment matching the acceptable-suppressions
+          allowlist in CLAUDE.md (preview API markers MEAI001/OPENAI002,
+          source-gen contexts, DevUI, upstream framework requirements,
+          AOT/trimming verified safe, netstandard2.0 analyzer projects).
+
+  tools:
+    shellcheck:
+      enabled: true
+    actionlint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    github-checks:
+      enabled: true
+      timeout_ms: 180000
+    ast-grep:
+      essential_rules: true
+    eslint: { enabled: false }
+    biome: { enabled: false }
+    oxc: { enabled: false }
+    ruff: { enabled: false }
+    pylint: { enabled: false }
+    flake8: { enabled: false }
+    phpstan: { enabled: false }
+    phpmd: { enabled: false }
+    phpcs: { enabled: false }
+    swiftlint: { enabled: false }
+    detekt: { enabled: false }
+    pmd: { enabled: false }
+    semgrep: { enabled: false }
+    opengrep: { enabled: false }
+    trufflehog: { enabled: false }
+    checkov: { enabled: false }
+    tflint: { enabled: false }
+    fortitudeLint: { enabled: false }
+    rubocop: { enabled: false }
+    buf: { enabled: false }
+    regal: { enabled: false }
+    clang: { enabled: false }
+    cppcheck: { enabled: false }
+    circleci: { enabled: false }
+    clippy: { enabled: false }
+    sqlfluff: { enabled: false }
+    trivy: { enabled: false }
+    prismaLint: { enabled: false }
+    shopifyThemeCheck: { enabled: false }
+    luacheck: { enabled: false }
+    brakeman: { enabled: false }
+    dotenvLint: { enabled: false }
+    htmlhint: { enabled: false }
+    stylelint: { enabled: false }
+    checkmake: { enabled: false }
+    osvScanner: { enabled: false }
+    blinter: { enabled: false }
+    yamllint: { enabled: false }
+    psscriptanalyzer: { enabled: false }
+    languagetool: { enabled: false }
+    hadolint: { enabled: false }
+    golangci-lint: { enabled: false }
+
+chat:
+  auto_reply: true
+  art: false
+  integrations:
+    jira:
+      usage: disabled
+    linear:
+      usage: disabled
+
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - '**/CLAUDE.md'
+      - '**/AGENTS.md'
+      - 'Directory.Build.props'
+      - 'Directory.Packages.props'
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  pull_requests:
+    scope: auto
+  jira:
+    usage: disabled
+  linear:
+    usage: disabled
+  mcp:
+    usage: auto
+
+issue_enrichment:
+  auto_enrich:
+    enabled: true
+  planning:
+    auto_planning:
+      enabled: false
+  labeling:
+    auto_apply_labels: true
