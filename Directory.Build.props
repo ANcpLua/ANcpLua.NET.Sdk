@@ -20,4 +20,13 @@
     <BaseOutputPath>$(ArtifactsPath)bin/$(MSBuildProjectName)/</BaseOutputPath>
     <BaseIntermediateOutputPath>$(ArtifactsPath)obj/$(MSBuildProjectName)/</BaseIntermediateOutputPath>
   </PropertyGroup>
+
+  <!--
+    This repo's own projects use Microsoft.NET.Sdk directly, not ANcpLua.NET.Sdk,
+    so the SDK's Common.props EditorConfigFiles injection doesn't run. Pull in
+    the canonical naming convention file so this repo eats its own dog food.
+  -->
+  <ItemGroup>
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)src\Config\NamingConvention.editorconfig" />
+  </ItemGroup>
 </Project>

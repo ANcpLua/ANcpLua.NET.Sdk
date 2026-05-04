@@ -23,7 +23,7 @@ public abstract class SdkTests(
     NetSdkVersion dotnetSdkVersion,
     SdkImportStyle sdkImportStyle)
 {
-    private static readonly string[] _recordedProperties =
+    private static readonly string[] s_recordedProperties =
     [
         "LangVersion",
         "PublishRepositoryUrl",
@@ -40,7 +40,7 @@ public abstract class SdkTests(
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, sdkImportStyle, sdkName ?? SdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
-            .RecordProperties(_recordedProperties);
+            .RecordProperties(s_recordedProperties);
 
     [Fact]
     public void PackageReferenceAreValid()

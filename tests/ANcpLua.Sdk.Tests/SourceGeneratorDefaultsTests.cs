@@ -22,7 +22,7 @@ public abstract class SourceGeneratorDefaultsTests(
     PackageFixture fixture,
     NetSdkVersion dotnetSdkVersion)
 {
-    private static readonly string[] _recordedProperties =
+    private static readonly string[] s_recordedProperties =
     [
         "_IsSourceGeneratorProject",
         "SourceGeneratorRoslynVersion",
@@ -32,7 +32,7 @@ public abstract class SourceGeneratorDefaultsTests(
     private SdkProjectBuilder CreateProject(string sdkName = SdkName) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
-            .RecordProperties(_recordedProperties);
+            .RecordProperties(s_recordedProperties);
 
     [Fact]
     public async Task NameContainsGeneratorUpperCase_AutoDefaultsRoslynVersion()
