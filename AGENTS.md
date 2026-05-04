@@ -285,25 +285,13 @@ ANcpLua.Agents
 
 ### Release flow
 
-The four repos use two different patterns. Don't assume what works in one applies to the others.
+Tagging is automated, not manual:
 
-**This repo (ANcpLua.NET.Sdk) — auto-bump-on-merge:**
-
-1. PR to `main` — CI runs, auto-merge bots handle dep bumps
-2. On merge, the `publish` workflow:
+1. Push to `main` via PR — CI runs, auto-merge bots handle dep bumps
+2. On merge to `main`, the `publish` workflow:
    - `compute_version` reads the latest `v*` tag and bumps the patch (`v3.4.14` → `3.4.15`); reuses the tag's version when HEAD is exactly the tag
    - `Must Publish Packages` gate fires only if `*.nuspec`, `src/**/*`, or `tests/**/*` changed (docs-only PRs skip deploy)
    - `deploy` job pushes packages to NuGet via trusted publishing, then `gh release create v$VERSION` creates the GitHub release **and the tag** in one step
 3. NuGet indexes in ~4-8 minutes — downstream repos pick up via Renovate
 
-To force a minor/major bump instead of auto-patch, push the tag manually before the workflow runs (compute_version honors the tag if HEAD points at it).
-
-**ANcpLua.Roslyn.Utilities, ANcpLua.Agents — manual-tag-triggers-publish:**
-
-1. PR to `main` — CI runs (build + test only on push, no publish; `publish` job gated by `is_release=true`)
-2. After merge, push a tag manually: `git tag vX.Y.Z && git push --tags`
-3. Tag push triggers the workflow's release path: version comes from `${GITHUB_REF_NAME#v}`, packages publish, `gh release create` creates the GitHub release
-
-**ANcpLua.Analyzers — manual-tag-publish-only:**
-
-Same as Roslyn.Utilities/Agents on the trigger side (workflow runs only on `push: tags v*` or `workflow_dispatch`), but the workflow does **not** call `gh release create` — only the NuGet push. The tag itself is the release marker; if you want a GitHub release entry, create it manually after.
+Manual `git tag vX.Y.Z` on `main` is **not** part of the flow — the workflow owns version computation and tag creation. To force a minor/major bump instead of the auto-patch, push a tag manually before the workflow runs (compute_version honors the existing tag on HEAD).
