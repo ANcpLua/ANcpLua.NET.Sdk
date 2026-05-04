@@ -18,6 +18,7 @@ jobs:
   claude-review:
     if: |
       github.actor != 'coderabbitai[bot]' &&
+      github.actor != 'github-actions[bot]' &&
       !contains(github.event.pull_request.title, '[skip review]') &&
       !contains(github.event.pull_request.labels.*.name, 'skip-review')
     concurrency:
