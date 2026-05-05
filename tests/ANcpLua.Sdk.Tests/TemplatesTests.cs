@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
-using FluentAssertions;
 using Meziantou.Framework;
 using NuGet.Packaging;
 
@@ -35,9 +33,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
                 fixture.PackageDirectory,
                 $"{TemplatesPackageId}.{fixture.Version}.nupkg",
                 SearchOption.TopDirectoryOnly);
-            matches.Should().ContainSingle(
-                $"Expected exactly one {TemplatesPackageId}.{fixture.Version}.nupkg in " +
-                $"{fixture.PackageDirectory}, found {matches.Length}.");
+            if (matches.Length != 1)
+                Assert.Fail(
+                    $"Expected exactly one {TemplatesPackageId}.{fixture.Version}.nupkg in " +
+                    $"{fixture.PackageDirectory}, found {matches.Length}.");
             return matches[0];
         }
     }
@@ -49,7 +48,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         var nuspec = await reader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
         var packageTypes = nuspec.GetPackageTypes();
 
-        packageTypes.Should().Contain(pt => pt.Name == "Template");
+        Assert.Contains(packageTypes, static pt => pt.Name == "Template");
     }
 
     [Theory]
@@ -69,7 +68,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
                      $"content/{shortName}/nuget.config",
                      $"content/{shortName}/Directory.Packages.props"
                  })
-            files.Should().Contain(expected);
+            Assert.Contains(expected, files);
     }
 
     [Theory]
@@ -80,8 +79,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     {
         var content = await ReadEntryAsync($"content/{shortName}/.template.config/template.json");
 
-        content.Should().NotContain("__PACK_TIME_SDK_VERSION__");
-        content.Should().NotContain("__PACK_TIME_DOTNET_SDK_VERSION__");
+        Assert.DoesNotContain("__PACK_TIME_SDK_VERSION__", content);
+        Assert.DoesNotContain("__PACK_TIME_DOTNET_SDK_VERSION__", content);
     }
 
     [Theory]
@@ -100,7 +99,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
             .GetProperty("defaultValue")
             .GetString();
 
-        defaultValue.Should().Be(fixture.Version);
+        Assert.Equal(fixture.Version, defaultValue);
     }
 
     [Theory]
@@ -113,7 +112,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         var versionPropsPath = RepositoryRoot.Locate()["src"] / "Build" / "Common" / "Version.props";
         var versionPropsContent = await File.ReadAllTextAsync(versionPropsPath, TestContext.Current.CancellationToken);
         var match = DotNetSdkVersionRegex().Match(versionPropsContent);
-        match.Success.Should().BeTrue($"<DotNetSdkVersion> not found in {versionPropsPath}.");
+        Assert.True(match.Success, $"<DotNetSdkVersion> not found in {versionPropsPath}.");
         var expectedDotNetSdkVersion = match.Groups[1].Value.Trim();
 
         var content = await ReadEntryAsync($"content/{shortName}/.template.config/template.json");
@@ -125,7 +124,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
             .GetProperty("defaultValue")
             .GetString();
 
-        defaultValue.Should().Be(expectedDotNetSdkVersion);
+        Assert.Equal(expectedDotNetSdkVersion, defaultValue);
     }
 
     [Theory]
@@ -140,8 +139,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         // symbol values (which template.json's defaults provide).
         var content = await ReadEntryAsync($"content/{shortName}/global.json");
 
-        content.Should().Contain("ANCPLUA_SDK_VERSION_PLACEHOLDER");
-        content.Should().Contain("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER");
+        Assert.Contains("ANCPLUA_SDK_VERSION_PLACEHOLDER", content);
+        Assert.Contains("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", content);
     }
 
     [Fact]
@@ -152,9 +151,9 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         // ANcpLua.NET.Sdk.Test for the tests project.
         var content = await ReadEntryAsync("content/ancplua-web/global.json");
 
-        content.Should().Contain("\"ANcpLua.NET.Sdk\":");
-        content.Should().Contain("\"ANcpLua.NET.Sdk.Web\":");
-        content.Should().Contain("\"ANcpLua.NET.Sdk.Test\":");
+        Assert.Contains("\"ANcpLua.NET.Sdk\":", content);
+        Assert.Contains("\"ANcpLua.NET.Sdk.Web\":", content);
+        Assert.Contains("\"ANcpLua.NET.Sdk.Test\":", content);
     }
 
     [Theory]
@@ -174,26 +173,26 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
 
         // sourceName=MyApp/MyLib/MyWeb is replaced with $projectName everywhere by
         // the template engine (filenames, directory names, namespaces, references).
-        File.Exists(output.FullPath / $"{projectName}.slnx").Should().BeTrue(
+        Assert.True(File.Exists(output.FullPath / $"{projectName}.slnx"),
             $"Expected slnx at {projectName}.slnx (sourceName={sourceName}, output={output.FullPath})");
-        File.Exists(output.FullPath / "src" / projectName / $"{projectName}.csproj").Should().BeTrue();
-        File.Exists(output.FullPath / "tests" / $"{projectName}.Tests" / $"{projectName}.Tests.csproj").Should().BeTrue();
+        Assert.True(File.Exists(output.FullPath / "src" / projectName / $"{projectName}.csproj"));
+        Assert.True(File.Exists(output.FullPath / "tests" / $"{projectName}.Tests" / $"{projectName}.Tests.csproj"));
 
         // Scaffolded global.json should pin SDKs to fixture.Version (the template engine
         // substituted ANCPLUA_SDK_VERSION_PLACEHOLDER with the SdkVersion default we
         // stamped at pack time).
         var globalJsonPath = output.FullPath / "global.json";
         var globalJson = await File.ReadAllTextAsync(globalJsonPath, TestContext.Current.CancellationToken);
-        globalJson.Should().NotContain("ANCPLUA_SDK_VERSION_PLACEHOLDER");
-        globalJson.Should().NotContain("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER");
-        globalJson.Should().Contain($"\"ANcpLua.NET.Sdk\": \"{fixture.Version}\"");
+        Assert.DoesNotContain("ANCPLUA_SDK_VERSION_PLACEHOLDER", globalJson);
+        Assert.DoesNotContain("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", globalJson);
+        Assert.Contains($"\"ANcpLua.NET.Sdk\": \"{fixture.Version}\"", globalJson);
 
         // Scaffolded Directory.Packages.props is required by the SDK contract — verify
         // it's present and CPM-enabled.
         var dirPackagesPath = output.FullPath / "Directory.Packages.props";
-        File.Exists(dirPackagesPath).Should().BeTrue();
+        Assert.True(File.Exists(dirPackagesPath));
         var dirPackages = await File.ReadAllTextAsync(dirPackagesPath, TestContext.Current.CancellationToken);
-        dirPackages.Should().Contain("<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>");
+        Assert.Contains("<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>", dirPackages);
     }
 
     [Theory]
@@ -243,27 +242,21 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         // shared fixture's packages/ folder don't race on obj/*.nuget.g.props.
         var perTestGlobalPackages = outputPath / "nuget-cache";
         var fixturePackages = Canonicalize(fixture.PackageDirectory);
-
-        // Generate nuget.config using XElement to ensure proper XML escaping of paths
-        var nugetConfig = new XDocument(
-            new XDeclaration("1.0", "utf-8", null),
-            new XElement("configuration",
-                new XElement("config",
-                    new XElement("add",
-                        new XAttribute("key", "globalPackagesFolder"),
-                        new XAttribute("value", perTestGlobalPackages.Value))),
-                new XElement("packageSources",
-                    new XElement("clear"),
-                    new XElement("add",
-                        new XAttribute("key", "TestSource"),
-                        new XAttribute("value", fixturePackages.Value)),
-                    new XElement("add",
-                        new XAttribute("key", "nuget.org"),
-                        new XAttribute("value", "https://api.nuget.org/v3/index.json")))));
-
         await File.WriteAllTextAsync(
             outputPath / "nuget.config",
-            nugetConfig.ToString(),
+            $"""
+             <?xml version="1.0" encoding="utf-8"?>
+             <configuration>
+               <config>
+                 <add key="globalPackagesFolder" value="{perTestGlobalPackages}" />
+               </config>
+               <packageSources>
+                 <clear/>
+                 <add key="TestSource" value="{fixturePackages}" />
+                 <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+               </packageSources>
+             </configuration>
+             """,
             TestContext.Current.CancellationToken);
 
         var slnxPath = outputPath / $"{projectName}.slnx";
@@ -283,13 +276,15 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         var restore = await RunDotnetAsync(
             ["restore", slnxPath, "--disable-parallel", "-nodeReuse:false"],
             outputPath);
-        restore.ExitCode.Should().Be(0,
+        Assert.True(
+            restore.ExitCode == 0,
             $"Scaffolded {shortName} solution failed to restore (exit {restore.ExitCode}):{Environment.NewLine}{restore.Output}");
 
         var build = await RunDotnetAsync(
             ["build", slnxPath, "--no-restore", "--nologo", "-nodeReuse:false", "-maxcpucount:1"],
             outputPath);
-        build.ExitCode.Should().Be(0,
+        Assert.True(
+            build.ExitCode == 0,
             $"Scaffolded {shortName} solution failed to build (exit {build.ExitCode}):{Environment.NewLine}{build.Output}");
     }
 
@@ -298,7 +293,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         var result = await RunDotnetAsync(
             ["new", "install", TemplatesNupkgPath, "--debug:custom-hive", hive],
             workingDirectory: null);
-        result.ExitCode.Should().Be(0,
+        Assert.True(
+            result.ExitCode == 0,
             $"dotnet new install failed (exit {result.ExitCode}):{Environment.NewLine}{result.Output}");
     }
 
@@ -317,7 +313,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
                 "--skipRestore"
             ],
             workingDirectory: null);
-        result.ExitCode.Should().Be(0,
+        Assert.True(
+            result.ExitCode == 0,
             $"dotnet new {shortName} failed (exit {result.ExitCode}):{Environment.NewLine}{result.Output}");
     }
 
