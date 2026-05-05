@@ -19,7 +19,7 @@
        The SDK's own test project uses ANcpLua.Roslyn.Utilities.Testing like any other
        consumer — define the variable here so the analyzer lint and CPM stay happy. -->
   <PropertyGroup Label="SDK-internal first-party pins">
-    <ANcpLuaRoslynUtilitiesTestingVersion>2.2.2</ANcpLuaRoslynUtilitiesTestingVersion>
+    <ANcpLuaRoslynUtilitiesTestingVersion>2.2.3</ANcpLuaRoslynUtilitiesTestingVersion>
   </PropertyGroup>
 
   <PropertyGroup>
