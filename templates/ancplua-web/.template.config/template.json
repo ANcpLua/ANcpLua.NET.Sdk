@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "ANcpLua",
+  "classifications": [ "Common", "Web", "WebAPI", "ANcpLua" ],
+  "identity": "ANcpLua.NET.Sdk.Web",
+  "name": "ANcpLua Web (Minimal API)",
+  "shortName": "ancplua-web",
+  "description": "An ANcpLua-flavored ASP.NET Core minimal API solution: src/ (uses ANcpLua.NET.Sdk.Web) + tests/ + slnx + Central Package Management.",
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "sourceName": "MyWeb",
+  "preferNameDirectory": true,
+  "defaultName": "Web1",
+  "symbols": {
+    "TargetFramework": {
+      "type": "parameter",
+      "datatype": "choice",
+      "choices": [
+        { "choice": "net10.0", "description": ".NET 10" }
+      ],
+      "defaultValue": "net10.0",
+      "replaces": "net10.0",
+      "description": "Target framework for the web app and tests."
+    },
+    "DotNetSdkVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "__PACK_TIME_DOTNET_SDK_VERSION__",
+      "replaces": "ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER",
+      "description": ".NET SDK version pinned in global.json (with rollForward=latestFeature). Defaults to the version this template pack was built against."
+    },
+    "SdkVersion": {
+      "type": "parameter",
+      "datatype": "string",
+      "defaultValue": "__PACK_TIME_SDK_VERSION__",
+      "replaces": "ANCPLUA_SDK_VERSION_PLACEHOLDER",
+      "description": "ANcpLua.NET.Sdk(.Web/.Test) version pinned in global.json msbuild-sdks. Defaults to the version this template pack ships with."
+    },
+    "skipRestore": {
+      "type": "parameter",
+      "datatype": "bool",
+      "defaultValue": "false",
+      "description": "Skip the automatic restore of the project on create."
+    }
+  },
+  "primaryOutputs": [
+    { "path": "src/MyWeb/MyWeb.csproj" },
+    { "path": "tests/MyWeb.Tests/MyWeb.Tests.csproj" }
+  ],
+  "postActions": [
+    {
+      "id": "restore",
+      "condition": "(!skipRestore)",
+      "description": "Restore NuGet packages required by this project.",
+      "manualInstructions": [ { "text": "Run 'dotnet restore'" } ],
+      "actionId": "210D431B-A78B-4D2F-B762-4ED3E3EA9025",
+      "continueOnError": true
+    }
+  ]
+}

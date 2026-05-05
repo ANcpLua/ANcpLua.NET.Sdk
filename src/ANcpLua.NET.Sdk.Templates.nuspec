@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>ANcpLua.NET.Sdk.Templates</id>
+    <version>$version$</version>
+    <authors>ANcpLua</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>dotnet new templates for projects that consume ANcpLua.NET.Sdk: ancplua-app (console + tests), ancplua-lib (class library + tests), ancplua-web (ASP.NET Core minimal API + tests). Each scaffolds a full repo: global.json, nuget.config, Directory.Packages.props (CPM), .slnx, src/, tests/. SDK and .NET SDK version defaults are stamped at pack time from the SDK's Version.props.</description>
+    <readme>README.md</readme>
+    <license type="expression">MIT</license>
+    <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$"/>
+    <packageTypes>
+      <packageType name="Template"/>
+    </packageTypes>
+    <tags>dotnet-new templates ancplua sdk scaffold cpm slnx</tags>
+  </metadata>
+  <files>
+    <!-- Paths are relative to the staged templates dir set via $(NuspecBasePath)
+         in ANcpLua.NET.Sdk.Templates.csproj. The _StampTemplateVersions target
+         copies templates/** + LICENSE/README into that dir with pack-time
+         version substitution applied. -->
+
+    <!-- ancplua-app -->
+    <file src="ancplua-app\.template.config\template.json"             target="content/ancplua-app/.template.config/template.json"/>
+    <file src="ancplua-app\global.json"                                target="content/ancplua-app/global.json"/>
+    <file src="ancplua-app\nuget.config"                               target="content/ancplua-app/nuget.config"/>
+    <file src="ancplua-app\Directory.Packages.props"                   target="content/ancplua-app/Directory.Packages.props"/>
+    <file src="ancplua-app\MyApp.slnx"                                 target="content/ancplua-app/MyApp.slnx"/>
+    <file src="ancplua-app\src\MyApp\MyApp.csproj"                     target="content/ancplua-app/src/MyApp/MyApp.csproj"/>
+    <file src="ancplua-app\src\MyApp\Program.cs"                       target="content/ancplua-app/src/MyApp/Program.cs"/>
+    <file src="ancplua-app\tests\MyApp.Tests\MyApp.Tests.csproj"       target="content/ancplua-app/tests/MyApp.Tests/MyApp.Tests.csproj"/>
+    <file src="ancplua-app\tests\MyApp.Tests\SmokeTests.cs"            target="content/ancplua-app/tests/MyApp.Tests/SmokeTests.cs"/>
+
+    <!-- ancplua-lib -->
+    <file src="ancplua-lib\.template.config\template.json"             target="content/ancplua-lib/.template.config/template.json"/>
+    <file src="ancplua-lib\global.json"                                target="content/ancplua-lib/global.json"/>
+    <file src="ancplua-lib\nuget.config"                               target="content/ancplua-lib/nuget.config"/>
+    <file src="ancplua-lib\Directory.Packages.props"                   target="content/ancplua-lib/Directory.Packages.props"/>
+    <file src="ancplua-lib\MyLib.slnx"                                 target="content/ancplua-lib/MyLib.slnx"/>
+    <file src="ancplua-lib\src\MyLib\MyLib.csproj"                     target="content/ancplua-lib/src/MyLib/MyLib.csproj"/>
+    <file src="ancplua-lib\src\MyLib\Greeter.cs"                       target="content/ancplua-lib/src/MyLib/Greeter.cs"/>
+    <file src="ancplua-lib\tests\MyLib.Tests\MyLib.Tests.csproj"       target="content/ancplua-lib/tests/MyLib.Tests/MyLib.Tests.csproj"/>
+    <file src="ancplua-lib\tests\MyLib.Tests\SmokeTests.cs"            target="content/ancplua-lib/tests/MyLib.Tests/SmokeTests.cs"/>
+
+    <!-- ancplua-web -->
+    <file src="ancplua-web\.template.config\template.json"             target="content/ancplua-web/.template.config/template.json"/>
+    <file src="ancplua-web\global.json"                                target="content/ancplua-web/global.json"/>
+    <file src="ancplua-web\nuget.config"                               target="content/ancplua-web/nuget.config"/>
+    <file src="ancplua-web\Directory.Packages.props"                   target="content/ancplua-web/Directory.Packages.props"/>
+    <file src="ancplua-web\MyWeb.slnx"                                 target="content/ancplua-web/MyWeb.slnx"/>
+    <file src="ancplua-web\src\MyWeb\MyWeb.csproj"                     target="content/ancplua-web/src/MyWeb/MyWeb.csproj"/>
+    <file src="ancplua-web\src\MyWeb\Program.cs"                       target="content/ancplua-web/src/MyWeb/Program.cs"/>
+    <file src="ancplua-web\src\MyWeb\Properties\launchSettings.json"   target="content/ancplua-web/src/MyWeb/Properties/launchSettings.json"/>
+    <file src="ancplua-web\tests\MyWeb.Tests\MyWeb.Tests.csproj"       target="content/ancplua-web/tests/MyWeb.Tests/MyWeb.Tests.csproj"/>
+    <file src="ancplua-web\tests\MyWeb.Tests\SmokeTests.cs"            target="content/ancplua-web/tests/MyWeb.Tests/SmokeTests.cs"/>
+
+    <file src="LICENSE.txt" target=""/>
+    <file src="README.md"   target=""/>
+  </files>
+</package>

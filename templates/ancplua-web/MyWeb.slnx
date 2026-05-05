@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/MyWeb/MyWeb.csproj"/>
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/MyWeb.Tests/MyWeb.Tests.csproj"/>
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="global.json"/>
+    <File Path="nuget.config"/>
+    <File Path="Directory.Packages.props"/>
+  </Folder>
+</Solution>
