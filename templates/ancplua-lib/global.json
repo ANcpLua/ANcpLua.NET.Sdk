@@ -1,0 +1,14 @@
+{
+  "sdk": {
+    "version": "ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER",
+    "rollForward": "latestFeature",
+    "allowPrerelease": true
+  },
+  "msbuild-sdks": {
+    "ANcpLua.NET.Sdk": "ANCPLUA_SDK_VERSION_PLACEHOLDER",
+    "ANcpLua.NET.Sdk.Test": "ANCPLUA_SDK_VERSION_PLACEHOLDER"
+  },
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}

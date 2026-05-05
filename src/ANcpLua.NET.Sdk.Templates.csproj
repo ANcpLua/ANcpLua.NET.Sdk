@@ -1,0 +1,170 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    $(Version)         — passed by `dotnet pack -p:Version=X.Y.Z` (or build.ps1).
+                         Stamped into template defaults so a fresh `dotnet new`
+                         pins the SDK version this Templates package shipped with.
+    $(DotNetSdkVersion)— from Build/Common/Version.props, auto-imported by the
+                         repo's Directory.Packages.props.
+  -->
+
+  <PropertyGroup>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <NuSpecFile>ANcpLua.NET.Sdk.Templates.nuspec</NuSpecFile>
+    <Version>0.0.0-local</Version>
+    <NuspecProperties>$(NuspecProperties);version=$(Version)</NuspecProperties>
+    <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY);RepositoryCommit=$(GITHUB_SHA)</NuspecProperties>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
+    <IsTestProject>false</IsTestProject>
+    <_StagedTemplatesPath>$(BaseIntermediateOutputPath)staged-templates\</_StagedTemplatesPath>
+    <NuspecBasePath>$(_StagedTemplatesPath)</NuspecBasePath>
+  </PropertyGroup>
+
+  <UsingTask TaskName="StampTemplateTokens"
+             TaskFactory="RoslynCodeTaskFactory"
+             AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <SourceDir Required="true"/>
+      <DestDir Required="true"/>
+      <ExtraFiles ParameterType="Microsoft.Build.Framework.ITaskItem[]"/>
+      <SdkVersion Required="true"/>
+      <DotNetSdkVersion Required="true"/>
+    </ParameterGroup>
+    <Task>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          var src = new System.IO.DirectoryInfo(SourceDir);
+          var dst = new System.IO.DirectoryInfo(DestDir);
+
+          // Retry recursive delete with backoff to handle transient locked-file errors
+          if (dst.Exists)
+          {
+              const int maxAttempts = 3;
+              bool deleted = false;
+              System.Exception lastException = null;
+
+              for (int attempt = 1; attempt <= maxAttempts; attempt++)
+              {
+                  try
+                  {
+                      dst.Delete(recursive: true);
+                      deleted = true;
+                      break;
+                  }
+                  catch (System.Exception ex)
+                  {
+                      lastException = ex;
+                      if (attempt < maxAttempts)
+                      {
+                          System.Threading.Thread.Sleep(100 * attempt); // 100ms, 200ms backoff
+                      }
+                  }
+              }
+
+              if (!deleted)
+              {
+                  Log.LogError($"Failed to delete directory after {maxAttempts} attempts. Path: {dst.FullName}. Exception: {lastException}");
+                  return false;
+              }
+          }
+
+          dst.Create();
+
+          string Substitute(string text)
+          {
+              return text
+                  .Replace("__PACK_TIME_SDK_VERSION__", SdkVersion)
+                  .Replace("__PACK_TIME_DOTNET_SDK_VERSION__", DotNetSdkVersion);
+          }
+
+          bool IsBinaryFile(string path)
+          {
+              // Read first 8KB to detect binary content (null bytes)
+              const int checkSize = 8192;
+              var buffer = new byte[checkSize];
+              using (var fs = System.IO.File.OpenRead(path))
+              {
+                  var bytesRead = fs.Read(buffer, 0, checkSize);
+                  for (int i = 0; i < bytesRead; i++)
+                  {
+                      if (buffer[i] == 0)
+                          return true;
+                  }
+              }
+              return false;
+          }
+
+          foreach (var file in src.GetFiles("*", System.IO.SearchOption.AllDirectories))
+          {
+              var rel = file.FullName.Substring(src.FullName.Length).TrimStart('\\', '/');
+              var dstPath = System.IO.Path.Combine(dst.FullName, rel);
+              System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(dstPath));
+
+              if (IsBinaryFile(file.FullName))
+              {
+                  // Binary file: byte-copy to preserve content
+                  System.IO.File.Copy(file.FullName, dstPath, overwrite: true);
+              }
+              else
+              {
+                  // Text file: apply token substitution
+                  var text = System.IO.File.ReadAllText(file.FullName);
+                  System.IO.File.WriteAllText(dstPath, Substitute(text));
+              }
+          }
+
+          if (ExtraFiles != null)
+          {
+              foreach (var item in ExtraFiles)
+              {
+                  var srcPath = item.GetMetadata("FullPath");
+                  var stagedAs = item.GetMetadata("StagedAs");
+                  if (string.IsNullOrEmpty(stagedAs))
+                  {
+                      stagedAs = System.IO.Path.GetFileName(srcPath);
+                  }
+                  var dstPath = System.IO.Path.Combine(dst.FullName, stagedAs);
+                  System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(dstPath));
+                  System.IO.File.Copy(srcPath, dstPath, overwrite: true);
+              }
+          }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <Target Name="_StampTemplateVersions" BeforeTargets="GenerateNuspec;_GetPackageFiles">
+    <PropertyGroup>
+      <_TemplatesSource>$(MSBuildThisFileDirectory)..\templates</_TemplatesSource>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_TemplatesSource)')"
+           Text="templates/ source directory not found at '$(_TemplatesSource)'."/>
+    <Error Condition="'$(Version)' == ''"
+           Text="Version is empty — pass -p:Version=X.Y.Z (or run build.ps1)."/>
+    <Error Condition="'$(DotNetSdkVersion)' == ''"
+           Text="DotNetSdkVersion is empty — Build/Common/Version.props did not import or did not define it."/>
+
+    <ItemGroup>
+      <_ExtraFiles Include="$(MSBuildThisFileDirectory)..\LICENSE.txt">
+        <StagedAs>LICENSE.txt</StagedAs>
+      </_ExtraFiles>
+      <_ExtraFiles Include="$(MSBuildThisFileDirectory)..\README.md">
+        <StagedAs>README.md</StagedAs>
+      </_ExtraFiles>
+    </ItemGroup>
+
+    <StampTemplateTokens
+      SourceDir="$(_TemplatesSource)"
+      DestDir="$(_StagedTemplatesPath)"
+      ExtraFiles="@(_ExtraFiles)"
+      SdkVersion="$(Version)"
+      DotNetSdkVersion="$(DotNetSdkVersion)"/>
+
+    <Message Importance="high"
+             Text="Staged templates to '$(_StagedTemplatesPath)' with SdkVersion=$(Version), DotNetSdkVersion=$(DotNetSdkVersion)."/>
+  </Target>
+
+</Project>
