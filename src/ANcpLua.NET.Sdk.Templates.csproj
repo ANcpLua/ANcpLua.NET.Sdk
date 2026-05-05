@@ -12,7 +12,6 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <NoWarn>NU5128;NU5110;NU5111;NU5125</NoWarn>
     <NuSpecFile>ANcpLua.NET.Sdk.Templates.nuspec</NuSpecFile>
     <Version>0.0.0-local</Version>
     <NuspecProperties>$(NuspecProperties);version=$(Version)</NuspecProperties>

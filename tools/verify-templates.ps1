@@ -249,15 +249,17 @@ try {
         # Override scaffolded nuget.config to use local feed for SDK + nuget.org for analyzers
         $nugetCache = Join-Path $output 'nuget-cache'
         $fixturePackages = Resolve-CanonicalPath $artifacts
+        $escapedNugetCache = [System.Security.SecurityElement]::Escape($nugetCache)
+        $escapedFixturePackages = [System.Security.SecurityElement]::Escape($fixturePackages)
         @"
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <config>
-    <add key="globalPackagesFolder" value="$nugetCache" />
+    <add key="globalPackagesFolder" value="$escapedNugetCache" />
   </config>
   <packageSources>
     <clear/>
-    <add key="TestSource" value="$fixturePackages" />
+    <add key="TestSource" value="$escapedFixturePackages" />
     <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
   </packageSources>
 </configuration>
