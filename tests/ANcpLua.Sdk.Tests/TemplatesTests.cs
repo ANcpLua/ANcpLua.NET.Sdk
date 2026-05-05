@@ -218,8 +218,21 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         await using var output = TemporaryDirectory.Create();
         var projectName = "T" + Guid.NewGuid().ToString("N")[..8];
 
-        await DotnetNewInstallAsync(hive.FullPath);
-        await DotnetNewScaffoldAsync(shortName, projectName, output.FullPath, hive.FullPath);
+        // macOS: TemporaryDirectory.Create() returns paths under /var/folders/... which
+        // is a symlink to /private/var/folders/... NuGet, MSBuild, and other dotnet
+        // tooling sometimes resolve through the symlink and sometimes don't, producing
+        // "obj/X.csproj.nuget.g.props already exists" during slnx restore (the same
+        // physical file is referenced via both prefixes within one restore pass).
+        // Canonicalize once up front so every subsequent path is the resolved form.
+        var hivePath = Canonicalize(hive.FullPath);
+        var outputPath = Canonicalize(output.FullPath);
+
+        // Shut down any inherited MSBuild / Razor / VBCSCompiler build servers from the
+        // surrounding test process so this scaffold's restore+build doesn't reuse state.
+        await RunDotnetAsync(["build-server", "shutdown"], outputPath);
+
+        await DotnetNewInstallAsync(hivePath);
+        await DotnetNewScaffoldAsync(shortName, projectName, outputPath, hivePath);
 
         // The scaffolded nuget.config restricts to nuget.org — but the SDK packages at
         // fixture.Version (e.g. 999.9.9) only exist in the local fixture feed. Replace
@@ -227,9 +240,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         // / test packages resolve from nuget.org. Use a per-test globalPackagesFolder
         // (under output, deleted with the temp dir) so concurrent SDK tests against the
         // shared fixture's packages/ folder don't race on obj/*.nuget.g.props.
-        var perTestGlobalPackages = output.FullPath / "nuget-cache";
+        var perTestGlobalPackages = outputPath / "nuget-cache";
+        var fixturePackages = Canonicalize(fixture.PackageDirectory);
         await File.WriteAllTextAsync(
-            output.FullPath / "nuget.config",
+            outputPath / "nuget.config",
             $"""
              <?xml version="1.0" encoding="utf-8"?>
              <configuration>
@@ -238,30 +252,37 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
                </config>
                <packageSources>
                  <clear/>
-                 <add key="TestSource" value="{fixture.PackageDirectory}" />
+                 <add key="TestSource" value="{fixturePackages}" />
                  <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
                </packageSources>
              </configuration>
              """,
             TestContext.Current.CancellationToken);
 
-        var slnxPath = output.FullPath / $"{projectName}.slnx";
+        var slnxPath = outputPath / $"{projectName}.slnx";
 
-        // Split restore + build. dotnet build's implicit restore can race with Razor's
-        // own restore inside the build phase, producing "obj/*.nuget.g.props already
-        // exists" errors for the Web template. Explicit restore before --no-restore
-        // build is deterministic. -nodeReuse:false avoids inheriting an MSBuild server
-        // started by another concurrent test in the suite.
+        // Split restore + build. Two macOS-specific contributors to flakiness:
+        //
+        //   1. Parallel slnx-level restore: NuGet restores src/ + tests/ concurrently
+        //      and writes obj/<proj>.csproj.nuget.g.props for each. On macOS the
+        //      /var ⟷ /private/var symlink ambiguity occasionally trips NuGet's
+        //      "file already exists" guard within a single restore pass.
+        //   2. Razor SDK's MvcApplicationPartsDiscovery target races with the
+        //      implicit build-time restore — a deterministic --no-restore build
+        //      after explicit restore avoids that.
+        //
+        // --disable-parallel serializes project restore inside the slnx; nodeReuse:false
+        // prevents reusing an MSBuild server from a parallel sibling test.
         var restore = await RunDotnetAsync(
-            ["restore", slnxPath, "-nodeReuse:false"],
-            output.FullPath);
+            ["restore", slnxPath, "--disable-parallel", "-nodeReuse:false"],
+            outputPath);
         Assert.True(
             restore.ExitCode == 0,
             $"Scaffolded {shortName} solution failed to restore (exit {restore.ExitCode}):{Environment.NewLine}{restore.Output}");
 
         var build = await RunDotnetAsync(
             ["build", slnxPath, "--no-restore", "--nologo", "-nodeReuse:false", "-maxcpucount:1"],
-            output.FullPath);
+            outputPath);
         Assert.True(
             build.ExitCode == 0,
             $"Scaffolded {shortName} solution failed to build (exit {build.ExitCode}):{Environment.NewLine}{build.Output}");
@@ -321,6 +342,39 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
 
         var result = await psi.RunAsTaskAsync(TestContext.Current.CancellationToken);
         return (result.ExitCode, result.Output.ToString());
+    }
+
+    /// <summary>
+    ///     Resolves macOS symlink prefixes (/var → /private/var, /tmp → /private/tmp) so the
+    ///     same physical directory has exactly one canonical string representation. Without
+    ///     this, NuGet's slnx-level restore on macOS sometimes writes obj/X.csproj.nuget.g.props
+    ///     under one prefix and re-checks under the other, producing a spurious "file already
+    ///     exists" error on the second project in the solution.
+    /// </summary>
+    private static FullPath Canonicalize(FullPath path)
+    {
+        var resolved = new DirectoryInfo(path.Value).ResolveLinkTarget(returnFinalTarget: true)?.FullName;
+        if (!string.IsNullOrEmpty(resolved)) return FullPath.FromPath(resolved);
+
+        // No direct symlink on the leaf; walk up to find an ancestor that is one
+        // (e.g. /var → /private/var) and rebuild the path through the resolved ancestor.
+        var current = new DirectoryInfo(path.Value);
+        var suffix = new Stack<string>();
+        while (current is not null)
+        {
+            var link = current.ResolveLinkTarget(returnFinalTarget: true);
+            if (link is not null)
+            {
+                var rebuilt = link.FullName;
+                while (suffix.Count > 0) rebuilt = Path.Combine(rebuilt, suffix.Pop());
+                return FullPath.FromPath(rebuilt);
+            }
+
+            suffix.Push(current.Name);
+            current = current.Parent;
+        }
+
+        return path;
     }
 
     [GeneratedRegex(@"<DotNetSdkVersion>([^<]+)</DotNetSdkVersion>")]
