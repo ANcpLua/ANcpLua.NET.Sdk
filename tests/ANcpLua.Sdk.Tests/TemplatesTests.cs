@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Meziantou.Framework;
@@ -349,29 +350,47 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     ///     same physical directory has exactly one canonical string representation. Without
     ///     this, NuGet's slnx-level restore on macOS sometimes writes obj/X.csproj.nuget.g.props
     ///     under one prefix and re-checks under the other, producing a spurious "file already
-    ///     exists" error on the second project in the solution.
+    ///     exists" error on the second project in the solution. No-op on Linux (real temp
+    ///     paths, no shadow /private/ layer) and Windows (no symlink in the temp hierarchy,
+    ///     and DirectoryInfo("C:\\").ResolveLinkTarget() throws DirectoryNotFoundException).
     /// </summary>
     private static FullPath Canonicalize(FullPath path)
     {
-        var resolved = new DirectoryInfo(path.Value).ResolveLinkTarget(returnFinalTarget: true)?.FullName;
-        if (!string.IsNullOrEmpty(resolved)) return FullPath.FromPath(resolved);
+        if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+            return path;
 
-        // No direct symlink on the leaf; walk up to find an ancestor that is one
-        // (e.g. /var → /private/var) and rebuild the path through the resolved ancestor.
-        var current = new DirectoryInfo(path.Value);
-        var suffix = new Stack<string>();
-        while (current is not null)
+        try
         {
-            var link = current.ResolveLinkTarget(returnFinalTarget: true);
-            if (link is not null)
-            {
-                var rebuilt = link.FullName;
-                while (suffix.Count > 0) rebuilt = Path.Combine(rebuilt, suffix.Pop());
-                return FullPath.FromPath(rebuilt);
-            }
+            var resolved = new DirectoryInfo(path.Value).ResolveLinkTarget(returnFinalTarget: true)?.FullName;
+            if (!string.IsNullOrEmpty(resolved)) return FullPath.FromPath(resolved);
 
-            suffix.Push(current.Name);
-            current = current.Parent;
+            // No direct symlink on the leaf; walk up to find an ancestor that is one
+            // (e.g. /var → /private/var) and rebuild the path through the resolved ancestor.
+            // Stop at drive/volume root (Parent == null) — calling ResolveLinkTarget on the
+            // root throws on some platforms, and the root itself is never a symlink.
+            var current = new DirectoryInfo(path.Value);
+            var suffix = new Stack<string>();
+            while (current?.Parent is not null)
+            {
+                var link = current.ResolveLinkTarget(returnFinalTarget: true);
+                if (link is not null)
+                {
+                    var rebuilt = link.FullName;
+                    while (suffix.Count > 0) rebuilt = Path.Combine(rebuilt, suffix.Pop());
+                    return FullPath.FromPath(rebuilt);
+                }
+
+                suffix.Push(current.Name);
+                current = current.Parent;
+            }
+        }
+        catch (DirectoryNotFoundException)
+        {
+            // Fall through: any unexpected IO error during symlink walking should
+            // result in "use original path" rather than fail the test setup.
+        }
+        catch (UnauthorizedAccessException)
+        {
         }
 
         return path;
