@@ -184,7 +184,9 @@ jobs:
             # tests/**/* is included so test-only fixes (e.g. the CA1852 Sample class seal
             # for v3.3.1) still count as publishable changes — the earlier omission meant a
             # green CI silently skipped publish with no signal.
-            $Changes = git diff --name-only $PreviousTag HEAD -- '*.nuspec' 'src/**/*' 'tests/**/*'
+            # templates/**/* is included so dotnet-new template content edits (consumed at
+            # pack time by ANcpLua.NET.Sdk.Templates) trigger a new Templates package.
+            $Changes = git diff --name-only $PreviousTag HEAD -- '*.nuspec' 'src/**/*' 'tests/**/*' 'templates/**/*'
           } else {
             Write-Host "No previous tag found, checking all files"
             $Changes = $true
@@ -195,7 +197,7 @@ jobs:
             echo "has_changes=true" >> $env:GITHUB_OUTPUT
             exit 0
           } else {
-            Write-Host "No changes detected in .nuspec, src/, or tests/ files"
+            Write-Host "No changes detected in .nuspec, src/, tests/, or templates/ files"
             echo "has_changes=false" >> $env:GITHUB_OUTPUT
             exit 0
           }

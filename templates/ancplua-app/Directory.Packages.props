@@ -1,0 +1,15 @@
+<Project>
+
+  <!--
+    Required by ANcpLua.NET.Sdk: the SDK enables Central Package Management
+    by default and uses <GlobalPackageReference> to inject analyzers.
+    Without this file, restore fails with NU1015. Do not delete.
+    Add <PackageVersion Include="..." Version="..."/> entries below as you
+    add <PackageReference> items to project files.
+  -->
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,15 @@
+<Project Sdk="ANcpLua.NET.Sdk.Test">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <UseMicrosoftTestingPlatform>true</UseMicrosoftTestingPlatform>
+    <RootNamespace>MyLib.Tests</RootNamespace>
+    <AssemblyName>MyLib.Tests</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MyLib\MyLib.csproj"/>
+  </ItemGroup>
+
+</Project>
