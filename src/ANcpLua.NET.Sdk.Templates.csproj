@@ -38,7 +38,39 @@
         <![CDATA[
           var src = new System.IO.DirectoryInfo(SourceDir);
           var dst = new System.IO.DirectoryInfo(DestDir);
-          if (dst.Exists) dst.Delete(recursive: true);
+
+          // Retry recursive delete with backoff to handle transient locked-file errors
+          if (dst.Exists)
+          {
+              const int maxAttempts = 3;
+              bool deleted = false;
+              System.Exception lastException = null;
+
+              for (int attempt = 1; attempt <= maxAttempts; attempt++)
+              {
+                  try
+                  {
+                      dst.Delete(recursive: true);
+                      deleted = true;
+                      break;
+                  }
+                  catch (System.Exception ex)
+                  {
+                      lastException = ex;
+                      if (attempt < maxAttempts)
+                      {
+                          System.Threading.Thread.Sleep(100 * attempt); // 100ms, 200ms backoff
+                      }
+                  }
+              }
+
+              if (!deleted)
+              {
+                  Log.LogError($"Failed to delete directory after {maxAttempts} attempts. Path: {dst.FullName}. Exception: {lastException}");
+                  return false;
+              }
+          }
+
           dst.Create();
 
           string Substitute(string text)

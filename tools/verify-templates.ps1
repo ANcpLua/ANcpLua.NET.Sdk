@@ -214,7 +214,13 @@ try {
         New-Item -ItemType Directory -Path $output | Out-Null
 
         # Shut down any prior build server state so this scaffold restore is hermetic
-        & dotnet build-server shutdown | Out-Null
+        $buildServerOutput = & dotnet build-server shutdown 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "    [info] dotnet build-server shutdown exited with code $LASTEXITCODE" -ForegroundColor Yellow
+            if ($buildServerOutput) {
+                Write-Host "    Output: $buildServerOutput" -ForegroundColor Yellow
+            }
+        }
 
         # 7. install hermetically
         & dotnet new install $templatesNupkg --debug:custom-hive $hive | Out-Host
