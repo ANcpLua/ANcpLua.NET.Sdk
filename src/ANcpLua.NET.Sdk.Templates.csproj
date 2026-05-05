@@ -12,16 +12,20 @@
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <NoWarn>NU5128;NU5110;NU5111;NU5125</NoWarn>
+    <NoWarn>NU5128</NoWarn>
     <NuSpecFile>ANcpLua.NET.Sdk.Templates.nuspec</NuSpecFile>
     <Version>0.0.0-local</Version>
     <NuspecProperties>$(NuspecProperties);version=$(Version)</NuspecProperties>
-    <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY);RepositoryCommit=$(GITHUB_SHA)</NuspecProperties>
     <EnableDefaultItems>false</EnableDefaultItems>
     <IsPackable>true</IsPackable>
     <IsTestProject>false</IsTestProject>
     <_StagedTemplatesPath>$(BaseIntermediateOutputPath)staged-templates\</_StagedTemplatesPath>
     <NuspecBasePath>$(_StagedTemplatesPath)</NuspecBasePath>
+  </PropertyGroup>
+
+  <!-- Conditionally append GitHub repository metadata only when running in CI -->
+  <PropertyGroup Condition="'$(GITHUB_REPOSITORY)' != '' AND '$(GITHUB_SERVER_URL)' != '' AND '$(GITHUB_REF_NAME)' != '' AND '$(GITHUB_SHA)' != ''">
+    <NuspecProperties>$(NuspecProperties);RepositoryBranch=$(GITHUB_REF_NAME);RepositoryUrl=$(GITHUB_SERVER_URL)/$(GITHUB_REPOSITORY);RepositoryCommit=$(GITHUB_SHA)</NuspecProperties>
   </PropertyGroup>
 
   <UsingTask TaskName="StampTemplateTokens"
@@ -105,7 +109,7 @@
     </Task>
   </UsingTask>
 
-  <Target Name="_StampTemplateVersions" BeforeTargets="GenerateNuspec;_GetPackageFiles">
+  <Target Name="_StampTemplateVersions" BeforeTargets="GenerateNuspec;Pack">
     <PropertyGroup>
       <_TemplatesSource>$(MSBuildThisFileDirectory)..\templates</_TemplatesSource>
     </PropertyGroup>
