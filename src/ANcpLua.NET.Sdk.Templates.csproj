@@ -49,13 +49,40 @@
                   .Replace("__PACK_TIME_DOTNET_SDK_VERSION__", DotNetSdkVersion);
           }
 
+          bool IsBinaryFile(string path)
+          {
+              // Read first 8KB to detect binary content (null bytes)
+              const int checkSize = 8192;
+              var buffer = new byte[checkSize];
+              using (var fs = System.IO.File.OpenRead(path))
+              {
+                  var bytesRead = fs.Read(buffer, 0, checkSize);
+                  for (int i = 0; i < bytesRead; i++)
+                  {
+                      if (buffer[i] == 0)
+                          return true;
+                  }
+              }
+              return false;
+          }
+
           foreach (var file in src.GetFiles("*", System.IO.SearchOption.AllDirectories))
           {
               var rel = file.FullName.Substring(src.FullName.Length).TrimStart('\\', '/');
               var dstPath = System.IO.Path.Combine(dst.FullName, rel);
               System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(dstPath));
-              var text = System.IO.File.ReadAllText(file.FullName);
-              System.IO.File.WriteAllText(dstPath, Substitute(text));
+
+              if (IsBinaryFile(file.FullName))
+              {
+                  // Binary file: byte-copy to preserve content
+                  System.IO.File.Copy(file.FullName, dstPath, overwrite: true);
+              }
+              else
+              {
+                  // Text file: apply token substitution
+                  var text = System.IO.File.ReadAllText(file.FullName);
+                  System.IO.File.WriteAllText(dstPath, Substitute(text));
+              }
           }
 
           if (ExtraFiles != null)
