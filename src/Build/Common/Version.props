@@ -98,15 +98,15 @@
     the suffix variance.
   -->
   <PropertyGroup Label="Microsoft.Agents">
-    <MicrosoftAgentsAIVersion>1.4.0</MicrosoftAgentsAIVersion>
-    <MicrosoftAgentsAIAbstractionsVersion>1.4.0</MicrosoftAgentsAIAbstractionsVersion>
-    <MicrosoftAgentsAIWorkflowsVersion>1.4.0</MicrosoftAgentsAIWorkflowsVersion>
-    <MicrosoftAgentsAIOpenAIVersion>1.4.0</MicrosoftAgentsAIOpenAIVersion>
-    <MicrosoftAgentsAIHostingVersion>1.4.0-preview.260505.1</MicrosoftAgentsAIHostingVersion>
-    <MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>1.4.0-preview.260505.1</MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>
-    <MicrosoftAgentsAIAnthropicVersion>1.4.0-preview.260505.1</MicrosoftAgentsAIAnthropicVersion>
-    <MicrosoftAgentsAIDevUIVersion>1.4.0-preview.260505.1</MicrosoftAgentsAIDevUIVersion>
-    <MicrosoftAgentsAIWorkflowsDeclarativeVersion>1.4.0-rc1</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
+    <MicrosoftAgentsAIVersion Condition="'$(MicrosoftAgentsAIVersion)' == ''">1.4.0</MicrosoftAgentsAIVersion>
+    <MicrosoftAgentsAIAbstractionsVersion Condition="'$(MicrosoftAgentsAIAbstractionsVersion)' == ''">1.4.0</MicrosoftAgentsAIAbstractionsVersion>
+    <MicrosoftAgentsAIWorkflowsVersion Condition="'$(MicrosoftAgentsAIWorkflowsVersion)' == ''">1.4.0</MicrosoftAgentsAIWorkflowsVersion>
+    <MicrosoftAgentsAIOpenAIVersion Condition="'$(MicrosoftAgentsAIOpenAIVersion)' == ''">1.4.0</MicrosoftAgentsAIOpenAIVersion>
+    <MicrosoftAgentsAIHostingVersion Condition="'$(MicrosoftAgentsAIHostingVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIHostingVersion>
+    <MicrosoftAgentsAIHostingAGUIAspNetCoreVersion Condition="'$(MicrosoftAgentsAIHostingAGUIAspNetCoreVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>
+    <MicrosoftAgentsAIAnthropicVersion Condition="'$(MicrosoftAgentsAIAnthropicVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIAnthropicVersion>
+    <MicrosoftAgentsAIDevUIVersion Condition="'$(MicrosoftAgentsAIDevUIVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIDevUIVersion>
+    <MicrosoftAgentsAIWorkflowsDeclarativeVersion Condition="'$(MicrosoftAgentsAIWorkflowsDeclarativeVersion)' == ''">1.4.0-rc1</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="LLM Providers">
