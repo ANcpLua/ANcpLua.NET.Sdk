@@ -1,5 +1,4 @@
 using System.IO.Compression;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
@@ -38,10 +37,6 @@ public abstract class SdkTests(
         "_IsGitHubActions"
     ];
 
-    [SuppressMessage(
-        "Reliability",
-        "CA2000:Dispose objects before losing scope",
-        Justification = "Returned builder is disposed by the test via await using.")]
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, sdkImportStyle, sdkName ?? SdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
