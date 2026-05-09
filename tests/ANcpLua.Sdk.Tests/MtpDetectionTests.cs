@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
@@ -43,10 +42,6 @@ public abstract class MtpDetectionTests(
         "TestingPlatformCommandLineArguments"
     ];
 
-    [SuppressMessage(
-        "Reliability",
-        "CA2000:Dispose objects before losing scope",
-        Justification = "Returned builder is disposed by the test via await using.")]
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName ?? SdkTestName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
@@ -127,7 +122,7 @@ public abstract class MtpDetectionTests(
 
         var cliArgs = result.GetRecordedProperty("TestingPlatformCommandLineArguments");
         Assert.Contains("--report-xunit-trx", cliArgs, StringComparison.Ordinal);
-        Assert.DoesNotContain("--report-trx ", cliArgs, StringComparison.Ordinal);
+        Assert.DoesNotContain("--report-trx", cliArgs, StringComparison.Ordinal);
         Assert.DoesNotContain("--crashdump", cliArgs, StringComparison.Ordinal);
         Assert.DoesNotContain("--hangdump", cliArgs, StringComparison.Ordinal);
     }

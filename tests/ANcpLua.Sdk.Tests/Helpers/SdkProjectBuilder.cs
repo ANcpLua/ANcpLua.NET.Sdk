@@ -332,15 +332,15 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     public new SdkProjectBuilder WithDirectoryBuildProps(string content)
     {
         // Inject DisableVersionAnalyzer to prevent AL0017-AL0019 errors in test projects
-        var modifiedContent = content.Replace(
-            "<Project>",
-            """
-            <Project>
-                <PropertyGroup>
-                    <DisableVersionAnalyzer>true</DisableVersionAnalyzer>
-                </PropertyGroup>
-            """,
-            StringComparison.Ordinal);
+        var doc = XDocument.Parse(content, LoadOptions.PreserveWhitespace);
+        if (doc.Root is null || doc.Root.Name.LocalName != "Project")
+            throw new InvalidOperationException("Directory.Build.props must have a <Project> root element.");
+
+        doc.Root.AddFirst(
+            new XElement("PropertyGroup",
+                new XElement("DisableVersionAnalyzer", "true")));
+
+        var modifiedContent = doc.ToString(SaveOptions.DisableFormatting);
         base.WithDirectoryBuildProps(modifiedContent);
         return this;
     }

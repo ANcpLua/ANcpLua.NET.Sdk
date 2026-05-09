@@ -23,7 +23,7 @@ using NuGet.Versioning;
 const int CompilerAnalyzerConfigGlobalLevel = 40;
 
 var rootFolder = GetRootFolderPath();
-var dotNetSdkVersion = GetDotNetSdkVersionFromRepo(rootFolder);
+var netAnalyzersVersion = GetVersionPropertyFromRepo(rootFolder, "NetAnalyzersVersion");
 
 var writtenFiles = 0;
 await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
@@ -384,13 +384,13 @@ static string NormalizeGeneratedText(StringBuilder sb)
 static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerable<string> packageIds)
 {
     var orderedIds = packageIds
-        .Distinct(StringComparer.Ordinal)
-        .OrderBy(static id => id, StringComparer.Ordinal)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(static id => id, StringComparer.OrdinalIgnoreCase)
         .ToArray();
 
     // Stable, deterministic, collision-free within the referenced package set.
     // Low range is reserved for known "core" analyzer packs.
-    var result = new Dictionary<string, int>(StringComparer.Ordinal);
+    var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
     for (var i = 0; i < orderedIds.Length; i++)
     {
         var id = orderedIds[i];
@@ -407,7 +407,7 @@ static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerabl
     return result;
 }
 
-static string? GetDotNetSdkVersionFromRepo(FullPath rootFolder)
+static string? GetVersionPropertyFromRepo(FullPath rootFolder, string propertyName)
 {
     var versionPropsPath = rootFolder / "src" / "Build" / "Common" / "Version.props";
     if (!File.Exists(versionPropsPath.Value))
@@ -416,14 +416,15 @@ static string? GetDotNetSdkVersionFromRepo(FullPath rootFolder)
     try
     {
         var doc = XDocument.Load(versionPropsPath.Value);
-        var dotNetSdkVersion = doc.Descendants()
-            .FirstOrDefault(static e => string.Equals(e.Name.LocalName, "DotNetSdkVersion", StringComparison.Ordinal))?.Value;
+        var value = doc.Descendants()
+            .FirstOrDefault(e => string.Equals(e.Name.LocalName, propertyName, StringComparison.Ordinal))?.Value;
 
-        dotNetSdkVersion = dotNetSdkVersion?.Trim();
-        return string.IsNullOrEmpty(dotNetSdkVersion) ? null : dotNetSdkVersion;
+        value = value?.Trim();
+        return string.IsNullOrEmpty(value) ? null : value;
     }
-    catch
+    catch (Exception ex)
     {
+        Console.Error.WriteLine($"Warning: Failed to read {propertyName} from {versionPropsPath}: {ex.Message}");
         return null;
     }
 }
@@ -500,11 +501,11 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
             (item.Version is null || !item.Version.Contains("$(", StringComparison.Ordinal)))
             yield return (item.Name, item.Version);
 
-    // Pin analyzer package versions to the repo's declared .NET SDK version to keep
+    // Pin analyzer package versions to a repo-declared package version to keep
     // config generation reproducible (avoid "latest stable" drift).
-    if (!string.IsNullOrWhiteSpace(dotNetSdkVersion))
+    if (!string.IsNullOrWhiteSpace(netAnalyzersVersion))
     {
-        yield return ("Microsoft.CodeAnalysis.NetAnalyzers", dotNetSdkVersion);
+        yield return ("Microsoft.CodeAnalysis.NetAnalyzers", netAnalyzersVersion);
     }
     else
     {
