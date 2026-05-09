@@ -42,7 +42,7 @@ insert_final_newline = true
 [*.cs]
 indent_size = 4
 insert_final_newline = true
-charset = utf-8-bom
+charset = utf-8
 
 # C# naming conventions live in src/Config/NamingConvention.editorconfig
 # (single source of truth, dotnet/runtime aligned, shipped with the SDK package).

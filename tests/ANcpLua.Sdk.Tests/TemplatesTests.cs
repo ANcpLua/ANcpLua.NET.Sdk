@@ -17,8 +17,6 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
 {
     private const string TemplatesPackageId = "ANcpLua.NET.Sdk.Templates";
 
-    private static readonly string[] s_shortNames = ["ancplua-app", "ancplua-lib", "ancplua-web"];
-
     // Concurrent dotnet-build invocations against scaffolded projects step on each other
     // via the shared MSBuild build server (node reuse) and the shared NuGet global packages
     // folder — manifests as flaky "file is being used by another process" errors in
@@ -80,8 +78,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     {
         var content = await ReadEntryAsync($"content/{shortName}/.template.config/template.json");
 
-        Assert.DoesNotContain("__PACK_TIME_SDK_VERSION__", content);
-        Assert.DoesNotContain("__PACK_TIME_DOTNET_SDK_VERSION__", content);
+        Assert.DoesNotContain("__PACK_TIME_SDK_VERSION__", content, StringComparison.Ordinal);
+        Assert.DoesNotContain("__PACK_TIME_DOTNET_SDK_VERSION__", content, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -140,8 +138,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         // symbol values (which template.json's defaults provide).
         var content = await ReadEntryAsync($"content/{shortName}/global.json");
 
-        Assert.Contains("ANCPLUA_SDK_VERSION_PLACEHOLDER", content);
-        Assert.Contains("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", content);
+        Assert.Contains("ANCPLUA_SDK_VERSION_PLACEHOLDER", content, StringComparison.Ordinal);
+        Assert.Contains("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", content, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -152,9 +150,9 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         // ANcpLua.NET.Sdk.Test for the tests project.
         var content = await ReadEntryAsync("content/ancplua-web/global.json");
 
-        Assert.Contains("\"ANcpLua.NET.Sdk\":", content);
-        Assert.Contains("\"ANcpLua.NET.Sdk.Web\":", content);
-        Assert.Contains("\"ANcpLua.NET.Sdk.Test\":", content);
+        Assert.Contains("\"ANcpLua.NET.Sdk\":", content, StringComparison.Ordinal);
+        Assert.Contains("\"ANcpLua.NET.Sdk.Web\":", content, StringComparison.Ordinal);
+        Assert.Contains("\"ANcpLua.NET.Sdk.Test\":", content, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -184,9 +182,9 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         // stamped at pack time).
         var globalJsonPath = output.FullPath / "global.json";
         var globalJson = await File.ReadAllTextAsync(globalJsonPath, TestContext.Current.CancellationToken);
-        Assert.DoesNotContain("ANCPLUA_SDK_VERSION_PLACEHOLDER", globalJson);
-        Assert.DoesNotContain("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", globalJson);
-        Assert.Contains($"\"ANcpLua.NET.Sdk\": \"{fixture.Version}\"", globalJson);
+        Assert.DoesNotContain("ANCPLUA_SDK_VERSION_PLACEHOLDER", globalJson, StringComparison.Ordinal);
+        Assert.DoesNotContain("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", globalJson, StringComparison.Ordinal);
+        Assert.Contains($"\"ANcpLua.NET.Sdk\": \"{fixture.Version}\"", globalJson, StringComparison.Ordinal);
 
         // Verify the scaffolded sdk.version pins to the .NET SDK we stamped at pack time
         // (read from Build/Common/Version.props, propagated through DotNetSdkVersion symbol).
@@ -210,7 +208,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         var dirPackagesPath = output.FullPath / "Directory.Packages.props";
         Assert.True(File.Exists(dirPackagesPath));
         var dirPackages = await File.ReadAllTextAsync(dirPackagesPath, TestContext.Current.CancellationToken);
-        Assert.Contains("<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>", dirPackages);
+        Assert.Contains("<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>", dirPackages, StringComparison.Ordinal);
     }
 
     [Theory]
@@ -243,10 +241,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         var srcContent = await File.ReadAllTextAsync(srcCsproj, TestContext.Current.CancellationToken);
         var testsContent = await File.ReadAllTextAsync(testsCsproj, TestContext.Current.CancellationToken);
 
-        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", srcContent);
-        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", testsContent);
-        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", srcContent);
-        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", testsContent);
+        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", srcContent, StringComparison.Ordinal);
+        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", testsContent, StringComparison.Ordinal);
+        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", srcContent, StringComparison.Ordinal);
+        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", testsContent, StringComparison.Ordinal);
     }
 
     [Theory]

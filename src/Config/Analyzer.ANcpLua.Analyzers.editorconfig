@@ -1,6 +1,7 @@
-# global_level must be higher than the NET Analyzer files
+# global_level controls precedence across multiple global AnalyzerConfig files.
+# Keep distinct values to avoid equal-level conflicts (which are ignored).
 is_global = true
-global_level = 0
+global_level = 13
 
 # AL0001: Prohibit reassignment of primary constructor parameters
 # Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/AL0001.md

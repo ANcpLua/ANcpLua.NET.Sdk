@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Basic.Reference.Assemblies;
 using Meziantou.Framework;
 using Meziantou.Framework.DependencyScanning;
@@ -20,6 +21,7 @@ using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
 var rootFolder = GetRootFolderPath();
+var dotNetSdkVersion = GetDotNetSdkVersionFromRepo(rootFolder);
 
 var writtenFiles = 0;
 await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
@@ -54,9 +56,10 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
     if (rules.Count > 0)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("# global_level must be higher than the NET Analyzer files");
+        sb.AppendLine("# global_level controls precedence across multiple global AnalyzerConfig files.");
+        sb.AppendLine("# Keep distinct values to avoid equal-level conflicts (which are ignored).");
         sb.AppendLine("is_global = true");
-        sb.AppendLine("global_level = 0");
+        sb.AppendLine($"global_level = {CompilerAnalyzerConfigGlobalLevel}");
 
         var currentConfiguration = GetConfiguration(configurationFilePath);
 
@@ -227,6 +230,7 @@ static Assembly[] LoadAssembliesFromDisk(string[] assemblyPaths, string[] probeF
 async Task GenerateEditorConfigForAnalyzers()
 {
     var packages = await GetAllReferencedNuGetPackages().ConfigureAwait(false);
+    var globalLevelsByPackageId = GetAnalyzerConfigGlobalLevels(packages.Select(static p => p.Id));
     await Parallel.ForEachAsync(packages, async (item, cancellationToken) =>
     {
         var (packageId, packageVersion) = item;
@@ -257,9 +261,10 @@ async Task GenerateEditorConfigForAnalyzers()
         if (rules.Count > 0)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("# global_level must be higher than the NET Analyzer files");
+            sb.AppendLine("# global_level controls precedence across multiple global AnalyzerConfig files.");
+            sb.AppendLine("# Keep distinct values to avoid equal-level conflicts (which are ignored).");
             sb.AppendLine("is_global = true");
-            sb.AppendLine("global_level = 0");
+            sb.AppendLine($"global_level = {globalLevelsByPackageId[packageId]}");
 
             var currentConfiguration = GetConfiguration(configurationFilePath);
 
@@ -369,6 +374,55 @@ FullPath GetAnalyzerConfigurationFilePath(string packageId)
     return rootFolder / "src" / "Config" / ("Analyzer." + packageId + ".editorconfig");
 }
 
+const int CompilerAnalyzerConfigGlobalLevel = 40;
+
+static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerable<string> packageIds)
+{
+    var orderedIds = packageIds
+        .Distinct(StringComparer.Ordinal)
+        .OrderBy(static id => id, StringComparer.Ordinal)
+        .ToArray();
+
+    // Stable, deterministic, collision-free within the referenced package set.
+    // Low range is reserved for known "core" analyzer packs.
+    var result = new Dictionary<string, int>(StringComparer.Ordinal);
+    for (var i = 0; i < orderedIds.Length; i++)
+    {
+        var id = orderedIds[i];
+        result[id] = id switch
+        {
+            "Microsoft.CodeAnalysis.Analyzers" => 10,
+            "Microsoft.CodeAnalysis.NetAnalyzers" => 11,
+            "Microsoft.CodeAnalysis.BannedApiAnalyzers" => 12,
+            "ANcpLua.Analyzers" => 13,
+            _ => 1000 + i
+        };
+    }
+
+    return result;
+}
+
+static string? GetDotNetSdkVersionFromRepo(FullPath rootFolder)
+{
+    var versionPropsPath = rootFolder / "src" / "Build" / "Common" / "Version.props";
+    if (!File.Exists(versionPropsPath.Value))
+        return null;
+
+    try
+    {
+        var doc = XDocument.Load(versionPropsPath.Value);
+        var dotNetSdkVersion = doc.Descendants()
+            .FirstOrDefault(static e => string.Equals(e.Name.LocalName, "DotNetSdkVersion", StringComparison.Ordinal))?.Value;
+
+        dotNetSdkVersion = dotNetSdkVersion?.Trim();
+        return string.IsNullOrEmpty(dotNetSdkVersion) ? null : dotNetSdkVersion;
+    }
+    catch
+    {
+        return null;
+    }
+}
+
 async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 {
     var foundPackages = new HashSet<SourcePackageDependencyInfo>();
@@ -441,11 +495,17 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
             (item.Version is null || !item.Version.Contains("$(")))
             yield return (item.Name, item.Version);
 
-    foreach (var package in new[]
-             {
-                 "Microsoft.CodeAnalysis.NetAnalyzers"
-             })
-        yield return (package, null);
+    // Pin analyzer package versions to the repo's declared .NET SDK version to keep
+    // config generation reproducible (avoid "latest stable" drift).
+    if (!string.IsNullOrWhiteSpace(dotNetSdkVersion))
+    {
+        yield return ("Microsoft.CodeAnalysis.NetAnalyzers", dotNetSdkVersion);
+    }
+    else
+    {
+        // Fallback: keep prior behavior if we cannot read the repo pin.
+        yield return ("Microsoft.CodeAnalysis.NetAnalyzers", null);
+    }
 }
 
 static FullPath GetRootFolderPath()

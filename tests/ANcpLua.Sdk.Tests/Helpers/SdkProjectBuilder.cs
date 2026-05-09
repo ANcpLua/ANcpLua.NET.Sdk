@@ -339,7 +339,8 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                 <PropertyGroup>
                     <DisableVersionAnalyzer>true</DisableVersionAnalyzer>
                 </PropertyGroup>
-            """);
+            """,
+            StringComparison.Ordinal);
         base.WithDirectoryBuildProps(modifiedContent);
         return this;
     }
@@ -579,14 +580,14 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         var result = await psi.RunAsTaskAsync();
 
         // Retry on SDK resolution errors
-        const int maxRetries = 5;
-        for (var retry = 0; retry < maxRetries && result.ExitCode is not 0; retry++)
+        const int MaxRetries = 5;
+        for (var retry = 0; retry < MaxRetries && result.ExitCode is not 0; retry++)
             if (result.Output.Any(static line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
                                                  line.Text.Contains(
                                                      "The project file may be invalid or missing targets required for restore",
                                                      StringComparison.Ordinal)))
             {
-                Output?.WriteLine($"SDK resolution or restore error detected, retrying ({retry + 1}/{maxRetries})...");
+                Output?.WriteLine($"SDK resolution or restore error detected, retrying ({retry + 1}/{MaxRetries})...");
                 await Task.Delay(100 * (1 << retry));
                 result = await psi.RunAsTaskAsync();
             }
@@ -643,7 +644,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         }
 
         // Fail fast on SDK resolution errors
-        if (result.Output.Any(static line => line.Text.Contains("Could not resolve SDK")))
+        if (result.Output.Any(static line => line.Text.Contains("Could not resolve SDK", StringComparison.Ordinal)))
             Assert.Fail("The SDK cannot be found, expected version: " + _fixture.Version);
 
         return new BuildResult(result.ExitCode, result.Output, sarif, binlogContent)

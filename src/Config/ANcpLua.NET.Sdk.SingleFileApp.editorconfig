@@ -1,6 +1,6 @@
-# global_level must be higher than the base editorconfig files
+# global_level must be higher than the base SDK-shipped globals
 is_global = true
-global_level = 1
+global_level = 61
 
 # MA0047: Declare types in namespaces
 dotnet_diagnostic.MA0047.severity = none

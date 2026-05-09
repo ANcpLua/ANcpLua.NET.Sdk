@@ -3,7 +3,14 @@
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Deterministic>true</Deterministic>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+
+    <MSBuildTreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</MSBuildTreatWarningsAsErrors>
+    <TreatWarningsAsErrors Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild Condition="'$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release'">true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <!-- CI-only: Enable SourceLink reproducibility -->
@@ -24,9 +31,10 @@
   <!--
     This repo's own projects use Microsoft.NET.Sdk directly, not ANcpLua.NET.Sdk,
     so the SDK's Common.props EditorConfigFiles injection doesn't run. Pull in
-    the canonical naming convention file so this repo eats its own dog food.
+    the canonical SDK-shipped editorconfigs so this repo eats its own dog food.
   -->
   <ItemGroup>
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)src\Config\NamingConvention.editorconfig" />
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)src\Config\*.editorconfig"
+                       Exclude="$(MSBuildThisFileDirectory)src\Config\ANcpLua.NET.Sdk*.editorconfig" />
   </ItemGroup>
 </Project>

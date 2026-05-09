@@ -1,5 +1,5 @@
 is_global = true
-global_level = 0 # higher than the NET Analyzer files
+global_level = 50 # highest precedence among SDK-shipped globals
 
 dotnet_style_prefer_foreach_explicit_cast_in_source=when_strongly_typed
 

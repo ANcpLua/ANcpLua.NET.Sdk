@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
@@ -29,6 +30,10 @@ public abstract class SourceGeneratorDefaultsTests(
         "RoslynVersion"
     ];
 
+    [SuppressMessage(
+        "Reliability",
+        "CA2000:Dispose objects before losing scope",
+        Justification = "Returned builder is disposed by the test via await using.")]
     private SdkProjectBuilder CreateProject(string sdkName = SdkName) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
