@@ -1603,4 +1603,3 @@ dotnet_diagnostic.CA5404.severity = warning
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5405
 # Enabled: False, Severity: warning
 dotnet_diagnostic.CA5405.severity = warning
-
