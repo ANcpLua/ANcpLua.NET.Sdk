@@ -188,12 +188,65 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         Assert.DoesNotContain("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", globalJson);
         Assert.Contains($"\"ANcpLua.NET.Sdk\": \"{fixture.Version}\"", globalJson);
 
+        // Verify the scaffolded sdk.version pins to the .NET SDK we stamped at pack time
+        // (read from Build/Common/Version.props, propagated through DotNetSdkVersion symbol).
+        // Asserting on the textual pin alone is not enough because the placeholder substitution
+        // and the JSON shape are independently breakable.
+        var versionPropsPath = RepositoryRoot.Locate()["src"] / "Build" / "Common" / "Version.props";
+        var versionPropsContent = await File.ReadAllTextAsync(versionPropsPath, TestContext.Current.CancellationToken);
+        var match = DotNetSdkVersionRegex().Match(versionPropsContent);
+        Assert.True(match.Success, $"<DotNetSdkVersion> not found in {versionPropsPath}.");
+        var expectedDotNetSdkVersion = match.Groups[1].Value.Trim();
+
+        using var globalJsonDoc = JsonDocument.Parse(globalJson);
+        var sdkVersion = globalJsonDoc.RootElement
+            .GetProperty("sdk")
+            .GetProperty("version")
+            .GetString();
+        Assert.Equal(expectedDotNetSdkVersion, sdkVersion);
+
         // Scaffolded Directory.Packages.props is required by the SDK contract — verify
         // it's present and CPM-enabled.
         var dirPackagesPath = output.FullPath / "Directory.Packages.props";
         Assert.True(File.Exists(dirPackagesPath));
         var dirPackages = await File.ReadAllTextAsync(dirPackagesPath, TestContext.Current.CancellationToken);
         Assert.Contains("<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>", dirPackages);
+    }
+
+    [Theory]
+    [InlineData("ancplua-app")]
+    [InlineData("ancplua-lib")]
+    public async Task Scaffold_HonorsTargetFrameworkChoice_Net9(string shortName)
+    {
+        // ancplua-app and ancplua-lib expose a TargetFramework choice symbol with
+        // {net10.0, net9.0}; ancplua-web is currently net10.0-only and is excluded.
+        // The default-only assertions in Scaffold_ProducesNamedTreeWithVersionPins
+        // do not exercise the alternate choice, so a regression in the symbol's
+        // 'replaces' wiring would silently slip through.
+        await using var hive = TemporaryDirectory.Create();
+        await using var output = TemporaryDirectory.Create();
+        var projectName = "T" + Guid.NewGuid().ToString("N")[..8];
+
+        await DotnetNewInstallAsync(hive.FullPath);
+        await DotnetNewScaffoldAsync(
+            shortName,
+            projectName,
+            output.FullPath,
+            hive.FullPath,
+            extraArgs: ["--TargetFramework", "net9.0"]);
+
+        var srcCsproj = output.FullPath / "src" / projectName / $"{projectName}.csproj";
+        var testsCsproj = output.FullPath / "tests" / $"{projectName}.Tests" / $"{projectName}.Tests.csproj";
+        Assert.True(File.Exists(srcCsproj));
+        Assert.True(File.Exists(testsCsproj));
+
+        var srcContent = await File.ReadAllTextAsync(srcCsproj, TestContext.Current.CancellationToken);
+        var testsContent = await File.ReadAllTextAsync(testsCsproj, TestContext.Current.CancellationToken);
+
+        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", srcContent);
+        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", testsContent);
+        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", srcContent);
+        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", testsContent);
     }
 
     [Theory]
@@ -303,17 +356,20 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         string shortName,
         string projectName,
         FullPath outputPath,
-        FullPath hive)
+        FullPath hive,
+        IReadOnlyList<string>? extraArgs = null)
     {
-        var result = await RunDotnetAsync(
-            [
-                "new", shortName,
-                "-n", projectName,
-                "-o", outputPath,
-                "--debug:custom-hive", hive,
-                "--skipRestore"
-            ],
-            workingDirectory: null);
+        var args = new List<object>
+        {
+            "new", shortName,
+            "-n", projectName,
+            "-o", outputPath,
+            "--debug:custom-hive", hive,
+            "--skipRestore"
+        };
+        if (extraArgs is not null) args.AddRange(extraArgs);
+
+        var result = await RunDotnetAsync(args, workingDirectory: null);
         Assert.True(
             result.ExitCode == 0,
             $"dotnet new {shortName} failed (exit {result.ExitCode}):{Environment.NewLine}{result.Output}");

@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
 using Meziantou.Framework;
 
 [assembly: AssemblyFixture(typeof(PackageFixture))]
 
 namespace ANcpLua.Sdk.Tests.Helpers;
 
-public partial class PackageFixture : IAsyncLifetime
+public class PackageFixture : IAsyncLifetime
 {
     public const string SdkName = "ANcpLua.NET.Sdk";
     public const string SdkWebName = "ANcpLua.NET.Sdk.Web";
@@ -41,17 +40,21 @@ public partial class PackageFixture : IAsyncLifetime
 
         var repoRoot = RepositoryRoot.Locate();
 
-        var versionPropsPath = repoRoot["src"] / "Build" / "Common" / "Version.props";
-        var existingContent = await File.ReadAllTextAsync(versionPropsPath);
-        var updatedContent = MyRegex().Replace(existingContent, $"<ANcpSdkPackageVersion>{Version}</ANcpSdkPackageVersion>");
-        await File.WriteAllTextAsync(versionPropsPath, updatedContent);
-
         var buildFiles = Directory
             .GetFiles(repoRoot["src"], "*.csproj")
             .Select(FullPath.FromPath)
             .ToList();
 
         Assert.NotEmpty(buildFiles);
+
+        // Pack-time substitution flows entirely through the -p:Version=... global property:
+        //   - Templates.csproj's StampTemplateTokens reads $(Version) for __PACK_TIME_SDK_VERSION__.
+        //   - $(Version) becomes the produced .nupkg version.
+        //   - $(DotNetSdkVersion) is read from Build/Common/Version.props for __PACK_TIME_DOTNET_SDK_VERSION__.
+        // The previously-tracked Version.props rewrite mutated <ANcpSdkPackageVersion>, which is
+        // a CI-tooling-only literal (build.ps1 + verify-published-versions.ps1) and is not read
+        // by any pack target — so the rewrite was redundant for pack output and only served to
+        // dirty the working tree on developer machines whenever PACKAGE_VERSION ≠ "999.9.9".
         await Parallel.ForEachAsync(buildFiles, async (nuspecPath, t) =>
         {
             var psi = new ProcessStartInfo("dotnet")
@@ -76,7 +79,4 @@ public partial class PackageFixture : IAsyncLifetime
         await _packageDirectory.DisposeAsync();
         GC.SuppressFinalize(this);
     }
-
-    [GeneratedRegex("<ANcpSdkPackageVersion>[^<]+</ANcpSdkPackageVersion>")]
-    private static partial Regex MyRegex();
 }
