@@ -20,6 +20,8 @@ using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
+const int CompilerAnalyzerConfigGlobalLevel = 40;
+
 var rootFolder = GetRootFolderPath();
 var dotNetSdkVersion = GetDotNetSdkVersionFromRepo(rootFolder);
 
@@ -104,7 +106,7 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
             DiagnosticSeverity.Info => "suggestion",
             DiagnosticSeverity.Warning => "warning",
             DiagnosticSeverity.Error => "error",
-            _ => throw new Exception($"Severity '{severity}' is not supported")
+            _ => throw new InvalidOperationException($"Severity '{severity}' is not supported")
         };
     }
 }
@@ -312,7 +314,7 @@ async Task GenerateEditorConfigForAnalyzers()
                     DiagnosticSeverity.Info => "suggestion",
                     DiagnosticSeverity.Warning => "warning",
                     DiagnosticSeverity.Error => "error",
-                    _ => throw new Exception($"Severity '{severity}' is not supported")
+                    _ => throw new InvalidOperationException($"Severity '{severity}' is not supported")
                 };
             }
         }
@@ -373,8 +375,6 @@ FullPath GetAnalyzerConfigurationFilePath(string packageId)
 {
     return rootFolder / "src" / "Config" / ("Analyzer." + packageId + ".editorconfig");
 }
-
-const int CompilerAnalyzerConfigGlobalLevel = 40;
 
 static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerable<string> packageIds)
 {
@@ -492,7 +492,7 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
     foreach (var item in result)
 
         if (item.Type is DependencyType.NuGet && item.Name is not null &&
-            (item.Version is null || !item.Version.Contains("$(")))
+            (item.Version is null || !item.Version.Contains("$(", StringComparison.Ordinal)))
             yield return (item.Name, item.Version);
 
     // Pin analyzer package versions to the repo's declared .NET SDK version to keep

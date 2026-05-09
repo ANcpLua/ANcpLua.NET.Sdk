@@ -225,3 +225,4 @@ dotnet_diagnostic.RS2007.severity = warning
 # Help link: https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Microsoft.CodeAnalysis.Analyzers/ReleaseTrackingAnalyzers.Help.md
 # Enabled: True, Severity: warning
 dotnet_diagnostic.RS2008.severity = warning
+
