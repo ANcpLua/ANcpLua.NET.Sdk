@@ -90,7 +90,7 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
             sb.AppendLine();
         }
 
-        var text = sb.ToString().ReplaceLineEndings("\n");
+        var text = NormalizeGeneratedText(sb);
         if (File.Exists(configurationFilePath))
             if (File.ReadAllText(configurationFilePath).ReplaceLineEndings("\n") == text)
                 return;
@@ -296,7 +296,7 @@ async Task GenerateEditorConfigForAnalyzers()
                 sb.AppendLine();
             }
 
-            var text = sb.ToString().ReplaceLineEndings("\n");
+            var text = NormalizeGeneratedText(sb);
             if (File.Exists(configurationFilePath))
                 if (File.ReadAllText(configurationFilePath).ReplaceLineEndings("\n") == text)
                     return;
@@ -361,7 +361,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
     sb.AppendLine("# Banned symbols from Newtonsoft.Json");
     foreach (var symbol in bannedSymbols.OrderBy(static s => s, StringComparer.Ordinal)) sb.AppendLine(symbol);
 
-    var text = sb.ToString().ReplaceLineEndings("\n");
+    var text = NormalizeGeneratedText(sb);
     if (File.Exists(bannedSymbolsFilePath))
         if (File.ReadAllText(bannedSymbolsFilePath).ReplaceLineEndings("\n") == text)
             return;
@@ -374,6 +374,11 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
 FullPath GetAnalyzerConfigurationFilePath(string packageId)
 {
     return rootFolder / "src" / "Config" / ("Analyzer." + packageId + ".editorconfig");
+}
+
+static string NormalizeGeneratedText(StringBuilder sb)
+{
+    return sb.ToString().ReplaceLineEndings("\n").TrimEnd('\n') + "\n";
 }
 
 static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerable<string> packageIds)
