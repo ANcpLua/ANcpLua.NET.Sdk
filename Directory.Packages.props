@@ -53,6 +53,7 @@
   <ItemGroup Label="Testing">
     <!-- SDK-internal self-test consumer of a first-party lib; variable at top of file. -->
     <PackageVersion Include="ANcpLua.Roslyn.Utilities.Testing" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
+    <PackageVersion Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)"/>
     <PackageVersion Include="xunit.v3.mtp-v2" Version="$(XunitV3Version)"/>
     <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)"/>
     <PackageVersion Include="Microsoft.Testing.Platform" Version="$(MTPExtensionsVersion)"/>

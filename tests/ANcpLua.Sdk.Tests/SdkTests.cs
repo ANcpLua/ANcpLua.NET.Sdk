@@ -396,13 +396,10 @@ public abstract class SdkTests(
     }
 
     [Fact]
-    public async Task SdkGlobalEditorConfigTakesPrecedenceOverLocalConfig()
+    public async Task LocalEditorConfigDoesNotEnableCodeStyleInDebugBuild()
     {
-        // SDK's global editorconfigs (is_global=true, global_level=0) take precedence over local .editorconfig files.
-        // This is by design - SDK provides baseline standards. Users should override via:
-        // - .globalconfig files (higher precedence than SDK globals)
-        // - MSBuild properties (<TreatWarningsAsErrors>, etc.)
-        // - NOT via local .editorconfig files (which cannot override SDK globals)
+        // In Debug builds, EnforceCodeStyleInBuild is off, so IDE code-style diagnostics
+        // (IDE****) are not produced at build time even if a local .editorconfig requests them.
 
         await using var project = CreateProject();
 
@@ -410,8 +407,6 @@ public abstract class SdkTests(
             root = true
 
             [*.cs]
-            # The option:severity syntax (e.g., = true:warning) is not respected at build time.
-            # Use dotnet_diagnostic syntax for build-time enforcement per Microsoft docs.
             csharp_style_expression_bodied_local_functions = true
             dotnet_diagnostic.IDE0061.severity = warning
             """);
@@ -436,9 +431,43 @@ public abstract class SdkTests(
                 """)
             .BuildAsync(["--configuration", "Debug"]);
 
-        // SDK global editorconfig settings take precedence - local .editorconfig cannot override
-        Assert.False(result.HasWarning());
-        Assert.False(result.HasError());
+        result.HasWarning("IDE0061").Should().BeFalse();
+        result.HasError().Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task LocalEditorConfigOverridesSdkGlobalConfigInReleaseBuild()
+    {
+        // When both a global AnalyzerConfig and an .editorconfig provide the same key, .editorconfig wins.
+        // Validate that a consumer can raise IDE0061 from the SDK default to error.
+        await using var project = CreateProject();
+
+        project.AddFile(".editorconfig", """
+            root = true
+
+            [*.cs]
+            csharp_style_expression_bodied_local_functions = true
+            dotnet_diagnostic.IDE0061.severity = error
+            """);
+
+        var result = await project
+            .AddSource("Program.cs", """
+                sealed class Sample
+                {
+                    public static void A()
+                    {
+                        B();
+
+                        static void B()
+                        {
+                            System.Console.WriteLine();
+                        }
+                    }
+                }
+                """)
+            .BuildAsync(["--configuration", "Release"]);
+
+        result.HasError("IDE0061").Should().BeTrue();
     }
 
     [Fact]
