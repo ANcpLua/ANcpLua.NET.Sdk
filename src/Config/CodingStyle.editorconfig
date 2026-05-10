@@ -1,9 +1,10 @@
 is_global = true
 global_level = 30
 
-# Note: global AnalyzerConfig files aren't intended for editor-only formatting
-# settings (indent size, trimming whitespace, encoding, ...). Keep those in a
-# regular repo-level `.editorconfig` instead.
+# NOTE: This file is a global AnalyzerConfig (`is_global = true`).
+# It configures analyzer/code-style options only; editor-only formatting
+# settings (indent size, trimming whitespace, encoding, ...) belong in the
+# repo-level `.editorconfig` instead.
 
 # New line preferences
 csharp_new_line_before_open_brace = all
