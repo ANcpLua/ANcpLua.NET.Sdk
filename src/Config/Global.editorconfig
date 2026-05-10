@@ -1,5 +1,8 @@
+# Highest precedence among the base/non-flavor SDK globals.
+# Per-flavor overlays (e.g. ANcpLua.NET.Sdk.Web=60, .SingleFileApp=61) sit above this.
+# EditorConfig spec: comments must be on their own line, never trailing a value.
 is_global = true
-global_level = 50 # highest precedence among SDK-shipped globals
+global_level = 50
 
 dotnet_style_prefer_foreach_explicit_cast_in_source=when_strongly_typed
 

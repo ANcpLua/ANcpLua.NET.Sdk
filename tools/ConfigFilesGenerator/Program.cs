@@ -24,10 +24,27 @@ const int CompilerAnalyzerConfigGlobalLevel = 40;
 
 var rootFolder = GetRootFolderPath();
 var msbuildProperties = LoadMsBuildProperties(rootFolder);
-var netAnalyzersVersion = TryResolveMsBuildProperty("$(NetAnalyzersVersion)", msbuildProperties);
-if (string.IsNullOrWhiteSpace(netAnalyzersVersion) || ContainsUnresolvedProperty(netAnalyzersVersion))
-    throw new InvalidOperationException(
-        "Could not resolve NetAnalyzersVersion from src/Build/Common/Version.props.");
+
+// Pin SDK-injected analyzers to the versions declared in Version.props so the
+// generator always refreshes the configs the SDK actually ships, regardless of
+// whether DependencyScanner sees the property-based PackageReference values.
+var injectedAnalyzerPackages = new (string PackageId, string PropertyName)[]
+{
+    ("Microsoft.CodeAnalysis.NetAnalyzers", "NetAnalyzersVersion"),
+    ("ANcpLua.Analyzers", "ANcpLuaAnalyzersVersion"),
+    ("Microsoft.CodeAnalysis.BannedApiAnalyzers", "BannedApiAnalyzersVersion"),
+    ("AwesomeAssertions.Analyzers", "AwesomeAssertionsAnalyzersVersion"),
+};
+
+var injectedAnalyzerVersions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+foreach (var (packageId, propertyName) in injectedAnalyzerPackages)
+{
+    var resolved = ResolveMsBuildProperty($"$({propertyName})", msbuildProperties);
+    if (string.IsNullOrWhiteSpace(resolved) || ContainsUnresolvedProperty(resolved))
+        throw new InvalidOperationException(
+            $"Could not resolve {propertyName} from src/Build/Common/Version.props.");
+    injectedAnalyzerVersions[packageId] = resolved;
+}
 
 var writtenFiles = 0;
 await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
@@ -35,7 +52,12 @@ await GenerateEditorConfigForAnalyzers().ConfigureAwait(false);
 await GenerateBanSymbolsForNewtonsoftJson().ConfigureAwait(false);
 
 Console.WriteLine($"{writtenFiles} configuration files written");
-if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color").WaitForExit();
+if (writtenFiles > 0)
+{
+    using var diffProcess = Process.Start("git", "--no-pager diff --color");
+    if (diffProcess is not null)
+        await diffProcess.WaitForExitAsync().ConfigureAwait(false);
+}
 
 return 0;
 
@@ -393,17 +415,19 @@ static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerabl
         .ToArray();
 
     // Stable, deterministic, collision-free within the referenced package set.
-    // Low range is reserved for known "core" analyzer packs.
+    // Low range is reserved for known "core" analyzer packs. NuGet IDs are
+    // case-insensitive, so the reserved-ID matches must be case-insensitive too.
     var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
     for (var i = 0; i < orderedIds.Length; i++)
     {
         var id = orderedIds[i];
         result[id] = id switch
         {
-            "Microsoft.CodeAnalysis.Analyzers" => 10,
-            "Microsoft.CodeAnalysis.NetAnalyzers" => 11,
-            "Microsoft.CodeAnalysis.BannedApiAnalyzers" => 12,
-            "ANcpLua.Analyzers" => 13,
+            _ when string.Equals(id, "Microsoft.CodeAnalysis.Analyzers", StringComparison.OrdinalIgnoreCase) => 10,
+            _ when string.Equals(id, "Microsoft.CodeAnalysis.NetAnalyzers", StringComparison.OrdinalIgnoreCase) => 11,
+            _ when string.Equals(id, "Microsoft.CodeAnalysis.BannedApiAnalyzers", StringComparison.OrdinalIgnoreCase) => 12,
+            _ when string.Equals(id, "ANcpLua.Analyzers", StringComparison.OrdinalIgnoreCase) => 13,
+            _ when string.Equals(id, "AwesomeAssertions.Analyzers", StringComparison.OrdinalIgnoreCase) => 14,
             _ => 1000 + i
         };
     }
@@ -507,33 +531,54 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
 async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
 {
+    var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
     foreach (var item in result)
 
         if (item.Type is DependencyType.NuGet && item.Name is not null &&
             (item.Version is null || !item.Version.Contains("$(", StringComparison.Ordinal)))
+        {
+            seenIds.Add(item.Name);
             yield return (item.Name, item.Version);
+        }
 
-    // Pin analyzer package versions to repo-declared versions to keep
-    // config generation reproducible (avoid "latest stable" drift).
-    yield return ("Microsoft.CodeAnalysis.NetAnalyzers", netAnalyzersVersion);
+    // Pin analyzer package versions to repo-declared versions so config
+    // generation reproducibly refreshes the analyzer set the SDK injects,
+    // even though DependencyScanner skips entries with property-based versions.
+    foreach (var (packageId, version) in injectedAnalyzerVersions)
+        if (seenIds.Add(packageId))
+            yield return (packageId, version);
 }
 
 static bool ContainsUnresolvedProperty(string? value) =>
     value is not null && value.Contains("$(", StringComparison.Ordinal);
 
-static string? TryResolveMsBuildProperty(string? value, IReadOnlyDictionary<string, string> properties)
+static string ResolveMsBuildProperty(string value, IReadOnlyDictionary<string, string> properties)
 {
-    if (string.IsNullOrEmpty(value))
-        return value;
+    // Recursively expand $(...) references with a bounded depth and cycle guard.
+    const int maxDepth = 16;
+    var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var current = value;
+    for (var depth = 0; depth < maxDepth; depth++)
+    {
+        if (string.IsNullOrEmpty(current))
+            return current;
 
-    // Resolve simple property references like $(PropertyName).
-    var match = Regex.Match(value, @"^\$\(([^)]+)\)$", RegexOptions.CultureInvariant);
-    if (!match.Success)
-        return value;
+        var match = Regex.Match(current, @"^\$\(([^)]+)\)$", RegexOptions.CultureInvariant);
+        if (!match.Success)
+            return current;
 
-    var propertyName = match.Groups[1].Value;
-    return properties.TryGetValue(propertyName, out var resolved) ? resolved : value;
+        var propertyName = match.Groups[1].Value;
+        if (!visited.Add(propertyName))
+            return current;
+
+        if (!properties.TryGetValue(propertyName, out var resolved))
+            return current;
+
+        current = resolved;
+    }
+
+    return current;
 }
 
 static FullPath GetRootFolderPath()
@@ -541,7 +586,10 @@ static FullPath GetRootFolderPath()
     var path = FullPath.CurrentDirectory();
     while (!path.IsEmpty)
     {
-        if (Directory.Exists(path / ".git"))
+        // In a regular checkout `.git` is a directory; in a worktree it is a
+        // file pointing at the real gitdir. Accept both so worktree layouts work.
+        var gitMarker = path / ".git";
+        if (Directory.Exists(gitMarker) || File.Exists(gitMarker))
             return path;
 
         path = path.Parent;
