@@ -464,16 +464,44 @@ static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFo
     if (root is null)
         return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
+    // Honor the only Condition pattern used in Version.props: the standard
+    // "default if undefined" guard, e.g. Condition="'$(NetAnalyzersVersion)' == ''".
+    // For that pattern, only assign when the property is not already set
+    // (mirrors MSBuild's evaluation of a self-referential empty check).
+    // Unconditional assignments behave normally (last write wins).
+    // Anything else with a Condition is skipped to avoid silently mishandling
+    // a guard the loader doesn't understand.
     var properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     foreach (var propertyGroup in root.Elements("PropertyGroup"))
     foreach (var element in propertyGroup.Elements())
     {
         var value = element.Value?.Trim();
-        if (!string.IsNullOrEmpty(value))
-            properties[element.Name.LocalName] = value;
+        if (string.IsNullOrEmpty(value))
+            continue;
+
+        var name = element.Name.LocalName;
+        var condition = element.Attribute("Condition")?.Value;
+        if (string.IsNullOrWhiteSpace(condition))
+        {
+            properties[name] = value;
+            continue;
+        }
+
+        var selfDefaultGuard = $"'$({name})' == ''";
+        if (string.Equals(NormalizeCondition(condition), selfDefaultGuard, StringComparison.Ordinal))
+        {
+            if (!properties.ContainsKey(name))
+                properties[name] = value;
+            continue;
+        }
+
+        // Unknown Condition shape: don't assume it's true.
     }
 
     return properties;
+
+    static string NormalizeCondition(string condition) =>
+        Regex.Replace(condition, @"\s+", " ", RegexOptions.CultureInvariant).Trim();
 }
 
 async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
@@ -576,17 +604,19 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
 async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
 {
-    var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var emittedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
     foreach (var item in result)
     {
         if (item.Type is not DependencyType.NuGet || item.Name is null)
             continue;
 
-        // Skip duplicate top-level package IDs before any version resolution
-        // or dependency walking; the same package showing up in multiple
-        // projects in src/ shouldn't fan out into repeated NuGet work.
-        if (!seenIds.Add(item.Name))
+        // Skip duplicate top-level package IDs we've already yielded; the same
+        // package showing up in multiple projects in src/ shouldn't fan out
+        // into repeated NuGet work. Don't mark the ID as seen yet — only after
+        // we've successfully resolved its version, so that a first sighting
+        // with an unresolved $(...) doesn't lock out the pinned fallback.
+        if (emittedIds.Contains(item.Name))
             continue;
 
         var version = item.Version;
@@ -601,6 +631,7 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
                 continue;
         }
 
+        emittedIds.Add(item.Name);
         yield return (item.Name, version);
     }
 
@@ -608,7 +639,7 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
     // generation reproducibly refreshes the analyzer set the SDK injects,
     // even when DependencyScanner doesn't surface them at all.
     foreach (var (packageId, version) in injectedAnalyzerVersions)
-        if (seenIds.Add(packageId))
+        if (emittedIds.Add(packageId))
             yield return (packageId, version);
 }
 
