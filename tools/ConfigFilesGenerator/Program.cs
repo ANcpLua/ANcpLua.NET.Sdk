@@ -433,10 +433,11 @@ static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerabl
     // Low range is reserved for known "core" analyzer packs. NuGet IDs are
     // case-insensitive, so the reserved-ID matches must be case-insensitive too.
     var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-    for (var i = 0; i < orderedIds.Length; i++)
+    var assigned = new HashSet<int>();
+
+    foreach (var id in orderedIds)
     {
-        var id = orderedIds[i];
-        result[id] = id switch
+        var reserved = id switch
         {
             _ when string.Equals(id, "Microsoft.CodeAnalysis.Analyzers", StringComparison.OrdinalIgnoreCase) => 10,
             _ when string.Equals(id, "Microsoft.CodeAnalysis.NetAnalyzers", StringComparison.OrdinalIgnoreCase) => 11,
@@ -446,11 +447,43 @@ static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerabl
             // xunit.analyzers ships as a transitive of xunit.v3 (resolved via Version.props
             // property expansion). Reserved so its config doesn't churn when the package set shifts.
             _ when string.Equals(id, "xunit.analyzers", StringComparison.OrdinalIgnoreCase) => 15,
-            _ => 1000 + i
+            _ => -1
         };
+
+        if (reserved >= 0)
+        {
+            result[id] = reserved;
+            assigned.Add(reserved);
+            continue;
+        }
+
+        // Derive a stable level from the package ID itself (FNV-1a over the
+        // upper-cased UTF-8 bytes is process-deterministic, unlike the runtime's
+        // randomized GetHashCode). Linear-probe on collision so adding or
+        // removing unrelated packages doesn't renumber neighbors.
+        var level = (int)(StableFnv1a(id) % 9000UL) + 1000;
+        while (assigned.Contains(level))
+            level = level == 9999 ? 1000 : level + 1;
+
+        result[id] = level;
+        assigned.Add(level);
     }
 
     return result;
+
+    static ulong StableFnv1a(string value)
+    {
+        const ulong FnvOffsetBasis = 14695981039346656037UL;
+        const ulong FnvPrime = 1099511628211UL;
+        var bytes = System.Text.Encoding.UTF8.GetBytes(value.ToUpperInvariant());
+        var hash = FnvOffsetBasis;
+        foreach (var b in bytes)
+        {
+            hash ^= b;
+            hash *= FnvPrime;
+        }
+        return hash;
+    }
 }
 
 static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFolder)
@@ -604,19 +637,19 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
 async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
 {
+    // Dedupe on (id, resolved-version) tuples — NOT id alone — so that the
+    // same package showing up with two different versions (e.g.
+    // Microsoft.CodeAnalysis.CSharp without a version in src/*.csproj plus a
+    // VersionOverride in SourceGenerators.targets) both reach the downstream
+    // dedup pass, which already prefers pinned versions and falls back to
+    // the highest. Identical (id, version) pairs are still skipped to avoid
+    // redundant NuGet dependency walks.
+    var emittedKeys = new HashSet<(string Id, string? Version)>(VersionedPackageKeyComparer.Instance);
     var emittedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
     foreach (var item in result)
     {
         if (item.Type is not DependencyType.NuGet || item.Name is null)
-            continue;
-
-        // Skip duplicate top-level package IDs we've already yielded; the same
-        // package showing up in multiple projects in src/ shouldn't fan out
-        // into repeated NuGet work. Don't mark the ID as seen yet — only after
-        // we've successfully resolved its version, so that a first sighting
-        // with an unresolved $(...) doesn't lock out the pinned fallback.
-        if (emittedIds.Contains(item.Name))
             continue;
 
         var version = item.Version;
@@ -630,6 +663,9 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
             if (ContainsUnresolvedProperty(version))
                 continue;
         }
+
+        if (!emittedKeys.Add((item.Name, version)))
+            continue;
 
         emittedIds.Add(item.Name);
         yield return (item.Name, version);
@@ -917,6 +953,23 @@ file sealed record AnalyzerRule(
     DiagnosticSeverity? DefaultEffectiveSeverity);
 
 file sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
+
+// Equality comparer for (id, version) where id is case-insensitive and
+// version is compared ordinally. Used to dedupe top-level package yields
+// without collapsing distinct versions of the same id.
+file sealed class VersionedPackageKeyComparer : IEqualityComparer<(string Id, string? Version)>
+{
+    public static readonly VersionedPackageKeyComparer Instance = new();
+
+    public bool Equals((string Id, string? Version) x, (string Id, string? Version) y) =>
+        StringComparer.OrdinalIgnoreCase.Equals(x.Id, y.Id) &&
+        StringComparer.Ordinal.Equals(x.Version, y.Version);
+
+    public int GetHashCode((string Id, string? Version) obj) =>
+        HashCode.Combine(
+            StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Id),
+            obj.Version is null ? 0 : StringComparer.Ordinal.GetHashCode(obj.Version));
+}
 
 internal static partial class Patterns
 {
