@@ -548,7 +548,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
     foreach (var pinnedId in pinnedVersions.Keys)
         if (!foundIds.Contains(pinnedId))
             throw new InvalidOperationException(
-                $"Pinned analyzer package '{pinnedId}@{pinnedVersions[pinnedId]}' could not be resolved on the configured NuGet feeds.");
+                $"Pinned analyzer package '{pinnedId}@{pinnedVersions[pinnedId]}' could not be resolved on nuget.org.");
 
     var deduplicatedPackages = foundPackages
         .GroupBy(static p => p.Id, StringComparer.OrdinalIgnoreCase)
