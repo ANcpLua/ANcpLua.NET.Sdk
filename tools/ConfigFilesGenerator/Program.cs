@@ -428,6 +428,9 @@ static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerabl
             _ when string.Equals(id, "Microsoft.CodeAnalysis.BannedApiAnalyzers", StringComparison.OrdinalIgnoreCase) => 12,
             _ when string.Equals(id, "ANcpLua.Analyzers", StringComparison.OrdinalIgnoreCase) => 13,
             _ when string.Equals(id, "AwesomeAssertions.Analyzers", StringComparison.OrdinalIgnoreCase) => 14,
+            // xunit.analyzers ships as a transitive of xunit.v3 (resolved via Version.props
+            // property expansion). Reserved so its config doesn't churn when the package set shifts.
+            _ when string.Equals(id, "xunit.analyzers", StringComparison.OrdinalIgnoreCase) => 15,
             _ => 1000 + i
         };
     }
