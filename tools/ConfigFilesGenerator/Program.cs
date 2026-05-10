@@ -540,6 +540,7 @@ static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFo
 async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 {
     var foundPackages = new HashSet<SourcePackageDependencyInfo>();
+    var visitedPackages = new HashSet<PackageIdentity>(PackageIdentityComparer.Default);
 
     using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
@@ -559,7 +560,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
         var packageIdentity = new PackageIdentity(package.Id, version);
         await ListAllPackageDependencies(packageIdentity, [repository], NuGetFramework.AnyFramework, cache,
-            NullLogger.Instance, foundPackages, CancellationToken.None).ConfigureAwait(false);
+            NullLogger.Instance, foundPackages, visitedPackages, CancellationToken.None).ConfigureAwait(false);
     }
 
     // Deduplicate by package ID. For SDK-injected analyzers, honor the version
@@ -606,10 +607,17 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         SourceCacheContext cache,
         ILogger logger,
         ISet<SourcePackageDependencyInfo> dependencies,
+        ISet<PackageIdentity> visited,
         CancellationToken cancellationToken)
     {
+        // Track visited identities in a typed PackageIdentity set so the
+        // early-exit check is an O(1) hash lookup (using NuGet's canonical
+        // PackageIdentityComparer) rather than the O(n) LINQ Contains that
+        // covariance silently produced when querying a HashSet typed for
+        // SourcePackageDependencyInfo with a base PackageIdentity argument.
+        if (!visited.Add(package)) return;
+
         var sourceRepositories = repositories as IReadOnlyList<SourceRepository> ?? repositories.ToList();
-        if (dependencies.Contains(package)) return;
 
         foreach (var repository in sourceRepositories)
         {
@@ -630,6 +638,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
                     cache,
                     logger,
                     dependencies,
+                    visited,
                     cancellationToken).ConfigureAwait(false);
         }
     }
