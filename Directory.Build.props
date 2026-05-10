@@ -6,7 +6,7 @@
     builds (e.g. `dotnet test` without `-c Release`).
   -->
   <PropertyGroup Condition="'$(CI)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <ContinuousIntegrationBuild Condition="'$(ContinuousIntegrationBuild)' == ''">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <!-- SDK-owned properties - centralized here, NOT in individual csproj files -->
