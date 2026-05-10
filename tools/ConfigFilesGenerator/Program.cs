@@ -649,10 +649,10 @@ static bool ContainsUnresolvedProperty(string? value) =>
 static string ResolveMsBuildProperty(string value, IReadOnlyDictionary<string, string> properties)
 {
     // Recursively expand $(...) references with a bounded depth and cycle guard.
-    const int maxDepth = 16;
+    const int MaxDepth = 16;
     var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     var current = value;
-    for (var depth = 0; depth < maxDepth; depth++)
+    for (var depth = 0; depth < MaxDepth; depth++)
     {
         if (string.IsNullOrEmpty(current))
             return current;
@@ -838,10 +838,10 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
 {
     var settings = Settings.LoadDefaultSettings(null);
     var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(settings);
-    const string source = "https://api.nuget.org/v3/index.json";
+    const string Source = "https://api.nuget.org/v3/index.json";
 
     using var cache = new SourceCacheContext();
-    var repository = Repository.Factory.GetCoreV3(source);
+    var repository = Repository.Factory.GetCoreV3(Source);
     var resource = await repository.GetResourceAsync<FindPackageByIdResource>().ConfigureAwait(false);
 
     if (version is null)
@@ -869,7 +869,7 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
         packageStream.Seek(0, SeekOrigin.Begin);
 
         package = await GlobalPackagesFolderUtility.AddPackageAsync(
-            source,
+            Source,
             new PackageIdentity(packageId, version),
             packageStream,
             globalPackagesFolder,
