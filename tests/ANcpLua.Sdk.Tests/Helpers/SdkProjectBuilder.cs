@@ -336,9 +336,10 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         if (doc.Root is null || doc.Root.Name.LocalName != "Project")
             throw new InvalidOperationException("Directory.Build.props must have a <Project> root element.");
 
+        var ns = doc.Root.Name.Namespace;
         doc.Root.AddFirst(
-            new XElement("PropertyGroup",
-                new XElement("DisableVersionAnalyzer", "true")));
+            new XElement(ns + "PropertyGroup",
+                new XElement(ns + "DisableVersionAnalyzer", "true")));
 
         var modifiedContent = doc.ToString(SaveOptions.DisableFormatting);
         base.WithDirectoryBuildProps(modifiedContent);
