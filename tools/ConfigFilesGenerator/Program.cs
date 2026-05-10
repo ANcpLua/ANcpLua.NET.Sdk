@@ -483,11 +483,26 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
             NullLogger.Instance, foundPackages, CancellationToken.None).ConfigureAwait(false);
     }
 
-    // Deduplicate by package ID. If multiple versions exist (e.g., from dependency scanning
-    // and explicit pinning), prefer the highest version to ensure we get all analyzer rules.
+    // Deduplicate by package ID. For SDK-injected analyzers, honor the version
+    // pinned via Version.props so the generated configs reflect the analyzer set
+    // the SDK actually injects, even if a transitive dep pulls a newer version.
+    // For everything else, prefer the highest version to capture all analyzer rules.
+    var pinnedVersions = injectedAnalyzerVersions.ToDictionary(
+        static kvp => kvp.Key,
+        static kvp => NuGetVersion.Parse(kvp.Value),
+        StringComparer.OrdinalIgnoreCase);
+
     var deduplicatedPackages = foundPackages
         .GroupBy(static p => p.Id, StringComparer.OrdinalIgnoreCase)
-        .Select(static g => g.OrderByDescending(static p => p.Version).First())
+        .Select(g =>
+        {
+            if (pinnedVersions.TryGetValue(g.Key, out var pinnedVersion))
+                return g.FirstOrDefault(p => p.Version == pinnedVersion)
+                    ?? throw new InvalidOperationException(
+                        $"Pinned analyzer package '{g.Key}' version '{pinnedVersion}' was not resolved.");
+
+            return g.OrderByDescending(static p => p.Version).First();
+        })
         .Select(static p => (p.Id, p.Version))
         .ToArray();
 
