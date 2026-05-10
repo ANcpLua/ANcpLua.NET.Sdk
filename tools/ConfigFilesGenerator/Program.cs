@@ -510,6 +510,18 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         static kvp => NuGetVersion.Parse(kvp.Value),
         StringComparer.OrdinalIgnoreCase);
 
+    // ListAllPackageDependencies silently `continue`s when ResolvePackage returns
+    // null (e.g. the pinned version doesn't exist on the feed), so a missing
+    // pinned analyzer would otherwise silently drop out of the generated set.
+    // Fail loudly instead.
+    var foundIds = foundPackages
+        .Select(static p => p.Id)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    foreach (var pinnedId in pinnedVersions.Keys)
+        if (!foundIds.Contains(pinnedId))
+            throw new InvalidOperationException(
+                $"Pinned analyzer package '{pinnedId}@{pinnedVersions[pinnedId]}' could not be resolved on the configured NuGet feeds.");
+
     var deduplicatedPackages = foundPackages
         .GroupBy(static p => p.Id, StringComparer.OrdinalIgnoreCase)
         .Select(g =>
