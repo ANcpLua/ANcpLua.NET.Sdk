@@ -23,7 +23,11 @@ using NuGet.Versioning;
 const int CompilerAnalyzerConfigGlobalLevel = 40;
 
 var rootFolder = GetRootFolderPath();
-var netAnalyzersVersion = GetVersionPropertyFromRepo(rootFolder, "NetAnalyzersVersion");
+var msbuildProperties = LoadMsBuildProperties(rootFolder);
+var netAnalyzersVersion = TryResolveMsBuildProperty("$(NetAnalyzersVersion)", msbuildProperties);
+if (string.IsNullOrWhiteSpace(netAnalyzersVersion) || ContainsUnresolvedProperty(netAnalyzersVersion))
+    throw new InvalidOperationException(
+        "Could not resolve NetAnalyzersVersion from src/Build/Common/Version.props.");
 
 var writtenFiles = 0;
 await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
@@ -407,26 +411,27 @@ static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerabl
     return result;
 }
 
-static string? GetVersionPropertyFromRepo(FullPath rootFolder, string propertyName)
+static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFolder)
 {
     var versionPropsPath = rootFolder / "src" / "Build" / "Common" / "Version.props";
-    if (!File.Exists(versionPropsPath.Value))
-        return null;
+    if (!File.Exists(versionPropsPath))
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-    try
-    {
-        var doc = XDocument.Load(versionPropsPath.Value);
-        var value = doc.Descendants()
-            .FirstOrDefault(e => string.Equals(e.Name.LocalName, propertyName, StringComparison.Ordinal))?.Value;
+    var doc = XDocument.Load(versionPropsPath);
+    var root = doc.Root;
+    if (root is null)
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        value = value?.Trim();
-        return string.IsNullOrEmpty(value) ? null : value;
-    }
-    catch (Exception ex)
+    var properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var propertyGroup in root.Elements("PropertyGroup"))
+    foreach (var element in propertyGroup.Elements())
     {
-        Console.Error.WriteLine($"Warning: Failed to read {propertyName} from {versionPropsPath}: {ex.Message}");
-        return null;
+        var value = element.Value?.Trim();
+        if (!string.IsNullOrEmpty(value))
+            properties[element.Name.LocalName] = value;
     }
+
+    return properties;
 }
 
 async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
@@ -509,17 +514,26 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
             (item.Version is null || !item.Version.Contains("$(", StringComparison.Ordinal)))
             yield return (item.Name, item.Version);
 
-    // Pin analyzer package versions to a repo-declared package version to keep
+    // Pin analyzer package versions to repo-declared versions to keep
     // config generation reproducible (avoid "latest stable" drift).
-    if (!string.IsNullOrWhiteSpace(netAnalyzersVersion))
-    {
-        yield return ("Microsoft.CodeAnalysis.NetAnalyzers", netAnalyzersVersion);
-    }
-    else
-    {
-        // Fallback: keep prior behavior if we cannot read the repo pin.
-        yield return ("Microsoft.CodeAnalysis.NetAnalyzers", null);
-    }
+    yield return ("Microsoft.CodeAnalysis.NetAnalyzers", netAnalyzersVersion);
+}
+
+static bool ContainsUnresolvedProperty(string? value) =>
+    value is not null && value.Contains("$(", StringComparison.Ordinal);
+
+static string? TryResolveMsBuildProperty(string? value, IReadOnlyDictionary<string, string> properties)
+{
+    if (string.IsNullOrEmpty(value))
+        return value;
+
+    // Resolve simple property references like $(PropertyName).
+    var match = Regex.Match(value, @"^\$\(([^)]+)\)$", RegexOptions.CultureInvariant);
+    if (!match.Success)
+        return value;
+
+    var propertyName = match.Groups[1].Value;
+    return properties.TryGetValue(propertyName, out var resolved) ? resolved : value;
 }
 
 static FullPath GetRootFolderPath()
