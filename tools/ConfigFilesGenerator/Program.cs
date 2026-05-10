@@ -571,6 +571,12 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
         if (item.Type is not DependencyType.NuGet || item.Name is null)
             continue;
 
+        // Skip duplicate top-level package IDs before any version resolution
+        // or dependency walking; the same package showing up in multiple
+        // projects in src/ shouldn't fan out into repeated NuGet work.
+        if (!seenIds.Add(item.Name))
+            continue;
+
         var version = item.Version;
         // Centrally-managed PackageReferences carry property-based versions
         // (e.g. "$(XunitV3Version)"). Resolve them via Version.props so their
@@ -583,7 +589,6 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
                 continue;
         }
 
-        seenIds.Add(item.Name);
         yield return (item.Name, version);
     }
 
