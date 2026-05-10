@@ -549,17 +549,29 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
     var seenIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
     foreach (var item in result)
+    {
+        if (item.Type is not DependencyType.NuGet || item.Name is null)
+            continue;
 
-        if (item.Type is DependencyType.NuGet && item.Name is not null &&
-            (item.Version is null || !item.Version.Contains("$(", StringComparison.Ordinal)))
+        var version = item.Version;
+        // Centrally-managed PackageReferences carry property-based versions
+        // (e.g. "$(XunitV3Version)"). Resolve them via Version.props so their
+        // transitive analyzers (xunit.analyzers, etc.) still get scanned.
+        // Drop only when resolution still leaves an unresolved property.
+        if (version is not null && version.Contains("$(", StringComparison.Ordinal))
         {
-            seenIds.Add(item.Name);
-            yield return (item.Name, item.Version);
+            version = ResolveMsBuildProperty(version, msbuildProperties);
+            if (ContainsUnresolvedProperty(version))
+                continue;
         }
+
+        seenIds.Add(item.Name);
+        yield return (item.Name, version);
+    }
 
     // Pin analyzer package versions to repo-declared versions so config
     // generation reproducibly refreshes the analyzer set the SDK injects,
-    // even though DependencyScanner skips entries with property-based versions.
+    // even when DependencyScanner doesn't surface them at all.
     foreach (var (packageId, version) in injectedAnalyzerVersions)
         if (seenIds.Add(packageId))
             yield return (packageId, version);
