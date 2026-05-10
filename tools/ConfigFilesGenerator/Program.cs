@@ -38,7 +38,12 @@ await GenerateEditorConfigForAnalyzers().ConfigureAwait(false);
 await GenerateBanSymbolsForNewtonsoftJson().ConfigureAwait(false);
 
 Console.WriteLine($"{writtenFiles} configuration files written");
-if (writtenFiles > 0) Process.Start("git", "--no-pager diff --color").WaitForExit();
+if (writtenFiles > 0)
+{
+    using var diffProcess = Process.Start("git", "--no-pager diff --color") ??
+                            throw new InvalidOperationException("Cannot start 'git --no-pager diff --color'");
+    await diffProcess.WaitForExitAsync().ConfigureAwait(false);
+}
 
 return 0;
 
@@ -85,7 +90,7 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
                 : rule.DefaultEffectiveSeverity;
 
             sb.AppendLine($"# {rule.Id}: {rule.Title}");
-            if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {rule.Url}");
+            if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule)}");
             sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
             if (currentRuleConfiguration?.Comments.Length > 0)
@@ -288,7 +293,7 @@ async Task GenerateEditorConfigForAnalyzers()
                     : rule.DefaultEffectiveSeverity;
 
                 sb.AppendLine($"# {rule.Id}: {rule.Title}");
-                if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {rule.Url}");
+                if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule)}");
 
                 sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
@@ -462,12 +467,26 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
                  "AwesomeAssertions.Analyzers"
              })
     {
-        var version = TryResolveMsBuildProperty($"$({GetVersionPropertyName(package)})", msbuildProperties);
-        yield return (package, ContainsUnresolvedProperty(version) ? null : version);
+        var propertyName = GetVersionPropertyName(package);
+        var version = TryResolveMsBuildProperty($"$({propertyName})", msbuildProperties);
+        if (string.IsNullOrWhiteSpace(version) || ContainsUnresolvedProperty(version))
+            throw new InvalidOperationException(
+                $"Could not resolve '{propertyName}' for injected analyzer package '{package}'.");
+
+        yield return (package, version);
     }
 
     static bool ContainsUnresolvedProperty(string? value) =>
         value is not null && value.Contains("$(", StringComparison.Ordinal);
+}
+
+static string NormalizeHelpLink(AnalyzerRule rule)
+{
+    var url = rule.Url ?? string.Empty;
+    if (url.EndsWith("/rules/", StringComparison.Ordinal) && rule.Id.Length > 0)
+        return url + rule.Id;
+
+    return url;
 }
 
 static FullPath GetRootFolderPath()
