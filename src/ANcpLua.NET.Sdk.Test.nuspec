@@ -33,9 +33,11 @@
     <!-- Config - Analyzer, style, banned-symbol, and test settings
          (enumerated, not globbed — NuGet pack on Windows does not expand Config/*) -->
     <file src="Config/Analyzer.ANcpLua.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.AwesomeAssertions.Analyzers.editorconfig" target="Config/"/>
     <file src="Config/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="Config/"/>
     <file src="Config/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="Config/"/>
     <file src="Config/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.xunit.analyzers.editorconfig" target="Config/"/>
     <file src="Config/ANcpLua.NET.Sdk.SingleFileApp.editorconfig" target="Config/"/>
     <file src="Config/ANcpLua.NET.Sdk.Web.editorconfig" target="Config/"/>
     <file src="Config/BannedSymbols.txt" target="Config/"/>

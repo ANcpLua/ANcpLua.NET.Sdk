@@ -1,7 +1,8 @@
 is_global = true
-global_level = 0 # higher than the NET Analyzer files
+# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
+global_level = 100
 
-dotnet_style_prefer_foreach_explicit_cast_in_source=when_strongly_typed
+dotnet_style_prefer_foreach_explicit_cast_in_source = when_strongly_typed
 
 # Remove this or Me qualification
 dotnet_diagnostic.IDE0003.severity = suggestion

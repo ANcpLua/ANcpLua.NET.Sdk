@@ -1,5 +1,6 @@
 is_global = true
-global_level = 0
+# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
+global_level = 100
 
 dotnet_naming_style.non_private_static_field_style.capitalization = pascal_case
 
