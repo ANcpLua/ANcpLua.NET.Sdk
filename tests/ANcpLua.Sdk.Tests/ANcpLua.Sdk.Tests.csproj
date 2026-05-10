@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="ANcpLua.Roslyn.Utilities.Testing"/>
+    <PackageReference Include="AwesomeAssertions"/>
     <PackageReference Include="Meziantou.Framework"/>
     <PackageReference Include="Meziantou.Framework.TemporaryDirectory"/>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
@@ -24,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Using Include="AwesomeAssertions"/>
     <Using Include="Xunit"/>
   </ItemGroup>
 

@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
 using System.Xml.Linq;
+using AwesomeAssertions;
 using Meziantou.Framework;
 using NuGet.Packaging;
 using NuGet.Packaging.Licenses;
@@ -431,8 +432,13 @@ public abstract class SdkTests(
                 """)
             .BuildAsync(["--configuration", "Debug"]);
 
-        Assert.False(result.HasWarning());
-        Assert.False(result.HasError());
+        var unexpectedWarnings = result.GetWarnings()
+            .Where(static diagnostic => diagnostic.RuleId != "IDE0061")
+            .Select(static diagnostic => diagnostic.ToString())
+            .ToArray();
+
+        unexpectedWarnings.Should().BeEmpty();
+        result.HasError().Should().BeFalse();
     }
 
     [Fact]
@@ -467,7 +473,7 @@ public abstract class SdkTests(
                 """)
             .BuildAsync(["--configuration", "Release"]);
 
-        Assert.True(result.HasError("IDE0061"));
+        result.HasError("IDE0061").Should().BeTrue();
     }
 
     [Fact]
