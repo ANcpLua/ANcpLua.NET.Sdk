@@ -454,7 +454,15 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
             NullLogger.Instance, foundPackages, CancellationToken.None).ConfigureAwait(false);
     }
 
-    return [.. foundPackages.Select(static p => (p.Id, p.Version))];
+    // Deduplicate by package ID. If multiple versions exist (e.g., from dependency scanning
+    // and explicit pinning), prefer the highest version to ensure we get all analyzer rules.
+    var deduplicatedPackages = foundPackages
+        .GroupBy(static p => p.Id, StringComparer.OrdinalIgnoreCase)
+        .Select(static g => g.OrderByDescending(static p => p.Version).First())
+        .Select(static p => (p.Id, p.Version))
+        .ToArray();
+
+    return deduplicatedPackages;
 
     static async Task ListAllPackageDependencies(
         PackageIdentity package,
