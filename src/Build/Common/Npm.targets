@@ -11,6 +11,8 @@
       <NpmCacheDirectory Condition="'$(NpmCacheDirectory)' == ''">$([System.IO.Path]::Combine('$(MSBuildProjectDirectory)', '$(BaseIntermediateOutputPath)', 'npm-cache'))</NpmCacheDirectory>
       <_NpmRestoreCommand Condition="'$(NpmRestoreLockedMode)' != 'true'">install</_NpmRestoreCommand>
       <_NpmRestoreCommand Condition="'$(NpmRestoreLockedMode)' == 'true'">ci</_NpmRestoreCommand>
+      <!-- Force lockfile generation even if the environment disables it (e.g. package-lock=false in npmrc). -->
+      <_NpmInstallOptions Condition="'$(_NpmInstallOptions)' == ''">--no-fund --no-audit --package-lock</_NpmInstallOptions>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,8 +20,6 @@
         <StampFile>$([System.IO.Path]::Combine(`%(RootDir)%(Directory)`, 'node_modules', '.npm-install-stamp'))</StampFile>
         <LockFile>$([System.IO.Path]::Combine(`%(RootDir)%(Directory)`, 'package-lock.json'))</LockFile>
         <WorkingDirectory>%(RootDir)%(Directory)</WorkingDirectory>
-        <_NpmInstallOptions>--no-fund --no-audit</_NpmInstallOptions>
-
         <InstallCommand>npm install $(_NpmInstallOptions)</InstallCommand>
         <RestoreCommand>npm $(_NpmRestoreCommand) $(_NpmInstallOptions)</RestoreCommand>
       </NpmPackageFile>
@@ -29,7 +29,7 @@
   <!-- Run npm install for each NpmPackageFile -->
   <Target Name="NpmRestore" DependsOnTargets="ComputeNpmPackageMetadata;NpmRestoreForce" Inputs="@(NpmPackageFile)" Outputs="%(NpmPackageFile.StampFile)" BeforeTargets="Restore;CollectPackageReferences">
     <Message Importance="high" Text="Installing npm packages for %(NpmPackageFile.Identity)"/>
-    <Exec Command="%(NpmPackageFile.RestoreCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)" EnvironmentVariables="NPM_CONFIG_CACHE=$(NpmCacheDirectory)"/>
+    <Exec Command="%(NpmPackageFile.RestoreCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)" EnvironmentVariables="NPM_CONFIG_CACHE=$(NpmCacheDirectory);npm_config_package_lock=true"/>
     <Touch Files="%(NpmPackageFile.StampFile)" AlwaysCreate="true"/>
   </Target>
 
@@ -43,7 +43,7 @@
 
   <!-- dotnet msbuild /t:NpmInstall -->
   <Target Name="NpmInstall" DependsOnTargets="ComputeNpmPackageMetadata">
-    <Exec Command="%(NpmPackageFile.InstallCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)" EnvironmentVariables="NPM_CONFIG_CACHE=$(NpmCacheDirectory)"/>
+    <Exec Command="%(NpmPackageFile.InstallCommand)" WorkingDirectory="%(NpmPackageFile.WorkingDirectory)" EnvironmentVariables="NPM_CONFIG_CACHE=$(NpmCacheDirectory);npm_config_package_lock=true"/>
   </Target>
 
   <Target Name="EmbedNpmLockFileInBinLog" DependsOnTargets="ComputeNpmPackageMetadata" AfterTargets="CoreCompile">
