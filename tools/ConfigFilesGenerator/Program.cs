@@ -105,7 +105,8 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
                 : rule.DefaultEffectiveSeverity;
 
             sb.AppendLine($"# {rule.Id}: {rule.Title}");
-            if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {rule.Url}");
+            var helpLink = NormalizeHelpLink(rule.Url, rule.Id);
+            if (!string.IsNullOrEmpty(helpLink)) sb.AppendLine($"# Help link: {helpLink}");
             sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
             if (currentRuleConfiguration?.Comments.Length > 0)
@@ -310,7 +311,8 @@ async Task GenerateEditorConfigForAnalyzers()
                     : rule.DefaultEffectiveSeverity;
 
                 sb.AppendLine($"# {rule.Id}: {rule.Title}");
-                if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {rule.Url}");
+                var helpLink = NormalizeHelpLink(rule.Url, rule.Id);
+                if (!string.IsNullOrEmpty(helpLink)) sb.AppendLine($"# Help link: {helpLink}");
 
                 sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
@@ -405,6 +407,19 @@ FullPath GetAnalyzerConfigurationFilePath(string packageId)
 static string NormalizeGeneratedText(StringBuilder sb)
 {
     return sb.ToString().ReplaceLineEndings("\n").TrimEnd('\n') + "\n";
+}
+
+static string? NormalizeHelpLink(string? helpLinkUri, string ruleId)
+{
+    // Some analyzers (e.g. ANcpLua.Analyzers AL0019) return the rules-index URL
+    // without the rule slug. Append the rule ID so the generated link points at
+    // the rule-specific page rather than the index.
+    if (string.IsNullOrEmpty(helpLinkUri))
+        return helpLinkUri;
+
+    return helpLinkUri.EndsWith("/rules/", StringComparison.Ordinal)
+        ? helpLinkUri + ruleId
+        : helpLinkUri;
 }
 
 static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerable<string> packageIds)
