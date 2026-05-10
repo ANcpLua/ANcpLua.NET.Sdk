@@ -39,10 +39,10 @@
     the canonical SDK-shipped editorconfigs so this repo eats its own dog food.
   -->
   <PropertyGroup>
-    <EnableRepoDogfoodEditorConfigs Condition="'$(EnableRepoDogfoodEditorConfigs)' == ''">true</EnableRepoDogfoodEditorConfigs>
+    <EnableEditorConfigDogfooding Condition="'$(EnableEditorConfigDogfooding)' == ''">true</EnableEditorConfigDogfooding>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(EnableRepoDogfoodEditorConfigs)' == 'true'">
+  <ItemGroup Condition="'$(EnableEditorConfigDogfooding)' == 'true'">
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)src\Config\*.editorconfig"
                        Exclude="$(MSBuildThisFileDirectory)src\Config\ANcpLua.NET.Sdk*.editorconfig" />
   </ItemGroup>
