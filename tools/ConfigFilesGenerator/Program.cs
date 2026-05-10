@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Basic.Reference.Assemblies;
 using Meziantou.Framework;
 using Meziantou.Framework.DependencyScanning;
@@ -20,6 +21,16 @@ using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
 var rootFolder = GetRootFolderPath();
+
+// See Microsoft Learn: Global AnalyzerConfig precedence.
+// We intentionally set global_level to 100 so our SDK-provided configuration wins over
+// analyzer-provided defaults (typically global_level=0), while still allowing repo-local
+// `.editorconfig` files to override (EditorConfig wins over global AnalyzerConfig).
+const int SdkGlobalAnalyzerConfigLevel = 100;
+
+var msbuildProperties = LoadMsBuildProperties(rootFolder);
+if (!msbuildProperties.TryGetValue("XunitV3Version", out var _))
+    Console.WriteLine("Warning: failed to load MSBuild properties from Version.props (missing XunitV3Version).");
 
 var writtenFiles = 0;
 await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
@@ -54,9 +65,9 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
     if (rules.Count > 0)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("# global_level must be higher than the NET Analyzer files");
+        sb.AppendLine("# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.");
         sb.AppendLine("is_global = true");
-        sb.AppendLine("global_level = 0");
+        sb.AppendLine($"global_level = {SdkGlobalAnalyzerConfigLevel}");
 
         var currentConfiguration = GetConfiguration(configurationFilePath);
 
@@ -257,9 +268,9 @@ async Task GenerateEditorConfigForAnalyzers()
         if (rules.Count > 0)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("# global_level must be higher than the NET Analyzer files");
+            sb.AppendLine("# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.");
             sb.AppendLine("is_global = true");
-            sb.AppendLine("global_level = 0");
+            sb.AppendLine($"global_level = {SdkGlobalAnalyzerConfigLevel}");
 
             var currentConfiguration = GetConfiguration(configurationFilePath);
 
@@ -436,16 +447,27 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
 {
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
     foreach (var item in result)
-
-        if (item.Type is DependencyType.NuGet && item.Name is not null &&
-            (item.Version is null || !item.Version.Contains("$(")))
-            yield return (item.Name, item.Version);
+        if (item.Type is DependencyType.NuGet && item.Name is not null)
+        {
+            var version = TryResolveMsBuildProperty(item.Version, msbuildProperties);
+            yield return (item.Name, ContainsUnresolvedProperty(version) ? null : version);
+        }
 
     foreach (var package in new[]
              {
-                 "Microsoft.CodeAnalysis.NetAnalyzers"
+                 // Analyzer packages injected by the SDK, not necessarily referenced by this repo's own csproj files.
+                 "Microsoft.CodeAnalysis.NetAnalyzers",
+                 "Microsoft.CodeAnalysis.BannedApiAnalyzers",
+                 "ANcpLua.Analyzers",
+                 "AwesomeAssertions.Analyzers"
              })
-        yield return (package, null);
+    {
+        var version = TryResolveMsBuildProperty($"$({GetVersionPropertyName(package)})", msbuildProperties);
+        yield return (package, ContainsUnresolvedProperty(version) ? null : version);
+    }
+
+    static bool ContainsUnresolvedProperty(string? value) =>
+        value is not null && value.Contains("$(", StringComparison.Ordinal);
 }
 
 static FullPath GetRootFolderPath()
@@ -453,13 +475,83 @@ static FullPath GetRootFolderPath()
     var path = FullPath.CurrentDirectory();
     while (!path.IsEmpty)
     {
-        if (Directory.Exists(path / ".git"))
+        // Git worktrees use a `.git` *file* pointing at the actual gitdir.
+        // Regular clones use a `.git` directory.
+        if (Directory.Exists(path / ".git") || File.Exists(path / ".git"))
             return path;
 
         path = path.Parent;
     }
 
     return path.IsEmpty ? throw new InvalidOperationException("Cannot find the root folder") : path;
+}
+
+static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFolder)
+{
+    // Directory.Packages.props imports src/Build/Common/Version.props and is the canonical version source for this repo.
+    // Keep parsing simple and conservative: read only direct property values.
+    var versionPropsPath = rootFolder / "src" / "Build" / "Common" / "Version.props";
+    if (!File.Exists(versionPropsPath))
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+    var doc = XDocument.Load(versionPropsPath);
+    var root = doc.Root;
+    if (root is null)
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+    var properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var propertyGroup in root.Elements("PropertyGroup"))
+    foreach (var element in propertyGroup.Elements())
+    {
+        if (element.HasElements)
+            continue;
+
+        var name = element.Name.LocalName;
+        var value = element.Value.Trim();
+        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value))
+            continue;
+
+        // First value wins to avoid accidentally capturing conditional overrides.
+        properties.TryAdd(name, value);
+    }
+
+    return properties;
+}
+
+static string? TryResolveMsBuildProperty(string? value, IReadOnlyDictionary<string, string> properties)
+{
+    if (string.IsNullOrWhiteSpace(value))
+        return value;
+
+    // Loop because Version.props chains properties (e.g. XunitMtpVersion = $(XunitV3Version)).
+    // The bound is defensive against a hypothetical reference cycle in the .props file.
+    var current = value.Trim();
+    for (var i = 0; i < 16 && current.Contains("$(", StringComparison.Ordinal); i++)
+    {
+        var next = Regex.Replace(current, "\\$\\((?<Name>[^)]+)\\)", match =>
+        {
+            var name = match.Groups["Name"].Value;
+            return properties.TryGetValue(name, out var resolved) ? resolved : match.Value;
+        });
+        if (string.Equals(next, current, StringComparison.Ordinal))
+            break;
+        current = next;
+    }
+
+    return current;
+}
+
+static string GetVersionPropertyName(string packageId)
+{
+    // These properties are defined in src/Build/Common/Version.props.
+    return packageId switch
+    {
+        "Microsoft.CodeAnalysis.NetAnalyzers" => "DotNetSdkVersion",
+        "Microsoft.CodeAnalysis.BannedApiAnalyzers" => "BannedApiAnalyzersVersion",
+        "ANcpLua.Analyzers" => "ANcpLuaAnalyzersVersion",
+        "AwesomeAssertions.Analyzers" => "AwesomeAssertionsAnalyzersVersion",
+        _ => throw new InvalidOperationException($"No version property mapping for '{packageId}'.")
+    };
 }
 
 static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersion version)

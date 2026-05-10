@@ -1,6 +1,6 @@
-# global_level must be higher than the NET Analyzer files
+# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
 is_global = true
-global_level = 0
+global_level = 100
 
 # EnableGenerateDocumentationFile: Set MSBuild property 'GenerateDocumentationFile' to 'true'
 # Help link: https://github.com/dotnet/roslyn/issues/41640
