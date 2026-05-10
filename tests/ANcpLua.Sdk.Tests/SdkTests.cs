@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Reflection.Metadata;
 using System.Reflection.PortableExecutable;
@@ -37,6 +38,8 @@ public abstract class SdkTests(
         "_IsGitHubActions"
     ];
 
+    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
+        Justification = "Builder factory transfers ownership; every caller disposes via 'await using var project = CreateProject(...);'.")]
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, sdkImportStyle, sdkName ?? SdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
@@ -71,7 +74,7 @@ public abstract class SdkTests(
             if (parent?.Name.LocalName != "ItemGroup")
                 return false;
             var condition = parent.Attribute("Condition")?.Value;
-            return condition?.Contains("ManagePackageVersionsCentrally") == true;
+            return condition?.Contains("ManagePackageVersionsCentrally", StringComparison.Ordinal) == true;
         }
     }
 
@@ -1040,7 +1043,7 @@ public abstract class SdkTests(
                 _ = blobReader.ReadSerializedString();
                 var key = blobReader.ReadSerializedString();
 
-                Assert.Contains(expectedVersion.Replace("net", "v", StringComparison.Ordinal), key);
+                Assert.Contains(expectedVersion.Replace("net", "v", StringComparison.Ordinal), key, StringComparison.Ordinal);
                 return;
             }
         }
@@ -1332,7 +1335,7 @@ public abstract class SdkTests(
     {
         var dllPath = outputFiles.Single(static f => f.EndsWith(".dll", StringComparison.OrdinalIgnoreCase));
         await using var stream = File.OpenRead(dllPath);
-        var peReader = new PEReader(stream);
+        using var peReader = new PEReader(stream);
         var debug = peReader.ReadDebugDirectory();
 
         if (isPackOutput)

@@ -332,14 +332,16 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     public new SdkProjectBuilder WithDirectoryBuildProps(string content)
     {
         // Inject DisableVersionAnalyzer to prevent AL0017-AL0019 errors in test projects
-        var modifiedContent = content.Replace(
-            "<Project>",
-            """
-            <Project>
-                <PropertyGroup>
-                    <DisableVersionAnalyzer>true</DisableVersionAnalyzer>
-                </PropertyGroup>
-            """);
+        var doc = XDocument.Parse(content, LoadOptions.PreserveWhitespace);
+        if (doc.Root is null || doc.Root.Name.LocalName != "Project")
+            throw new InvalidOperationException("Directory.Build.props must have a <Project> root element.");
+
+        var ns = doc.Root.Name.Namespace;
+        doc.Root.AddFirst(
+            new XElement(ns + "PropertyGroup",
+                new XElement(ns + "DisableVersionAnalyzer", "true")));
+
+        var modifiedContent = doc.ToString(SaveOptions.DisableFormatting);
         base.WithDirectoryBuildProps(modifiedContent);
         return this;
     }
@@ -579,14 +581,14 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         var result = await psi.RunAsTaskAsync();
 
         // Retry on SDK resolution errors
-        const int maxRetries = 5;
-        for (var retry = 0; retry < maxRetries && result.ExitCode is not 0; retry++)
+        const int MaxRetries = 5;
+        for (var retry = 0; retry < MaxRetries && result.ExitCode is not 0; retry++)
             if (result.Output.Any(static line => line.Text.Contains("error MSB4236", StringComparison.Ordinal) ||
                                                  line.Text.Contains(
                                                      "The project file may be invalid or missing targets required for restore",
                                                      StringComparison.Ordinal)))
             {
-                Output?.WriteLine($"SDK resolution or restore error detected, retrying ({retry + 1}/{maxRetries})...");
+                Output?.WriteLine($"SDK resolution or restore error detected, retrying ({retry + 1}/{MaxRetries})...");
                 await Task.Delay(100 * (1 << retry));
                 result = await psi.RunAsTaskAsync();
             }
@@ -643,7 +645,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         }
 
         // Fail fast on SDK resolution errors
-        if (result.Output.Any(static line => line.Text.Contains("Could not resolve SDK")))
+        if (result.Output.Any(static line => line.Text.Contains("Could not resolve SDK", StringComparison.Ordinal)))
             Assert.Fail("The SDK cannot be found, expected version: " + _fixture.Version);
 
         return new BuildResult(result.ExitCode, result.Output, sarif, binlogContent)

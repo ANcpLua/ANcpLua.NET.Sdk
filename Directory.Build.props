@@ -1,14 +1,26 @@
 <Project>
+  <!--
+    Set the CI marker FIRST so the warning-as-error properties below see it.
+    PropertyGroups evaluate in document order, so deferring this until after
+    those conditions would silently bypass CI warning enforcement on Debug
+    builds (e.g. `dotnet test` without `-c Release`).
+  -->
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <ContinuousIntegrationBuild Condition="'$(ContinuousIntegrationBuild)' == ''">true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+
   <!-- SDK-owned properties - centralized here, NOT in individual csproj files -->
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
+    <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
+    <Deterministic Condition="'$(Deterministic)' == ''">true</Deterministic>
+    <EnableNETAnalyzers Condition="'$(EnableNETAnalyzers)' == ''">true</EnableNETAnalyzers>
+    <AnalysisLevel Condition="'$(AnalysisLevel)' == ''">latest-all</AnalysisLevel>
 
-  <!-- CI-only: Enable SourceLink reproducibility -->
-  <PropertyGroup Condition="'$(CI)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <MSBuildTreatWarningsAsErrors Condition="'$(MSBuildTreatWarningsAsErrors)' == '' AND ('$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release')">true</MSBuildTreatWarningsAsErrors>
+    <TreatWarningsAsErrors Condition="'$(TreatWarningsAsErrors)' == '' AND ('$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release')">true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild Condition="'$(EnforceCodeStyleInBuild)' == '' AND ('$(ContinuousIntegrationBuild)' == 'true' OR '$(Configuration)' == 'Release')">true</EnforceCodeStyleInBuild>
   </PropertyGroup>
 
   <!--
@@ -24,9 +36,14 @@
   <!--
     This repo's own projects use Microsoft.NET.Sdk directly, not ANcpLua.NET.Sdk,
     so the SDK's Common.props EditorConfigFiles injection doesn't run. Pull in
-    the canonical naming convention file so this repo eats its own dog food.
+    the canonical SDK-shipped editorconfigs so this repo eats its own dog food.
   -->
-  <ItemGroup>
-    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)src\Config\NamingConvention.editorconfig" />
+  <PropertyGroup>
+    <EnableEditorConfigDogfooding Condition="'$(EnableEditorConfigDogfooding)' == ''">true</EnableEditorConfigDogfooding>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(EnableEditorConfigDogfooding)' == 'true'">
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)src\Config\*.editorconfig"
+                       Exclude="$(MSBuildThisFileDirectory)src\Config\ANcpLua.NET.Sdk*.editorconfig" />
   </ItemGroup>
 </Project>

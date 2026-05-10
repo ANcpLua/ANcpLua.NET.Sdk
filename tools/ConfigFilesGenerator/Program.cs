@@ -20,17 +20,31 @@ using NuGet.Protocol;
 using NuGet.Protocol.Core.Types;
 using NuGet.Versioning;
 
+const int CompilerAnalyzerConfigGlobalLevel = 40;
+
 var rootFolder = GetRootFolderPath();
-
-// See Microsoft Learn: Global AnalyzerConfig precedence.
-// We intentionally set global_level to 100 so our SDK-provided configuration wins over
-// analyzer-provided defaults (typically global_level=0), while still allowing repo-local
-// `.editorconfig` files to override (EditorConfig wins over global AnalyzerConfig).
-const int SdkGlobalAnalyzerConfigLevel = 100;
-
 var msbuildProperties = LoadMsBuildProperties(rootFolder);
-if (!msbuildProperties.TryGetValue("XunitV3Version", out var _))
-    Console.WriteLine("Warning: failed to load MSBuild properties from Version.props (missing XunitV3Version).");
+
+// Pin SDK-injected analyzers to the versions declared in Version.props so the
+// generator always refreshes the configs the SDK actually ships, regardless of
+// whether DependencyScanner sees the property-based PackageReference values.
+var injectedAnalyzerPackages = new (string PackageId, string PropertyName)[]
+{
+    ("Microsoft.CodeAnalysis.NetAnalyzers", "NetAnalyzersVersion"),
+    ("ANcpLua.Analyzers", "ANcpLuaAnalyzersVersion"),
+    ("Microsoft.CodeAnalysis.BannedApiAnalyzers", "BannedApiAnalyzersVersion"),
+    ("AwesomeAssertions.Analyzers", "AwesomeAssertionsAnalyzersVersion"),
+};
+
+var injectedAnalyzerVersions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+foreach (var (packageId, propertyName) in injectedAnalyzerPackages)
+{
+    var resolved = ResolveMsBuildProperty($"$({propertyName})", msbuildProperties);
+    if (string.IsNullOrWhiteSpace(resolved) || ContainsUnresolvedProperty(resolved))
+        throw new InvalidOperationException(
+            $"Could not resolve {propertyName} from src/Build/Common/Version.props.");
+    injectedAnalyzerVersions[packageId] = resolved;
+}
 
 var writtenFiles = 0;
 await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
@@ -40,9 +54,9 @@ await GenerateBanSymbolsForNewtonsoftJson().ConfigureAwait(false);
 Console.WriteLine($"{writtenFiles} configuration files written");
 if (writtenFiles > 0)
 {
-    using var diffProcess = Process.Start("git", "--no-pager diff --color") ??
-                            throw new InvalidOperationException("Cannot start 'git --no-pager diff --color'");
-    await diffProcess.WaitForExitAsync().ConfigureAwait(false);
+    using var diffProcess = Process.Start("git", "--no-pager diff --color");
+    if (diffProcess is not null)
+        await diffProcess.WaitForExitAsync().ConfigureAwait(false);
 }
 
 return 0;
@@ -70,9 +84,10 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
     if (rules.Count > 0)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.");
+        sb.AppendLine("# global_level controls precedence across multiple global AnalyzerConfig files.");
+        sb.AppendLine("# Keep distinct values to avoid equal-level conflicts (which are ignored).");
         sb.AppendLine("is_global = true");
-        sb.AppendLine($"global_level = {SdkGlobalAnalyzerConfigLevel}");
+        sb.AppendLine($"global_level = {CompilerAnalyzerConfigGlobalLevel}");
 
         var currentConfiguration = GetConfiguration(configurationFilePath);
 
@@ -90,7 +105,8 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
                 : rule.DefaultEffectiveSeverity;
 
             sb.AppendLine($"# {rule.Id}: {rule.Title}");
-            if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule.Url, rule.Id)}");
+            var helpLink = NormalizeHelpLink(rule.Url, rule.Id);
+            if (!string.IsNullOrEmpty(helpLink)) sb.AppendLine($"# Help link: {helpLink}");
             sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
             if (currentRuleConfiguration?.Comments.Length > 0)
@@ -101,7 +117,7 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
             sb.AppendLine();
         }
 
-        var text = sb.ToString().ReplaceLineEndings("\n");
+        var text = NormalizeGeneratedText(sb);
         if (File.Exists(configurationFilePath))
             if (File.ReadAllText(configurationFilePath).ReplaceLineEndings("\n") == text)
                 return;
@@ -117,7 +133,7 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
             DiagnosticSeverity.Info => "suggestion",
             DiagnosticSeverity.Warning => "warning",
             DiagnosticSeverity.Error => "error",
-            _ => throw new Exception($"Severity '{severity}' is not supported")
+            _ => throw new InvalidOperationException($"Severity '{severity}' is not supported")
         };
     }
 }
@@ -243,6 +259,7 @@ static Assembly[] LoadAssembliesFromDisk(string[] assemblyPaths, string[] probeF
 async Task GenerateEditorConfigForAnalyzers()
 {
     var packages = await GetAllReferencedNuGetPackages().ConfigureAwait(false);
+    var globalLevelsByPackageId = GetAnalyzerConfigGlobalLevels(packages.Select(static p => p.Id));
     await Parallel.ForEachAsync(packages, async (item, cancellationToken) =>
     {
         var (packageId, packageVersion) = item;
@@ -273,9 +290,10 @@ async Task GenerateEditorConfigForAnalyzers()
         if (rules.Count > 0)
         {
             var sb = new StringBuilder();
-            sb.AppendLine("# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.");
+            sb.AppendLine("# global_level controls precedence across multiple global AnalyzerConfig files.");
+            sb.AppendLine("# Keep distinct values to avoid equal-level conflicts (which are ignored).");
             sb.AppendLine("is_global = true");
-            sb.AppendLine($"global_level = {SdkGlobalAnalyzerConfigLevel}");
+            sb.AppendLine($"global_level = {globalLevelsByPackageId[packageId]}");
 
             var currentConfiguration = GetConfiguration(configurationFilePath);
 
@@ -293,7 +311,8 @@ async Task GenerateEditorConfigForAnalyzers()
                     : rule.DefaultEffectiveSeverity;
 
                 sb.AppendLine($"# {rule.Id}: {rule.Title}");
-                if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule.Url, rule.Id)}");
+                var helpLink = NormalizeHelpLink(rule.Url, rule.Id);
+                if (!string.IsNullOrEmpty(helpLink)) sb.AppendLine($"# Help link: {helpLink}");
 
                 sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
@@ -305,7 +324,7 @@ async Task GenerateEditorConfigForAnalyzers()
                 sb.AppendLine();
             }
 
-            var text = sb.ToString().ReplaceLineEndings("\n");
+            var text = NormalizeGeneratedText(sb);
             if (File.Exists(configurationFilePath))
                 if (File.ReadAllText(configurationFilePath).ReplaceLineEndings("\n") == text)
                     return;
@@ -323,7 +342,7 @@ async Task GenerateEditorConfigForAnalyzers()
                     DiagnosticSeverity.Info => "suggestion",
                     DiagnosticSeverity.Warning => "warning",
                     DiagnosticSeverity.Error => "error",
-                    _ => throw new Exception($"Severity '{severity}' is not supported")
+                    _ => throw new InvalidOperationException($"Severity '{severity}' is not supported")
                 };
             }
         }
@@ -370,7 +389,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
     sb.AppendLine("# Banned symbols from Newtonsoft.Json");
     foreach (var symbol in bannedSymbols.OrderBy(static s => s, StringComparer.Ordinal)) sb.AppendLine(symbol);
 
-    var text = sb.ToString().ReplaceLineEndings("\n");
+    var text = NormalizeGeneratedText(sb);
     if (File.Exists(bannedSymbolsFilePath))
         if (File.ReadAllText(bannedSymbolsFilePath).ReplaceLineEndings("\n") == text)
             return;
@@ -385,9 +404,143 @@ FullPath GetAnalyzerConfigurationFilePath(string packageId)
     return rootFolder / "src" / "Config" / ("Analyzer." + packageId + ".editorconfig");
 }
 
+static string NormalizeGeneratedText(StringBuilder sb)
+{
+    return sb.ToString().ReplaceLineEndings("\n").TrimEnd('\n') + "\n";
+}
+
+static string? NormalizeHelpLink(string? helpLinkUri, string ruleId)
+{
+    // Some analyzers (e.g. ANcpLua.Analyzers AL0019) return the rules-index URL
+    // without the rule slug. Append the rule ID so the generated link points at
+    // the rule-specific page rather than the index.
+    if (string.IsNullOrEmpty(helpLinkUri))
+        return helpLinkUri;
+
+    return helpLinkUri.EndsWith("/rules/", StringComparison.Ordinal)
+        ? helpLinkUri + ruleId
+        : helpLinkUri;
+}
+
+static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerable<string> packageIds)
+{
+    var orderedIds = packageIds
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .OrderBy(static id => id, StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+
+    // Stable, deterministic, collision-free within the referenced package set.
+    // Low range is reserved for known "core" analyzer packs. NuGet IDs are
+    // case-insensitive, so the reserved-ID matches must be case-insensitive too.
+    var result = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+    var assigned = new HashSet<int>();
+
+    foreach (var id in orderedIds)
+    {
+        var reserved = id switch
+        {
+            _ when string.Equals(id, "Microsoft.CodeAnalysis.Analyzers", StringComparison.OrdinalIgnoreCase) => 10,
+            _ when string.Equals(id, "Microsoft.CodeAnalysis.NetAnalyzers", StringComparison.OrdinalIgnoreCase) => 11,
+            _ when string.Equals(id, "Microsoft.CodeAnalysis.BannedApiAnalyzers", StringComparison.OrdinalIgnoreCase) => 12,
+            _ when string.Equals(id, "ANcpLua.Analyzers", StringComparison.OrdinalIgnoreCase) => 13,
+            _ when string.Equals(id, "AwesomeAssertions.Analyzers", StringComparison.OrdinalIgnoreCase) => 14,
+            // xunit.analyzers ships as a transitive of xunit.v3 (resolved via Version.props
+            // property expansion). Reserved so its config doesn't churn when the package set shifts.
+            _ when string.Equals(id, "xunit.analyzers", StringComparison.OrdinalIgnoreCase) => 15,
+            _ => -1
+        };
+
+        if (reserved >= 0)
+        {
+            result[id] = reserved;
+            assigned.Add(reserved);
+            continue;
+        }
+
+        // Derive a stable level from the package ID itself (FNV-1a over the
+        // upper-cased UTF-8 bytes is process-deterministic, unlike the runtime's
+        // randomized GetHashCode). Linear-probe on collision so adding or
+        // removing unrelated packages doesn't renumber neighbors.
+        var level = (int)(StableFnv1a(id) % 9000UL) + 1000;
+        while (assigned.Contains(level))
+            level = level == 9999 ? 1000 : level + 1;
+
+        result[id] = level;
+        assigned.Add(level);
+    }
+
+    return result;
+
+    static ulong StableFnv1a(string value)
+    {
+        const ulong FnvOffsetBasis = 14695981039346656037UL;
+        const ulong FnvPrime = 1099511628211UL;
+        var bytes = System.Text.Encoding.UTF8.GetBytes(value.ToUpperInvariant());
+        var hash = FnvOffsetBasis;
+        foreach (var b in bytes)
+        {
+            hash ^= b;
+            hash *= FnvPrime;
+        }
+        return hash;
+    }
+}
+
+static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFolder)
+{
+    var versionPropsPath = rootFolder / "src" / "Build" / "Common" / "Version.props";
+    if (!File.Exists(versionPropsPath))
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+    var doc = XDocument.Load(versionPropsPath);
+    var root = doc.Root;
+    if (root is null)
+        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+    // Honor the only Condition pattern used in Version.props: the standard
+    // "default if undefined" guard, e.g. Condition="'$(NetAnalyzersVersion)' == ''".
+    // For that pattern, only assign when the property is not already set
+    // (mirrors MSBuild's evaluation of a self-referential empty check).
+    // Unconditional assignments behave normally (last write wins).
+    // Anything else with a Condition is skipped to avoid silently mishandling
+    // a guard the loader doesn't understand.
+    var properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var propertyGroup in root.Elements("PropertyGroup"))
+    foreach (var element in propertyGroup.Elements())
+    {
+        var value = element.Value?.Trim();
+        if (string.IsNullOrEmpty(value))
+            continue;
+
+        var name = element.Name.LocalName;
+        var condition = element.Attribute("Condition")?.Value;
+        if (string.IsNullOrWhiteSpace(condition))
+        {
+            properties[name] = value;
+            continue;
+        }
+
+        var selfDefaultGuard = $"'$({name})' == ''";
+        if (string.Equals(NormalizeCondition(condition), selfDefaultGuard, StringComparison.Ordinal))
+        {
+            if (!properties.ContainsKey(name))
+                properties[name] = value;
+            continue;
+        }
+
+        // Unknown Condition shape: don't assume it's true.
+    }
+
+    return properties;
+
+    static string NormalizeCondition(string condition) =>
+        Regex.Replace(condition, @"\s+", " ", RegexOptions.CultureInvariant).Trim();
+}
+
 async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 {
     var foundPackages = new HashSet<SourcePackageDependencyInfo>();
+    var visitedPackages = new HashSet<PackageIdentity>(PackageIdentityComparer.Default);
 
     using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
@@ -407,10 +560,45 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
         var packageIdentity = new PackageIdentity(package.Id, version);
         await ListAllPackageDependencies(packageIdentity, [repository], NuGetFramework.AnyFramework, cache,
-            NullLogger.Instance, foundPackages, CancellationToken.None).ConfigureAwait(false);
+            NullLogger.Instance, foundPackages, visitedPackages, CancellationToken.None).ConfigureAwait(false);
     }
 
-    return [.. foundPackages.Select(static p => (p.Id, p.Version))];
+    // Deduplicate by package ID. For SDK-injected analyzers, honor the version
+    // pinned via Version.props so the generated configs reflect the analyzer set
+    // the SDK actually injects, even if a transitive dep pulls a newer version.
+    // For everything else, prefer the highest version to capture all analyzer rules.
+    var pinnedVersions = injectedAnalyzerVersions.ToDictionary(
+        static kvp => kvp.Key,
+        static kvp => NuGetVersion.Parse(kvp.Value),
+        StringComparer.OrdinalIgnoreCase);
+
+    // ListAllPackageDependencies silently `continue`s when ResolvePackage returns
+    // null (e.g. the pinned version doesn't exist on the feed), so a missing
+    // pinned analyzer would otherwise silently drop out of the generated set.
+    // Fail loudly instead.
+    var foundIds = foundPackages
+        .Select(static p => p.Id)
+        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+    foreach (var pinnedId in pinnedVersions.Keys)
+        if (!foundIds.Contains(pinnedId))
+            throw new InvalidOperationException(
+                $"Pinned analyzer package '{pinnedId}@{pinnedVersions[pinnedId]}' could not be resolved on nuget.org.");
+
+    var deduplicatedPackages = foundPackages
+        .GroupBy(static p => p.Id, StringComparer.OrdinalIgnoreCase)
+        .Select(g =>
+        {
+            if (pinnedVersions.TryGetValue(g.Key, out var pinnedVersion))
+                return g.FirstOrDefault(p => p.Version == pinnedVersion)
+                    ?? throw new InvalidOperationException(
+                        $"Pinned analyzer package '{g.Key}' version '{pinnedVersion}' was not resolved.");
+
+            return g.OrderByDescending(static p => p.Version).First();
+        })
+        .Select(static p => (p.Id, p.Version))
+        .ToArray();
+
+    return deduplicatedPackages;
 
     static async Task ListAllPackageDependencies(
         PackageIdentity package,
@@ -419,10 +607,17 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         SourceCacheContext cache,
         ILogger logger,
         ISet<SourcePackageDependencyInfo> dependencies,
+        ISet<PackageIdentity> visited,
         CancellationToken cancellationToken)
     {
+        // Track visited identities in a typed PackageIdentity set so the
+        // early-exit check is an O(1) hash lookup (using NuGet's canonical
+        // PackageIdentityComparer) rather than the O(n) LINQ Contains that
+        // covariance silently produced when querying a HashSet typed for
+        // SourcePackageDependencyInfo with a base PackageIdentity argument.
+        if (!visited.Add(package)) return;
+
         var sourceRepositories = repositories as IReadOnlyList<SourceRepository> ?? repositories.ToList();
-        if (dependencies.Contains(package)) return;
 
         foreach (var repository in sourceRepositories)
         {
@@ -443,6 +638,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
                     cache,
                     logger,
                     dependencies,
+                    visited,
                     cancellationToken).ConfigureAwait(false);
         }
     }
@@ -450,42 +646,77 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
 async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
 {
+    // Dedupe on (id, resolved-version) tuples — NOT id alone — so that the
+    // same package showing up with two different versions (e.g.
+    // Microsoft.CodeAnalysis.CSharp without a version in src/*.csproj plus a
+    // VersionOverride in SourceGenerators.targets) both reach the downstream
+    // dedup pass, which already prefers pinned versions and falls back to
+    // the highest. Identical (id, version) pairs are still skipped to avoid
+    // redundant NuGet dependency walks.
+    var emittedKeys = new HashSet<(string Id, string? Version)>(VersionedPackageKeyComparer.Instance);
+    var emittedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
     var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
     foreach (var item in result)
-        if (item.Type is DependencyType.NuGet && item.Name is not null)
+    {
+        if (item.Type is not DependencyType.NuGet || item.Name is null)
+            continue;
+
+        var version = item.Version;
+        // Centrally-managed PackageReferences carry property-based versions
+        // (e.g. "$(XunitV3Version)"). Resolve them via Version.props so their
+        // transitive analyzers (xunit.analyzers, etc.) still get scanned.
+        // Drop only when resolution still leaves an unresolved property.
+        if (version is not null && version.Contains("$(", StringComparison.Ordinal))
         {
-            var version = TryResolveMsBuildProperty(item.Version, msbuildProperties);
-            yield return (item.Name, ContainsUnresolvedProperty(version) ? null : version);
+            version = ResolveMsBuildProperty(version, msbuildProperties);
+            if (ContainsUnresolvedProperty(version))
+                continue;
         }
 
-    foreach (var package in new[]
-             {
-                 // Analyzer packages injected by the SDK, not necessarily referenced by this repo's own csproj files.
-                 "Microsoft.CodeAnalysis.NetAnalyzers",
-                 "Microsoft.CodeAnalysis.BannedApiAnalyzers",
-                 "ANcpLua.Analyzers",
-                 "AwesomeAssertions.Analyzers"
-             })
-    {
-        var propertyName = GetVersionPropertyName(package);
-        var version = TryResolveMsBuildProperty($"$({propertyName})", msbuildProperties);
-        if (string.IsNullOrWhiteSpace(version) || ContainsUnresolvedProperty(version))
-            throw new InvalidOperationException(
-                $"Could not resolve '{propertyName}' for injected analyzer package '{package}'.");
+        if (!emittedKeys.Add((item.Name, version)))
+            continue;
 
-        yield return (package, version);
+        emittedIds.Add(item.Name);
+        yield return (item.Name, version);
     }
 
-    static bool ContainsUnresolvedProperty(string? value) =>
-        value is not null && value.Contains("$(", StringComparison.Ordinal);
+    // Pin analyzer package versions to repo-declared versions so config
+    // generation reproducibly refreshes the analyzer set the SDK injects,
+    // even when DependencyScanner doesn't surface them at all.
+    foreach (var (packageId, version) in injectedAnalyzerVersions)
+        if (emittedIds.Add(packageId))
+            yield return (packageId, version);
 }
 
-static string NormalizeHelpLink(string url, string ruleId)
-{
-    if (url.EndsWith("/rules/", StringComparison.Ordinal) && ruleId.Length > 0)
-        return url + ruleId;
+static bool ContainsUnresolvedProperty(string? value) =>
+    value is not null && value.Contains("$(", StringComparison.Ordinal);
 
-    return url;
+static string ResolveMsBuildProperty(string value, IReadOnlyDictionary<string, string> properties)
+{
+    // Recursively expand $(...) references with a bounded depth and cycle guard.
+    const int MaxDepth = 16;
+    var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    var current = value;
+    for (var depth = 0; depth < MaxDepth; depth++)
+    {
+        if (string.IsNullOrEmpty(current))
+            return current;
+
+        var match = Regex.Match(current, @"^\$\(([^)]+)\)$", RegexOptions.CultureInvariant);
+        if (!match.Success)
+            return current;
+
+        var propertyName = match.Groups[1].Value;
+        if (!visited.Add(propertyName))
+            return current;
+
+        if (!properties.TryGetValue(propertyName, out var resolved))
+            return current;
+
+        current = resolved;
+    }
+
+    return current;
 }
 
 static FullPath GetRootFolderPath()
@@ -493,83 +724,16 @@ static FullPath GetRootFolderPath()
     var path = FullPath.CurrentDirectory();
     while (!path.IsEmpty)
     {
-        // Git worktrees use a `.git` *file* pointing at the actual gitdir.
-        // Regular clones use a `.git` directory.
-        if (Directory.Exists(path / ".git") || File.Exists(path / ".git"))
+        // In a regular checkout `.git` is a directory; in a worktree it is a
+        // file pointing at the real gitdir. Accept both so worktree layouts work.
+        var gitMarker = path / ".git";
+        if (Directory.Exists(gitMarker) || File.Exists(gitMarker))
             return path;
 
         path = path.Parent;
     }
 
     return path.IsEmpty ? throw new InvalidOperationException("Cannot find the root folder") : path;
-}
-
-static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFolder)
-{
-    // Directory.Packages.props imports src/Build/Common/Version.props and is the canonical version source for this repo.
-    // Keep parsing simple and conservative: read only direct property values.
-    var versionPropsPath = rootFolder / "src" / "Build" / "Common" / "Version.props";
-    if (!File.Exists(versionPropsPath))
-        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-    var doc = XDocument.Load(versionPropsPath);
-    var root = doc.Root;
-    if (root is null)
-        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-    var properties = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-    foreach (var propertyGroup in root.Elements("PropertyGroup"))
-    foreach (var element in propertyGroup.Elements())
-    {
-        if (element.HasElements)
-            continue;
-
-        var name = element.Name.LocalName;
-        var value = element.Value.Trim();
-        if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(value))
-            continue;
-
-        // First value wins to avoid accidentally capturing conditional overrides.
-        properties.TryAdd(name, value);
-    }
-
-    return properties;
-}
-
-static string? TryResolveMsBuildProperty(string? value, IReadOnlyDictionary<string, string> properties)
-{
-    if (string.IsNullOrWhiteSpace(value))
-        return value;
-
-    // Loop because Version.props chains properties (e.g. XunitMtpVersion = $(XunitV3Version)).
-    // The bound is defensive against a hypothetical reference cycle in the .props file.
-    var current = value.Trim();
-    for (var i = 0; i < 16 && current.Contains("$(", StringComparison.Ordinal); i++)
-    {
-        var next = Regex.Replace(current, "\\$\\((?<Name>[^)]+)\\)", match =>
-        {
-            var name = match.Groups["Name"].Value;
-            return properties.TryGetValue(name, out var resolved) ? resolved : match.Value;
-        });
-        if (string.Equals(next, current, StringComparison.Ordinal))
-            break;
-        current = next;
-    }
-
-    return current;
-}
-
-static string GetVersionPropertyName(string packageId)
-{
-    // These properties are defined in src/Build/Common/Version.props.
-    return packageId switch
-    {
-        "Microsoft.CodeAnalysis.NetAnalyzers" => "DotNetSdkVersion",
-        "Microsoft.CodeAnalysis.BannedApiAnalyzers" => "BannedApiAnalyzersVersion",
-        "ANcpLua.Analyzers" => "ANcpLuaAnalyzersVersion",
-        "AwesomeAssertions.Analyzers" => "AwesomeAssertionsAnalyzersVersion",
-        _ => throw new InvalidOperationException($"No version property mapping for '{packageId}'.")
-    };
 }
 
 static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersion version)
@@ -719,10 +883,10 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
 {
     var settings = Settings.LoadDefaultSettings(null);
     var globalPackagesFolder = SettingsUtility.GetGlobalPackagesFolder(settings);
-    const string source = "https://api.nuget.org/v3/index.json";
+    const string Source = "https://api.nuget.org/v3/index.json";
 
     using var cache = new SourceCacheContext();
-    var repository = Repository.Factory.GetCoreV3(source);
+    var repository = Repository.Factory.GetCoreV3(Source);
     var resource = await repository.GetResourceAsync<FindPackageByIdResource>().ConfigureAwait(false);
 
     if (version is null)
@@ -750,7 +914,7 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
         packageStream.Seek(0, SeekOrigin.Begin);
 
         package = await GlobalPackagesFolderUtility.AddPackageAsync(
-            source,
+            Source,
             new PackageIdentity(packageId, version),
             packageStream,
             globalPackagesFolder,
@@ -798,6 +962,23 @@ file sealed record AnalyzerRule(
     DiagnosticSeverity? DefaultEffectiveSeverity);
 
 file sealed record AnalyzerConfiguration(string Id, string[] Comments, DiagnosticSeverity? Severity);
+
+// Equality comparer for (id, version) where id is case-insensitive and
+// version is compared ordinally. Used to dedupe top-level package yields
+// without collapsing distinct versions of the same id.
+file sealed class VersionedPackageKeyComparer : IEqualityComparer<(string Id, string? Version)>
+{
+    public static readonly VersionedPackageKeyComparer Instance = new();
+
+    public bool Equals((string Id, string? Version) x, (string Id, string? Version) y) =>
+        StringComparer.OrdinalIgnoreCase.Equals(x.Id, y.Id) &&
+        StringComparer.Ordinal.Equals(x.Version, y.Version);
+
+    public int GetHashCode((string Id, string? Version) obj) =>
+        HashCode.Combine(
+            StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Id),
+            obj.Version is null ? 0 : StringComparer.Ordinal.GetHashCode(obj.Version));
+}
 
 internal static partial class Patterns
 {

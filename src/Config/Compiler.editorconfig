@@ -1,6 +1,7 @@
-# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
+# global_level controls precedence across multiple global AnalyzerConfig files.
+# Keep distinct values to avoid equal-level conflicts (which are ignored).
 is_global = true
-global_level = 100
+global_level = 40
 
 # EnableGenerateDocumentationFile: Set MSBuild property 'GenerateDocumentationFile' to 'true'
 # Help link: https://github.com/dotnet/roslyn/issues/41640
@@ -298,4 +299,3 @@ dotnet_diagnostic.IDE2006.severity = silent
 # RemoveUnnecessaryImportsFixable: 
 # Enabled: True, Severity: silent
 dotnet_diagnostic.RemoveUnnecessaryImportsFixable.severity = silent
-

@@ -1,6 +1,7 @@
-# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
+# global_level controls precedence across multiple global AnalyzerConfig files.
+# Keep distinct values to avoid equal-level conflicts (which are ignored).
 is_global = true
-global_level = 100
+global_level = 12
 
 # RS0030: Do not use banned APIs
 # Help link: https://github.com/dotnet/roslyn/blob/main/src/RoslynAnalyzers/Microsoft.CodeAnalysis.BannedApiAnalyzers/BannedApiAnalyzers.Help.md
@@ -15,4 +16,3 @@ dotnet_diagnostic.RS0031.severity = warning
 # RS0035: External access to internal symbols outside the restricted namespace(s) is prohibited
 # Enabled: True, Severity: error
 dotnet_diagnostic.RS0035.severity = error
-

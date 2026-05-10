@@ -1,8 +1,10 @@
+# Highest precedence among the base/non-flavor SDK globals.
+# Per-flavor overlays (e.g. ANcpLua.NET.Sdk.Web=60, .SingleFileApp=61) sit above this.
+# EditorConfig spec: comments must be on their own line, never trailing a value.
 is_global = true
-# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
-global_level = 100
+global_level = 50
 
-dotnet_style_prefer_foreach_explicit_cast_in_source = when_strongly_typed
+dotnet_style_prefer_foreach_explicit_cast_in_source=when_strongly_typed
 
 # Remove this or Me qualification
 dotnet_diagnostic.IDE0003.severity = suggestion
