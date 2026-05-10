@@ -90,7 +90,7 @@ async Task GenerateEditorConfigForCompilerAnalyzers()
                 : rule.DefaultEffectiveSeverity;
 
             sb.AppendLine($"# {rule.Id}: {rule.Title}");
-            if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule)}");
+            if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule.Url, rule.Id)}");
             sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
             if (currentRuleConfiguration?.Comments.Length > 0)
@@ -293,7 +293,7 @@ async Task GenerateEditorConfigForAnalyzers()
                     : rule.DefaultEffectiveSeverity;
 
                 sb.AppendLine($"# {rule.Id}: {rule.Title}");
-                if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule)}");
+                if (!string.IsNullOrEmpty(rule.Url)) sb.AppendLine($"# Help link: {NormalizeHelpLink(rule.Url, rule.Id)}");
 
                 sb.AppendLine($"# Enabled: {rule.Enabled}, Severity: {GetSeverity(rule.DefaultSeverity)}");
 
@@ -480,11 +480,10 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
         value is not null && value.Contains("$(", StringComparison.Ordinal);
 }
 
-static string NormalizeHelpLink(AnalyzerRule rule)
+static string NormalizeHelpLink(string url, string ruleId)
 {
-    var url = rule.Url ?? string.Empty;
-    if (url.EndsWith("/rules/", StringComparison.Ordinal) && rule.Id.Length > 0)
-        return url + rule.Id;
+    if (url.EndsWith("/rules/", StringComparison.Ordinal) && ruleId.Length > 0)
+        return url + ruleId;
 
     return url;
 }
