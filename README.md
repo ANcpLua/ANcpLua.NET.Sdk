@@ -1,6 +1,6 @@
 [![NuGet](https://img.shields.io/nuget/v/ANcpLua.NET.Sdk?label=NuGet&color=0891B2)](https://www.nuget.org/packages/ANcpLua.NET.Sdk/)
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-7C3AED)](https://dotnet.microsoft.com/download/dotnet/10.0)
-[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.txt)
 
 # ANcpLua.NET.Sdk
 
@@ -8,13 +8,14 @@ Opinionated MSBuild SDK for .NET projects.
 
 ## Quick Start
 
+`global.json`:
+
 ```json
-// global.json
 {
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "3.3.1",
-    "ANcpLua.NET.Sdk.Web": "3.3.1",
-    "ANcpLua.NET.Sdk.Test": "3.3.1"
+    "ANcpLua.NET.Sdk": "3.4.21",
+    "ANcpLua.NET.Sdk.Web": "3.4.21",
+    "ANcpLua.NET.Sdk.Test": "3.4.21"
   }
 }
 ```
