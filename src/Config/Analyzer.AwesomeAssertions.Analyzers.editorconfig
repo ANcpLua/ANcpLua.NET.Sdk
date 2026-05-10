@@ -1,6 +1,7 @@
-# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
+# global_level controls precedence across multiple global AnalyzerConfig files.
+# Keep distinct values to avoid equal-level conflicts (which are ignored).
 is_global = true
-global_level = 100
+global_level = 14
 
 # AwesomeAssertions0801: Code Smell
 # Enabled: True, Severity: warning
@@ -21,4 +22,3 @@ dotnet_diagnostic.FAA0003.severity = suggestion
 # FAA0004: Replace NUnit assertion with Fluent Assertions equivalent
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.FAA0004.severity = suggestion
-

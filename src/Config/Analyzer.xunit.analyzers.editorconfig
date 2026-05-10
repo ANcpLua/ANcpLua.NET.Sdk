@@ -1,6 +1,7 @@
-# global_level is set to 100 so SDK configuration overrides analyzer-provided defaults.
+# global_level controls precedence across multiple global AnalyzerConfig files.
+# Keep distinct values to avoid equal-level conflicts (which are ignored).
 is_global = true
-global_level = 100
+global_level = 15
 
 # xUnit1000: Test classes must be public
 # Help link: https://xunit.net/xunit.analyzers/rules/xUnit1000
@@ -451,4 +452,3 @@ dotnet_diagnostic.xUnit3002.severity = warning
 # Help link: https://xunit.net/xunit.analyzers/rules/xUnit3003
 # Enabled: True, Severity: warning
 dotnet_diagnostic.xUnit3003.severity = warning
-
