@@ -365,7 +365,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
             "--debug:custom-hive", hive,
             "--skipRestore"
         };
-        if (extraArgs is not null) args.AddRange(extraArgs);
+        if (extraArgs is not null)
+        {
+            args.AddRange(extraArgs);
+        }
 
         var result = await RunDotnetAsync(args, workingDirectory: null);
         Assert.True(
@@ -393,7 +396,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
             CreateNoWindow = true,
             WorkingDirectory = workingDirectory?.Value ?? Environment.CurrentDirectory
         };
-        foreach (var arg in args) psi.ArgumentList.Add(arg.ToString() ?? "");
+        foreach (var arg in args)
+        {
+            psi.ArgumentList.Add(arg.ToString() ?? "");
+        }
 
         var result = await psi.RunAsTaskAsync(TestContext.Current.CancellationToken);
         return (result.ExitCode, result.Output.ToString());
@@ -416,7 +422,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         try
         {
             var resolved = new DirectoryInfo(path.Value).ResolveLinkTarget(returnFinalTarget: true)?.FullName;
-            if (!string.IsNullOrEmpty(resolved)) return FullPath.FromPath(resolved);
+            if (!string.IsNullOrEmpty(resolved))
+            {
+                return FullPath.FromPath(resolved);
+            }
 
             // No direct symlink on the leaf; walk up to find an ancestor that is one
             // (e.g. /var → /private/var) and rebuild the path through the resolved ancestor.
@@ -430,7 +439,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
                 if (link is not null)
                 {
                     var rebuilt = link.FullName;
-                    while (suffix.Count > 0) rebuilt = Path.Combine(rebuilt, suffix.Pop());
+                    while (suffix.Count > 0)
+                    {
+                        rebuilt = Path.Combine(rebuilt, suffix.Pop());
+                    }
                     return FullPath.FromPath(rebuilt);
                 }
 

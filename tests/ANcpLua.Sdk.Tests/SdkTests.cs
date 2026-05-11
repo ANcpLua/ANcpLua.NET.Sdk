@@ -273,7 +273,10 @@ public abstract class SdkTests(
             .BuildAsync();
 
         var files = result.GetBinLogFiles();
-        foreach (var file in files) TestContext.Current.TestOutputHelper?.WriteLine("Binlog file: " + file);
+        foreach (var file in files)
+        {
+            TestContext.Current.TestOutputHelper?.WriteLine("Binlog file: " + file);
+        }
 
         Assert.Contains(files, static f => f.EndsWith(".editorconfig", StringComparison.Ordinal));
         Assert.Contains(files, f => f == localFile || f == "/private" + localFile);
