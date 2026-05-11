@@ -4,8 +4,6 @@
 is_global = true
 global_level = 50
 
-dotnet_style_prefer_foreach_explicit_cast_in_source=when_strongly_typed
-
 # Remove this or Me qualification
 dotnet_diagnostic.IDE0003.severity = suggestion
 
@@ -159,6 +157,9 @@ dotnet_diagnostic.IDE0200.severity = suggestion
 
 # Convert to top-level statements — AOT/R2R entry points legitimately use Program.Main
 dotnet_diagnostic.IDE0210.severity = silent
+
+# Add explicit cast in foreach loop
+dotnet_diagnostic.IDE0220.severity = suggestion
 
 # Null check can be simplified
 dotnet_diagnostic.IDE0270.severity = silent
