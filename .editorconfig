@@ -44,6 +44,11 @@ indent_size = 4
 insert_final_newline = true
 charset = utf-8
 
+# Repo-local CI strictness: set IDE0055 to warning so it can be enforced by
+# `EnforceCodeStyleInBuild` (Microsoft Learn: IDE0055 must be warning/error to
+# run during build).
+dotnet_diagnostic.IDE0055.severity = warning
+
 # C# naming conventions live in src/Config/NamingConvention.editorconfig
 # (single source of truth, dotnet/runtime aligned, shipped with the SDK package).
 # Directory.Build.props injects it for this repo's own projects via EditorConfigFiles.
