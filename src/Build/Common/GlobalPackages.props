@@ -57,15 +57,22 @@
     Sdk="ANcpLua.NET.Sdk.BitNet". The implicit reference is what lets the
     consumer write a single Program.cs line (builder.AddQylBitNetChatClient())
     without adding a separate PackageReference. ANcpLuaAgentsHostingBitNetVersion
-    is defined in Version.props. IncludeAssets is deliberately omitted so the
-    NuGet default (compile + runtime + build + buildMultitargeting +
-    buildTransitive + contentFiles + analyzers + native) flows — partial lists
-    silently drop any asset the hosting package ships that isn't enumerated.
-    The PackageId guard mirrors the ANcpLua.Analyzers pattern so a project that
-    builds the BitNet hosting package itself does not self-reference.
+    is defined in Version.props.
+
+    Must use PackageReference (not GlobalPackageReference) even under CPM:
+    GlobalPackageReference has a hardcoded NuGet default of
+    IncludeAssets="Runtime;Build;Native;contentFiles;Analyzers" with
+    PrivateAssets="All" — designed for build-only deps (analyzers, SBOM).
+    The "compile" asset is intentionally excluded, which would prevent
+    consumers from resolving AddQylBitNetChatClient at compile time and
+    break the one-line opt-in contract. PackageReference defaults flow all
+    assets including compile.
+
+    The PackageId guard mirrors the ANcpLua.Analyzers pattern so a project
+    that builds the BitNet hosting package itself does not self-reference.
   -->
   <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet' And '$(ManagePackageVersionsCentrally)' == 'true'">
-    <GlobalPackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" />
+    <PackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" IsImplicitlyDefined="true" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet' And '$(ManagePackageVersionsCentrally)' != 'true'">
