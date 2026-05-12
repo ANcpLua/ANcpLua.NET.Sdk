@@ -57,17 +57,19 @@
     Sdk="ANcpLua.NET.Sdk.BitNet". The implicit reference is what lets the
     consumer write a single Program.cs line (builder.AddQylBitNetChatClient())
     without adding a separate PackageReference. ANcpLuaAgentsHostingBitNetVersion
-    is defined in Version.props.
+    is defined in Version.props. "compile" must be in IncludeAssets — without it
+    NuGet drops the lib/ ref assemblies and AddQylBitNetChatClient is invisible
+    at compile time, breaking the one-line-opt-in contract.
   -->
   <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(ManagePackageVersionsCentrally)' == 'true'">
     <GlobalPackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
+      <IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
     </GlobalPackageReference>
   </ItemGroup>
 
   <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(ManagePackageVersionsCentrally)' != 'true'">
     <PackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" IsImplicitlyDefined="true">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
+      <IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 </Project>

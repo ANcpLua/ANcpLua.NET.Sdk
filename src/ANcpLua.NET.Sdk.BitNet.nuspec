@@ -5,7 +5,7 @@
     <version>$version$</version>
     <authors>ANcpLua</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>ANcpLua SDK for ASP.NET Core projects with one-line BitNet (bitnet.cpp llama-server) hosting. Auto-references ANcpLua.Agents.Hosting.BitNet so a single Sdk attribute plus builder.AddQylBitNetChatClient() wires a keyed IChatClient, health check, and OpenTelemetry. Setup script and BITNET_URL / BITNET_BIN / BITNET_MODEL env vars are the runtime prerequisite.</description>
+    <description>ANcpLua SDK for ASP.NET Core projects with one-line BitNet (bitnet.cpp llama-server) hosting. Auto-references ANcpLua.Agents.Hosting.BitNet so a single Sdk attribute plus builder.AddQylBitNetChatClient() wires a keyed IChatClient, health check, and OpenTelemetry. Setup script and BITNET_URL / BITNET_API_PATH / BITNET_MODEL env vars are the runtime prerequisite.</description>
     <readme>README.md</readme>
     <license type="expression">MIT</license>
     <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$"/>
