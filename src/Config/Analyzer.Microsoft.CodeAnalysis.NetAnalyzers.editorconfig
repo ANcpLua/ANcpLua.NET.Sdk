@@ -18,7 +18,9 @@ dotnet_diagnostic.CA1001.severity = warning
 # CA1002: Do not expose generic lists
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1002
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1002.severity = warning
+# Demoted from warning: wire-format DTOs, protobuf, System.Text.Json and EF projections
+# legitimately expose List<T>. Per dotnet/roslyn-analyzers#1705 DTOs are exceptions.
+dotnet_diagnostic.CA1002.severity = suggestion
 
 # CA1003: Use generic event handler instances
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1003
@@ -103,7 +105,9 @@ dotnet_diagnostic.CA1031.severity = none
 # CA1032: Implement standard exception constructors
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1032
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1032.severity = warning
+# Demoted: most custom exception types intentionally restrict construction
+# (sealed default ctor, single-arg-only). Keeping it visible as suggestion.
+dotnet_diagnostic.CA1032.severity = suggestion
 
 # CA1033: Interface methods should be callable by child types
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1033
@@ -113,7 +117,9 @@ dotnet_diagnostic.CA1033.severity = none
 # CA1034: Nested types should not be visible
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1034
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1034.severity = warning
+# Demoted: legitimate builder/options patterns (e.g. ConfigureOptions<T>.Builder),
+# protobuf and C# 14 extension blocks routinely nest types.
+dotnet_diagnostic.CA1034.severity = suggestion
 
 # CA1036: Override methods on comparable types
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1036
@@ -168,22 +174,28 @@ dotnet_diagnostic.CA1051.severity = warning
 # CA1052: Static holder types should be Static or NotInheritable
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1052
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1052.severity = warning
+# Demoted: source generators and xUnit fixture base classes can't be sealed/static
+# without breaking the generator contract. Style hint, not a real bug.
+dotnet_diagnostic.CA1052.severity = suggestion
 
 # CA1054: URI-like parameters should not be strings
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1054
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1054.severity = warning
+# Demoted: JSON DTOs, config-bound options and minimal-API route handlers
+# routinely pass URLs as strings. Style hint only.
+dotnet_diagnostic.CA1054.severity = suggestion
 
 # CA1055: URI-like return values should not be strings
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1055
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1055.severity = warning
+# Demoted with CA1054/CA1056 — wire-format reality.
+dotnet_diagnostic.CA1055.severity = suggestion
 
 # CA1056: URI-like properties should not be strings
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1056
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1056.severity = warning
+# Demoted: JSON DTOs require string URLs for serialization round-trip.
+dotnet_diagnostic.CA1056.severity = suggestion
 
 # CA1058: Types should not extend certain base types
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1058
@@ -269,7 +281,9 @@ dotnet_diagnostic.CA1305.severity = none
 # CA1307: Specify StringComparison for clarity
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1307
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1307.severity = warning
+# Demoted: clarity hint only — the correctness rule is CA1310 (kept at warning).
+# CA1307 is also covered by AL0039 (StringComparison ext) at suggestion.
+dotnet_diagnostic.CA1307.severity = suggestion
 
 # CA1308: Normalize strings to uppercase
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1308
@@ -464,7 +478,8 @@ dotnet_diagnostic.CA1724.severity = none
 # CA1725: Parameter names should match base declaration
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1725
 # Enabled: True, Severity: silent
-dotnet_diagnostic.CA1725.severity = warning
+# Demoted: pure naming style — does not affect correctness or behavior.
+dotnet_diagnostic.CA1725.severity = suggestion
 
 # CA1727: Use PascalCase for named placeholders
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1727
@@ -521,7 +536,9 @@ dotnet_diagnostic.CA1816.severity = none
 # CA1819: Properties should not return arrays
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1819
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1819.severity = warning
+# Demoted: protobuf, schemas, OTLP, token validation and JSON DTOs require
+# array-typed properties. Per dotnet/roslyn-analyzers#1705 wire types are exceptions.
+dotnet_diagnostic.CA1819.severity = suggestion
 
 # CA1820: Test for empty strings using string length
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1820
@@ -536,12 +553,17 @@ dotnet_diagnostic.CA1821.severity = warning
 # CA1822: Mark members as static
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1822
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.CA1822.severity = warning
+# Demoted to suggestion (matches the analyzer default): micro-perf hint, often
+# blocked by inheritance, interfaces or test instance harnesses (xUnit fixtures).
+dotnet_diagnostic.CA1822.severity = suggestion
 
 # CA1823: Avoid unused private fields
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1823
 # Enabled: False, Severity: warning
-dotnet_diagnostic.CA1823.severity = warning
+# Demoted: high false-positive rate on DI-injected fields read via reflection,
+# source-generator pattern fields, and incremental-build scaffolding. Real
+# dead-code detection is better served by IDE0052 (kept at warning in CodingStyle).
+dotnet_diagnostic.CA1823.severity = suggestion
 
 # CA1824: Mark assemblies with NeutralResourcesLanguageAttribute
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1824
@@ -686,7 +708,9 @@ dotnet_diagnostic.CA1851.severity = suggestion
 # CA1852: Seal internal types
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1852
 # Enabled: True, Severity: silent
-dotnet_diagnostic.CA1852.severity = warning
+# Demoted: micro-perf hint; mocking frameworks (Moq, NSubstitute) and test
+# scaffolding routinely require open internal types. The default is silent.
+dotnet_diagnostic.CA1852.severity = suggestion
 
 # CA1853: Unnecessary call to 'Dictionary.ContainsKey(key)'
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1853
@@ -721,7 +745,9 @@ dotnet_diagnostic.CA1858.severity = warning
 # CA1859: Use concrete types when possible for improved performance
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1859
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.CA1859.severity = warning
+# Demoted: micro-perf hint that fights DIP (e.g. method returning IList<T>).
+# Default is suggestion.
+dotnet_diagnostic.CA1859.severity = suggestion
 
 # CA1860: Avoid using 'Enumerable.Any()' extension method
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1860

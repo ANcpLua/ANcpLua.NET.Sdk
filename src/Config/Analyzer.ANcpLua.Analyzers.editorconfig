@@ -126,7 +126,10 @@ dotnet_diagnostic.AL0024.severity = error
 # AL0025: Anonymous function can be made static
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0025
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0025.severity = warning
+# Demoted: micro-perf hint (avoids implicit `this` capture). IDE0200 covers the
+# same ground at suggestion; keeping AL0025 as suggestion avoids 100+ build-errors
+# on existing code while leaving the fix one click away in the IDE.
+dotnet_diagnostic.AL0025.severity = suggestion
 
 # AL0026: Avoid DateTime/DateTimeOffset time accessors
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0026
@@ -191,7 +194,9 @@ dotnet_diagnostic.AL0037.severity = warning
 # AL0039: Use StringComparison extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0039
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0039.severity = warning
+# Demoted: style preference toward ANcpLua.Roslyn.Utilities extensions. The real
+# correctness rule is CA1310 (kept at warning). Fix is one click in the IDE.
+dotnet_diagnostic.AL0039.severity = suggestion
 
 # AL0040: Use attribute argument extraction extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0040
@@ -349,7 +354,10 @@ dotnet_diagnostic.AL0069.severity = suggestion
 # AL0070: Collector endpoint should use OTLP protocol
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0070
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0070.severity = warning
+# Demoted: false-positives on non-collector endpoint strings (config URLs,
+# health check probes, sample-data URLs). The platform-level OTLP exporter
+# configuration is what actually matters.
+dotnet_diagnostic.AL0070.severity = suggestion
 
 # AL0071: [Meter] class must be partial static
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0071
@@ -405,7 +413,10 @@ dotnet_diagnostic.AL0080.severity = warning
 # AL0081: Missing health checks
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0081
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0081.severity = warning
+# Demoted: operational guidance, not a correctness bug. Many services
+# legitimately defer health check wiring to platform infrastructure (Kubernetes
+# liveness/readiness probes, container orchestrator health checks).
+dotnet_diagnostic.AL0081.severity = suggestion
 
 # AL0082: Consider using configuration for connection string
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0082
@@ -472,27 +483,36 @@ dotnet_diagnostic.AL0093.severity = suggestion
 # AL0094: Avoid 'dynamic' keyword in AOT-published code
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0094
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0094.severity = warning
+# Demoted: AOT advisory. Non-AOT projects use `dynamic` legitimately (DLR scripting,
+# interop). AOT projects should re-promote to warning/error in their editorconfig.
+dotnet_diagnostic.AL0094.severity = suggestion
 
 # AL0095: Avoid Expression.Compile() in AOT context
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0095
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0095.severity = warning
+# Demoted: AOT advisory — see AL0094/AL0101 rationale.
+dotnet_diagnostic.AL0095.severity = suggestion
 
 # AL0096: Enable EventSourceSupport for AOT with telemetry
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0096
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0096.severity = warning
+# Demoted: AOT advisory — see AL0094/AL0101 rationale.
+dotnet_diagnostic.AL0096.severity = suggestion
 
 # AL0101: Activator.CreateInstance is not AOT-safe
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0101
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0101.severity = warning
+# Demoted: not every project ships AOT. The analyzer flags Activator.CreateInstance
+# regardless of <PublishAot>, so non-AOT projects (most services + tests) get
+# unconditional warnings. AOT-bound projects should bump this back to error via
+# their .editorconfig along with <PublishAot>true</PublishAot>.
+dotnet_diagnostic.AL0101.severity = suggestion
 
 # AL0102: Type.GetType with dynamic name is not AOT-safe
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0102
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0102.severity = warning
+# Demoted: AOT advisory — see AL0094/AL0101 rationale.
+dotnet_diagnostic.AL0102.severity = suggestion
 
 # AL0103: Closed hierarchy match is not exhaustive
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0103
@@ -552,7 +572,9 @@ dotnet_diagnostic.AL0113.severity = warning
 # AL0114: Prefer TryParse over Parse
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0114
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0114.severity = warning
+# Demoted: style preference. Parse is correct when the caller verifies input
+# upstream (route params, config) or when an exception IS the desired signal.
+dotnet_diagnostic.AL0114.severity = suggestion
 
 # AL0115: Empty catch block swallows exceptions
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0115
@@ -667,7 +689,11 @@ dotnet_diagnostic.AL0136.severity = warning
 # AL0137: Use Guard.* helpers instead of throw helpers
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0137
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0137.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+# Codebases that haven't taken that dependency get hundreds of warnings on
+# valid BCL ArgumentNullException.ThrowIfNull / ArgumentException.ThrowIfNullOrEmpty
+# usage. The RS0030 banned-symbols rule still flags the BCL calls themselves.
+dotnet_diagnostic.AL0137.severity = suggestion
 
 # AL0138: Use Math.Round/MathF.Round overload with explicit MidpointRounding
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0138

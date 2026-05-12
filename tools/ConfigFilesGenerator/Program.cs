@@ -145,17 +145,60 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
     if (!Directory.Exists(configRoot))
         return configuredRuleIds;
 
-    foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
+    // Path-scoped editorconfigs (no `is_global = true`) override rules only inside
+    // their [glob] sections, not project-wide. Skipping them keeps the global
+    // analyzer files authoritative for default severities; otherwise rules
+    // relaxed only in tests/generated paths would disappear from the global file.
+    var allEditorConfigs = Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories)
+        .Select(FullPath.FromPath)
+        .ToArray();
+    var pathScopedConfigs = allEditorConfigs.Where(IsPathScopedEditorConfig).ToHashSet();
+
+    foreach (var editorconfig in allEditorConfigs)
     {
-        if (string.Equals(Path.GetFullPath(editorconfig), Path.GetFullPath(configurationFilePath.Value),
-                StringComparison.OrdinalIgnoreCase))
+        if (editorconfig == configurationFilePath)
             continue;
 
-        foreach (var rule in GetConfiguration(FullPath.FromPath(editorconfig)).Rules)
+        if (pathScopedConfigs.Contains(editorconfig))
+            continue;
+
+        foreach (var rule in GetConfiguration(editorconfig).Rules)
             configuredRuleIds.Add(rule.Id);
     }
 
     return configuredRuleIds;
+}
+
+static bool IsPathScopedEditorConfig(FullPath filePath)
+{
+    if (!File.Exists(filePath))
+        return false;
+
+    // An editorconfig is path-scoped if it lacks `is_global = true`.
+    // Global editorconfigs apply project-wide; path-scoped ones only
+    // apply within their [glob] sections.
+    foreach (var line in File.ReadLines(filePath))
+    {
+        var trimmed = line.Trim();
+
+        // Ignore section headers
+        if (trimmed.StartsWith("[", StringComparison.Ordinal))
+            continue;
+
+        var parts = trimmed.Split('=', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length != 2)
+            continue;
+
+        // Check for exact key match to "is_global"
+        if (!string.Equals(parts[0], "is_global", StringComparison.OrdinalIgnoreCase))
+            continue;
+
+        // Only return false if value is "true"
+        if (string.Equals(parts[1], "true", StringComparison.OrdinalIgnoreCase))
+            return false;
+    }
+
+    return true;
 }
 
 static async Task<Assembly[]> GetCompilerAnalyzerReferences()
