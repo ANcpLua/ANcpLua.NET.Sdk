@@ -39,7 +39,7 @@
     <file src="Config/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="Config/"/>
     <file src="Config/Analyzer.xunit.analyzers.editorconfig" target="Config/"/>
     <file src="Config/ANcpLua.NET.Sdk.SingleFileApp.editorconfig" target="Config/"/>
-    <file src="Config/ANcpLua.NET.Sdk.Web.editorconfig" target="Config/"/>
+    <file src="Config/ANcpLua.NET.Sdk.BitNet.editorconfig" target="Config/"/>
     <file src="Config/BannedSymbols.txt" target="Config/"/>
     <file src="Config/BannedSymbols.NewtonsoftJson.txt" target="Config/"/>
     <file src="Config/CodingStyle.editorconfig" target="Config/"/>
