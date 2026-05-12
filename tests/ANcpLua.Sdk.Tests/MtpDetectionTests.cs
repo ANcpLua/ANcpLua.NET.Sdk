@@ -383,4 +383,105 @@ public abstract class MtpDetectionTests(
             .ToArray();
         Assert.NotEmpty(runtimeConfigs);
     }
+
+    [Fact]
+    public async Task TestSdk_WithTUnit_ProducesExecutable()
+    {
+        // Verify .Test SDK's props-phase OutputType=Exe doesn't collide with
+        // TUnit detection in Tests.targets (which would also set OutputType=Exe
+        // inside _DetectTestFrameworksAndMTP). The first set wins; the second
+        // is a no-op via the empty-condition guard.
+        await using var project = CreateProject();
+
+        foreach (var pkg in s_tUnitPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .WithProperty("SkipXunitInjection", "true")
+            .AddSource("Tests.cs", """
+                using TUnit.Core;
+                public class SampleTests
+                {
+                    [Test]
+                    public async Task Test1() => await Assert.That(true).IsTrue();
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
+
+    [Fact]
+    public async Task TestSdk_WithNUnit_ProducesExecutable()
+    {
+        await using var project = CreateProject();
+
+        foreach (var pkg in s_nUnitMtpPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .WithProperty("EnableNUnitRunner", "true")
+            .AddSource("Tests.cs", """
+                using NUnit.Framework;
+
+                [TestFixture]
+                public class SampleTests
+                {
+                    [Test]
+                    public void Test1() => Assert.That(true, Is.True);
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
+
+    [Fact]
+    public async Task TestSdk_WithMSTest_ProducesExecutable()
+    {
+        await using var project = CreateProject();
+
+        foreach (var pkg in s_msTestMtpPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .WithProperty("EnableMSTestRunner", "true")
+            .AddSource("Tests.cs", """
+                using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+                [TestClass]
+                public class SampleTests
+                {
+                    [TestMethod]
+                    public void Test1() => Assert.IsTrue(true);
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
 }
