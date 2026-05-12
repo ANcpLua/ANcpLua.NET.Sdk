@@ -47,6 +47,7 @@
     <file src="Config/GeneratedFiles.editorconfig" target="Config/"/>
     <file src="Config/Global.editorconfig" target="Config/"/>
     <file src="Config/NamingConvention.editorconfig" target="Config/"/>
+    <file src="Config/TestProjects.editorconfig" target="Config/"/>
     <file src="Config/default.runsettings" target="Config/"/>
 
     <file src="../LICENSE.txt" target=""/>

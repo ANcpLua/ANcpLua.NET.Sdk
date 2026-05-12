@@ -72,16 +72,24 @@
   <!-- IDE tree hygiene: Link groups SDK-injected editorconfig files under a virtual
        '$(ANcpLuaSdkName)\Config' folder in Rider / VS Solution Explorer instead of
        scattering them at the project root. MSBuild items with absolute paths outside
-       the project cone render at root by default; Link is the documented container. -->
+       the project cone render at root by default; Link is the documented container.
+
+       TestProjects.editorconfig is path-glob-scoped, not is_global=true; it's the
+       file that relaxes test-folder rules. We exclude it from the wildcard include
+       and re-include it conditionally below so consumers can opt out via
+       <DisableSdkTestEditorConfig>true</DisableSdkTestEditorConfig>. -->
   <ItemGroup>
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\*.editorconfig"
-                       Exclude="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk*.editorconfig"
+                       Exclude="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk*.editorconfig;$(MSBuildThisFileDirectory)..\..\Config\TestProjects.editorconfig"
                        Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\$(ANcpLuaSdkName).editorconfig"
                        Condition="'$(ANcpLuaSdkName)' != '' AND Exists('$(MSBuildThisFileDirectory)..\..\Config\$(ANcpLuaSdkName).editorconfig')"
                        Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\ANcpLua.NET.Sdk.SingleFileApp.editorconfig"
                        Condition="'$(ANcpLuaSingleFileApp)' == 'true'"
+                       Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\..\Config\TestProjects.editorconfig"
+                       Condition="'$(DisableSdkTestEditorConfig)' != 'true'"
                        Link="$(ANcpLuaSdkName)\Config\%(Filename)%(Extension)" />
   </ItemGroup>
 </Project>

@@ -859,6 +859,63 @@ public abstract class SdkTests(
     }
 
     [Fact]
+    public async Task TestProjects_EditorConfig_RelaxesIDE1006InTestPath()
+    {
+        // TestProjects.editorconfig drops IDE1006 (naming) from warning to suggestion
+        // for files under tests/, test/, **/*.Tests/, **/*.UnitTests/, **/*.IntegrationTests/.
+        // Without that relaxation, the lowercase `field` would fire IDE1006 as error
+        // in Release (TreatWarningsAsErrors=true).
+        await using var project = CreateProject();
+
+        var result = await project
+            .AddSource("tests/SampleTests.cs", """
+                _ = "";
+
+                class Sample
+                {
+                    private readonly int field;
+
+                    public Sample(int a) => field = a;
+
+                    public int A() => field;
+                }
+                """)
+            .BuildAsync(["--configuration", "Release"]);
+
+        // IDE1006 must not be promoted to error or warning under tests/.
+        Assert.False(result.HasError("IDE1006"));
+        Assert.False(result.HasWarning("IDE1006"));
+    }
+
+    [Fact]
+    public async Task TestProjects_EditorConfig_DisableOptOutWorks()
+    {
+        // Consumers can opt out of the test-relaxation editorconfig entirely by setting
+        // DisableSdkTestEditorConfig=true. After opting out, IDE1006 fires again in tests
+        // (the global CodingStyle.editorconfig has it at warning + Release promotes to error).
+        await using var project = CreateProject();
+
+        var result = await project
+            .WithProperty("DisableSdkTestEditorConfig", "true")
+            .WithProperty("TreatWarningsAsErrors", "false")
+            .AddSource("tests/SampleTests.cs", """
+                _ = "";
+
+                class Sample
+                {
+                    private readonly int field;
+
+                    public Sample(int a) => field = a;
+
+                    public int A() => field;
+                }
+                """)
+            .BuildAsync(["--configuration", "Release"]);
+
+        Assert.True(result.HasWarning("IDE1006"));
+    }
+
+    [Fact]
     public async Task CentralPackageManagement()
     {
         await using var project = CreateProject();

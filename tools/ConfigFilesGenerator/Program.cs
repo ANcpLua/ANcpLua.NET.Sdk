@@ -145,10 +145,23 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
     if (!Directory.Exists(configRoot))
         return configuredRuleIds;
 
+    // Path-scoped editorconfigs (no `is_global = true`) override rules only inside
+    // their [glob] sections, not project-wide. Skipping them keeps the global
+    // analyzer files authoritative for default severities; otherwise rules
+    // relaxed only in tests/generated paths would disappear from the global file.
+    var pathScopedConfigs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "TestProjects.editorconfig",
+        "GeneratedFiles.editorconfig",
+    };
+
     foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
     {
         if (string.Equals(Path.GetFullPath(editorconfig), Path.GetFullPath(configurationFilePath.Value),
                 StringComparison.OrdinalIgnoreCase))
+            continue;
+
+        if (pathScopedConfigs.Contains(Path.GetFileName(editorconfig)))
             continue;
 
         foreach (var rule in GetConfiguration(FullPath.FromPath(editorconfig)).Rules)
