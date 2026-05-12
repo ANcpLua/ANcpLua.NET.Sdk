@@ -59,15 +59,17 @@
     without adding a separate PackageReference. ANcpLuaAgentsHostingBitNetVersion
     is defined in Version.props. "compile" must be in IncludeAssets — without it
     NuGet drops the lib/ ref assemblies and AddQylBitNetChatClient is invisible
-    at compile time, breaking the one-line-opt-in contract.
+    at compile time, breaking the one-line-opt-in contract. The PackageId guard
+    mirrors the ANcpLua.Analyzers pattern so a project that builds the BitNet
+    hosting package itself does not self-reference.
   -->
-  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(ManagePackageVersionsCentrally)' == 'true'">
+  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet' And '$(ManagePackageVersionsCentrally)' == 'true'">
     <GlobalPackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)">
       <IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
     </GlobalPackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(ManagePackageVersionsCentrally)' != 'true'">
+  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet' And '$(ManagePackageVersionsCentrally)' != 'true'">
     <PackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" IsImplicitlyDefined="true">
       <IncludeAssets>compile; runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
     </PackageReference>
