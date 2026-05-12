@@ -51,4 +51,23 @@
       <IncludeAssets>analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!--
+    BitNet hosting auto-injection. Fires only when the consumer csproj declares
+    Sdk="ANcpLua.NET.Sdk.BitNet". The implicit reference is what lets the
+    consumer write a single Program.cs line (builder.AddQylBitNetChatClient())
+    without adding a separate PackageReference. ANcpLuaAgentsHostingBitNetVersion
+    is defined in Version.props.
+  -->
+  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(ManagePackageVersionsCentrally)' == 'true'">
+    <GlobalPackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
+    </GlobalPackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(ManagePackageVersionsCentrally)' != 'true'">
+    <PackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" IsImplicitlyDefined="true">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildTransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>

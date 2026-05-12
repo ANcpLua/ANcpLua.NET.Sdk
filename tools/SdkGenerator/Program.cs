@@ -8,6 +8,7 @@ var sdks = new (string SdkName, string BaseSdkName, string TestProjectLine)[]
     ("ANcpLua.NET.Sdk", "Microsoft.NET.Sdk", ""),
     ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web", ""),
     ("ANcpLua.NET.Sdk.Test", "Microsoft.NET.Sdk", ""),
+    ("ANcpLua.NET.Sdk.BitNet", "Microsoft.NET.Sdk.Web", ""),
 };
 
 foreach (var (sdkName, baseSdkName, _) in sdks)
