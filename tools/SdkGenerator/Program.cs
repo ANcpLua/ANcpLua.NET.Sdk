@@ -3,15 +3,20 @@ using Meziantou.Framework;
 var rootFolder = GetRootFolderPath();
 var sdkRootPath = rootFolder / "src" / "Sdk";
 
-var sdks = new (string SdkName, string BaseSdkName, string TestProjectLine)[]
+var sdks = new (string SdkName, string BaseSdkName, string VariantPropsLines)[]
 {
     ("ANcpLua.NET.Sdk", "Microsoft.NET.Sdk", ""),
     ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web", ""),
-    ("ANcpLua.NET.Sdk.Test", "Microsoft.NET.Sdk", ""),
+    // .Test sets OutputType=Exe at props-phase (before Microsoft.NET.Sdk applies
+    // its Library default) so `dotnet test`, which evaluates OutputType statically
+    // before any target fires, sees Exe. Tests.targets also sets this inside a
+    // build-time target, but that's too late for `dotnet test`'s pre-build check.
+    ("ANcpLua.NET.Sdk.Test", "Microsoft.NET.Sdk",
+        "\n    <OutputType Condition=\"'$(OutputType)' == ''\">Exe</OutputType>"),
     ("ANcpLua.NET.Sdk.BitNet", "Microsoft.NET.Sdk.Web", ""),
 };
 
-foreach (var (sdkName, baseSdkName, _) in sdks)
+foreach (var (sdkName, baseSdkName, variantPropsLines) in sdks)
 {
     var propsPath = sdkRootPath / sdkName / "Sdk.props";
     var targetsPath = sdkRootPath / sdkName / "Sdk.targets";
@@ -22,7 +27,7 @@ foreach (var (sdkName, baseSdkName, _) in sdks)
                                         <Project>
                                           <PropertyGroup>
                                             <ANcpLuaSdkName>{sdkName}</ANcpLuaSdkName>
-                                            <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
+                                            <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>{variantPropsLines}
 
                                             <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)..\Build\Common\Common.props</CustomBeforeDirectoryBuildProps>
                                             <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)..\Build\Common\Common.targets</BeforeMicrosoftNETSdkTargets>

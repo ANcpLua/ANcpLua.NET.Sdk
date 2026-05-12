@@ -349,4 +349,38 @@ public abstract class MtpDetectionTests(
         result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
         result.ShouldHaveRecordedProperty("OutputType", "exe");
     }
+
+    [Fact]
+    public async Task TestSdk_WithoutExplicitOutputType_ProducesExecutable()
+    {
+        // Regression guard: Tests.targets sets OutputType=Exe inside a Target
+        // (build-time), which is too late — `dotnet test` evaluates OutputType
+        // statically pre-build and the actual compilation also reads it before
+        // BeforeBuild targets flip the value, producing a .dll-only output.
+        // The .Test SDK's Sdk.props must set OutputType=Exe at props-phase so
+        // the executable host (.runtimeconfig.json) is emitted.
+        await using var project = CreateProject();
+
+        foreach (var pkg in s_xUnit3MtpV2Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
 }
