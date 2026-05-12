@@ -153,7 +153,7 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
     foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
     {
         if (IsPathScopedEditorConfig(editorconfig))
-            pathScopedConfigs.Add(Path.GetFileName(editorconfig));
+            pathScopedConfigs.Add(Path.GetFullPath(editorconfig));
     }
 
     foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
@@ -162,7 +162,7 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
                 StringComparison.OrdinalIgnoreCase))
             continue;
 
-        if (pathScopedConfigs.Contains(Path.GetFileName(editorconfig)))
+        if (pathScopedConfigs.Contains(Path.GetFullPath(editorconfig)))
             continue;
 
         foreach (var rule in GetConfiguration(FullPath.FromPath(editorconfig)).Rules)
