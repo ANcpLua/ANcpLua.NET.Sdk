@@ -43,7 +43,16 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(EnableEditorConfigDogfooding)' == 'true'">
+    <!--
+      Exclude TestProjects.editorconfig: it's the second non-global (path-scoped)
+      editorconfig in src/Config/ after GeneratedFiles.editorconfig. Roslyn rejects
+      two non-globals in one directory with CS8700 ("Multiple analyzer config files
+      cannot be in the same directory"). The SDK ships TestProjects.editorconfig
+      to consumers via Common.props's conditional EditorConfigFiles include; the
+      SDK's own dogfood doesn't need it (tools/ + tests/ are not consumer-test
+      projects), so leave it out here.
+    -->
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)src\Config\*.editorconfig"
-                       Exclude="$(MSBuildThisFileDirectory)src\Config\ANcpLua.NET.Sdk*.editorconfig" />
+                       Exclude="$(MSBuildThisFileDirectory)src\Config\ANcpLua.NET.Sdk*.editorconfig;$(MSBuildThisFileDirectory)src\Config\TestProjects.editorconfig" />
   </ItemGroup>
 </Project>
