@@ -7,12 +7,32 @@ var sdks = new (string SdkName, string BaseSdkName, string VariantPropsLines)[]
 {
     ("ANcpLua.NET.Sdk", "Microsoft.NET.Sdk", ""),
     ("ANcpLua.NET.Sdk.Web", "Microsoft.NET.Sdk.Web", ""),
-    // .Test sets OutputType=Exe at props-phase (before Microsoft.NET.Sdk applies
-    // its Library default) so `dotnet test`, which evaluates OutputType statically
-    // before any target fires, sees Exe. Tests.targets also sets this inside a
-    // build-time target, but that's too late for `dotnet test`'s pre-build check.
+    // .Test sets OutputType=Exe at props-phase so `dotnet test`, which evaluates
+    // OutputType statically before any target fires, sees Exe. Tests.targets also
+    // sets this inside a build-time target, but that's too late for `dotnet test`'s
+    // pre-build check and too late for the CSC executable-host decision.
+    //
+    // The condition handles all three SdkImportStyles:
+    //   ProjectElement (<Project Sdk="ANcpLua.NET.Sdk.Test">) — our Sdk.props runs
+    //     before the inner Microsoft.NET.Sdk import; OutputType is empty here, so
+    //     the OutputType=='' branch fires.
+    //   SdkElement (<Sdk Name="ANcpLua.NET.Sdk.Test"/> inside a Microsoft.NET.Sdk
+    //     project) and SdkElementDirectoryBuildProps — Microsoft.NET.Sdk's Sdk.props
+    //     already applied OutputType=Library by the time our .Test Sdk.props runs,
+    //     so the OutputType=='Library' branch fires.
+    //
+    // Consumer override: a csproj <OutputType>Library</OutputType> in the project's
+    // PropertyGroup body runs *after* this Sdk.props set and always wins, which is
+    // the documented escape hatch for the rare VSTest-on-.Test-SDK scenario.
+    // SafetyGuard_WarnsWhenMTPWithLibraryOutputType verifies that path stays intact.
+    //
+    // No UseMicrosoftTestingPlatform gate: we can't read csproj-set properties from
+    // Sdk.props (they evaluate later), and `.Test` SDK is documented as MTP-only
+    // (see MtpDetectionTests class doc). Consumers wanting VSTest-Library set
+    // <OutputType>Library</OutputType> explicitly — the same contract as
+    // Microsoft.NET.Sdk.Web (web projects are Exe; want a library? use the base SDK).
     ("ANcpLua.NET.Sdk.Test", "Microsoft.NET.Sdk",
-        "\n    <OutputType Condition=\"'$(OutputType)' == ''\">Exe</OutputType>"),
+        "\n    <OutputType Condition=\"'$(OutputType)' == '' OR '$(OutputType)' == 'Library'\">Exe</OutputType>"),
     ("ANcpLua.NET.Sdk.BitNet", "Microsoft.NET.Sdk.Web", ""),
 };
 
