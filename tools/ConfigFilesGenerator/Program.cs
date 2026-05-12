@@ -180,11 +180,21 @@ static bool IsPathScopedEditorConfig(FullPath filePath)
     foreach (var line in File.ReadLines(filePath))
     {
         var trimmed = line.Trim();
-        if (!trimmed.StartsWith("is_global", StringComparison.OrdinalIgnoreCase))
+
+        // Ignore section headers
+        if (trimmed.StartsWith("[", StringComparison.Ordinal))
             continue;
 
         var parts = trimmed.Split('=', 2, StringSplitOptions.TrimEntries);
-        if (parts.Length == 2 && string.Equals(parts[1], "true", StringComparison.OrdinalIgnoreCase))
+        if (parts.Length != 2)
+            continue;
+
+        // Check for exact key match to "is_global"
+        if (!string.Equals(parts[0], "is_global", StringComparison.OrdinalIgnoreCase))
+            continue;
+
+        // Only return false if value is "true"
+        if (string.Equals(parts[1], "true", StringComparison.OrdinalIgnoreCase))
             return false;
     }
 
