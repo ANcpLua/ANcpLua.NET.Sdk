@@ -38,7 +38,7 @@ if (Test-Path $GlobalJsonPath) {
     $global = Get-Content $GlobalJsonPath -Raw | ConvertFrom-Json
     $sdkSection = if ($global.PSObject.Properties['msbuild-sdks']) { $global.'msbuild-sdks' } else { $null }
     if ($sdkSection) {
-        foreach ($id in @("ANcpLua.NET.Sdk", "ANcpLua.NET.Sdk.Web", "ANcpLua.NET.Sdk.Test")) {
+        foreach ($id in @("ANcpLua.NET.Sdk", "ANcpLua.NET.Sdk.Web", "ANcpLua.NET.Sdk.Test", "ANcpLua.NET.Sdk.BitNet")) {
             $pinned = $sdkSection.$id
             if ($pinned) {
                 $latest = Get-Latest -PackageId $id

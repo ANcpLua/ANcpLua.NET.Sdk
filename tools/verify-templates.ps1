@@ -6,7 +6,7 @@
 .DESCRIPTION
     Fails non-zero unless every gate passes:
       1. .github/workflows/nuget-publish.yml publish gate includes 'templates/**/*'
-      2. ./build.ps1 -Version <Version> produces all 4 nupkgs
+      2. ./build.ps1 -Version <Version> produces all 5 nupkgs
       3. ANcpLua.NET.Sdk.Templates.<Version>.nupkg exists
       4. The Templates package has packageType 'Template'
       5. Templates package contains all 3 short names: ancplua-app, ancplua-lib, ancplua-web
@@ -85,9 +85,9 @@ else {
 }
 
 # --------------------------------------------------------------------------
-# Gate 2 — build.ps1 produces all 4 nupkgs
+# Gate 2 — build.ps1 produces all 5 nupkgs
 # --------------------------------------------------------------------------
-Write-Step "Gate 2: ./build.ps1 -Version $Version produces all 4 nupkgs"
+Write-Step "Gate 2: ./build.ps1 -Version $Version produces all 5 nupkgs"
 $buildPs1 = Join-Path $repoRoot 'build.ps1'
 if (-not (Test-Path $buildPs1)) {
     Write-Fail "build.ps1 not found at $buildPs1."
@@ -109,6 +109,7 @@ else {
                 "ANcpLua.NET.Sdk.$Version.nupkg",
                 "ANcpLua.NET.Sdk.Test.$Version.nupkg",
                 "ANcpLua.NET.Sdk.Web.$Version.nupkg",
+                "ANcpLua.NET.Sdk.BitNet.$Version.nupkg",
                 "ANcpLua.NET.Sdk.Templates.$Version.nupkg"
             )
             foreach ($name in $expected) {
