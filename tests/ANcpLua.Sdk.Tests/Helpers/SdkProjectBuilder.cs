@@ -201,6 +201,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     public new SdkProjectBuilder WithOutputType(string type)
     {
         OutputType = type;
+        _omitOutputType = false; // Explicit OutputType wins over OmitOutputType()
         return this;
     }
 
@@ -258,6 +259,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                 break;
             case Prop.OutputType:
                 OutputType = value;
+                _omitOutputType = false; // Explicit OutputType wins over OmitOutputType()
                 break;
             default:
                 _extraProperties[name] = value;
