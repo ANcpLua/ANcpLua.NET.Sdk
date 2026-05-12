@@ -149,30 +149,27 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
     // their [glob] sections, not project-wide. Skipping them keeps the global
     // analyzer files authoritative for default severities; otherwise rules
     // relaxed only in tests/generated paths would disappear from the global file.
-    var pathScopedConfigs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
-    {
-        if (IsPathScopedEditorConfig(editorconfig))
-            pathScopedConfigs.Add(Path.GetFullPath(editorconfig));
-    }
+    var allEditorConfigs = Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories)
+        .Select(FullPath.FromPath)
+        .ToArray();
+    var pathScopedConfigs = allEditorConfigs.Where(IsPathScopedEditorConfig).ToHashSet();
 
-    foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
+    foreach (var editorconfig in allEditorConfigs)
     {
-        if (string.Equals(Path.GetFullPath(editorconfig), Path.GetFullPath(configurationFilePath.Value),
-                StringComparison.OrdinalIgnoreCase))
+        if (editorconfig == configurationFilePath)
             continue;
 
-        if (pathScopedConfigs.Contains(Path.GetFullPath(editorconfig)))
+        if (pathScopedConfigs.Contains(editorconfig))
             continue;
 
-        foreach (var rule in GetConfiguration(FullPath.FromPath(editorconfig)).Rules)
+        foreach (var rule in GetConfiguration(editorconfig).Rules)
             configuredRuleIds.Add(rule.Id);
     }
 
     return configuredRuleIds;
 }
 
-static bool IsPathScopedEditorConfig(string filePath)
+static bool IsPathScopedEditorConfig(FullPath filePath)
 {
     if (!File.Exists(filePath))
         return false;
@@ -180,20 +177,18 @@ static bool IsPathScopedEditorConfig(string filePath)
     // An editorconfig is path-scoped if it lacks `is_global = true`.
     // Global editorconfigs apply project-wide; path-scoped ones only
     // apply within their [glob] sections.
-    var lines = File.ReadAllLines(filePath);
-    foreach (var line in lines)
+    foreach (var line in File.ReadLines(filePath))
     {
         var trimmed = line.Trim();
-        if (trimmed.StartsWith("is_global", StringComparison.OrdinalIgnoreCase))
-        {
-            // Check if the value is "true"
-            var parts = trimmed.Split('=', 2, StringSplitOptions.TrimEntries);
-            if (parts.Length == 2 && string.Equals(parts[1], "true", StringComparison.OrdinalIgnoreCase))
-                return false; // It's a global editorconfig
-        }
+        if (!trimmed.StartsWith("is_global", StringComparison.OrdinalIgnoreCase))
+            continue;
+
+        var parts = trimmed.Split('=', 2, StringSplitOptions.TrimEntries);
+        if (parts.Length == 2 && string.Equals(parts[1], "true", StringComparison.OrdinalIgnoreCase))
+            return false;
     }
 
-    return true; // No `is_global = true` found, so it's path-scoped
+    return true;
 }
 
 static async Task<Assembly[]> GetCompilerAnalyzerReferences()
