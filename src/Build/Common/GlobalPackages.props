@@ -65,17 +65,14 @@
     PrivateAssets="All" — designed for build-only deps (analyzers, SBOM).
     The "compile" asset is intentionally excluded, which would prevent
     consumers from resolving AddQylBitNetChatClient at compile time and
-    break the one-line opt-in contract. PackageReference defaults flow all
-    assets including compile.
+    break the one-line opt-in contract. PackageReference with
+    IsImplicitlyDefined="true" works uniformly in CPM and non-CPM projects,
+    so a single ItemGroup covers both.
 
     The PackageId guard mirrors the ANcpLua.Analyzers pattern so a project
     that builds the BitNet hosting package itself does not self-reference.
   -->
-  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet' And '$(ManagePackageVersionsCentrally)' == 'true'">
-    <PackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" IsImplicitlyDefined="true" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet' And '$(ManagePackageVersionsCentrally)' != 'true'">
+  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet'">
     <PackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" IsImplicitlyDefined="true" />
   </ItemGroup>
 </Project>
