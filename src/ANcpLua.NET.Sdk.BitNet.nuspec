@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>ANcpLua.NET.Sdk.BitNet</id>
+    <version>$version$</version>
+    <authors>ANcpLua</authors>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ANcpLua SDK for ASP.NET Core projects with one-line BitNet (bitnet.cpp llama-server) hosting. Auto-references ANcpLua.Agents.Hosting.BitNet so a single Sdk attribute plus builder.AddQylBitNetChatClient() wires a keyed IChatClient, health check, and OpenTelemetry. Setup script and BITNET_URL / BITNET_API_PATH / BITNET_MODEL env vars are the runtime prerequisite.</description>
+    <readme>README.md</readme>
+    <license type="expression">MIT</license>
+    <repository type="git" url="$RepositoryUrl$" commit="$RepositoryCommit$" branch="$RepositoryBranch$"/>
+  </metadata>
+  <files>
+    <!-- SDK Entry Points -->
+    <file src="Sdk/ANcpLua.NET.Sdk.BitNet/Sdk.props" target="Sdk/Sdk.props"/>
+    <file src="Sdk/ANcpLua.NET.Sdk.BitNet/Sdk.targets" target="Sdk/Sdk.targets"/>
+
+    <!-- Build/Common - Core MSBuild logic -->
+    <file src="Build/Common/Common.props" target="Build/Common/"/>
+    <file src="Build/Common/Common.targets" target="Build/Common/"/>
+    <file src="Build/Common/Version.props" target="Build/Common/"/>
+    <file src="Build/Common/ContinuousIntegrationBuild.props" target="Build/Common/"/>
+    <file src="Build/Common/Npm.targets" target="Build/Common/"/>
+    <file src="Build/Common/Tests.targets" target="Build/Common/"/>
+    <file src="Build/Common/GlobalPackages.props" target="Build/Common/"/>
+    <file src="Build/Common/SourceGenerators.targets" target="Build/Common/"/>
+
+    <!-- Build/Enforcement - Policy, determinism, version checks -->
+    <file src="Build/Enforcement/Enforcement.props" target="Build/Enforcement/"/>
+    <file src="Build/Enforcement/DeterminismAndSourceLink.props" target="Build/Enforcement/"/>
+    <file src="Build/Enforcement/VersionEnforcement.targets" target="Build/Enforcement/"/>
+
+    <!-- Config - Analyzer, style, banned-symbol, and test settings
+         (enumerated, not globbed — NuGet pack on Windows does not expand Config/*) -->
+    <file src="Config/Analyzer.ANcpLua.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.AwesomeAssertions.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.xunit.analyzers.editorconfig" target="Config/"/>
+    <file src="Config/ANcpLua.NET.Sdk.SingleFileApp.editorconfig" target="Config/"/>
+    <file src="Config/ANcpLua.NET.Sdk.BitNet.editorconfig" target="Config/"/>
+    <file src="Config/BannedSymbols.txt" target="Config/"/>
+    <file src="Config/BannedSymbols.NewtonsoftJson.txt" target="Config/"/>
+    <file src="Config/CodingStyle.editorconfig" target="Config/"/>
+    <file src="Config/Compiler.editorconfig" target="Config/"/>
+    <file src="Config/GeneratedFiles.editorconfig" target="Config/"/>
+    <file src="Config/Global.editorconfig" target="Config/"/>
+    <file src="Config/NamingConvention.editorconfig" target="Config/"/>
+    <file src="Config/default.runsettings" target="Config/"/>
+
+    <file src="../LICENSE.txt" target=""/>
+    <file src="../README.md" target=""/>
+  </files>
+</package>

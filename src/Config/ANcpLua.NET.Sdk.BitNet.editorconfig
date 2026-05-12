@@ -1,0 +1,9 @@
+# global_level must be higher than the base SDK-shipped globals
+is_global = true
+global_level = 60
+
+# CA1002: Do not expose generic lists
+# BitNet hosting consumers are web/host applications with the same
+# public-API exposure shape as ANcpLua.NET.Sdk.Web projects; the same
+# generic-list suppression applies.
+dotnet_diagnostic.CA1002.severity = none

@@ -51,4 +51,28 @@
       <IncludeAssets>analyzers</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+
+  <!--
+    BitNet hosting auto-injection. Fires only when the consumer csproj declares
+    Sdk="ANcpLua.NET.Sdk.BitNet". The implicit reference is what lets the
+    consumer write a single Program.cs line (builder.AddQylBitNetChatClient())
+    without adding a separate PackageReference. ANcpLuaAgentsHostingBitNetVersion
+    is defined in Version.props.
+
+    Must use PackageReference (not GlobalPackageReference) even under CPM:
+    GlobalPackageReference has a hardcoded NuGet default of
+    IncludeAssets="Runtime;Build;Native;contentFiles;Analyzers" with
+    PrivateAssets="All" — designed for build-only deps (analyzers, SBOM).
+    The "compile" asset is intentionally excluded, which would prevent
+    consumers from resolving AddQylBitNetChatClient at compile time and
+    break the one-line opt-in contract. PackageReference with
+    IsImplicitlyDefined="true" works uniformly in CPM and non-CPM projects,
+    so a single ItemGroup covers both.
+
+    The PackageId guard mirrors the ANcpLua.Analyzers pattern so a project
+    that builds the BitNet hosting package itself does not self-reference.
+  -->
+  <ItemGroup Condition="'$(ANcpLuaSdkName)' == 'ANcpLua.NET.Sdk.BitNet' And '$(DisableANcpLuaBitNetHosting)' != 'true' And '$(PackageId)' != 'ANcpLua.Agents.Hosting.BitNet'">
+    <PackageReference Include="ANcpLua.Agents.Hosting.BitNet" Version="$(ANcpLuaAgentsHostingBitNetVersion)" IsImplicitlyDefined="true" />
+  </ItemGroup>
 </Project>
