@@ -883,8 +883,8 @@ public abstract class SdkTests(
             .BuildAsync(["--configuration", "Release"]);
 
         // IDE1006 must not be promoted to error or warning under tests/.
-        Assert.False(result.HasError("IDE1006"));
-        Assert.False(result.HasWarning("IDE1006"));
+        result.HasError("IDE1006").Should().BeFalse();
+        result.HasWarning("IDE1006").Should().BeFalse();
     }
 
     [Fact]
@@ -912,7 +912,7 @@ public abstract class SdkTests(
                 """)
             .BuildAsync(["--configuration", "Release"]);
 
-        Assert.True(result.HasWarning("IDE1006"));
+        result.HasWarning("IDE1006").Should().BeTrue();
     }
 
     [Fact]

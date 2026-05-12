@@ -1573,10 +1573,7 @@ dotnet_diagnostic.CA5393.severity = warning
 # CA5394: Do not use insecure randomness
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5394
 # Enabled: False, Severity: warning
-# Demoted: high false-positive rate. Random is correct for shuffling, jitter,
-# test data, sampling — non-crypto use cases. Real crypto sites should use
-# RandomNumberGenerator and that's a separate rule (CA5390/5391).
-dotnet_diagnostic.CA5394.severity = suggestion
+dotnet_diagnostic.CA5394.severity = warning
 
 # CA5395: Miss HttpVerb attribute for action methods
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca5395

@@ -149,11 +149,12 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
     // their [glob] sections, not project-wide. Skipping them keeps the global
     // analyzer files authoritative for default severities; otherwise rules
     // relaxed only in tests/generated paths would disappear from the global file.
-    var pathScopedConfigs = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    var pathScopedConfigs = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+    foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
     {
-        "TestProjects.editorconfig",
-        "GeneratedFiles.editorconfig",
-    };
+        if (IsPathScopedEditorConfig(editorconfig))
+            pathScopedConfigs.Add(Path.GetFileName(editorconfig));
+    }
 
     foreach (var editorconfig in Directory.EnumerateFiles(configRoot, "*.editorconfig", SearchOption.AllDirectories))
     {
@@ -169,6 +170,30 @@ HashSet<string> GetRuleIdsConfiguredOutside(FullPath configurationFilePath)
     }
 
     return configuredRuleIds;
+}
+
+static bool IsPathScopedEditorConfig(string filePath)
+{
+    if (!File.Exists(filePath))
+        return false;
+
+    // An editorconfig is path-scoped if it lacks `is_global = true`.
+    // Global editorconfigs apply project-wide; path-scoped ones only
+    // apply within their [glob] sections.
+    var lines = File.ReadAllLines(filePath);
+    foreach (var line in lines)
+    {
+        var trimmed = line.Trim();
+        if (trimmed.StartsWith("is_global", StringComparison.OrdinalIgnoreCase))
+        {
+            // Check if the value is "true"
+            var parts = trimmed.Split('=', 2, StringSplitOptions.TrimEntries);
+            if (parts.Length == 2 && string.Equals(parts[1], "true", StringComparison.OrdinalIgnoreCase))
+                return false; // It's a global editorconfig
+        }
+    }
+
+    return true; // No `is_global = true` found, so it's path-scoped
 }
 
 static async Task<Assembly[]> GetCompilerAnalyzerReferences()
