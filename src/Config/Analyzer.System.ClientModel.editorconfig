@@ -1,0 +1,34 @@
+# global_level controls precedence across multiple global AnalyzerConfig files.
+# Keep distinct values to avoid equal-level conflicts (which are ignored).
+is_global = true
+global_level = 2826
+
+# SCM0001: Multiple contexts are not supported
+# Help link: https://aka.ms/system-clientmodel/diagnostics#scm0001
+# Enabled: True, Severity: error
+dotnet_diagnostic.SCM0001.severity = error
+
+# SCM0002: Requires partial modifier
+# Help link: https://aka.ms/system-clientmodel/diagnostics#scm0002
+# Enabled: True, Severity: error
+dotnet_diagnostic.SCM0002.severity = error
+
+# SCM0003: Only applicable to subclasses of ModelReaderWriterContext
+# Help link: https://aka.ms/system-clientmodel/diagnostics#scm0003
+# Enabled: True, Severity: warning
+dotnet_diagnostic.SCM0003.severity = warning
+
+# SCM0004: Abstract type without a proxy
+# Help link: https://aka.ms/system-clientmodel/diagnostics#scm0004
+# Enabled: True, Severity: warning
+dotnet_diagnostic.SCM0004.severity = warning
+
+# SCM0005: Type must have a parameterless constructor
+# Help link: https://aka.ms/system-clientmodel/diagnostics#scm0005
+# Enabled: True, Severity: warning
+dotnet_diagnostic.SCM0005.severity = warning
+
+# SCM0006: Type must implement IPersistableModel<T>
+# Help link: https://aka.ms/system-clientmodel/diagnostics#scm0006
+# Enabled: True, Severity: warning
+dotnet_diagnostic.SCM0006.severity = warning
