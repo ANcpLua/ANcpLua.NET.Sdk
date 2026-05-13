@@ -17,7 +17,12 @@ enable_free_tier: false
 
 reviews:
   profile: assertive
-  request_changes_workflow: true
+  # advisory posture — CodeRabbit posts comments, not "Request Changes" reviews,
+  # so its feedback never blocks auto-merge. Matches the other 3 ANcpLua framework
+  # repos (Analyzers, Roslyn.Utilities, Agents) and avoids the failure mode where
+  # a CodeRabbit review on a Renovate/owner PR blocks auto-merge while no human
+  # is available to dismiss or address it.
+  request_changes_workflow: false
   high_level_summary: true
   high_level_summary_in_walkthrough: false
   review_status: true
