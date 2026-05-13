@@ -481,9 +481,14 @@ dotnet_diagnostic.AL0138.severity = suggestion
 # AL0139: Use implicit type when type is apparent
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0139
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0139.severity = warning
+# Demoted: type-style preference, not a correctness rule. Keeping this as an
+# IDE suggestion avoids build failures in SDK-scaffolded templates and consumers
+# that intentionally spell obvious types for readability.
+dotnet_diagnostic.AL0139.severity = suggestion
 
 # AL0140: Use explicit type when type is not apparent
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0140
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0140.severity = warning
+# Demoted: type-style preference, not a correctness rule. Top-level statements
+# and minimal APIs commonly use `var` where the target type is context-heavy.
+dotnet_diagnostic.AL0140.severity = suggestion
