@@ -125,7 +125,7 @@
     runtime contract stabilises — update in lockstep with releases there.
   -->
   <PropertyGroup Label="BitNet Hosting">
-    <ANcpLuaAgentsHostingBitNetVersion Condition="'$(ANcpLuaAgentsHostingBitNetVersion)' == ''">1.4.3-alpha.1</ANcpLuaAgentsHostingBitNetVersion>
+    <ANcpLuaAgentsHostingBitNetVersion Condition="'$(ANcpLuaAgentsHostingBitNetVersion)' == ''">1.4.10-alpha.1</ANcpLuaAgentsHostingBitNetVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Workflow Testing">
