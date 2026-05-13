@@ -48,25 +48,10 @@ dotnet_diagnostic.AL0008.severity = error
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL0009.severity = error
 
-# AL0010: Type should be partial
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0010
-# Enabled: False, Severity: suggestion
-dotnet_diagnostic.AL0010.severity = none
-
 # AL0011: Avoid lock keyword on non-Lock types
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0011
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0011.severity = warning
-
-# AL0012: Deprecated semantic convention attribute
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0012
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0012.severity = warning
-
-# AL0013: Missing telemetry schema URL
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0013
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0013.severity = suggestion
 
 # AL0014: Prefer pattern matching for null and zero comparisons
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0014
@@ -314,108 +299,6 @@ dotnet_diagnostic.AL0059.severity = warning
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0060.severity = warning
 
-# AL0061: Activity/Span missing semantic convention attributes
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0061
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0061.severity = warning
-
-# AL0062: Deprecated semantic convention
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0062
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0062.severity = warning
-
-# AL0063: ActivitySource should be registered with AddSource()
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0063
-# Enabled: True, Severity: warning
-# Note: May report false positives when AddSource() is in a different assembly
-dotnet_diagnostic.AL0063.severity = suggestion
-
-# AL0064: GenAI span missing required attributes
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0064
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0064.severity = warning
-
-# AL0065: Use gen_ai.client.token.usage histogram for token metrics
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0065
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0065.severity = warning
-
-# AL0066: GenAI operation name should follow semantic conventions
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0066
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0066.severity = warning
-
-# AL0067: Meter should be registered with AddMeter()
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0067
-# Enabled: True, Severity: warning
-# Note: May report false positives when AddMeter() is in a different assembly
-dotnet_diagnostic.AL0067.severity = suggestion
-
-# AL0068: Metric instrument name should follow naming conventions
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0068
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0068.severity = warning
-
-# AL0069: ServiceDefaults configuration incomplete
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0069
-# Enabled: True, Severity: warning
-# Note: May report false positives when configuration is in a shared helper method
-dotnet_diagnostic.AL0069.severity = suggestion
-
-# AL0070: Collector endpoint should use OTLP protocol
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0070
-# Enabled: True, Severity: warning
-# Demoted: false-positives on non-collector endpoint strings (config URLs,
-# health check probes, sample-data URLs). The platform-level OTLP exporter
-# configuration is what actually matters.
-dotnet_diagnostic.AL0070.severity = suggestion
-
-# AL0071: [Meter] class must be partial static
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0071
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0071.severity = error
-
-# AL0072: Metric method must be partial
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0072
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0072.severity = error
-
-# AL0073: [Traced] attribute requires non-empty ActivitySourceName
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0073
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0073.severity = error
-
-# AL0074: Deprecated GenAI semantic convention
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0074
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0074.severity = warning
-
-# AL0075: High-cardinality tag on metric
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0075
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0075.severity = warning
-
-# AL0076: Missing OpenTelemetry configuration
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0076
-# Enabled: True, Severity: warning
-# Note: May report false positives when OTel is configured in a different assembly
-dotnet_diagnostic.AL0076.severity = suggestion
-
-# AL0077: Duplicate instrumentation detected
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0077
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0077.severity = warning
-
-# AL0078: Invalid ActivitySource name
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0078
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0078.severity = error
-
-# AL0079: Manual span recommended
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0079
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0079.severity = suggestion
-
 # AL0080: Missing resilience configuration
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0080
 # Enabled: True, Severity: warning
@@ -434,62 +317,10 @@ dotnet_diagnostic.AL0081.severity = suggestion
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL0082.severity = suggestion
 
-# AL0083: Insecure endpoint
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0083
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0083.severity = warning
-
 # AL0084: Missing service discovery
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0084
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0084.severity = warning
-
-# AL0085: Invalid attribute value
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0085
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0085.severity = error
-
-# AL0086: Incorrect attribute type
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0086
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0086.severity = warning
-
-# AL0087: Prefer constant attribute
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0087
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0087.severity = suggestion
-
-# AL0088: Sensitive data in span attribute
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0088
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0088.severity = warning
-
-# AL0089: Missing OTLP configuration
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0089
-# Enabled: True, Severity: warning
-# Note: May report false positives when endpoint is set via runtime environment variable
-dotnet_diagnostic.AL0089.severity = suggestion
-
-# AL0090: Uncompressed OTLP export
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0090
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0090.severity = warning
-
-# AL0091: Batch export disabled
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0091
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0091.severity = warning
-
-# AL0092: Consider configuring sampling
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0092
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0092.severity = suggestion
-
-# AL0093: Missing resource attributes
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0093
-# Enabled: True, Severity: warning
-# Note: May report false positives when resource attributes are set by the consuming app
-dotnet_diagnostic.AL0093.severity = suggestion
 
 # AL0094: Avoid 'dynamic' keyword in AOT-published code
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0094
@@ -503,12 +334,6 @@ dotnet_diagnostic.AL0094.severity = suggestion
 # Enabled: True, Severity: warning
 # Demoted: AOT advisory — see AL0094/AL0101 rationale.
 dotnet_diagnostic.AL0095.severity = suggestion
-
-# AL0096: Enable EventSourceSupport for AOT with telemetry
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0096
-# Enabled: True, Severity: warning
-# Demoted: AOT advisory — see AL0094/AL0101 rationale.
-dotnet_diagnostic.AL0096.severity = suggestion
 
 # AL0101: Activator.CreateInstance is not AOT-safe
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0101
@@ -545,26 +370,6 @@ dotnet_diagnostic.AL0105.severity = warning
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0106.severity = warning
 
-# AL0107: Orphaned [TracedTag]
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0107
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0107.severity = warning
-
-# AL0108: Redundant [NoTrace]
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0108
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0108.severity = suggestion
-
-# AL0109: Non-interceptable [Traced]
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0109
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0109.severity = warning
-
-# AL0110: [TracedTag] on out/ref parameter
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0110
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0110.severity = error
-
 # AL0111: Avoid SQL string interpolation in CommandText
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0111
 # Enabled: True, Severity: warning
@@ -574,11 +379,6 @@ dotnet_diagnostic.AL0111.severity = warning
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0112
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0112.severity = warning
-
-# AL0113: Missing exception recording on Activity error status
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0113
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0113.severity = warning
 
 # AL0114: Prefer TryParse over Parse
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0114
@@ -633,11 +433,6 @@ dotnet_diagnostic.AL0122.severity = error
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL0123.severity = warning
 
-# AL0124: Non-interceptable [AgentTraced]
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0124
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0124.severity = warning
-
 # AL0125: Use *Any* string comparison extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0125
 # Enabled: True, Severity: warning
@@ -668,36 +463,6 @@ dotnet_diagnostic.AL0129.severity = suggestion
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL0130.severity = suggestion
 
-# AL0131: Direct GenAI SDK call bypasses automatic OTel instrumentation
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0131
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0131.severity = warning
-
-# AL0132: Deprecated semantic convention value
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0132
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0132.severity = warning
-
-# AL0133: Context-sensitive deprecated semantic convention
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0133
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0133.severity = warning
-
-# AL0134: Use OpenTelemetry semantic convention constant
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0134
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0134.severity = warning
-
-# AL0135: Replace legacy SemanticConventions accessor
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0135
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0135.severity = warning
-
-# AL0136: Incubating semantic convention referenced from library
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0136
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0136.severity = warning
-
 # AL0137: Use Guard.* helpers instead of throw helpers
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0137
 # Enabled: True, Severity: warning
@@ -712,3 +477,18 @@ dotnet_diagnostic.AL0137.severity = suggestion
 # Enabled: True, Severity: warning
 # Demoted: explicitness rule; the fix preserves the current ToEven behavior.
 dotnet_diagnostic.AL0138.severity = suggestion
+
+# AL0139: Use implicit type when type is apparent
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0139
+# Enabled: True, Severity: warning
+# Demoted: type-style preference, not a correctness rule. Keeping this as an
+# IDE suggestion avoids build failures in SDK-scaffolded templates and consumers
+# that intentionally spell obvious types for readability.
+dotnet_diagnostic.AL0139.severity = suggestion
+
+# AL0140: Use explicit type when type is not apparent
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0140
+# Enabled: True, Severity: warning
+# Demoted: type-style preference, not a correctness rule. Top-level statements
+# and minimal APIs commonly use `var` where the target type is context-heavy.
+dotnet_diagnostic.AL0140.severity = suggestion
