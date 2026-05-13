@@ -37,6 +37,7 @@
     <file src="Config/Analyzer.Microsoft.CodeAnalysis.Analyzers.editorconfig" target="Config/"/>
     <file src="Config/Analyzer.Microsoft.CodeAnalysis.BannedApiAnalyzers.editorconfig" target="Config/"/>
     <file src="Config/Analyzer.Microsoft.CodeAnalysis.NetAnalyzers.editorconfig" target="Config/"/>
+    <file src="Config/Analyzer.System.ClientModel.editorconfig" target="Config/"/>
     <file src="Config/Analyzer.xunit.analyzers.editorconfig" target="Config/"/>
     <file src="Config/ANcpLua.NET.Sdk.SingleFileApp.editorconfig" target="Config/"/>
     <file src="Config/ANcpLua.NET.Sdk.Web.editorconfig" target="Config/"/>

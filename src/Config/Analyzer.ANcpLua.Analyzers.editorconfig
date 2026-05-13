@@ -71,7 +71,8 @@ dotnet_diagnostic.AL0013.severity = suggestion
 # AL0014: Prefer pattern matching for null and zero comparisons
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0014
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0014.severity = warning
+# Demoted: idiomatic pattern-matching preference, not a correctness rule.
+dotnet_diagnostic.AL0014.severity = suggestion
 
 # AL0015: Normalize null-guard style
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0015
@@ -184,12 +185,14 @@ dotnet_diagnostic.AL0035.severity = suggestion
 # AL0036: Use null-guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0036
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0036.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0036.severity = suggestion
 
 # AL0037: Use TryParse extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0037
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0037.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities TryParse helpers.
+dotnet_diagnostic.AL0037.severity = suggestion
 
 # AL0039: Use StringComparison extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0039
@@ -201,7 +204,8 @@ dotnet_diagnostic.AL0039.severity = suggestion
 # AL0040: Use attribute argument extraction extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0040
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0040.severity = warning
+# Demoted: Roslyn.Utilities convenience helper, not a build-blocking issue.
+dotnet_diagnostic.AL0040.severity = suggestion
 
 # AL0041: Method with [AotTest] or [TrimTest] must return int
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0041
@@ -226,37 +230,44 @@ dotnet_diagnostic.AL0044.severity = warning
 # AL0045: Use null-or-empty guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0045
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0045.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0045.severity = suggestion
 
 # AL0046: Use null-or-whitespace guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0046
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0046.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0046.severity = suggestion
 
 # AL0047: Use zero-guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0047
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0047.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0047.severity = suggestion
 
 # AL0048: Use non-negative guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0048
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0048.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0048.severity = suggestion
 
 # AL0049: Use positive-guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0049
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0049.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0049.severity = suggestion
 
 # AL0050: Use empty-guid guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0050
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0050.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0050.severity = suggestion
 
 # AL0051: Use defined-enum guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0051
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0051.severity = warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL0051.severity = suggestion
 
 # AL0052: [AotSafe] code must not call [AotUnsafe] code
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0052
@@ -609,7 +620,8 @@ dotnet_diagnostic.AL0120.severity = warning
 # AL0121: Avoid NormalizeWhitespace in source generators
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0121
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0121.severity = warning
+# Demoted: source-generator performance guidance, not a correctness rule.
+dotnet_diagnostic.AL0121.severity = suggestion
 
 # AL0122: [DuckDbTable] type must be partial
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0122
@@ -698,4 +710,5 @@ dotnet_diagnostic.AL0137.severity = suggestion
 # AL0138: Use Math.Round/MathF.Round overload with explicit MidpointRounding
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0138
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0138.severity = warning
+# Demoted: explicitness rule; the fix preserves the current ToEven behavior.
+dotnet_diagnostic.AL0138.severity = suggestion
