@@ -518,7 +518,7 @@ static IReadOnlyDictionary<string, int> GetAnalyzerConfigGlobalLevels(IEnumerabl
     {
         const ulong FnvOffsetBasis = 14695981039346656037UL;
         const ulong FnvPrime = 1099511628211UL;
-        var bytes = System.Text.Encoding.UTF8.GetBytes(value.ToUpperInvariant());
+        var bytes = Encoding.UTF8.GetBytes(value.ToUpperInvariant());
         var hash = FnvOffsetBasis;
         foreach (var b in bytes)
         {
@@ -565,11 +565,7 @@ static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFo
 
         var selfDefaultGuard = $"'$({name})' == ''";
         if (string.Equals(NormalizeCondition(condition), selfDefaultGuard, StringComparison.Ordinal))
-        {
-            if (!properties.ContainsKey(name))
-                properties[name] = value;
-            continue;
-        }
+            properties.TryAdd(name, value);
 
         // Unknown Condition shape: don't assume it's true.
     }
@@ -750,10 +746,7 @@ static string ResolveMsBuildProperty(string value, IReadOnlyDictionary<string, s
             return current;
 
         var propertyName = match.Groups[1].Value;
-        if (!visited.Add(propertyName))
-            return current;
-
-        if (!properties.TryGetValue(propertyName, out var resolved))
+        if (!visited.Add(propertyName) || !properties.TryGetValue(propertyName, out var resolved))
             return current;
 
         current = resolved;
@@ -776,7 +769,7 @@ static FullPath GetRootFolderPath()
         path = path.Parent;
     }
 
-    return path.IsEmpty ? throw new InvalidOperationException("Cannot find the root folder") : path;
+    throw new InvalidOperationException("Cannot find the root folder");
 }
 
 static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersion version)
