@@ -70,7 +70,7 @@ dotnet_diagnostic.AL0013.severity = suggestion
 
 # AL0014: Prefer pattern matching for null and zero comparisons
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0014
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: idiomatic pattern-matching preference, not a correctness rule.
 dotnet_diagnostic.AL0014.severity = suggestion
 
@@ -126,7 +126,7 @@ dotnet_diagnostic.AL0024.severity = error
 
 # AL0025: Anonymous function can be made static
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0025
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: micro-perf hint (avoids implicit `this` capture). IDE0200 covers the
 # same ground at suggestion; keeping AL0025 as suggestion avoids 100+ build-errors
 # on existing code while leaving the fix one click away in the IDE.
@@ -184,26 +184,26 @@ dotnet_diagnostic.AL0035.severity = suggestion
 
 # AL0036: Use null-guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0036
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0036.severity = suggestion
 
 # AL0037: Use TryParse extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0037
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities TryParse helpers.
 dotnet_diagnostic.AL0037.severity = suggestion
 
 # AL0039: Use StringComparison extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0039
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style preference toward ANcpLua.Roslyn.Utilities extensions. The real
 # correctness rule is CA1310 (kept at warning). Fix is one click in the IDE.
 dotnet_diagnostic.AL0039.severity = suggestion
 
 # AL0040: Use attribute argument extraction extension
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0040
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: Roslyn.Utilities convenience helper, not a build-blocking issue.
 dotnet_diagnostic.AL0040.severity = suggestion
 
@@ -229,43 +229,43 @@ dotnet_diagnostic.AL0044.severity = warning
 
 # AL0045: Use null-or-empty guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0045
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0045.severity = suggestion
 
 # AL0046: Use null-or-whitespace guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0046
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0046.severity = suggestion
 
 # AL0047: Use zero-guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0047
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0047.severity = suggestion
 
 # AL0048: Use non-negative guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0048
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0048.severity = suggestion
 
 # AL0049: Use positive-guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0049
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0049.severity = suggestion
 
 # AL0050: Use empty-guid guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0050
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0050.severity = suggestion
 
 # AL0051: Use defined-enum guard helper
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0051
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL0051.severity = suggestion
 
@@ -364,7 +364,7 @@ dotnet_diagnostic.AL0069.severity = suggestion
 
 # AL0070: Collector endpoint should use OTLP protocol
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0070
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: false-positives on non-collector endpoint strings (config URLs,
 # health check probes, sample-data URLs). The platform-level OTLP exporter
 # configuration is what actually matters.
@@ -423,7 +423,7 @@ dotnet_diagnostic.AL0080.severity = warning
 
 # AL0081: Missing health checks
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0081
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: operational guidance, not a correctness bug. Many services
 # legitimately defer health check wiring to platform infrastructure (Kubernetes
 # liveness/readiness probes, container orchestrator health checks).
@@ -493,26 +493,26 @@ dotnet_diagnostic.AL0093.severity = suggestion
 
 # AL0094: Avoid 'dynamic' keyword in AOT-published code
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0094
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: AOT advisory. Non-AOT projects use `dynamic` legitimately (DLR scripting,
 # interop). AOT projects should re-promote to warning/error in their editorconfig.
 dotnet_diagnostic.AL0094.severity = suggestion
 
 # AL0095: Avoid Expression.Compile() in AOT context
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0095
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: AOT advisory — see AL0094/AL0101 rationale.
 dotnet_diagnostic.AL0095.severity = suggestion
 
 # AL0096: Enable EventSourceSupport for AOT with telemetry
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0096
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: AOT advisory — see AL0094/AL0101 rationale.
 dotnet_diagnostic.AL0096.severity = suggestion
 
 # AL0101: Activator.CreateInstance is not AOT-safe
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0101
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: not every project ships AOT. The analyzer flags Activator.CreateInstance
 # regardless of <PublishAot>, so non-AOT projects (most services + tests) get
 # unconditional warnings. AOT-bound projects should bump this back to error via
@@ -521,7 +521,7 @@ dotnet_diagnostic.AL0101.severity = suggestion
 
 # AL0102: Type.GetType with dynamic name is not AOT-safe
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0102
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: AOT advisory — see AL0094/AL0101 rationale.
 dotnet_diagnostic.AL0102.severity = suggestion
 
@@ -582,7 +582,7 @@ dotnet_diagnostic.AL0113.severity = warning
 
 # AL0114: Prefer TryParse over Parse
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0114
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style preference. Parse is correct when the caller verifies input
 # upstream (route params, config) or when an exception IS the desired signal.
 dotnet_diagnostic.AL0114.severity = suggestion
@@ -619,7 +619,7 @@ dotnet_diagnostic.AL0120.severity = warning
 
 # AL0121: Avoid NormalizeWhitespace in source generators
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0121
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: source-generator performance guidance, not a correctness rule.
 dotnet_diagnostic.AL0121.severity = suggestion
 
@@ -700,7 +700,7 @@ dotnet_diagnostic.AL0136.severity = warning
 
 # AL0137: Use Guard.* helpers instead of throw helpers
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0137
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 # Codebases that haven't taken that dependency get hundreds of warnings on
 # valid BCL ArgumentNullException.ThrowIfNull / ArgumentException.ThrowIfNullOrEmpty
@@ -709,6 +709,6 @@ dotnet_diagnostic.AL0137.severity = suggestion
 
 # AL0138: Use Math.Round/MathF.Round overload with explicit MidpointRounding
 # Help link: https://ancplua.mintlify.app/analyzers/rules/AL0138
-# Enabled: True, Severity: warning
+# Enabled: True, Severity: suggestion
 # Demoted: explicitness rule; the fix preserves the current ToEven behavior.
 dotnet_diagnostic.AL0138.severity = suggestion
