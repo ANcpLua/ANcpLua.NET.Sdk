@@ -1,6 +1,14 @@
 # AGENTS.md — ANcpLua.NET.Sdk
 
 Opinionated MSBuild SDK providing standardized defaults, policy enforcement, and analyzer injection for .NET projects. `CLAUDE.md` symlinks here.
+## Framework conventions
+
+Branch protection, auto-merge, CodeRabbit posture, release flow, dependency
+graph, and the cross-repo bootstrap rules for the four ANcpLua framework
+repos are documented in one place at
+[ANcpLua/renovate-config](https://github.com/ANcpLua/renovate-config#ancplua-framework-conventions--renovate-config).
+This file documents conventions specific to this repo only.
+
 
 ## SDK Variants
 
@@ -249,61 +257,3 @@ agents in v3.3.0 — see `src/*.nuspec` for the enumerated pattern as of v3.3.1)
   workflow file or docs, `has_changes` goes false by design — touch a file under
   one of the watched paths to force a publish.
 
-## ANcpLua Ecosystem
-
-| Repo | Purpose | NuGet | CI checks required |
-|---|---|---|---|
-| [ANcpLua.NET.Sdk](https://github.com/ANcpLua/ANcpLua.NET.Sdk) | Opinionated MSBuild SDK — standardized defaults, policy enforcement, analyzer injection | [nuget.org](https://www.nuget.org/packages/ANcpLua.NET.Sdk) | `compute_version`, `lint_config`, `test (ubuntu/windows/macos)`, `create_nuget` |
-| [ANcpLua.Analyzers](https://github.com/ANcpLua/ANcpLua.Analyzers) | Custom Roslyn analyzers (auto-injected by the SDK) | [nuget.org](https://www.nuget.org/packages/ANcpLua.Analyzers) | `build`, `test (ubuntu/windows/macos)` |
-| [ANcpLua.Roslyn.Utilities](https://github.com/ANcpLua/ANcpLua.Roslyn.Utilities) | Source generator utilities, TryParse extensions, polyfills | [nuget.org](https://www.nuget.org/packages/ANcpLua.Roslyn.Utilities) | `build (ubuntu/windows)`, `version` |
-| [ANcpLua.Agents](https://github.com/ANcpLua/ANcpLua.Agents) | MAF runtime helpers + agent test infrastructure | [nuget.org](https://www.nuget.org/packages/ANcpLua.Agents) | `build (ubuntu/windows/macos)`, `version` |
-
-### Branch protection (all 4 repos)
-
-- PR required to merge into `main` (0 approvals, squash preferred)
-- Required status checks must pass (CI jobs listed above)
-- Branch must be up-to-date with `main` before merge
-- Force push and branch deletion blocked on `main`
-- Optional checks (CodeRabbit, GitGuardian, Copilot review, auto-merge) do not block merges
-
-### Dependency graph
-
-```
-ANcpLua.NET.Sdk
-  ├── injects ANcpLua.Analyzers (compile-time)
-  └── ships Version.props (version truth for all consumers)
-
-ANcpLua.Analyzers
-  └── consumes ANcpLua.Roslyn.Utilities.Sources (source-only, internal)
-
-ANcpLua.Roslyn.Utilities
-  └── standalone (no first-party deps)
-
-ANcpLua.Agents
-  └── standalone (no first-party deps)
-```
-
-### Release flow
-
-The four repos use two different patterns. Don't assume what works in one applies to the others.
-
-**This repo (ANcpLua.NET.Sdk) — auto-bump-on-merge:**
-
-1. PR to `main` — CI runs, auto-merge bots handle dep bumps
-2. On merge, the `publish` workflow:
-   - `compute_version` reads the latest `v*` tag and bumps the patch (`v3.4.14` → `3.4.15`); reuses the tag's version when HEAD is exactly the tag
-   - `Must Publish Packages` gate fires only if `*.nuspec`, `src/**/*`, or `tests/**/*` changed (docs-only PRs skip deploy)
-   - `deploy` job pushes packages to NuGet via trusted publishing, then `gh release create v$VERSION` creates the GitHub release **and the tag** in one step
-3. NuGet indexes in ~4-8 minutes — downstream repos pick up via Renovate
-
-To force a minor/major bump instead of auto-patch, push the tag manually before the workflow runs (compute_version honors the tag if HEAD points at it).
-
-**ANcpLua.Roslyn.Utilities, ANcpLua.Agents — manual-tag-triggers-publish:**
-
-1. PR to `main` — CI runs (build + test only on push, no publish; `publish` job gated by `is_release=true`)
-2. After merge, push a tag manually: `git tag vX.Y.Z && git push --tags`
-3. Tag push triggers the workflow's release path: version comes from `${GITHUB_REF_NAME#v}`, packages publish, `gh release create` creates the GitHub release
-
-**ANcpLua.Analyzers — manual-tag-publish-only:**
-
-Same as Roslyn.Utilities/Agents on the trigger side (workflow runs only on `push: tags v*` or `workflow_dispatch`), but the workflow does **not** call `gh release create` — only the NuGet push. The tag itself is the release marker; if you want a GitHub release entry, create it manually after.
