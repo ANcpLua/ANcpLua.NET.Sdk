@@ -30,8 +30,6 @@ public abstract class SourceGeneratorDefaultsTests(
         "RoslynVersion"
     ];
 
-    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-        Justification = "Builder factory transfers ownership; every caller disposes via 'await using var project = CreateProject(...);'.")]
     private SdkProjectBuilder CreateProject(string sdkName = SdkName) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)

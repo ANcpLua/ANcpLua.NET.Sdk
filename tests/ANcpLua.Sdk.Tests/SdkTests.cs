@@ -38,8 +38,6 @@ public abstract class SdkTests(
         "_IsGitHubActions"
     ];
 
-    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-        Justification = "Builder factory transfers ownership; every caller disposes via 'await using var project = CreateProject(...);'.")]
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         SdkProjectBuilder.Create(fixture, sdkImportStyle, sdkName ?? SdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)

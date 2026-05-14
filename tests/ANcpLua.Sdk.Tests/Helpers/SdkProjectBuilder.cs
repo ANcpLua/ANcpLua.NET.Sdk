@@ -166,6 +166,8 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         var builder = new SdkProjectBuilder(fixture, style, sdkName ?? PackageFixture.SdkName);
         builder.WithTargetFramework(Tfm.Net100);
         // OutputType=Exe is set in GenerateCsprojFile to allow top-level statements
+        // Bypass CPM enforcement for test projects (they use ManagePackageVersionsCentrally=false)
+        builder.WithProperty("ANcpLuaSdkSkipCPMEnforcement", "true");
         return builder;
     }
 
@@ -469,8 +471,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         // invalid JSON in MultiTargetFrameworks_BothOutputsBuilt on Windows.
         var propertiesElement = new XElement("PropertyGroup",
             new XElement("ErrorLog", "BuildOutput.$(TargetFramework).sarif,version=2.1"),
-            new XElement("ManagePackageVersionsCentrally", "false"),
-            new XElement("ANcpLuaSdkSkipCPMEnforcement", "true"));
+            new XElement("ManagePackageVersionsCentrally", "false"));
 
         if (!_omitOutputType)
             propertiesElement.Add(new XElement("OutputType", OutputType ?? "exe"));
