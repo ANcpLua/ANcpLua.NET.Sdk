@@ -43,10 +43,13 @@ public abstract class MtpDetectionTests(
         "TestingPlatformCommandLineArguments"
     ];
 
-    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-        Justification = "Builder factory transfers ownership; every caller disposes via 'await using var project = CreateProject(...);'.")]
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
-        SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName ?? SdkTestName)
+        CreateProject(SdkImportStyle.ProjectElement, sdkName);
+
+    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
+        Justification = "Factory method returns the SdkProjectBuilder unowned; every call site wraps the result in `await using` and is responsible for disposal. The chained fluent calls return `this`, so no transient IDisposables leak.")]
+    private SdkProjectBuilder CreateProject(SdkImportStyle style, string? sdkName = null) =>
+        SdkProjectBuilder.Create(fixture, style, sdkName ?? SdkTestName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
             .RecordProperties(s_recordedProperties);
 
@@ -348,5 +351,177 @@ public abstract class MtpDetectionTests(
 
         result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
         result.ShouldHaveRecordedProperty("OutputType", "exe");
+    }
+
+    [Fact]
+    public async Task TestSdk_WithTUnit_ProducesExecutable()
+    {
+        // Verify .Test SDK's props-phase OutputType=Exe doesn't collide with
+        // TUnit detection in Tests.targets (which would also set OutputType=Exe
+        // inside _DetectTestFrameworksAndMTP). The first set wins; the second
+        // is a no-op via the empty-condition guard.
+        await using var project = CreateProject();
+
+        foreach (var pkg in s_tUnitPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .WithProperty("SkipXunitInjection", "true")
+            .AddSource("Tests.cs", """
+                using TUnit.Core;
+                public class SampleTests
+                {
+                    [Test]
+                    public async Task Test1() => await Assert.That(true).IsTrue();
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
+
+    [Fact]
+    public async Task TestSdk_WithNUnit_ProducesExecutable()
+    {
+        await using var project = CreateProject();
+
+        foreach (var pkg in s_nUnitMtpPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .WithProperty("EnableNUnitRunner", "true")
+            .AddSource("Tests.cs", """
+                using NUnit.Framework;
+
+                [TestFixture]
+                public class SampleTests
+                {
+                    [Test]
+                    public void Test1() => Assert.That(true, Is.True);
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
+
+    [Theory]
+    [InlineData(SdkImportStyle.ProjectElement)]
+    [InlineData(SdkImportStyle.SdkElement)]
+    [InlineData(SdkImportStyle.SdkElementDirectoryBuildProps)]
+    public async Task TestSdk_PropsPhaseExe_ProducesExecutable_AcrossImportStyles(SdkImportStyle style)
+    {
+        // The fix must work for all three SdkImportStyles. ProjectElement loads
+        // our .Test Sdk.props before Microsoft.NET.Sdk's inner Sdk.props (so
+        // OutputType is empty when our props-phase set runs). SdkElement and
+        // SdkElementDirectoryBuildProps load Microsoft.NET.Sdk *first* (which
+        // applies its OutputType=Library default), so our set must also override
+        // Library — otherwise the fix silently no-ops for those styles, exactly
+        // the accidental-happy-path failure mode.
+        await using var project = CreateProject(style);
+
+        foreach (var pkg in s_xUnit3MtpV2Packages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .AddSource("Tests.cs", """
+                public class SampleTests
+                {
+                    [Fact]
+                    public void Test1() => Assert.True(true);
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
+
+    [Theory]
+    [InlineData(SdkImportStyle.ProjectElement)]
+    [InlineData(SdkImportStyle.SdkElement)]
+    [InlineData(SdkImportStyle.SdkElementDirectoryBuildProps)]
+    public async Task TestSdk_ConsumerExplicitLibrary_WinsOverSdkDefault_AcrossImportStyles(SdkImportStyle style)
+    {
+        // Consumer's csproj <OutputType>Library</OutputType> must override the
+        // .Test SDK's props-phase Exe set — that's the documented escape hatch
+        // for the rare VSTest-on-.Test-SDK scenario. The csproj PropertyGroup
+        // body evaluates after our Sdk.props, so the consumer's value wins.
+        // SafetyGuard_WarnsWhenMTPWithLibraryOutputType also covers this
+        // implicitly (its warning only fires if Library actually persists), but
+        // assert the value directly here and across all import styles since the
+        // SdkElement case is where the .Test SDK has to override Microsoft.NET.Sdk's
+        // Library default — easy to break without noticing.
+        await using var project = CreateProject(style);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .WithOutputType("Library")
+            .WithProperty("UseMicrosoftTestingPlatform", "false")
+            .WithProperty("SkipXunitInjection", "true")
+            .AddSource("Lib.cs", "namespace Sample.Tests { public class C { } }")
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "library");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.Empty(runtimeConfigs);
+    }
+
+    [Fact]
+    public async Task TestSdk_WithMSTest_ProducesExecutable()
+    {
+        await using var project = CreateProject();
+
+        foreach (var pkg in s_msTestMtpPackages)
+            project.WithPackage(pkg.Name, pkg.Version);
+
+        var result = await project
+            .WithFilename("Sample.Tests.csproj")
+            .OmitOutputType()
+            .WithProperty("EnableMSTestRunner", "true")
+            .AddSource("Tests.cs", """
+                using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+                [TestClass]
+                public class SampleTests
+                {
+                    [TestMethod]
+                    public void Test1() => Assert.IsTrue(true);
+                }
+                """)
+            .BuildAsync();
+
+        result.ShouldHaveRecordedProperty("OutputType", "exe");
+        result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
+
+        var runtimeConfigs = System.IO.Directory
+            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
     }
 }

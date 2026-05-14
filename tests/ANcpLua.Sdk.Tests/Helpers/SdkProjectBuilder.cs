@@ -52,6 +52,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     private readonly Dictionary<string, string> _extraProperties = new(StringComparer.Ordinal);
     private SdkImportStyle _sdkImportStyle;
     private string _sdkName;
+    private bool _omitOutputType;
 
     /// <summary>
     ///     The TargetFramework value, or <c>null</c> if not set.
@@ -165,6 +166,8 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         var builder = new SdkProjectBuilder(fixture, style, sdkName ?? PackageFixture.SdkName);
         builder.WithTargetFramework(Tfm.Net100);
         // OutputType=Exe is set in GenerateCsprojFile to allow top-level statements
+        // Bypass CPM enforcement for test projects (they use ManagePackageVersionsCentrally=false)
+        builder.WithProperty("ANcpLuaSdkSkipCPMEnforcement", "true");
         return builder;
     }
 
@@ -200,6 +203,28 @@ public sealed class SdkProjectBuilder : ProjectBuilder
     public new SdkProjectBuilder WithOutputType(string type)
     {
         OutputType = type;
+        _omitOutputType = false; // Explicit OutputType wins over OmitOutputType()
+        return this;
+    }
+
+    /// <summary>
+    ///     Absolute path of the project's working directory. Use to inspect build outputs
+    ///     (e.g. <c>bin/{Configuration}/{TFM}/Sample.Tests.runtimeconfig.json</c>) from tests.
+    /// </summary>
+    public string ProjectDirectoryPath => Directory.FullPath;
+
+    /// <summary>
+    ///     Omits the <c>&lt;OutputType&gt;</c> element from the emitted csproj entirely.
+    /// </summary>
+    /// <remarks>
+    ///     Use to verify SDK-set props-phase defaults (e.g. the .Test SDK setting
+    ///     <c>OutputType=Exe</c> before Microsoft.NET.Sdk applies its Library default).
+    ///     Otherwise the builder always emits <c>&lt;OutputType&gt;Exe&lt;/OutputType&gt;</c>,
+    ///     which masks SDK-level defaults.
+    /// </remarks>
+    public SdkProjectBuilder OmitOutputType()
+    {
+        _omitOutputType = true;
         return this;
     }
 
@@ -236,6 +261,7 @@ public sealed class SdkProjectBuilder : ProjectBuilder
                 break;
             case Prop.OutputType:
                 OutputType = value;
+                _omitOutputType = false; // Explicit OutputType wins over OmitOutputType()
                 break;
             default:
                 _extraProperties[name] = value;
@@ -445,9 +471,10 @@ public sealed class SdkProjectBuilder : ProjectBuilder
         // invalid JSON in MultiTargetFrameworks_BothOutputsBuilt on Windows.
         var propertiesElement = new XElement("PropertyGroup",
             new XElement("ErrorLog", "BuildOutput.$(TargetFramework).sarif,version=2.1"),
-            new XElement("ManagePackageVersionsCentrally", "false"),
-            new XElement("ANcpLuaSdkSkipCPMEnforcement", "true"),
-            new XElement("OutputType", OutputType ?? "exe"));
+            new XElement("ManagePackageVersionsCentrally", "false"));
+
+        if (!_omitOutputType)
+            propertiesElement.Add(new XElement("OutputType", OutputType ?? "exe"));
 
         if (TargetFramework is not null)
             propertiesElement.Add(new XElement("TargetFramework", TargetFramework));

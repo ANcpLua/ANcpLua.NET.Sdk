@@ -2,6 +2,7 @@
   <PropertyGroup>
     <ANcpLuaSdkName>ANcpLua.NET.Sdk.Test</ANcpLuaSdkName>
     <_MustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'">true</_MustImportMicrosoftNETSdk>
+    <OutputType Condition="'$(OutputType)' == '' OR '$(OutputType)' == 'Library'">Exe</OutputType>
 
     <CustomBeforeDirectoryBuildProps>$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)..\Build\Common\Common.props</CustomBeforeDirectoryBuildProps>
     <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)..\Build\Common\Common.targets</BeforeMicrosoftNETSdkTargets>

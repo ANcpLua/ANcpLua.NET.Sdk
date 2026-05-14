@@ -31,7 +31,7 @@ public abstract class SourceGeneratorDefaultsTests(
     ];
 
     [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-        Justification = "Builder factory transfers ownership; every caller disposes via 'await using var project = CreateProject(...);'.")]
+        Justification = "Factory method returns the SdkProjectBuilder unowned; every call site wraps the result in `await using` and is responsible for disposal. The chained fluent calls return `this`, so no transient IDisposables leak.")]
     private SdkProjectBuilder CreateProject(string sdkName = SdkName) =>
         SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName)
             .WithDotnetSdkVersion(dotnetSdkVersion)
