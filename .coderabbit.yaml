@@ -132,55 +132,32 @@ reviews:
       switch/case tables. Public package/API surface changes need XML docs and explicit
       compatibility notes.
   - path: "**/*.csproj"
-    instructions: C#/.NET review. Treat warnings, nullable annotations, async flow,
-      package boundaries, and generated code as correctness concerns. Flag sync-over-async
-      (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`), fire-and-forget work without
-      lifecycle/error handling, missing CancellationToken on public/internal async
-      methods, `DateTime.Now`/`UtcNow` in domain logic instead of TimeProvider, null-forgiving
-      `!` without a documented proof, catch-and-fallback paths that hide failures,
-      and service registration drift. Prefer data-driven, composable code over hardcoded
-      switch/case tables. Public package/API surface changes need XML docs and explicit
-      compatibility notes.
+    instructions: MSBuild/XML review. Check that PackageReference versions use
+      CPM (no Version attribute unless VersionOverride), PrivateAssets/IncludeAssets
+      are correct for analyzer and tool references, TargetFramework(s) are appropriate,
+      no banned packages are introduced, and property overrides are condition-guarded
+      so consumers can opt out. Flag duplicate or conflicting ItemGroup/PropertyGroup
+      entries.
   - path: "**/*.props"
-    instructions: C#/.NET review. Treat warnings, nullable annotations, async flow,
-      package boundaries, and generated code as correctness concerns. Flag sync-over-async
-      (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`), fire-and-forget work without
-      lifecycle/error handling, missing CancellationToken on public/internal async
-      methods, `DateTime.Now`/`UtcNow` in domain logic instead of TimeProvider, null-forgiving
-      `!` without a documented proof, catch-and-fallback paths that hide failures,
-      and service registration drift. Prefer data-driven, composable code over hardcoded
-      switch/case tables. Public package/API surface changes need XML docs and explicit
-      compatibility notes.
+    instructions: MSBuild props review. Verify property names are stable (renames
+      break consumers), every default is condition-guarded so consumers can override,
+      import order lets consumer properties win, and no platform-specific logic
+      runs without OS guards. Flag properties set unconditionally that should allow
+      opt-out.
   - path: "**/*.targets"
-    instructions: C#/.NET review. Treat warnings, nullable annotations, async flow,
-      package boundaries, and generated code as correctness concerns. Flag sync-over-async
-      (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`), fire-and-forget work without
-      lifecycle/error handling, missing CancellationToken on public/internal async
-      methods, `DateTime.Now`/`UtcNow` in domain logic instead of TimeProvider, null-forgiving
-      `!` without a documented proof, catch-and-fallback paths that hide failures,
-      and service registration drift. Prefer data-driven, composable code over hardcoded
-      switch/case tables. Public package/API surface changes need XML docs and explicit
-      compatibility notes.
+    instructions: MSBuild targets review. Check target-name uniqueness, BeforeTargets/AfterTargets
+      ordering, idempotency (safe to run twice), incremental Inputs/Outputs where
+      relevant, and no platform-specific shell-out without OS guards. Flag missing
+      conditions and targets that could collide with consumer-defined targets.
   - path: "**/*.sln"
-    instructions: C#/.NET review. Treat warnings, nullable annotations, async flow,
-      package boundaries, and generated code as correctness concerns. Flag sync-over-async
-      (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`), fire-and-forget work without
-      lifecycle/error handling, missing CancellationToken on public/internal async
-      methods, `DateTime.Now`/`UtcNow` in domain logic instead of TimeProvider, null-forgiving
-      `!` without a documented proof, catch-and-fallback paths that hide failures,
-      and service registration drift. Prefer data-driven, composable code over hardcoded
-      switch/case tables. Public package/API surface changes need XML docs and explicit
-      compatibility notes.
+    instructions: Solution file review. Verify project GUIDs are unique, all referenced
+      project paths exist relative to the solution, Configuration/Platform mappings
+      are consistent across all projects, project type GUIDs are correct, and no
+      stale or duplicate project entries are present.
   - path: "**/*.slnx"
-    instructions: C#/.NET review. Treat warnings, nullable annotations, async flow,
-      package boundaries, and generated code as correctness concerns. Flag sync-over-async
-      (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`), fire-and-forget work without
-      lifecycle/error handling, missing CancellationToken on public/internal async
-      methods, `DateTime.Now`/`UtcNow` in domain logic instead of TimeProvider, null-forgiving
-      `!` without a documented proof, catch-and-fallback paths that hide failures,
-      and service registration drift. Prefer data-driven, composable code over hardcoded
-      switch/case tables. Public package/API surface changes need XML docs and explicit
-      compatibility notes.
+    instructions: Solution file review (slnx format). Verify all referenced project
+      paths exist, there are no duplicate project entries, folder structure is consistent,
+      and configuration mappings are present and correct for all included projects.
   - path: "**/*Tests/**/*.cs"
     instructions: ".NET tests. Review that tests assert observable behavior, not implementation
       details; async tests return Task; timing-sensitive tests use deterministic signals/fakes
