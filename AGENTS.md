@@ -6,7 +6,7 @@ Opinionated MSBuild SDK providing standardized defaults, policy enforcement, and
 Branch protection, auto-merge, CodeRabbit posture, release flow, dependency
 graph, and the cross-repo bootstrap rules for the four ANcpLua framework
 repos are documented in one place at
-[ANcpLua/renovate-config](https://github.com/ANcpLua/renovate-config#ancplua-framework-conventions--renovate-config).
+[O-ANcppLua/renovate-config](https://github.com/O-ANcppLua/renovate-config#ancplua-framework-conventions--renovate-config).
 This file documents conventions specific to this repo only.
 
 
@@ -256,4 +256,3 @@ agents in v3.3.0 — see `src/*.nuspec` for the enumerated pattern as of v3.3.1)
   job still reported "success" with zero steps executed). If you edit ONLY a
   workflow file or docs, `has_changes` goes false by design — touch a file under
   one of the watched paths to force a publish.
-
