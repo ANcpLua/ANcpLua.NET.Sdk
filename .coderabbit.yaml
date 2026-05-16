@@ -8,7 +8,8 @@
 # Posture: maximum useful review depth. CodeRabbit may spend extra context on
 # cross-repo knowledge, web search, linked issues/PRs, security tools,
 # pre-merge checks, finishing touches, and issue planning. The request-changes
-# workflow is enabled intentionally so error-mode checks can block unsafe PRs.
+# workflow stays advisory so native branch protection and auto-merge remain the
+# blocking gates for unattended bot and agent PRs.
 
 language: en-US
 tone_instructions: 'Principal/staff-level review. Spend extra context on architecture,
@@ -20,7 +21,7 @@ enable_free_tier: false
 inheritance: false
 reviews:
   profile: assertive
-  request_changes_workflow: true
+  request_changes_workflow: false
   high_level_summary: true
   high_level_summary_instructions: 'Write a dense engineering summary: behavior changed,
     risk surface, validation evidence, generated artifacts, and cross-repo implications.
@@ -294,10 +295,12 @@ reviews:
     ignore_title_keywords:
     - "[skip review]"
     labels: []
-    drafts: true
+    drafts: false
     base_branches:
     - ".*"
-    ignore_usernames: []
+    ignore_usernames:
+    - dependabot[bot]
+    - renovate[bot]
   finishing_touches:
     docstrings:
       enabled: true
@@ -338,7 +341,7 @@ reviews:
         data structures. Apply low-risk improvements with tests or benchmarks where
         the repo already has them.
   pre_merge_checks:
-    override_requested_reviewers_only: true
+    override_requested_reviewers_only: false
     docstrings:
       mode: warning
       threshold: 75
