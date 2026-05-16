@@ -21,7 +21,7 @@ enable_free_tier: false
 inheritance: false
 reviews:
   profile: assertive
-  request_changes_workflow: false
+  request_changes_workflow: true
   high_level_summary: true
   high_level_summary_instructions: 'Write a dense engineering summary: behavior changed,
     risk surface, validation evidence, generated artifacts, and cross-repo implications.
@@ -584,6 +584,7 @@ knowledge_base:
     - ".editorconfig"
     - README.md
     - docs/**/*.md
+    - ".github/**/*.md"
   learnings:
     scope: global
   issues:
