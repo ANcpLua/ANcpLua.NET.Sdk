@@ -172,7 +172,10 @@ reviews:
       job; use concurrency for push/PR workflows; avoid secrets in command lines/logs;
       keep required and non-blocking jobs clear; preserve tokenless OIDC upload patterns
       where used; and flag any admin-bypass, force-push, destructive cleanup, or auto-merge
-      behavior that can mask a failed required check.
+      behavior that can mask a failed required check. For nuget-publish.yml, preserve
+      the repo-specific `compute_version` / Pattern A release trigger semantics,
+      release gating, and publish safety checks; treat drift in those rules as
+      release-contract risk unless explicitly documented.
   - path: "**/*.md"
     instructions: 'Documentation review. Treat docs as executable team memory: flag
       instructions that disagree with actual scripts, package versions, branch protection,
@@ -231,7 +234,13 @@ reviews:
   - path: "**/*.nuspec"
     instructions: NuGet packaging. Verify package id, file globs, dependency version
       ranges, symbol/source package behavior, and that generated package assets match
-      source layout.
+      source layout. Preserve stable-release packaging constraints, including
+      float-to-latest range behavior and `.pdb`/symbol artifact handling.
+  - path: Version.props
+    instructions: Version policy. Preserve the repo's stable-release range rules,
+      Pattern A release behavior, and package asset policy. Treat unexpected changes
+      to float-to-latest handling, `.pdb` inclusion/exclusion, or publish version
+      computation as release-contract risk.
   - path: src/**/*.cs
     instructions: |
       C# 14 with preview features. File-scoped namespaces; primary constructors;
