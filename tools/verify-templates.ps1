@@ -18,7 +18,7 @@
          using macOS-safe sequential settings
 
     Run this BEFORE pushing PR changes that affect the templates pipeline. CI parity:
-    GitHub macOS uses identical dotnet 10.0.203 + identical fixture, so a green local
+    GitHub macOS uses identical dotnet 10.0.300 + identical fixture, so a green local
     run is high-confidence for green GitHub macOS.
 
 .EXAMPLE
