@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label=".NET SDK">
-    <DotNetSdkVersion>10.0.203</DotNetSdkVersion>
+    <DotNetSdkVersion>10.0.300</DotNetSdkVersion>
     <DotNetSdkRollForward>latestMinor</DotNetSdkRollForward>
   </PropertyGroup>
 
