@@ -8,8 +8,8 @@
 # Posture: maximum useful review depth. CodeRabbit may spend extra context on
 # cross-repo knowledge, web search, linked issues/PRs, security tools,
 # pre-merge checks, finishing touches, and issue planning. The request-changes
-# workflow stays advisory so native branch protection and auto-merge remain the
-# blocking gates for unattended bot and agent PRs.
+# workflow is enabled and participates in merge gating alongside native branch
+# protection and auto-merge for unattended bot and agent PRs.
 
 language: en-US
 tone_instructions: 'Principal/staff-level review. Spend extra context on architecture,
