@@ -244,8 +244,10 @@ reviews:
       - No `dynamic`/`ExpandoObject` — use typed contracts.
       - Storing `ISymbol` in incremental models — extract value-equatable data.
       - `params T[]` where `params ReadOnlySpan<T>` works (C# 13+).
-      - Suppressions only for documented exceptions (preview API markers,
-        AOT-verified safe code, `netstandard2.0` analyzer projects).
+      - Suppressions only for documented exceptions (preview API markers
+        MEAI001/OPENAI002, source-gen contexts, DevUI, upstream framework
+        requirements, AOT/trimming verified safe, `netstandard2.0` analyzer
+        projects).
   - path: src/Sdk/**
     instructions: |
       The SDK guts — props/targets imported by every consumer project.
