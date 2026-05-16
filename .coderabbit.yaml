@@ -450,22 +450,22 @@ reviews:
         Scan added/modified C# files for `.Result`, `.Wait()`, or
         `.GetAwaiter().GetResult()`. Pass if none. Fail if any blocking-async
         pattern — `await` always.
-    - mode: warning
+    - mode: error
       name: No null-forgiving operator without justification
       instructions: |
         Scan added/modified C# files for `!` (null-forgiving). Pass if none.
         Fail if any `!` is added without an inline comment explaining why
         the code can't be rewritten to avoid it. Per repo policy: rewrite,
         don't suppress.
-    - mode: warning
+    - mode: error
       name: No suppression of fixable diagnostics
       instructions: |
         Scan added/modified C# files for `#pragma warning disable` or
         `[SuppressMessage]` attributes. Pass if none added. Fail if any
-        added without inline comment matching the acceptable-suppressions
-        allowlist in CLAUDE.md (preview API markers MEAI001/OPENAI002,
-        source-gen contexts, DevUI, upstream framework requirements,
-        AOT/trimming verified safe, netstandard2.0 analyzer projects).
+        added without an inline comment justifying the suppression (e.g.,
+        preview API markers MEAI001/OPENAI002, source-gen contexts, DevUI,
+        upstream framework requirements, AOT/trimming verified safe,
+        netstandard2.0 analyzer projects).
   tools:
     ast-grep:
       essential_rules: true
