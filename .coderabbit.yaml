@@ -1,308 +1,575 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 #
-# ANcpLua.NET.Sdk — MSBuild SDK + analyzer injection + Version.props
-# Stack: C#/.NET, MSBuild props/targets, .nuspec packaging
-# Release: Pattern A — auto-bump on push to main (compute_version → patch+1)
+# CodeRabbit Pro+ / Enterprise-grade review configuration for ANcpLua/ANcpLua.NET.Sdk.
+# Generated 2026-05-16 from the current schema-backed configuration reference.
 #
-# Schema-validated against: https://coderabbit.ai/integrations/schema.v2.json
+# Repository context: MSBuild SDK packages, analyzer injection, props/targets, NuGet packaging, and Version.props release policy.
 #
+# Posture: maximum useful review depth. CodeRabbit may spend extra context on
+# cross-repo knowledge, web search, linked issues/PRs, security tools,
+# pre-merge checks, finishing touches, and issue planning. The request-changes
+# workflow is enabled and participates in merge gating alongside native branch
+# protection and auto-merge for unattended bot and agent PRs.
 
 language: en-US
-tone_instructions: >-
-  Principal-engineer review. Direct, concise. Flag structural violations as blocking.
-  Focus: AOT safety, MSBuild correctness, analyzer-injection contract,
-  no suppression policy.
+tone_instructions: 'Principal/staff-level review. Spend extra context on architecture,
+  correctness, maintainability, security, CI/release safety, generated-file drift,
+  and cross-repo contract drift. Be direct: no praise, no filler, no style nits without
+  risk.'
 early_access: true
 enable_free_tier: false
-
+inheritance: false
 reviews:
   profile: assertive
-  # advisory posture — CodeRabbit posts comments, not "Request Changes" reviews,
-  # so its feedback never blocks auto-merge. Matches the other 3 ANcpLua framework
-  # repos (Analyzers, Roslyn.Utilities, Agents) and avoids the failure mode where
-  # a CodeRabbit review on a Renovate/owner PR blocks auto-merge while no human
-  # is available to dismiss or address it.
-  request_changes_workflow: false
+  request_changes_workflow: true
   high_level_summary: true
-  high_level_summary_in_walkthrough: false
+  high_level_summary_instructions: 'Write a dense engineering summary: behavior changed,
+    risk surface, validation evidence, generated artifacts, and cross-repo implications.
+    Avoid praise and filler.'
+  high_level_summary_placeholder: "@coderabbitai summary"
+  high_level_summary_in_walkthrough: true
+  auto_title_placeholder: "@coderabbitai title"
+  auto_title_instructions: 'Use conventional commits with an area prefix. Keep under
+    72 characters and omit trailing punctuation. Examples: feat(api): add document
+    search filters, fix(build): pin Codecov upload.'
   review_status: true
   review_details: true
   commit_status: true
   fail_commit_status: true
-  collapse_walkthrough: true
-  changed_files_summary: false
-  sequence_diagrams: false
-  estimate_code_review_effort: false
+  collapse_walkthrough: false
+  changed_files_summary: true
+  sequence_diagrams: true
+  estimate_code_review_effort: true
   assess_linked_issues: true
-  related_issues: false
-  related_prs: false
-  suggested_labels: false
-  suggested_reviewers: false
+  related_issues: true
+  related_prs: true
+  suggested_labels: true
+  labeling_instructions:
+  - label: area:api
+    instructions: Apply when REST, RPC, MCP, public endpoints, contracts, or request/response
+      models change.
+  - label: area:ui
+    instructions: Apply when frontend UI, styling, accessibility, or client-side state
+      changes.
+  - label: area:build
+    instructions: Apply when build scripts, NUKE/MSBuild, package managers, Docker,
+      CI, or release automation change.
+  - label: area:test
+    instructions: Apply when tests, fixtures, test infrastructure, coverage, or snapshots
+      change.
+  - label: area:docs
+    instructions: Apply when docs, AGENTS.md, CLAUDE.md, README, changelogs, specs,
+      or generated reference docs change.
+  - label: area:security
+    instructions: Apply when authentication, authorization, secrets, token handling,
+      logging of sensitive data, or dependency security changes.
+  - label: area:data
+    instructions: Apply when database schema, persistence, migrations, queues, storage,
+      serialization, generated data, or data contracts change.
+  - label: area:agents
+    instructions: Apply when agent prompts, MCP tools, AI workflow code, model calls,
+      tool schemas, or agent-facing instructions change.
+  - label: area:generated
+    instructions: Apply when generated files, generators, schemas, OpenAPI/TypeSpec/semconv
+      models, lockfiles, or generated docs change.
+  - label: breaking
+    instructions: Apply when public APIs, CLI flags, package surfaces, endpoint schemas,
+      storage formats, config keys, or emitted artifacts change incompatibly.
+  - label: review:slop
+    instructions: Auto-applied by CodeRabbit slop detection for low-quality AI-generated
+      changes. Do not apply manually.
+  - label: area:sdk
+    instructions: Apply when SDK props/targets or analyzer injection changes.
+  - label: area:packaging
+    instructions: Apply when NuGet packaging changes.
+  - label: area:config
+    instructions: Apply when the PR modifies src/Config/.
+  - label: area:test-sdk
+    instructions: Apply when the PR modifies the .Test.csproj or test SDK.
+  - label: area:web-sdk
+    instructions: Apply when the PR modifies the .Web.csproj or Web SDK.
+  - label: area:tools
+    instructions: Apply when the PR modifies tools/.
+  - label: area:tests
+    instructions: Apply when the PR modifies tests/.
+  - label: area:infra
+    instructions: Apply when the PR modifies .github/, eng/, or root build infrastructure.
+  auto_apply_labels: true
+  suggested_reviewers: true
   auto_assign_reviewers: false
+  suggested_reviewers_instructions:
+  - reviewers:
+    - handle: ANcpLua
+      type: user
+    instructions: Suggest for PRs touching architecture, public APIs, security-sensitive
+      code, release automation, generated artifacts, or cross-repository contracts.
   in_progress_fortune: false
   poem: false
   enable_prompt_for_ai_agents: true
-
-  labeling_instructions:
-    - label: 'area:sdk'
-      instructions: 'Apply when the PR modifies src/Sdk/ or the SDK csproj/nuspec.'
-    - label: 'area:build'
-      instructions: 'Apply when the PR modifies src/Build/ or MSBuild props/targets.'
-    - label: 'area:config'
-      instructions: 'Apply when the PR modifies src/Config/.'
-    - label: 'area:test-sdk'
-      instructions: 'Apply when the PR modifies the .Test.csproj or test SDK.'
-    - label: 'area:web-sdk'
-      instructions: 'Apply when the PR modifies the .Web.csproj or Web SDK.'
-    - label: 'area:tools'
-      instructions: 'Apply when the PR modifies tools/.'
-    - label: 'area:tests'
-      instructions: 'Apply when the PR modifies tests/.'
-    - label: 'area:infra'
-      instructions: 'Apply when the PR modifies .github/, eng/, or root build infrastructure.'
-    - label: 'breaking'
-      instructions: >-
-        Apply when the PR introduces breaking changes to SDK contract:
-        analyzer injection list, default props/targets, package version policy.
-  auto_apply_labels: true
-
   path_filters:
-    - 'src/**'
-    - 'tests/**'
-    - 'tools/**'
-    - 'eng/**'
-    - '.github/**'
-    - '*.props'
-    - '*.targets'
-    - '*.slnx'
-    - '*.nuspec'
-    - 'global.json'
-    - 'NuGet.config'
-    - 'Directory.*.props'
-    - 'Directory.*.targets'
-    - '!**/*.g.cs'
-    - '!**/*.Designer.cs'
-    - '!**/bin/**'
-    - '!**/obj/**'
-    - '!**/artifacts/**'
-
+  - "!**/bin/**"
+  - "!**/obj/**"
+  - "!**/dist/**"
+  - "!**/node_modules/**"
+  - "!**/coverage/**"
+  - "!**/.angular/**"
+  - "!**/.vite/**"
+  - "!**/.next/**"
+  - "!**/*.min.js"
+  - "!**/*.min.css"
+  - "!Artifacts/**"
+  - "!artifacts/**"
+  - "!**/*.sarif"
+  - "!**/*.trx"
   path_instructions:
-    - path: 'src/**/*.cs'
-      instructions: |
-        C# 14 with preview features. File-scoped namespaces; primary constructors;
-        required init properties; switch expressions over if-else.
+  - path: "**/*.cs"
+    instructions: C#/.NET review. Treat warnings, nullable annotations, async flow,
+      package boundaries, and generated code as correctness concerns. Flag sync-over-async
+      (`.Result`, `.Wait()`, `.GetAwaiter().GetResult()`), fire-and-forget work without
+      lifecycle/error handling, missing CancellationToken on public/internal async
+      methods, `DateTime.Now`/`UtcNow` in domain logic instead of TimeProvider, null-forgiving
+      `!` without a documented proof, catch-and-fallback paths that hide failures,
+      and service registration drift. Prefer data-driven, composable code over hardcoded
+      switch/case tables. Public package/API surface changes need XML docs and explicit
+      compatibility notes.
+  - path: "**/*.csproj"
+    instructions: MSBuild/XML review. Check that PackageReference versions use
+      CPM (no Version attribute unless VersionOverride), PrivateAssets/IncludeAssets
+      are correct for analyzer and tool references, TargetFramework(s) are appropriate,
+      no banned packages are introduced, and property overrides are condition-guarded
+      so consumers can opt out. Flag duplicate or conflicting ItemGroup/PropertyGroup
+      entries.
+  - path: "**/*.props"
+    instructions: MSBuild props review. Verify property names are stable (renames
+      break consumers), every default is condition-guarded so consumers can override,
+      import order lets consumer properties win, and no platform-specific logic
+      runs without OS guards. Flag properties set unconditionally that should allow
+      opt-out.
+  - path: "**/*.targets"
+    instructions: MSBuild targets review. Check target-name uniqueness, BeforeTargets/AfterTargets
+      ordering, idempotency (safe to run twice), incremental Inputs/Outputs where
+      relevant, and no platform-specific shell-out without OS guards. Flag missing
+      conditions and targets that could collide with consumer-defined targets.
+  - path: "**/*.sln"
+    instructions: Solution file review. Verify project GUIDs are unique, all referenced
+      project paths exist relative to the solution, Configuration/Platform mappings
+      are consistent across all projects, project type GUIDs are correct, and no
+      stale or duplicate project entries are present.
+  - path: "**/*.slnx"
+    instructions: Solution file review (slnx format). Verify all referenced project
+      paths exist, there are no duplicate project entries, folder structure is consistent,
+      and configuration mappings are present and correct for all included projects.
+  - path: "**/*Tests/**/*.cs"
+    instructions: ".NET tests. Review that tests assert observable behavior, not implementation
+      details; async tests return Task; timing-sensitive tests use deterministic signals/fakes
+      instead of sleeps; Testcontainers resources are disposed; cancellation tokens
+      are threaded; mocks are strict where the repo convention expects strictness;
+      and new behavior has focused regression coverage. Do not accept weakening or
+      deleting truthful tests to make a PR pass."
+  - path: ".github/workflows/**"
+    instructions: GitHub Actions review. Pin third-party actions to immutable SHAs
+      unless the repo explicitly documents tag-pinning; keep permissions minimal per
+      job; use concurrency for push/PR workflows; avoid secrets in command lines/logs;
+      keep required and non-blocking jobs clear; preserve tokenless OIDC upload patterns
+      where used; and flag any admin-bypass, force-push, destructive cleanup, or auto-merge
+      behavior that can mask a failed required check. For nuget-publish.yml, preserve
+      the repo-specific `compute_version` / Pattern A release trigger semantics,
+      release gating, and publish safety checks; treat drift in those rules as
+      release-contract risk unless explicitly documented.
+  - path: "**/*.md"
+    instructions: 'Documentation review. Treat docs as executable team memory: flag
+      instructions that disagree with actual scripts, package versions, branch protection,
+      generated-file workflows, or repo layout. Keep AGENTS.md/CLAUDE.md rules coherent
+      with automation. Do not request cosmetic prose changes unless ambiguity would
+      mislead an agent or maintainer.'
+  - path: "**/*.mdx"
+    instructions: 'Documentation review. Treat docs as executable team memory: flag
+      instructions that disagree with actual scripts, package versions, branch protection,
+      generated-file workflows, or repo layout. Keep AGENTS.md/CLAUDE.md rules coherent
+      with automation. Do not request cosmetic prose changes unless ambiguity would
+      mislead an agent or maintainer.'
+  - path: "**/*.g.cs"
+    instructions: Generated-output discipline. Do not suggest hand-editing generated
+      files. If generated output is wrong or missing, identify the generator/source
+      input and require regeneration in the same PR. If source model changes without
+      matching generated artifacts, flag it.
+  - path: "**/*.g.ts"
+    instructions: Generated-output discipline. Do not suggest hand-editing generated
+      files. If generated output is wrong or missing, identify the generator/source
+      input and require regeneration in the same PR. If source model changes without
+      matching generated artifacts, flag it.
+  - path: "**/*.g.sql"
+    instructions: Generated-output discipline. Do not suggest hand-editing generated
+      files. If generated output is wrong or missing, identify the generator/source
+      input and require regeneration in the same PR. If source model changes without
+      matching generated artifacts, flag it.
+  - path: "**/*.g.tsp"
+    instructions: Generated-output discipline. Do not suggest hand-editing generated
+      files. If generated output is wrong or missing, identify the generator/source
+      input and require regeneration in the same PR. If source model changes without
+      matching generated artifacts, flag it.
+  - path: "**/*.Designer.cs"
+    instructions: Generated-output discipline. Do not suggest hand-editing generated
+      files. If generated output is wrong or missing, identify the generator/source
+      input and require regeneration in the same PR. If source model changes without
+      matching generated artifacts, flag it.
+  - path: "**/*.generated.*"
+    instructions: Generated-output discipline. Do not suggest hand-editing generated
+      files. If generated output is wrong or missing, identify the generator/source
+      input and require regeneration in the same PR. If source model changes without
+      matching generated artifacts, flag it.
+  - path: "**/*.snap"
+    instructions: Generated-output discipline. Do not suggest hand-editing generated
+      files. If generated output is wrong or missing, identify the generator/source
+      input and require regeneration in the same PR. If source model changes without
+      matching generated artifacts, flag it.
+  - path: src/**/*.props
+    instructions: MSBuild SDK defaults. Every override should be condition-guarded
+      so consumers can opt out. Import order must let consumer properties win. Analyzer
+      injection must keep PrivateAssets/IncludeAssets correct.
+  - path: src/**/*.targets
+    instructions: MSBuild targets. Check target-name uniqueness, BeforeTargets/AfterTargets
+      ordering, idempotency, incremental Inputs/Outputs where relevant, and no platform-specific
+      shell-out without OS guards.
+  - path: "**/*.nuspec"
+    instructions: NuGet packaging. Verify package id, file globs, dependency version
+      ranges, symbol/source package behavior, and that generated package assets match
+      source layout. Preserve stable-release packaging constraints, including
+      float-to-latest range behavior and `.pdb`/symbol artifact handling.
+  - path: Version.props
+    instructions: Version policy. Preserve the repo's stable-release range rules,
+      Pattern A release behavior, and package asset policy. Treat unexpected changes
+      to float-to-latest handling, `.pdb` inclusion/exclusion, or publish version
+      computation as release-contract risk.
+  - path: src/**/*.cs
+    instructions: |
+      C# 14 with preview features. File-scoped namespaces; primary constructors;
+      required init properties; switch expressions over if-else.
 
-        ARCHITECTURAL INVARIANTS — flag violations as blocking:
-        - No `DateTime.Now`/`DateTime.UtcNow` — use `TimeProvider.System`.
-        - No `.Result`/`.Wait()`/`.GetAwaiter().GetResult()` — `await` always.
-        - No `ISourceGenerator` — use `IIncrementalGenerator`.
-        - No null-forgiving `!` — rewrite the code.
-        - No `dynamic`/`ExpandoObject` — use typed contracts.
-        - Storing `ISymbol` in incremental models — extract value-equatable data.
-        - `params T[]` where `params ReadOnlySpan<T>` works (C# 13+).
-        - Suppressions only for documented exceptions (preview API markers,
-          AOT-verified safe code, `netstandard2.0` analyzer projects).
+      ARCHITECTURAL INVARIANTS — flag violations as blocking:
+      - No `DateTime.Now`/`DateTime.UtcNow` — use `TimeProvider.System`.
+      - No `.Result`/`.Wait()`/`.GetAwaiter().GetResult()` — `await` always.
+      - No `ISourceGenerator` — use `IIncrementalGenerator`.
+      - No null-forgiving `!` — rewrite the code.
+      - No `dynamic`/`ExpandoObject` — use typed contracts.
+      - Storing `ISymbol` in incremental models — extract value-equatable data.
+      - `params T[]` where `params ReadOnlySpan<T>` works (C# 13+).
+      - Suppressions only for documented exceptions (preview API markers
+        MEAI001/OPENAI002, source-gen contexts, DevUI, upstream framework
+        requirements, AOT/trimming verified safe, `netstandard2.0` analyzer
+        projects).
+  - path: src/Sdk/**
+    instructions: |
+      The SDK guts — props/targets imported by every consumer project.
+      Review for: stable property names (renames break consumers), correct
+      ordering of imports (consumer overrides win), and that new defaults
+      opt-out cleanly. Flag any property without a `<PropertyGroup Condition>`
+      guard that lets consumers override.
 
-    - path: 'src/Sdk/**'
-      instructions: |
-        The SDK guts — props/targets imported by every consumer project.
-        Review for: stable property names (renames break consumers), correct
-        ordering of imports (consumer overrides win), and that new defaults
-        opt-out cleanly. Flag any property without a `<PropertyGroup Condition>`
-        guard that lets consumers override.
-
-        Analyzer injection: this SDK injects ANcpLua.Analyzers via PackageReference
-        with PrivateAssets="all". Flag any change that breaks injection (wrong
-        IncludeAssets, missing analyzer asset).
-
-    - path: 'src/Build/**'
-      instructions: |
-        Build targets shared across .NET.Sdk, .Test, .Web variants. Review for:
-        target-name collisions with consumer csproj (use unique prefixes), correct
-        BeforeTargets/AfterTargets ordering, and idempotent execution (target
-        should be safe to run twice).
-
-    - path: '**/*.props'
-      instructions: |
-        MSBuild property files. Review for: condition guards on every override
-        (consumer must be able to opt out), no `<RemoveAttributes>` on items
-        that consumers may have set, and that defaults are sensible without
-        forcing a downstream cascade.
-
-    - path: '**/*.targets'
-      instructions: |
-        MSBuild target files. Review for: correct target dependency declaration
-        (DependsOnTargets / BeforeTargets / AfterTargets), input/output
-        declarations for incremental builds, and no shell-out to platform-
-        specific commands without an OS guard.
-
-    - path: '**/*.nuspec'
-      instructions: |
-        NuGet package manifest. Review for: correct package id, correct
-        dependency version ranges (no float-to-latest in stable releases),
-        proper file globs (no .pdb in release packages unless symbol package),
-        and that contentFiles paths match what's in src/.
-
-    - path: 'tests/**/*.cs'
-      instructions: |
-        xUnit + FluentAssertions. AAA pattern. NSubstitute for mocks.
-        Flag: blocking-async patterns (`Task.Run(() => x.Result)`), missing
-        `async Task` (sync-void), `Thread.Sleep` instead of `await Task.Delay`,
-        tests asserting on private state via reflection.
-
-    - path: 'tools/**'
-      instructions: |
-        Internal tooling — config file generators, build helpers. Lower bar than
-        production src/, but still flag obvious bugs (missing null check that
-        crashes the build, hardcoded paths, swallowed exceptions).
-
-    - path: '.github/workflows/**'
-      instructions: |
-        Pin third-party actions to SHA. First-party (actions/*) tag-pin OK.
-        Concurrency groups required on push-triggered workflows.
-        Secrets via env: not inline. No secrets in logs.
-        Minimal permissions per job.
-        Pattern A release: changes to compute_version logic affect every push to
-        main — flag carefully.
-
-    - path: 'AGENTS.md'
-      instructions: |
-        Coordination file for AI agents. Review for: consistency with actual repo
-        structure, accurate references to CLAUDE.md, and that release-flow
-        documentation matches nuget-publish.yml behavior.
-
+      Analyzer injection: this SDK injects ANcpLua.Analyzers via PackageReference
+      with PrivateAssets="all". Flag any change that breaks injection (wrong
+      IncludeAssets, missing analyzer asset).
+  - path: src/Build/**
+    instructions: |
+      Build targets shared across .NET.Sdk, .Test, .Web variants. Review for:
+      target-name collisions with consumer csproj (use unique prefixes), correct
+      BeforeTargets/AfterTargets ordering, and idempotent execution (target
+      should be safe to run twice).
+  - path: tests/**/*.cs
+    instructions: |
+      xUnit + FluentAssertions. AAA pattern. NSubstitute for mocks.
+      Flag: blocking-async patterns (`Task.Run(() => x.Result)`), missing
+      `async Task` (sync-void), `Thread.Sleep` instead of `await Task.Delay`,
+      tests asserting on private state via reflection.
+  - path: tools/**
+    instructions: |
+      Internal tooling — config file generators, build helpers. Lower bar than
+      production src/, but still flag obvious bugs (missing null check that
+      crashes the build, hardcoded paths, swallowed exceptions).
+  - path: AGENTS.md
+    instructions: |
+      Coordination file for AI agents. Review for: consistency with actual repo
+      structure, accurate references to CLAUDE.md, and that release-flow
+      documentation matches nuget-publish.yml behavior.
+  abort_on_close: true
+  disable_cache: true
+  slop_detection:
+    enabled: true
+    label: review:slop
   auto_review:
     enabled: true
+    description_keyword: "@coderabbitai review"
     auto_incremental_review: true
     auto_pause_after_reviewed_commits: 0
-    drafts: false
     ignore_title_keywords:
-      - 'deps('
-      - '[skip ci]'
-      - '[skip review]'
-      - 'wip'
+    - "[skip review]"
     labels: []
-    base_branches: []
+    drafts: false
+    base_branches:
+    - ".*"
     ignore_usernames:
-      - 'dependabot[bot]'
-      - 'renovate[bot]'
-
+    - dependabot[bot]
+    - renovate[bot]
   finishing_touches:
     docstrings:
-      enabled: false
+      enabled: true
     unit_tests:
-      enabled: false
-
+      enabled: true
+    simplify:
+      enabled: true
+    custom:
+    - enabled: true
+      name: architecture hardening
+      instructions: Refactor only changed code where doing so removes meaningful duplication,
+        hidden fallback paths, tangled responsibilities, or brittle coupling. Preserve
+        behavior unless the PR explicitly changes it. Prefer deleting bad indirection
+        over adding wrappers. Include tests or note exactly why no test can cover
+        the improvement.
+    - enabled: true
+      name: security pass
+      instructions: Inspect the PR for secrets, injection risk, path traversal, unsafe
+        deserialization, authz/authn drift, overbroad logging, unsafe dependency changes,
+        and CI token permission expansion. Apply minimal fixes directly when safe;
+        otherwise leave precise comments.
+    - enabled: true
+      name: test gap closure
+      instructions: Generate focused tests for changed behavior and edge cases. Prefer
+        existing test frameworks and fixtures. Do not create broad snapshot churn
+        or tests that merely assert implementation details. Include regression tests
+        for bugs and riskier boundary changes.
+    - enabled: true
+      name: docs and changelog alignment
+      instructions: Update docs, README, AGENTS/CLAUDE guidance, generated reference
+        docs, and changelog entries only where the PR changes user-visible behavior,
+        public contracts, workflows, or agent instructions. Keep entries concise and
+        consistent with repo rules.
+    - enabled: true
+      name: performance and allocation pass
+      instructions: Review changed hot paths for avoidable allocations, repeated parsing,
+        unbounded concurrency, N+1 calls, missing streaming/backpressure, and inefficient
+        data structures. Apply low-risk improvements with tests or benchmarks where
+        the repo already has them.
   pre_merge_checks:
+    override_requested_reviewers_only: false
     docstrings:
-      mode: 'off'
+      mode: warning
+      threshold: 75
     title:
       mode: error
-      requirements: |
-        Conventional commits: feat|fix|refactor|chore|docs|test|ci|perf|deps.
-        Under 72 chars, no trailing period.
-        Examples: feat(sdk): add WarningsAsErrors default,
-        fix(build): correct analyzer injection IncludeAssets
+      requirements: Conventional commits with an area scope; under 72 characters;
+        no trailing punctuation; accurately names the highest-impact change.
     description:
-      mode: warning
+      mode: error
     issue_assessment:
       mode: warning
     custom_checks:
-      - mode: error
-        name: 'No DateTime.Now/UtcNow'
-        instructions: |
-          Scan added/modified C# files for `DateTime.Now` or `DateTime.UtcNow`.
-          Pass if none. Fail if any usage — use `TimeProvider.System` instead.
-          Exception: test fixtures with explicit reason commented inline.
-      - mode: error
-        name: 'No .Result/.Wait() blocking async'
-        instructions: |
-          Scan added/modified C# files for `.Result`, `.Wait()`, or
-          `.GetAwaiter().GetResult()`. Pass if none. Fail if any blocking-async
-          pattern — `await` always.
-      - mode: warning
-        name: 'No null-forgiving operator without justification'
-        instructions: |
-          Scan added/modified C# files for `!` (null-forgiving). Pass if none.
-          Fail if any `!` is added without an inline comment explaining why
-          the code can't be rewritten to avoid it. Per repo policy: rewrite,
-          don't suppress.
-      - mode: warning
-        name: 'No suppression of fixable diagnostics'
-        instructions: |
-          Scan added/modified C# files for `#pragma warning disable` or
-          `[SuppressMessage]` attributes. Pass if none added. Fail if any
-          added without inline comment matching the acceptable-suppressions
-          allowlist in CLAUDE.md (preview API markers MEAI001/OPENAI002,
-          source-gen contexts, DevUI, upstream framework requirements,
-          AOT/trimming verified safe, netstandard2.0 analyzer projects).
-
+    - mode: error
+      name: No Secrets Or PII
+      instructions: 'Pass/fail criteria: fail if the PR adds secrets, tokens, credentials,
+        private keys, real user data, personal data, API keys, connection strings,
+        or logs that expose sensitive request/response bodies. Test placeholders are
+        allowed only when obviously synthetic and documented.'
+    - mode: error
+      name: Generated Files Regenerated
+      instructions: 'Pass/fail criteria: if a source schema/model/template/generator
+        input changes, all generated downstream files required by the repository must
+        be updated in the same PR. Fail if generated files appear hand-edited without
+        the source generator/input change, or if generated output is missing after
+        source-model changes.'
+    - mode: error
+      name: Async And Cancellation Safe
+      instructions: 'Pass/fail criteria: fail C#/TS/Python changes that introduce
+        sync-over-async, unobserved fire-and-forget work, missing CancellationToken/AbortSignal
+        propagation on public/internal async boundaries, sleeps for synchronization,
+        or resource disposal paths that can drop in-flight work.'
+    - mode: error
+      name: Public Contract Documented
+      instructions: 'Pass/fail criteria: fail if public APIs, endpoint schemas, CLI
+        flags, config keys, package surfaces, storage formats, event schemas, MCP
+        tool schemas, or generated contracts change without matching docs/tests and
+        explicit compatibility notes in the PR description or changelog where the
+        repo uses one.'
+    - mode: error
+      name: CI Release Safety
+      instructions: 'Pass/fail criteria: if no workflow/build/release files changed,
+        pass. Fail when a changed workflow removes an existing validation job, removes
+        concurrency from push/PR workflows, adds --admin/force-push/bypass commands,
+        increases token permissions beyond contents:read without inline rationale,
+        exposes secrets in command arguments/logs, changes publish triggers to run
+        outside tags or approved environments, or allows a previously required failing
+        check to be ignored.'
+    - mode: warning
+      name: Tests Match Risk
+      instructions: 'Pass/fail criteria: warn when production behavior changes without
+        focused tests or when tests only assert implementation details. Require integration/e2e
+        coverage for persistence, queues, external-service boundaries, generated contracts,
+        migrations, or user-visible workflows touched by the PR.'
+    - mode: warning
+      name: No Copy Paste Tables
+      instructions: 'Pass/fail criteria: warn when a PR introduces hardcoded repetitive
+        case lists, hand-maintained mapping tables, duplicate switch branches, or
+        parallel arrays where a data-driven or generated structure would be more maintainable.
+        Do not warn for small explicit protocol enums or tests where duplication clarifies
+        cases.'
+    - mode: warning
+      name: No Hidden Fallback Path
+      instructions: 'Pass/fail criteria: warn when code catches and silently falls
+        back, adds compatibility wrappers, duplicate implementation paths, or default
+        behavior that hides upstream failure unless the fallback is a documented product
+        requirement with tests for both paths.'
+    - mode: warning
+      name: Observability Boundary
+      instructions: 'Pass/fail criteria: warn when new services, background jobs,
+        queues, network clients, storage writers, MCP tools, or agent workflows lack
+        structured logging, tracing/metrics where the repository already uses them,
+        or actionable error context.'
+    - mode: warning
+      name: Dependency Hygiene
+      instructions: 'Pass/fail criteria: warn when dependencies are added without
+        clear need, version pins drift from central package files, lockfile changes
+        do not match manifest changes, transitive security-sensitive packages are
+        introduced, or package manager conventions are violated.'
+    - mode: error
+      name: No DateTime.Now/UtcNow
+      instructions: |
+        Scan added/modified C# files for `DateTime.Now` or `DateTime.UtcNow`.
+        Pass if none. Fail if any usage — use `TimeProvider.System` instead.
+        Exception: test fixtures with explicit reason commented inline.
+    - mode: error
+      name: No .Result/.Wait() blocking async
+      instructions: |
+        Scan added/modified C# files for `.Result`, `.Wait()`, or
+        `.GetAwaiter().GetResult()`. Pass if none. Fail if any blocking-async
+        pattern — `await` always.
+    - mode: error
+      name: No null-forgiving operator
+      instructions: |
+        Scan added/modified C# files for `!` (null-forgiving). Pass if none.
+        Fail if any `!` is added — per repo policy: rewrite the code to avoid it.
+        No inline-comment exception; the invariant is an outright ban.
+    - mode: error
+      name: No suppression of fixable diagnostics
+      instructions: |
+        Scan added/modified C# files for `#pragma warning disable` or
+        `[SuppressMessage]` attributes. Pass if none added. Fail if any
+        added without an inline comment justifying the suppression (e.g.,
+        preview API markers MEAI001/OPENAI002, source-gen contexts, DevUI,
+        upstream framework requirements, AOT/trimming verified safe,
+        netstandard2.0 analyzer projects).
   tools:
+    ast-grep:
+      essential_rules: true
     shellcheck:
       enabled: true
-    actionlint:
-      enabled: true
+    ruff:
+      enabled: false
     markdownlint:
-      enabled: true
-    gitleaks:
       enabled: true
     github-checks:
       enabled: true
-      timeout_ms: 180000
-    ast-grep:
-      essential_rules: true
-    eslint: { enabled: false }
-    biome: { enabled: false }
-    oxc: { enabled: false }
-    ruff: { enabled: false }
-    pylint: { enabled: false }
-    flake8: { enabled: false }
-    phpstan: { enabled: false }
-    phpmd: { enabled: false }
-    phpcs: { enabled: false }
-    swiftlint: { enabled: false }
-    detekt: { enabled: false }
-    pmd: { enabled: false }
-    semgrep: { enabled: false }
-    opengrep: { enabled: false }
-    trufflehog: { enabled: false }
-    checkov: { enabled: false }
-    tflint: { enabled: false }
-    fortitudeLint: { enabled: false }
-    rubocop: { enabled: false }
-    buf: { enabled: false }
-    regal: { enabled: false }
-    clang: { enabled: false }
-    cppcheck: { enabled: false }
-    circleci: { enabled: false }
-    clippy: { enabled: false }
-    sqlfluff: { enabled: false }
-    trivy: { enabled: false }
-    prismaLint: { enabled: false }
-    shopifyThemeCheck: { enabled: false }
-    luacheck: { enabled: false }
-    brakeman: { enabled: false }
-    dotenvLint: { enabled: false }
-    htmlhint: { enabled: false }
-    stylelint: { enabled: false }
-    checkmake: { enabled: false }
-    osvScanner: { enabled: false }
-    blinter: { enabled: false }
-    yamllint: { enabled: false }
-    psscriptanalyzer: { enabled: false }
-    languagetool: { enabled: false }
-    hadolint: { enabled: false }
-    golangci-lint: { enabled: false }
-
+      timeout_ms: 900000
+    languagetool:
+      enabled: true
+      level: default
+    biome:
+      enabled: false
+    hadolint:
+      enabled: false
+    swiftlint:
+      enabled: false
+    phpstan:
+      enabled: false
+    phpmd:
+      enabled: false
+    phpcs:
+      enabled: false
+    golangci-lint:
+      enabled: false
+    yamllint:
+      enabled: true
+    gitleaks:
+      enabled: true
+    trufflehog:
+      enabled: true
+    checkov:
+      enabled: true
+    tflint:
+      enabled: false
+    detekt:
+      enabled: false
+    eslint:
+      enabled: false
+    flake8:
+      enabled: false
+    fortitudeLint:
+      enabled: false
+    rubocop:
+      enabled: false
+    buf:
+      enabled: false
+    regal:
+      enabled: false
+    actionlint:
+      enabled: true
+    pmd:
+      enabled: false
+    clang:
+      enabled: false
+    cppcheck:
+      enabled: false
+    opengrep:
+      enabled: true
+    semgrep:
+      enabled: true
+    circleci:
+      enabled: false
+    clippy:
+      enabled: false
+    sqlfluff:
+      enabled: false
+    trivy:
+      enabled: true
+    prismaLint:
+      enabled: false
+    pylint:
+      enabled: false
+    oxc:
+      enabled: false
+    shopifyThemeCheck:
+      enabled: false
+    luacheck:
+      enabled: false
+    brakeman:
+      enabled: false
+    dotenvLint:
+      enabled: false
+    htmlhint:
+      enabled: false
+    stylelint:
+      enabled: false
+    checkmake:
+      enabled: false
+    osvScanner:
+      enabled: true
+    presidio:
+      enabled: true
+    blinter:
+      enabled: false
+    smartyLint:
+      enabled: false
+    emberTemplateLint:
+      enabled: false
+    psscriptanalyzer:
+      enabled: true
 chat:
-  auto_reply: true
   art: false
+  allow_non_org_members: false
+  auto_reply: true
   integrations:
     jira:
       usage: disabled
     linear:
       usage: disabled
-
 knowledge_base:
   opt_out: false
   web_search:
@@ -310,28 +577,108 @@ knowledge_base:
   code_guidelines:
     enabled: true
     filePatterns:
-      - '**/CLAUDE.md'
-      - '**/AGENTS.md'
-      - 'Directory.Build.props'
-      - 'Directory.Packages.props'
+    - CLAUDE.md
+    - AGENTS.md
+    - "**/CLAUDE.md"
+    - "**/AGENTS.md"
+    - ".editorconfig"
+    - README.md
+    - docs/**/*.md
+    - ".github/**/*.md"
   learnings:
-    scope: auto
+    scope: global
   issues:
-    scope: auto
-  pull_requests:
-    scope: auto
+    scope: global
   jira:
     usage: disabled
   linear:
     usage: disabled
+  pull_requests:
+    scope: global
   mcp:
-    usage: auto
-
+    usage: enabled
+  linked_repositories:
+  - repository: ANcpLua/ANcpLua.Agents
+    instructions: Agent workflow and MCP tool API surface.
+  - repository: ANcpLua/ANcpLua.Analyzers
+    instructions: Analyzers package API and diagnostic IDs.
+  - repository: ANcpLua/ANcpLua.Roslyn.Utilities
+    instructions: Roslyn utility helpers and polyfills.
+  - repository: O-ANcppLua/ANcpLua.OtelConventions.Api
+    instructions: OTel conventions API contracts.
+  - repository: O-ANcppLua/Nuke.OpenTelemetry.Conventions
+    instructions: Nuke build OTel convention targets.
+  - repository: ANcpLua/ErrorOrX
+    instructions: Error-or result-type contracts.
+  - repository: ANcpLua/dotcov
+    instructions: Coverage tooling integration.
+  - repository: ANcpLua/Arqio
+    instructions: Arqio framework API.
+  - repository: ANcpLua/safe-autoresearch
+    instructions: Safe autoresearch agent workflows.
+  - repository: ANcpLua/typespec-otel-semconv
+    instructions: TypeSpec OTel semantic conventions.
+code_generation:
+  docstrings:
+    language: en-US
+    path_instructions:
+    - path: "**/*.cs"
+      instructions: Generate XML docs for public/protected APIs and package surfaces.
+        Document intent, contracts, cancellation, exceptions, and compatibility. Do
+        not add obvious comments to private implementation details.
+    - path: "**/*.ts"
+      instructions: Generate concise TSDoc only for exported APIs, hooks, reusable
+        components, schemas, and non-obvious utility behavior. Avoid restating prop
+        names.
+    - path: "**/*.tsx"
+      instructions: Generate concise TSDoc only for exported APIs, hooks, reusable
+        components, schemas, and non-obvious utility behavior. Avoid restating prop
+        names.
+  unit_tests:
+    path_instructions:
+    - path: "**/*.cs"
+      instructions: Use the repo test stack (xUnit v3/Microsoft Testing Platform where
+        present). Prefer focused unit tests plus integration tests for persistence,
+        queues, external clients, and generated contracts. Avoid sleeps; use fakes/signals.
+    - path: "**/*.ts"
+      instructions: Use the repo frontend test stack. Assert user-visible behavior
+        and accessible roles/states. Avoid waitForTimeout and brittle snapshots.
+    - path: "**/*.tsx"
+      instructions: Use the repo frontend test stack. Assert user-visible behavior
+        and accessible roles/states. Avoid waitForTimeout and brittle snapshots.
+    - path: "**/*.py"
+      instructions: Use pytest-style focused tests where a Python test stack exists.
+        Mock network and filesystem boundaries unless explicitly live-gated.
 issue_enrichment:
   auto_enrich:
     enabled: true
   planning:
+    enabled: true
     auto_planning:
-      enabled: false
+      enabled: true
+      labels:
+      - plan:auto
+      - enhancement
+      - bug
+      - good-first-issue
+      - help-wanted
   labeling:
+    labeling_instructions:
+    - label: bug
+      instructions: Apply when the issue reports incorrect behavior, failing tests,
+        regressions, or broken automation.
+    - label: enhancement
+      instructions: Apply when the issue asks for new capability or meaningful improvement.
+    - label: documentation
+      instructions: Apply when the issue is primarily about docs, examples, guides,
+        or agent instructions.
+    - label: security
+      instructions: Apply when the issue involves secrets, auth, privacy, dependency
+        risk, or exploitability.
+    - label: dependencies
+      instructions: Apply when the issue is about package, SDK, runtime, or lockfile
+        updates.
+    - label: good-first-issue
+      instructions: Apply only when the issue is small, well-scoped, and low-risk
+        for a new contributor or agent.
     auto_apply_labels: true
