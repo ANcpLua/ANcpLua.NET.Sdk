@@ -428,12 +428,11 @@ reviews:
         `.GetAwaiter().GetResult()`. Pass if none. Fail if any blocking-async
         pattern — `await` always.
     - mode: error
-      name: No null-forgiving operator without justification
+      name: No null-forgiving operator
       instructions: |
         Scan added/modified C# files for `!` (null-forgiving). Pass if none.
-        Fail if any `!` is added without an inline comment explaining why
-        the code can't be rewritten to avoid it. Per repo policy: rewrite,
-        don't suppress.
+        Fail if any `!` is added — per repo policy: rewrite the code to avoid it.
+        No inline-comment exception; the invariant is an outright ban.
     - mode: error
       name: No suppression of fixable diagnostics
       instructions: |
@@ -571,12 +570,6 @@ knowledge_base:
     - ".editorconfig"
     - README.md
     - docs/**/*.md
-    - Directory.Build.props
-    - Directory.Packages.props
-    - global.json
-    - package.json
-    - pnpm-workspace.yaml
-    - Version.props
   learnings:
     scope: global
   issues:
@@ -588,7 +581,7 @@ knowledge_base:
   pull_requests:
     scope: global
   mcp:
-    usage: auto
+    usage: enabled
   linked_repositories:
   - repository: ANcpLua/ANcpLua.Agents
     instructions: Related ANcpLua/O-ANcppLua repository. Use for cross-repo API, package,
