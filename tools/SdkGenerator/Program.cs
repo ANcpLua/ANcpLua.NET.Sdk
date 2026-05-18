@@ -33,7 +33,6 @@ var sdks = new (string SdkName, string BaseSdkName, string VariantPropsLines)[]
     // Microsoft.NET.Sdk.Web (web projects are Exe; want a library? use the base SDK).
     ("ANcpLua.NET.Sdk.Test", "Microsoft.NET.Sdk",
         "\n    <OutputType Condition=\"'$(OutputType)' == '' OR '$(OutputType)' == 'Library'\">Exe</OutputType>"),
-    ("ANcpLua.NET.Sdk.BitNet", "Microsoft.NET.Sdk.Web", ""),
 };
 
 foreach (var (sdkName, baseSdkName, variantPropsLines) in sdks)
