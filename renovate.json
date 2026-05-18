@@ -1,6 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>O-ANcppLua/renovate-config"],
+  "extends": ["github>ANcpLua/renovate-config"],
   "packageRules": [
     {
       "description": "Block self-bumps — SDK does not auto-bump its own packages (boot-strap concern; ANcpLua.NET.Sdk.Test self-pin is intentional)",
