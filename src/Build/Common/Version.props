@@ -118,16 +118,6 @@
     <OllamaSharpVersion>5.4.25</OllamaSharpVersion>
   </PropertyGroup>
 
-  <!--
-    BitNet hosting package (ANcpLua.Agents.Hosting.BitNet) shipped from
-    ANcpLua/ANcpLua.Agents. Auto-injected by GlobalPackages.props when the
-    consumer sets Sdk="ANcpLua.NET.Sdk.BitNet". Alpha channel until the
-    runtime contract stabilises — update in lockstep with releases there.
-  -->
-  <PropertyGroup Label="BitNet Hosting">
-    <ANcpLuaAgentsHostingBitNetVersion Condition="'$(ANcpLuaAgentsHostingBitNetVersion)' == ''">1.4.10-alpha.1</ANcpLuaAgentsHostingBitNetVersion>
-  </PropertyGroup>
-
   <PropertyGroup Label="Workflow Testing">
     <MoqVersion>4.20.72</MoqVersion>
   </PropertyGroup>
