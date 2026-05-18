@@ -1,7 +1,7 @@
 # Auto detect text files and normalize to LF
 * text=auto eol=lf
 
-# Force specific file types
+# Force specific file types to LF
 *.cs text eol=lf
 *.csproj text eol=lf
 *.props text eol=lf
@@ -11,8 +11,7 @@
 *.md text eol=lf
 *.yml text eol=lf
 *.yaml text eol=lf
-*.sh text eol=lf
-*.ps1 text eol=lf
+*.sln text eol=lf
 
 # Binary files
 *.png binary
