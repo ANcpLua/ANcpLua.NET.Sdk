@@ -56,5 +56,5 @@ charset = utf-8-bom
 dotnet_diagnostic.IDE0200.severity = warning
 csharp_style_prefer_static_lambda = true:warning
 
-# AL0025: Prefer static lambda (ANcpLua.Analyzers)
-dotnet_diagnostic.AL0025.severity = warning
+# AL1700: Prefer static lambda (ANcpLua.Analyzers)
+dotnet_diagnostic.AL1700.severity = warning
