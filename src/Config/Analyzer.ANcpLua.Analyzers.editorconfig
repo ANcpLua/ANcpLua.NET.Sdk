@@ -1,6 +1,5 @@
 # global_level controls precedence across multiple global AnalyzerConfig files.
 # Keep distinct values to avoid equal-level conflicts (which are ignored).
-# Sorted by ascending rule ID.
 is_global = true
 global_level = 13
 
