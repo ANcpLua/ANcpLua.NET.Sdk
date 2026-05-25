@@ -1,5 +1,5 @@
 <Project>
-  <!-- Expose Directory.Packages.props / Directory.Build.props / Version.props to ANcpLua.Analyzers (AL0017-AL0019) -->
+  <!-- Expose Directory.Packages.props / Directory.Build.props / Version.props to ANcpLua.Analyzers (AL1600-AL1602) -->
   <ItemGroup Condition="'$(DisableVersionAnalyzer)' != 'true'">
     <AdditionalFiles Include="$(MSBuildProjectDirectory)\Directory.Packages.props"
                      Condition="Exists('$(MSBuildProjectDirectory)\Directory.Packages.props')"
@@ -27,7 +27,7 @@
           BeforeTargets="Build"
           Condition="'$(DisableVersionEnforcement)' != 'true' AND '$(DesignTimeBuild)' != 'true'">
     <Error
-      Code="AL0018"
+      Code="AL1601"
       Text="Version.props not imported. Expected ANcpLua.NET.Sdk's Version.props to provide $(RoslynVersion). Import Sdk='ANcpLua.NET.Sdk' or Version.props explicitly."
       Condition="'$(RoslynVersion)' == ''" />
   </Target>

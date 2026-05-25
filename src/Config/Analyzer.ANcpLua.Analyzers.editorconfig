@@ -3,492 +3,485 @@
 is_global = true
 global_level = 13
 
-# AL0001: Prohibit reassignment of primary constructor parameters
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0001
+# AL1000: Prohibit reassignment of primary constructor parameters
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1000
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0001.severity = error
+dotnet_diagnostic.AL1000.severity = error
 
-# AL0002: Don't repeat negated patterns
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0002
+# AL1001: Don't repeat negated patterns
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1001
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0002.severity = warning
+dotnet_diagnostic.AL1001.severity = warning
 
-# AL0003: Don't divide by constant zero
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0003
+# AL1002: Don't divide by constant zero
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1002
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0003.severity = error
+dotnet_diagnostic.AL1002.severity = error
 
-# AL0004: Use pattern matching when comparing Span with constants
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0004
+# AL1003: Use pattern matching when comparing Span with constants
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1003
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0004.severity = warning
+dotnet_diagnostic.AL1003.severity = warning
 
-# AL0005: Use SequenceEqual when comparing Span with non-constants
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0005
+# AL1004: Use SequenceEqual when comparing Span with non-constants
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1004
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0005.severity = warning
+dotnet_diagnostic.AL1004.severity = warning
 
-# AL0006: Field name conflicts with primary constructor parameter
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0006
+# AL1005: Field name conflicts with primary constructor parameter
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1005
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0006.severity = warning
+dotnet_diagnostic.AL1005.severity = warning
 
-# AL0007: GetSchema should be explicitly implemented
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0007
+# AL1006: GetSchema should be explicitly implemented
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1006
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0007.severity = error
+dotnet_diagnostic.AL1006.severity = error
 
-# AL0008: GetSchema must return null and not be abstract
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0008
+# AL1007: GetSchema must return null and not be abstract
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1007
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0008.severity = error
+dotnet_diagnostic.AL1007.severity = error
 
-# AL0009: Don't call IXmlSerializable.GetSchema
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0009
+# AL1008: Don't call IXmlSerializable.GetSchema
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1008
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0009.severity = error
+dotnet_diagnostic.AL1008.severity = error
 
-# AL0011: Avoid lock keyword on non-Lock types
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0011
+# AL1009: Avoid lock keyword on non-Lock types
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1009
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0011.severity = warning
+dotnet_diagnostic.AL1009.severity = warning
 
-# AL0014: Prefer pattern matching for null and zero comparisons
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0014
+# AL1010: Prefer pattern matching for null and zero comparisons
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1010
 # Enabled: True, Severity: warning
 # Demoted: idiomatic pattern-matching preference, not a correctness rule.
-dotnet_diagnostic.AL0014.severity = suggestion
+dotnet_diagnostic.AL1010.severity = suggestion
 
-# AL0015: Normalize null-guard style
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0015
+# AL1011: Normalize null-guard style
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1011
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0015.severity = suggestion
+dotnet_diagnostic.AL1011.severity = suggestion
 
-# AL0016: Combine declaration with subsequent null-check
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0016
+# AL1012: Combine declaration with subsequent null-check
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1012
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0016.severity = suggestion
+dotnet_diagnostic.AL1012.severity = suggestion
 
-# AL0017: Hardcoded package version detected
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0017
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0017.severity = warning
-
-# AL0018: Version.props not imported
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0018
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0018.severity = warning
-
-# AL0019: Undefined version variable
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0019
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0019.severity = warning
-
-# AL0020: IFormCollection requires explicit attribute
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0020
+# AL1100: IFormCollection requires explicit attribute
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1100
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0020.severity = error
+dotnet_diagnostic.AL1100.severity = error
 
-# AL0021: Multiple structured form sources
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0021
+# AL1101: Multiple structured form sources
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1101
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0021.severity = error
+dotnet_diagnostic.AL1101.severity = error
 
-# AL0022: Mixed form collection and DTO
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0022
+# AL1102: Mixed form collection and DTO
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1102
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0022.severity = error
+dotnet_diagnostic.AL1102.severity = error
 
-# AL0023: Unsupported form type
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0023
+# AL1103: Unsupported form type
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1103
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0023.severity = error
+dotnet_diagnostic.AL1103.severity = error
 
-# AL0024: Form and body conflict
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0024
+# AL1104: Form and body conflict
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1104
 # Enabled: True, Severity: error
-dotnet_diagnostic.AL0024.severity = error
+dotnet_diagnostic.AL1104.severity = error
 
-# AL0025: Anonymous function can be made static
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0025
+# AL1105: Missing resilience configuration
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1105
 # Enabled: True, Severity: warning
-# Demoted: micro-perf hint (avoids implicit `this` capture). IDE0200 covers the
-# same ground at suggestion; keeping AL0025 as suggestion avoids 100+ build-errors
-# on existing code while leaving the fix one click away in the IDE.
-dotnet_diagnostic.AL0025.severity = suggestion
+dotnet_diagnostic.AL1105.severity = warning
 
-# AL0026: Avoid DateTime/DateTimeOffset time accessors
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0026
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0026.severity = warning
-
-# AL0027: Avoid legacy JSON library
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0027
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0027.severity = warning
-
-# AL0028: Use IsEqualTo extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0028
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0028.severity = suggestion
-
-# AL0029: Use HasAttribute extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0029
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0029.severity = suggestion
-
-# AL0030: Use type hierarchy extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0030
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0030.severity = suggestion
-
-# AL0031: Use operation extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0031
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0031.severity = suggestion
-
-# AL0032: Use OrEmpty extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0032
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0032.severity = suggestion
-
-# AL0033: Use ToImmutableArrayOrEmpty extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0033
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0033.severity = suggestion
-
-# AL0034: Use WhereNotNull extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0034
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0034.severity = suggestion
-
-# AL0035: Use symbol display string extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0035
-# Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0035.severity = suggestion
-
-# AL0036: Use null-guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0036
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0036.severity = suggestion
-
-# AL0037: Use TryParse extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0037
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities TryParse helpers.
-dotnet_diagnostic.AL0037.severity = suggestion
-
-# AL0039: Use StringComparison extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0039
-# Enabled: True, Severity: warning
-# Demoted: style preference toward ANcpLua.Roslyn.Utilities extensions. The real
-# correctness rule is CA1310 (kept at warning). Fix is one click in the IDE.
-dotnet_diagnostic.AL0039.severity = suggestion
-
-# AL0040: Use attribute argument extraction extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0040
-# Enabled: True, Severity: warning
-# Demoted: Roslyn.Utilities convenience helper, not a build-blocking issue.
-dotnet_diagnostic.AL0040.severity = suggestion
-
-# AL0041: Method with [AotTest] or [TrimTest] must return int
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0041
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0041.severity = error
-
-# AL0042: [AotTest]/[TrimTest] method should return 100 on success
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0042
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0042.severity = warning
-
-# AL0043: [TrimSafe] code must not call methods with [RequiresUnreferencedCode]
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0043
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0043.severity = warning
-
-# AL0044: [AotSafe] code must not call methods with [RequiresDynamicCode]
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0044
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0044.severity = warning
-
-# AL0045: Use null-or-empty guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0045
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0045.severity = suggestion
-
-# AL0046: Use null-or-whitespace guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0046
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0046.severity = suggestion
-
-# AL0047: Use zero-guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0047
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0047.severity = suggestion
-
-# AL0048: Use non-negative guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0048
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0048.severity = suggestion
-
-# AL0049: Use positive-guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0049
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0049.severity = suggestion
-
-# AL0050: Use empty-guid guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0050
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0050.severity = suggestion
-
-# AL0051: Use defined-enum guard helper
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0051
-# Enabled: True, Severity: warning
-# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
-dotnet_diagnostic.AL0051.severity = suggestion
-
-# AL0052: [AotSafe] code must not call [AotUnsafe] code
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0052
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0052.severity = error
-
-# AL0053: Unnecessary [AotUnsafe] attribute
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0053
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0053.severity = warning
-
-# AL0054: Diagnostic missing from documentation
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0054
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0054.severity = warning
-
-# AL0055: Diagnostic missing from release notes
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0055
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0055.severity = warning
-
-# AL0056: Diagnostic documentation mismatch
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0056
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0056.severity = warning
-
-# AL0057: Avoid async void methods
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0057
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0057.severity = warning
-
-# AL0058: Avoid lock on 'this'
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0058
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0058.severity = warning
-
-# AL0059: Avoid lock on typeof(T)
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0059
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0059.severity = warning
-
-# AL0060: Avoid lock on string
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0060
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0060.severity = warning
-
-# AL0080: Missing resilience configuration
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0080
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0080.severity = warning
-
-# AL0081: Missing health checks
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0081
+# AL1106: Missing health checks
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1106
 # Enabled: True, Severity: warning
 # Demoted: operational guidance, not a correctness bug. Many services
 # legitimately defer health check wiring to platform infrastructure (Kubernetes
 # liveness/readiness probes, container orchestrator health checks).
-dotnet_diagnostic.AL0081.severity = suggestion
+dotnet_diagnostic.AL1106.severity = suggestion
 
-# AL0082: Consider using configuration for connection string
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0082
+# AL1107: Consider using configuration for connection string
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1107
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0082.severity = suggestion
+dotnet_diagnostic.AL1107.severity = suggestion
 
-# AL0084: Missing service discovery
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0084
+# AL1108: Missing service discovery
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1108
 # Enabled: True, Severity: warning
-dotnet_diagnostic.AL0084.severity = warning
+dotnet_diagnostic.AL1108.severity = warning
 
-# AL0094: Avoid 'dynamic' keyword in AOT-published code
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0094
+# AL1109: Avoid Task.Run in ASP.NET Core request handlers
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1109
 # Enabled: True, Severity: warning
-# Demoted: AOT advisory. Non-AOT projects use `dynamic` legitimately (DLR scripting,
-# interop). AOT projects should re-promote to warning/error in their editorconfig.
-dotnet_diagnostic.AL0094.severity = suggestion
+dotnet_diagnostic.AL1109.severity = warning
 
-# AL0095: Avoid Expression.Compile() in AOT context
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0095
-# Enabled: True, Severity: warning
-# Demoted: AOT advisory — see AL0094/AL0101 rationale.
-dotnet_diagnostic.AL0095.severity = suggestion
-
-# AL0101: Activator.CreateInstance is not AOT-safe
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0101
-# Enabled: True, Severity: warning
-# Demoted: not every project ships AOT. The analyzer flags Activator.CreateInstance
-# regardless of <PublishAot>, so non-AOT projects (most services + tests) get
-# unconditional warnings. AOT-bound projects should bump this back to error via
-# their .editorconfig along with <PublishAot>true</PublishAot>.
-dotnet_diagnostic.AL0101.severity = suggestion
-
-# AL0102: Type.GetType with dynamic name is not AOT-safe
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0102
-# Enabled: True, Severity: warning
-# Demoted: AOT advisory — see AL0094/AL0101 rationale.
-dotnet_diagnostic.AL0102.severity = suggestion
-
-# AL0103: Closed hierarchy match is not exhaustive
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0103
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0103.severity = warning
-
-# AL0104: Prefer 'await using' for IAsyncDisposable
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0104
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0104.severity = warning
-
-# AL0105: Avoid blocking calls in async methods
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0105
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0105.severity = warning
-
-# AL0106: Avoid Task.Run in ASP.NET Core request handlers
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0106
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0106.severity = warning
-
-# AL0111: Avoid SQL string interpolation in CommandText
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0111
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0111.severity = warning
-
-# AL0112: Avoid fire-and-forget task discard
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0112
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0112.severity = warning
-
-# AL0114: Prefer TryParse over Parse
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0114
-# Enabled: True, Severity: warning
-# Demoted: style preference. Parse is correct when the caller verifies input
-# upstream (route params, config) or when an exception IS the desired signal.
-dotnet_diagnostic.AL0114.severity = suggestion
-
-# AL0115: Empty catch block swallows exceptions
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0115
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0115.severity = warning
-
-# AL0116: Exception details leaked in HTTP response
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0116
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0116.severity = warning
-
-# AL0117: Unnecessary LINQ materialization
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0117
+# AL1200: Use IsEqualTo extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1200
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0117.severity = suggestion
+dotnet_diagnostic.AL1200.severity = suggestion
 
-# AL0118: Read-modify-write without transaction
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0118
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0118.severity = warning
-
-# AL0119: Avoid storing ISymbol in source generator models
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0119
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0119.severity = warning
-
-# AL0120: Use IIncrementalGenerator instead of ISourceGenerator
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0120
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0120.severity = warning
-
-# AL0121: Avoid NormalizeWhitespace in source generators
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0121
-# Enabled: True, Severity: warning
-# Demoted: source-generator performance guidance, not a correctness rule.
-dotnet_diagnostic.AL0121.severity = suggestion
-
-# AL0122: [DuckDbTable] type must be partial
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0122
-# Enabled: True, Severity: error
-dotnet_diagnostic.AL0122.severity = error
-
-# AL0123: Conflicting [DuckDbColumn] ordinal values
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0123
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0123.severity = warning
-
-# AL0125: Use *Any* string comparison extension
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0125
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0125.severity = warning
-
-# AL0126: Forward CancellationToken to invocations that support it
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0126
+# AL1201: Use HasAttribute extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1201
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0126.severity = suggestion
+dotnet_diagnostic.AL1201.severity = suggestion
 
-# AL0127: Outdated MAF ecosystem package version
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0127
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0127.severity = warning
-
-# AL0128: Destructive Loom tool must require approval
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0128
-# Enabled: True, Severity: warning
-dotnet_diagnostic.AL0128.severity = warning
-
-# AL0129: Loom tool should declare its side effect
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0129
+# AL1202: Use type hierarchy extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1202
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0129.severity = suggestion
+dotnet_diagnostic.AL1202.severity = suggestion
 
-# AL0130: Loom tool should declare required capabilities
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0130
+# AL1203: Use operation extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1203
 # Enabled: True, Severity: suggestion
-dotnet_diagnostic.AL0130.severity = suggestion
+dotnet_diagnostic.AL1203.severity = suggestion
 
-# AL0137: Use Guard.* helpers instead of throw helpers
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0137
+# AL1204: Use OrEmpty extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1204
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1204.severity = suggestion
+
+# AL1205: Use ToImmutableArrayOrEmpty extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1205
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1205.severity = suggestion
+
+# AL1206: Use WhereNotNull extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1206
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1206.severity = suggestion
+
+# AL1207: Use symbol display string extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1207
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1207.severity = suggestion
+
+# AL1208: Use null-guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1208
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1208.severity = suggestion
+
+# AL1209: Use TryParse extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1209
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities TryParse helpers.
+dotnet_diagnostic.AL1209.severity = suggestion
+
+# AL1210: Use StringComparison extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1210
+# Enabled: True, Severity: warning
+# Demoted: style preference toward ANcpLua.Roslyn.Utilities extensions. The real
+# correctness rule is CA1310 (kept at warning). Fix is one click in the IDE.
+dotnet_diagnostic.AL1210.severity = suggestion
+
+# AL1211: Use attribute argument extraction extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1211
+# Enabled: True, Severity: warning
+# Demoted: Roslyn.Utilities convenience helper, not a build-blocking issue.
+dotnet_diagnostic.AL1211.severity = suggestion
+
+# AL1212: Use null-or-empty guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1212
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1212.severity = suggestion
+
+# AL1213: Use null-or-whitespace guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1213
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1213.severity = suggestion
+
+# AL1214: Use zero-guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1214
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1214.severity = suggestion
+
+# AL1215: Use non-negative guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1215
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1215.severity = suggestion
+
+# AL1216: Use positive-guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1216
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1216.severity = suggestion
+
+# AL1217: Use empty-guid guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1217
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1217.severity = suggestion
+
+# AL1218: Use defined-enum guard helper
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1218
+# Enabled: True, Severity: warning
+# Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
+dotnet_diagnostic.AL1218.severity = suggestion
+
+# AL1219: Use *Any* string comparison extension
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1219
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1219.severity = warning
+
+# AL1220: Use Guard.* helpers instead of throw helpers
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1220
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 # Codebases that haven't taken that dependency get hundreds of warnings on
 # valid BCL ArgumentNullException.ThrowIfNull / ArgumentException.ThrowIfNullOrEmpty
 # usage. The RS0030 banned-symbols rule still flags the BCL calls themselves.
-dotnet_diagnostic.AL0137.severity = suggestion
+dotnet_diagnostic.AL1220.severity = suggestion
 
-# AL0138: Use Math.Round/MathF.Round overload with explicit MidpointRounding
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0138
+# AL1300: Avoid async void methods
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1300
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1300.severity = warning
+
+# AL1301: Avoid lock on 'this'
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1301
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1301.severity = warning
+
+# AL1302: Avoid lock on typeof(T)
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1302
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1302.severity = warning
+
+# AL1303: Avoid lock on string
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1303
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1303.severity = warning
+
+# AL1304: Prefer 'await using' for IAsyncDisposable
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1304
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1304.severity = warning
+
+# AL1305: Avoid blocking calls in async methods
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1305
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1305.severity = warning
+
+# AL1306: Avoid SQL string interpolation in CommandText
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1306
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1306.severity = warning
+
+# AL1307: Avoid fire-and-forget task discard
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1307
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1307.severity = warning
+
+# AL1308: Prefer TryParse over Parse
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1308
+# Enabled: True, Severity: warning
+# Demoted: style preference. Parse is correct when the caller verifies input
+# upstream (route params, config) or when an exception IS the desired signal.
+dotnet_diagnostic.AL1308.severity = suggestion
+
+# AL1309: Empty catch block swallows exceptions
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1309
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1309.severity = warning
+
+# AL1310: Exception details leaked in HTTP response
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1310
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1310.severity = warning
+
+# AL1311: Unnecessary LINQ materialization
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1311
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1311.severity = suggestion
+
+# AL1312: Read-modify-write without transaction
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1312
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1312.severity = warning
+
+# AL1313: Forward CancellationToken to invocations that support it
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1313
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1313.severity = suggestion
+
+# AL1314: Use Math.Round/MathF.Round overload with explicit MidpointRounding
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1314
 # Enabled: True, Severity: warning
 # Demoted: explicitness rule; the fix preserves the current ToEven behavior.
-dotnet_diagnostic.AL0138.severity = suggestion
+dotnet_diagnostic.AL1314.severity = suggestion
 
-# AL0139: Use implicit type when type is apparent
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0139
+# AL1400: Method with [AotTest] or [TrimTest] must return int
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1400
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL1400.severity = error
+
+# AL1401: [AotTest]/[TrimTest] method should return 100 on success
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1401
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1401.severity = warning
+
+# AL1402: [TrimSafe] code must not call methods with [RequiresUnreferencedCode]
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1402
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1402.severity = warning
+
+# AL1403: [AotSafe] code must not call methods with [RequiresDynamicCode]
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1403
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1403.severity = warning
+
+# AL1404: [AotSafe] code must not call [AotUnsafe] code
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1404
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL1404.severity = error
+
+# AL1405: Unnecessary [AotUnsafe] attribute
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1405
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1405.severity = warning
+
+# AL1406: Avoid 'dynamic' keyword in AOT-published code
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1406
+# Enabled: True, Severity: warning
+# Demoted: AOT advisory. Non-AOT projects use `dynamic` legitimately (DLR scripting,
+# interop). AOT projects should re-promote to warning/error in their editorconfig.
+dotnet_diagnostic.AL1406.severity = suggestion
+
+# AL1407: Avoid Expression.Compile() in AOT context
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1407
+# Enabled: True, Severity: warning
+# Demoted: AOT advisory — see AL1406/AL1408 rationale.
+dotnet_diagnostic.AL1407.severity = suggestion
+
+# AL1408: Activator.CreateInstance is not AOT-safe
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1408
+# Enabled: True, Severity: warning
+# Demoted: not every project ships AOT. The analyzer flags Activator.CreateInstance
+# regardless of <PublishAot>, so non-AOT projects (most services + tests) get
+# unconditional warnings. AOT-bound projects should bump this back to error via
+# their .editorconfig along with <PublishAot>true</PublishAot>.
+dotnet_diagnostic.AL1408.severity = suggestion
+
+# AL1409: Type.GetType with dynamic name is not AOT-safe
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1409
+# Enabled: True, Severity: warning
+# Demoted: AOT advisory — see AL1406/AL1408 rationale.
+dotnet_diagnostic.AL1409.severity = suggestion
+
+# AL1500: Closed hierarchy match is not exhaustive
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1500
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1500.severity = warning
+
+# AL1501: Avoid storing ISymbol in source generator models
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1501
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1501.severity = warning
+
+# AL1502: Use IIncrementalGenerator instead of ISourceGenerator
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1502
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1502.severity = warning
+
+# AL1503: Avoid NormalizeWhitespace in source generators
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1503
+# Enabled: True, Severity: warning
+# Demoted: source-generator performance guidance, not a correctness rule.
+dotnet_diagnostic.AL1503.severity = suggestion
+
+# AL1504: [DuckDbTable] type must be partial
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1504
+# Enabled: True, Severity: error
+dotnet_diagnostic.AL1504.severity = error
+
+# AL1505: Conflicting [DuckDbColumn] ordinal values
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1505
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1505.severity = warning
+
+# AL1600: Hardcoded package version detected
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1600
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1600.severity = warning
+
+# AL1601: Version.props not imported
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1601
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1601.severity = warning
+
+# AL1602: Undefined version variable
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1602
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1602.severity = warning
+
+# AL1603: Diagnostic missing from documentation
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1603
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1603.severity = warning
+
+# AL1604: Diagnostic missing from release notes
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1604
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1604.severity = warning
+
+# AL1605: Diagnostic documentation mismatch
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1605
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1605.severity = warning
+
+# AL1606: Outdated MAF ecosystem package version
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1606
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1606.severity = warning
+
+# AL1700: Anonymous function can be made static
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1700
+# Enabled: True, Severity: warning
+# Demoted: micro-perf hint (avoids implicit `this` capture). IDE0200 covers the
+# same ground at suggestion; keeping AL1700 as suggestion avoids 100+ build-errors
+# on existing code while leaving the fix one click away in the IDE.
+dotnet_diagnostic.AL1700.severity = suggestion
+
+# AL1701: Avoid DateTime/DateTimeOffset time accessors
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1701
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1701.severity = warning
+
+# AL1702: Avoid legacy JSON library
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1702
+# Enabled: True, Severity: warning
+dotnet_diagnostic.AL1702.severity = warning
+
+# AL1703: Use implicit type when type is apparent
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1703
 # Enabled: True, Severity: warning
 # Demoted: type-style preference, not a correctness rule. Keeping this as an
 # IDE suggestion avoids build failures in SDK-scaffolded templates and consumers
 # that intentionally spell obvious types for readability.
-dotnet_diagnostic.AL0139.severity = suggestion
+dotnet_diagnostic.AL1703.severity = suggestion
 
-# AL0140: Use explicit type when type is not apparent
-# Help link: https://ancplua.mintlify.app/analyzers/rules/AL0140
+# AL1800: Destructive Loom tool must require approval
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1800
 # Enabled: True, Severity: warning
-# Demoted: type-style preference, not a correctness rule. Top-level statements
-# and minimal APIs commonly use `var` where the target type is context-heavy.
-dotnet_diagnostic.AL0140.severity = suggestion
+dotnet_diagnostic.AL1800.severity = warning
+
+# AL1801: Loom tool should declare its side effect
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1801
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1801.severity = suggestion
+
+# AL1802: Loom tool should declare required capabilities
+# Help link: https://ancplua.mintlify.app/analyzers/rules/AL1802
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.AL1802.severity = suggestion
