@@ -53,11 +53,11 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
-    <!-- 2.0.0: 89 rules renumbered into 9 domain bands (AL1000..AL1899).
-         AL repo HEAD is 67dc2c5; package indexed on nuget.org 2026-05-25.
+    <!-- 2.0.1: DocsGenerator + per-rule HelpLinkUri anchors + GitHub README replaces dead mintlify URL.
+         AL repo HEAD is 90e6431; package indexed on nuget.org 2026-05-26.
          Bundled per-rule editorconfig in src/Config/Analyzer.ANcpLua.Analyzers.editorconfig
-         was rewritten in the same al-qyl-rewire pass (272 AL0xxx → AL1xxx substitutions). -->
-    <ANcpLuaAnalyzersVersion>2.0.0</ANcpLuaAnalyzersVersion>
+         is regenerated from the published DLL's HelpLinkUri by ConfigFilesGenerator. -->
+    <ANcpLuaAnalyzersVersion>2.0.1</ANcpLuaAnalyzersVersion>
     <NetAnalyzersVersion Condition="'$(NetAnalyzersVersion)' == ''">$(DotNetSdkVersion)</NetAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>

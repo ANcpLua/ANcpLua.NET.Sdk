@@ -4,103 +4,103 @@ is_global = true
 global_level = 13
 
 # AL1000: Prohibit reassignment of primary constructor parameters
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1000
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1000.severity = error
 
 # AL1001: Don't repeat negated patterns
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1001
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1001.severity = warning
 
 # AL1002: Don't divide by constant zero
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1002
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1002.severity = error
 
 # AL1003: Use pattern matching when comparing Span with constants
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1003
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1003.severity = warning
 
 # AL1004: Use SequenceEqual when comparing Span with non-constants
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1004
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1004.severity = warning
 
 # AL1005: Field name conflicts with primary constructor parameter
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1005
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1005.severity = warning
 
 # AL1006: GetSchema should be explicitly implemented
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1006
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1006.severity = error
 
 # AL1007: GetSchema must return null and not be abstract
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1007
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1007.severity = error
 
 # AL1008: Don't call IXmlSerializable.GetSchema
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1008
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1008.severity = error
 
 # AL1009: Avoid lock keyword on non-Lock types
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1009
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1009.severity = warning
 
 # AL1010: Prefer pattern matching for null and zero comparisons
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1010
 # Enabled: True, Severity: warning
 # Demoted: idiomatic pattern-matching preference, not a correctness rule.
 dotnet_diagnostic.AL1010.severity = suggestion
 
 # AL1011: Normalize null-guard style
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1011
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1011.severity = suggestion
 
 # AL1012: Combine declaration with subsequent null-check
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1012
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1012.severity = suggestion
 
 # AL1100: IFormCollection requires explicit attribute
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1100
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1100.severity = error
 
 # AL1101: Multiple structured form sources
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1101
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1101.severity = error
 
 # AL1102: Mixed form collection and DTO
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1102
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1102.severity = error
 
 # AL1103: Unsupported form type
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1103
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1103.severity = error
 
 # AL1104: Form and body conflict
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1104
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1104.severity = error
 
 # AL1105: Missing resilience configuration
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1105
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1105.severity = warning
 
 # AL1106: Missing health checks
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1106
 # Enabled: True, Severity: warning
 # Demoted: operational guidance, not a correctness bug. Many services
 # legitimately defer health check wiring to platform infrastructure (Kubernetes
@@ -108,134 +108,134 @@ dotnet_diagnostic.AL1105.severity = warning
 dotnet_diagnostic.AL1106.severity = suggestion
 
 # AL1107: Consider using configuration for connection string
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1107
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1107.severity = suggestion
 
 # AL1108: Missing service discovery
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1108
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1108.severity = warning
 
 # AL1109: Avoid Task.Run in ASP.NET Core request handlers
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1109
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1109.severity = warning
 
 # AL1200: Use IsEqualTo extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1200
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1200.severity = suggestion
 
 # AL1201: Use HasAttribute extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1201
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1201.severity = suggestion
 
 # AL1202: Use type hierarchy extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1202
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1202.severity = suggestion
 
 # AL1203: Use operation extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1203
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1203.severity = suggestion
 
 # AL1204: Use OrEmpty extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1204
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1204.severity = suggestion
 
 # AL1205: Use ToImmutableArrayOrEmpty extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1205
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1205.severity = suggestion
 
 # AL1206: Use WhereNotNull extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1206
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1206.severity = suggestion
 
 # AL1207: Use symbol display string extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1207
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1207.severity = suggestion
 
 # AL1208: Use null-guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1208
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1208.severity = suggestion
 
 # AL1209: Use TryParse extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1209
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities TryParse helpers.
 dotnet_diagnostic.AL1209.severity = suggestion
 
 # AL1210: Use StringComparison extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1210
 # Enabled: True, Severity: warning
 # Demoted: style preference toward ANcpLua.Roslyn.Utilities extensions. The real
 # correctness rule is CA1310 (kept at warning). Fix is one click in the IDE.
 dotnet_diagnostic.AL1210.severity = suggestion
 
 # AL1211: Use attribute argument extraction extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1211
 # Enabled: True, Severity: warning
 # Demoted: Roslyn.Utilities convenience helper, not a build-blocking issue.
 dotnet_diagnostic.AL1211.severity = suggestion
 
 # AL1212: Use null-or-empty guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1212
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1212.severity = suggestion
 
 # AL1213: Use null-or-whitespace guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1213
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1213.severity = suggestion
 
 # AL1214: Use zero-guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1214
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1214.severity = suggestion
 
 # AL1215: Use non-negative guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1215
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1215.severity = suggestion
 
 # AL1216: Use positive-guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1216
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1216.severity = suggestion
 
 # AL1217: Use empty-guid guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1217
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1217.severity = suggestion
 
 # AL1218: Use defined-enum guard helper
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1218
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 dotnet_diagnostic.AL1218.severity = suggestion
 
 # AL1219: Use *Any* string comparison extension
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1219
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1219.severity = warning
 
 # AL1220: Use Guard.* helpers instead of throw helpers
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1220
 # Enabled: True, Severity: warning
 # Demoted: style migration to ANcpLua.Roslyn.Utilities Guard.* helpers.
 # Codebases that haven't taken that dependency get hundreds of warnings on
@@ -244,128 +244,128 @@ dotnet_diagnostic.AL1219.severity = warning
 dotnet_diagnostic.AL1220.severity = suggestion
 
 # AL1300: Avoid async void methods
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1300
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1300.severity = warning
 
 # AL1301: Avoid lock on 'this'
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1301
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1301.severity = warning
 
 # AL1302: Avoid lock on typeof(T)
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1302
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1302.severity = warning
 
 # AL1303: Avoid lock on string
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1303
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1303.severity = warning
 
 # AL1304: Prefer 'await using' for IAsyncDisposable
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1304
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1304.severity = warning
 
 # AL1305: Avoid blocking calls in async methods
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1305
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1305.severity = warning
 
 # AL1306: Avoid SQL string interpolation in CommandText
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1306
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1306.severity = warning
 
 # AL1307: Avoid fire-and-forget task discard
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1307
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1307.severity = warning
 
 # AL1308: Prefer TryParse over Parse
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1308
 # Enabled: True, Severity: warning
 # Demoted: style preference. Parse is correct when the caller verifies input
 # upstream (route params, config) or when an exception IS the desired signal.
 dotnet_diagnostic.AL1308.severity = suggestion
 
 # AL1309: Empty catch block swallows exceptions
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1309
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1309.severity = warning
 
 # AL1310: Exception details leaked in HTTP response
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1310
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1310.severity = warning
 
 # AL1311: Unnecessary LINQ materialization
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1311
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1311.severity = suggestion
 
 # AL1312: Read-modify-write without transaction
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1312
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1312.severity = warning
 
 # AL1313: Forward CancellationToken to invocations that support it
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1313
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1313.severity = suggestion
 
 # AL1314: Use Math.Round/MathF.Round overload with explicit MidpointRounding
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1314
 # Enabled: True, Severity: warning
 # Demoted: explicitness rule; the fix preserves the current ToEven behavior.
 dotnet_diagnostic.AL1314.severity = suggestion
 
 # AL1400: Method with [AotTest] or [TrimTest] must return int
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1400
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1400.severity = error
 
 # AL1401: [AotTest]/[TrimTest] method should return 100 on success
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1401
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1401.severity = warning
 
 # AL1402: [TrimSafe] code must not call methods with [RequiresUnreferencedCode]
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1402
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1402.severity = warning
 
 # AL1403: [AotSafe] code must not call methods with [RequiresDynamicCode]
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1403
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1403.severity = warning
 
 # AL1404: [AotSafe] code must not call [AotUnsafe] code
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1404
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1404.severity = error
 
 # AL1405: Unnecessary [AotUnsafe] attribute
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1405
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1405.severity = warning
 
 # AL1406: Avoid 'dynamic' keyword in AOT-published code
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1406
 # Enabled: True, Severity: warning
 # Demoted: AOT advisory. Non-AOT projects use `dynamic` legitimately (DLR scripting,
 # interop). AOT projects should re-promote to warning/error in their editorconfig.
 dotnet_diagnostic.AL1406.severity = suggestion
 
 # AL1407: Avoid Expression.Compile() in AOT context
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1407
 # Enabled: True, Severity: warning
 # Demoted: AOT advisory — see AL1406/AL1408 rationale.
 dotnet_diagnostic.AL1407.severity = suggestion
 
 # AL1408: Activator.CreateInstance is not AOT-safe
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1408
 # Enabled: True, Severity: warning
 # Demoted: not every project ships AOT. The analyzer flags Activator.CreateInstance
 # regardless of <PublishAot>, so non-AOT projects (most services + tests) get
@@ -374,79 +374,79 @@ dotnet_diagnostic.AL1407.severity = suggestion
 dotnet_diagnostic.AL1408.severity = suggestion
 
 # AL1409: Type.GetType with dynamic name is not AOT-safe
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1409
 # Enabled: True, Severity: warning
 # Demoted: AOT advisory — see AL1406/AL1408 rationale.
 dotnet_diagnostic.AL1409.severity = suggestion
 
 # AL1500: Closed hierarchy match is not exhaustive
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1500
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1500.severity = warning
 
 # AL1501: Avoid storing ISymbol in source generator models
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1501
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1501.severity = warning
 
 # AL1502: Use IIncrementalGenerator instead of ISourceGenerator
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1502
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1502.severity = warning
 
 # AL1503: Avoid NormalizeWhitespace in source generators
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1503
 # Enabled: True, Severity: warning
 # Demoted: source-generator performance guidance, not a correctness rule.
 dotnet_diagnostic.AL1503.severity = suggestion
 
 # AL1504: [DuckDbTable] type must be partial
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1504
 # Enabled: True, Severity: error
 dotnet_diagnostic.AL1504.severity = error
 
 # AL1505: Conflicting [DuckDbColumn] ordinal values
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1505
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1505.severity = warning
 
 # AL1600: Hardcoded package version detected
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1600
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1600.severity = warning
 
 # AL1601: Version.props not imported
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1601
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1601.severity = warning
 
 # AL1602: Undefined version variable
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1602.severity = warning
 
 # AL1603: Diagnostic missing from documentation
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1603
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1603.severity = warning
 
 # AL1604: Diagnostic missing from release notes
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1604
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1604.severity = warning
 
 # AL1605: Diagnostic documentation mismatch
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1605
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1605.severity = warning
 
 # AL1606: Outdated MAF ecosystem package version
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1606
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1606.severity = warning
 
 # AL1700: Anonymous function can be made static
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1700
 # Enabled: True, Severity: warning
 # Demoted: micro-perf hint (avoids implicit `this` capture). IDE0200 covers the
 # same ground at suggestion; keeping AL1700 as suggestion avoids 100+ build-errors
@@ -454,17 +454,17 @@ dotnet_diagnostic.AL1606.severity = warning
 dotnet_diagnostic.AL1700.severity = suggestion
 
 # AL1701: Avoid DateTime/DateTimeOffset time accessors
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1701
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1701.severity = warning
 
 # AL1702: Avoid legacy JSON library
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1702
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1702.severity = warning
 
 # AL1703: Use implicit type when type is apparent
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1703
 # Enabled: True, Severity: warning
 # Demoted: type-style preference, not a correctness rule. Keeping this as an
 # IDE suggestion avoids build failures in SDK-scaffolded templates and consumers
@@ -472,16 +472,16 @@ dotnet_diagnostic.AL1702.severity = warning
 dotnet_diagnostic.AL1703.severity = suggestion
 
 # AL1800: Destructive Loom tool must require approval
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1800
 # Enabled: True, Severity: warning
 dotnet_diagnostic.AL1800.severity = warning
 
 # AL1801: Loom tool should declare its side effect
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1801
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1801.severity = suggestion
 
 # AL1802: Loom tool should declare required capabilities
-# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules
+# Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/ANcpLua.Analyzers.md#al1802
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.AL1802.severity = suggestion
