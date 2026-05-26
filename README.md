@@ -52,7 +52,8 @@ because the SDK switches them to `GlobalPackageReference`, which only resolves t
 
 ## Documentation
 
-**[ancplua.mintlify.app](https://ancplua.mintlify.app/)**
+- **[ANcpLua.Analyzers rules](https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/README.md#rules)** — the 89 AL00xx/AL18xx diagnostics this SDK auto-injects, organized by domain band.
+- **[Per-rule editorconfig profile](src/Config/Analyzer.ANcpLua.Analyzers.editorconfig)** — the severity table shipped alongside the SDK; consumers override individual rules via the standard `dotnet_diagnostic.{ID}.severity = …` form.
 
 ## Related
 
