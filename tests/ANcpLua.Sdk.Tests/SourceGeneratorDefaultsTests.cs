@@ -1,27 +1,12 @@
-using System.Diagnostics.CodeAnalysis;
-using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
+using static ANcpLua.Sdk.Tests.Infrastructure.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
 
-/// <summary>
-///     Verifies that <c>SourceGenerators.targets</c> auto-defaults
-///     <c>SourceGeneratorRoslynVersion</c> to <c>RoslynVersion</c> for detected
-///     generator / analyzer projects, pins <c>Microsoft.CodeAnalysis.CSharp</c>
-///     via <c>VersionOverride</c>, and honors explicit overrides.
-/// </summary>
-/// <remarks>
-///     Property assertions go through <c>RecordProperties</c> + <c>ShouldHaveRecordedProperty</c>
-///     (mirrors <c>dotnet/sdk</c>'s <c>GetValuesCommand</c>) — written by an inline
-///     <c>_WriteRecordedProperties</c> target during the build, one file per TFM.
-///     This sidesteps the binlog property-event loss that produced the original
-///     <c>NameContainsAnalyzer</c> Windows cold-cache flake.
-/// </remarks>
 public sealed class SourceGeneratorDefaultsNet100Tests(PackageFixture fixture)
     : SourceGeneratorDefaultsTests(fixture, NetSdkVersion.Net100);
 
-public abstract class SourceGeneratorDefaultsTests(
-    PackageFixture fixture,
-    NetSdkVersion dotnetSdkVersion)
+public abstract class SourceGeneratorDefaultsTests(PackageFixture fixture, NetSdkVersion dotnetSdkVersion)
+    : SdkTestBase(fixture)
 {
     private static readonly string[] s_recordedProperties =
     [
@@ -30,15 +15,11 @@ public abstract class SourceGeneratorDefaultsTests(
         "RoslynVersion"
     ];
 
-    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-        Justification = "Factory method returns the SdkProjectBuilder unowned; every call site wraps the result in `await using` and is responsible for disposal. The chained fluent calls return `this`, so no transient IDisposables leak.")]
     private SdkProjectBuilder CreateProject(string sdkName = SdkName) =>
-        SdkProjectBuilder.Create(fixture, SdkImportStyle.ProjectElement, sdkName)
-            .WithDotnetSdkVersion(dotnetSdkVersion)
-            .RecordProperties(s_recordedProperties);
+        CreateProject(SdkImportStyle.ProjectElement, sdkName, dotnetSdkVersion, s_recordedProperties);
 
     [Fact]
-    public async Task NameContainsGeneratorUpperCase_AutoDefaultsRoslynVersion()
+    public async Task Build_WhenProjectNameContainsGeneratorUpperCase_DefaultsRoslynVersion()
     {
         await using var project = CreateProject();
 
@@ -53,9 +34,8 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task NameContainsGeneratorLowerCase_AutoDefaultsRoslynVersion()
+    public async Task Build_WhenProjectNameContainsGeneratorLowerCase_DefaultsRoslynVersion()
     {
-        // qyl-style naming: "qyl.instrumentation.generators" — all lowercase.
         await using var project = CreateProject();
 
         var result = await project
@@ -69,7 +49,7 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task NameContainsAnalyzer_AutoDefaultsRoslynVersion()
+    public async Task Build_WhenProjectNameContainsAnalyzer_DefaultsRoslynVersion()
     {
         await using var project = CreateProject();
 
@@ -84,7 +64,7 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task IsSourceGeneratorProperty_AutoDefaultsRoslynVersion()
+    public async Task Build_WhenIsSourceGeneratorPropertyTrue_DefaultsRoslynVersion()
     {
         await using var project = CreateProject();
 
@@ -100,7 +80,7 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task IsRoslynComponentProperty_AutoDefaultsRoslynVersion()
+    public async Task Build_WhenIsRoslynComponentPropertyTrue_DefaultsRoslynVersion()
     {
         await using var project = CreateProject();
 
@@ -116,7 +96,7 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task RegularLibrary_DoesNotAutoPinRoslyn()
+    public async Task Build_WhenProjectIsRegularLibrary_DoesNotPinRoslyn()
     {
         await using var project = CreateProject();
 
@@ -131,7 +111,7 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task ExplicitVersion_WinsOverAutoDefault()
+    public async Task Build_WhenSourceGeneratorRoslynVersionIsExplicit_UsesExplicitVersion()
     {
         await using var project = CreateProject();
 
@@ -148,7 +128,7 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task CentralPackageManagement_UsesVersionOverrideWithoutVersion()
+    public async Task Build_WhenCentralPackageManagementEnabled_UsesVersionOverride()
     {
         await using var project = CreateProject();
 
@@ -174,7 +154,7 @@ public abstract class SourceGeneratorDefaultsTests(
     }
 
     [Fact]
-    public async Task DisableImplicitRoslynPackageReference_SkipsImplicitPackage()
+    public async Task Build_WhenDisableImplicitRoslynPackageReferenceTrue_SkipsImplicitPackage()
     {
         await using var project = CreateProject();
 

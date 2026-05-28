@@ -15,13 +15,6 @@
   <!-- Conditional to avoid double-import from eng/Directory.Build.props -->
   <Import Project="$(MSBuildThisFileDirectory)src/Build/Common/Version.props" Condition="'$(RoslynVersion)' == ''"/>
 
-  <!-- SDK-internal consumer of first-party libs (not shipped; not part of the SDK contract).
-       The SDK's own test project uses ANcpLua.Roslyn.Utilities.Testing like any other
-       consumer — define the variable here so the analyzer lint and CPM stay happy. -->
-  <PropertyGroup Label="SDK-internal first-party pins">
-    <ANcpLuaRoslynUtilitiesTestingVersion>2.2.24</ANcpLuaRoslynUtilitiesTestingVersion>
-  </PropertyGroup>
-
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
@@ -37,8 +30,6 @@
   <!-- Microsoft.Extensions -->
   <ItemGroup Label="Microsoft.Extensions">
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="$(MicrosoftBclAsyncInterfacesVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.Testing" Version="$(MicrosoftExtensionsVersion)"/>
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(AspNetCoreVersion)"/>
   </ItemGroup>
 
   <!-- Meziantou -->
@@ -52,12 +43,12 @@
 
   <!-- Testing -->
   <ItemGroup Label="Testing">
-    <!-- SDK-internal self-test consumer of a first-party lib; variable at top of file. -->
-    <PackageVersion Include="ANcpLua.Roslyn.Utilities.Testing" Version="$(ANcpLuaRoslynUtilitiesTestingVersion)"/>
     <PackageVersion Include="AwesomeAssertions" Version="$(AwesomeAssertionsVersion)"/>
     <PackageVersion Include="xunit.v3.mtp-v2" Version="$(XunitV3Version)"/>
     <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)"/>
     <PackageVersion Include="Microsoft.Testing.Platform" Version="$(MTPExtensionsVersion)"/>
+    <!-- Test-only SDK download helper; pinned here (not Version.props) so it never reaches consumers. -->
+    <PackageVersion Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.2"/>
   </ItemGroup>
 
   <!-- Build/Tools -->
