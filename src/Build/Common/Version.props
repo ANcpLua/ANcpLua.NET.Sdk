@@ -18,9 +18,6 @@
     <RoslynAnalyzersVersion>5.3.0</RoslynAnalyzersVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="Analyzer Testing">
-  </PropertyGroup>
-
   <PropertyGroup Label="Reference Assemblies">
     <BasicReferenceAssembliesVersion>1.8.8</BasicReferenceAssembliesVersion>
   </PropertyGroup>
@@ -42,7 +39,6 @@
     <MTPExtensionsVersion>2.2.3</MTPExtensionsVersion>
     <CodeCoverageVersion>18.7.0</CodeCoverageVersion>
     <GitHubActionsLoggerMTPVersion>3.0.4</GitHubActionsLoggerMTPVersion>
-    <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
@@ -72,15 +68,25 @@
   </PropertyGroup>
 
   <!--
+    Microsoft.Agents.AI (MAF 1.4.0). Numeric base ships in lockstep from upstream;
+    family spans mixed release tracks — highest experimental track per package:
+      stable     : core, Abstractions, Workflows, OpenAI
+      -preview.* : Hosting, Hosting.AGUI.AspNetCore, Anthropic, DevUI
+      -rc1       : Workflows.Declarative
+    Mismatched numeric bases break assembly binding. Mismatched tracks within
+    the same numeric base are what upstream actually ships — keep aligned, accept
+    the suffix variance.
   -->
-
-  <PropertyGroup Label="LLM Providers">
-  </PropertyGroup>
-
-  <PropertyGroup Label="Workflow Testing">
-  </PropertyGroup>
-
-  <PropertyGroup Label="Misc">
+  <PropertyGroup Label="Microsoft.Agents">
+    <MicrosoftAgentsAIVersion Condition="'$(MicrosoftAgentsAIVersion)' == ''">1.4.0</MicrosoftAgentsAIVersion>
+    <MicrosoftAgentsAIAbstractionsVersion Condition="'$(MicrosoftAgentsAIAbstractionsVersion)' == ''">1.4.0</MicrosoftAgentsAIAbstractionsVersion>
+    <MicrosoftAgentsAIWorkflowsVersion Condition="'$(MicrosoftAgentsAIWorkflowsVersion)' == ''">1.4.0</MicrosoftAgentsAIWorkflowsVersion>
+    <MicrosoftAgentsAIOpenAIVersion Condition="'$(MicrosoftAgentsAIOpenAIVersion)' == ''">1.4.0</MicrosoftAgentsAIOpenAIVersion>
+    <MicrosoftAgentsAIHostingVersion Condition="'$(MicrosoftAgentsAIHostingVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIHostingVersion>
+    <MicrosoftAgentsAIHostingAGUIAspNetCoreVersion Condition="'$(MicrosoftAgentsAIHostingAGUIAspNetCoreVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>
+    <MicrosoftAgentsAIAnthropicVersion Condition="'$(MicrosoftAgentsAIAnthropicVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIAnthropicVersion>
+    <MicrosoftAgentsAIDevUIVersion Condition="'$(MicrosoftAgentsAIDevUIVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIDevUIVersion>
+    <MicrosoftAgentsAIWorkflowsDeclarativeVersion Condition="'$(MicrosoftAgentsAIWorkflowsDeclarativeVersion)' == ''">1.4.0-rc1</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Aliases">
