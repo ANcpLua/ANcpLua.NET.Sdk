@@ -11,9 +11,9 @@ policy enforcement, and analyzer injection that consuming `.csproj`s opt into wi
 
 ## Framework conventions
 
-Branch protection, auto-merge, CodeRabbit posture, release flow, and the cross-repo
-bootstrap rules for the four ANcpLua framework repos are documented once at
-[ANcpLua/renovate-config](https://github.com/ANcpLua/renovate-config#ancplua-framework-conventions--renovate-config).
+Branch protection, auto-merge, release flow, and the cross-repo bootstrap rules for
+the four ANcpLua framework repos are documented once at
+[ANcpLua/github-settings-automation](https://github.com/ANcpLua/github-settings-automation).
 This file documents conventions specific to *this* repo only.
 
 ## Packages produced
