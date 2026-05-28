@@ -46,6 +46,7 @@
     <PackageVersion Include="Meziantou.Framework" Version="$(MeziantouFrameworkVersion)"/>
     <PackageVersion Include="Meziantou.Framework.DependencyScanning" Version="$(MeziantouDependencyScanningVersion)"/>
     <PackageVersion Include="Meziantou.Framework.FullPath" Version="$(MeziantouFullPathVersion)"/>
+    <PackageVersion Include="Meziantou.Framework.ProcessWrapper" Version="$(MeziantouProcessWrapperVersion)"/>
     <PackageVersion Include="Meziantou.Framework.TemporaryDirectory" Version="$(MeziantouTemporaryDirectoryVersion)"/>
   </ItemGroup>
 

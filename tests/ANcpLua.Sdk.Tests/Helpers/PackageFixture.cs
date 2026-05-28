@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+﻿extern alias ProcessWrapper;
+
 using Meziantou.Framework;
+using ProcessWrapperApi = ProcessWrapper::Meziantou.Framework.ProcessWrapper;
+using ProcessWrapperValidationMode = ProcessWrapper::Meziantou.Framework.ProcessValidationMode;
 
 [assembly: AssemblyFixture(typeof(PackageFixture))]
 
@@ -57,19 +60,15 @@ public class PackageFixture : IAsyncLifetime
         // dirty the working tree on developer machines whenever PACKAGE_VERSION ≠ "999.9.9".
         await Parallel.ForEachAsync(buildFiles, async (nuspecPath, t) =>
         {
-            var psi = new ProcessStartInfo("dotnet")
-            {
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
-            psi.ArgumentList.AddRange("pack", nuspecPath, "-c", "Release",
-                "-p:Version=" + Version, "-p:NuspecProperties=version=" + Version,
-                "--output",
-                _packageDirectory.FullPath);
-            var result = await psi.RunAsTaskAsync(t);
-            if (result.ExitCode is not 0)
+            var result = await ProcessWrapperApi.Create("dotnet")
+                .WithArguments("pack", nuspecPath, "-c", "Release",
+                    "-p:Version=" + Version, "-p:NuspecProperties=version=" + Version,
+                    "--output",
+                    _packageDirectory.FullPath)
+                .WithValidation(ProcessWrapperValidationMode.None)
+                .ExecuteBufferedAsync(t);
+
+            if (!result.ExitCode.IsSuccess)
                 Assert.Fail($"NuGet pack failed with exit code {result.ExitCode}. Output: {result.Output}");
         });
     }

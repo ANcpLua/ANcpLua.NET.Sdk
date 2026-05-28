@@ -15,6 +15,7 @@
     <PackageReference Include="ANcpLua.Roslyn.Utilities.Testing"/>
     <PackageReference Include="AwesomeAssertions"/>
     <PackageReference Include="Meziantou.Framework"/>
+    <PackageReference Include="Meziantou.Framework.ProcessWrapper" Aliases="ProcessWrapper"/>
     <PackageReference Include="Meziantou.Framework.TemporaryDirectory"/>
     <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
     <PackageReference Include="Microsoft.Extensions.Logging"/>

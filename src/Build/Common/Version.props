@@ -29,6 +29,7 @@
   <PropertyGroup Label="Meziantou">
     <MeziantouFrameworkVersion>5.0.19</MeziantouFrameworkVersion>
     <MeziantouFullPathVersion>2.0.1</MeziantouFullPathVersion>
+    <MeziantouProcessWrapperVersion>1.0.14</MeziantouProcessWrapperVersion>
     <MeziantouTemporaryDirectoryVersion>2.0.1</MeziantouTemporaryDirectoryVersion>
     <MeziantouDependencyScanningVersion>2.0.16</MeziantouDependencyScanningVersion>
   </PropertyGroup>

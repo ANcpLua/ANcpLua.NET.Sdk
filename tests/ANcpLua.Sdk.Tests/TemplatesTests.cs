@@ -1,9 +1,12 @@
-using System.Diagnostics;
+extern alias ProcessWrapper;
+
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Meziantou.Framework;
 using NuGet.Packaging;
+using ProcessWrapperApi = ProcessWrapper::Meziantou.Framework.ProcessWrapper;
+using ProcessWrapperValidationMode = ProcessWrapper::Meziantou.Framework.ProcessValidationMode;
 
 namespace ANcpLua.Sdk.Tests;
 
@@ -388,20 +391,12 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         IEnumerable<object> args,
         FullPath? workingDirectory)
     {
-        var psi = new ProcessStartInfo("dotnet")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            WorkingDirectory = workingDirectory?.Value ?? Environment.CurrentDirectory
-        };
-        foreach (var arg in args)
-        {
-            psi.ArgumentList.Add(arg.ToString() ?? "");
-        }
+        var result = await ProcessWrapperApi.Create("dotnet")
+            .WithWorkingDirectory(workingDirectory?.Value ?? Environment.CurrentDirectory)
+            .WithArguments(args.Select(static arg => arg.ToString() ?? ""))
+            .WithValidation(ProcessWrapperValidationMode.None)
+            .ExecuteBufferedAsync(TestContext.Current.CancellationToken);
 
-        var result = await psi.RunAsTaskAsync(TestContext.Current.CancellationToken);
         return (result.ExitCode, result.Output.ToString());
     }
 
