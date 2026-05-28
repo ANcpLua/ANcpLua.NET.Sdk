@@ -9,7 +9,8 @@
       2. ./build.ps1 -Version <Version> produces all 4 nupkgs
       3. ANcpLua.NET.Sdk.Templates.<Version>.nupkg exists
       4. The Templates package has packageType 'Template'
-      5. Templates package contains all 3 short names: ancplua-app, ancplua-lib, ancplua-web
+      5. Templates package contains every template discovered under templates/
+         (the on-disk set, not a hardcoded list)
       6. No __PACK_TIME_*__ placeholders remain in any packaged template.json
       7. Each template installs into a hermetic --debug:custom-hive
       8. Each template scaffolds with --skipRestore
@@ -60,6 +61,30 @@ function Resolve-CanonicalPath([string]$p) {
         return (Get-Item -LiteralPath $info.Target).FullName
     }
     return (Resolve-Path -LiteralPath $p).Path
+}
+
+# --------------------------------------------------------------------------
+# Template set — DISCOVERED from templates/ on disk (the source of truth),
+# never hardcoded. A new template under templates/<dir>/.template.config is
+# verified the moment it lands; Gate 5 then fails if the nuspec forgot to
+# pack it. Each entry carries the on-disk dir (= nupkg content/<dir>/ folder)
+# and the shortName that dotnet new installs it under.
+# --------------------------------------------------------------------------
+$templatesDir = Join-Path $repoRoot 'templates'
+$expectedTemplates = @(
+    Get-ChildItem -Path $templatesDir -Directory | ForEach-Object {
+        $templateJson = Join-Path $_.FullName '.template.config/template.json'
+        if (Test-Path $templateJson) {
+            $shortName = (Get-Content $templateJson -Raw | ConvertFrom-Json).shortName
+            [pscustomobject]@{
+                Dir       = $_.Name
+                ShortName = if ($shortName -is [array]) { $shortName[0] } else { $shortName }
+            }
+        }
+    }
+)
+if ($expectedTemplates.Count -eq 0) {
+    Write-Fail "No templates discovered under $templatesDir — nothing to verify."
 }
 
 # --------------------------------------------------------------------------
@@ -163,15 +188,16 @@ try {
         else { Write-Fail 'packageType "Template" not declared in nuspec' }
     }
 
-    # 5. Three short names present
-    $shortNames = @('ancplua-app', 'ancplua-lib', 'ancplua-web')
-    foreach ($sn in $shortNames) {
-        $expected = "content/$sn/.template.config/template.json"
-        if ($zip.Entries.FullName -contains $expected) {
-            Write-Pass "Template '$sn' present at $expected"
+    # 5. Every on-disk template is actually packed (catches a nuspec that
+    #    forgot to enumerate a new template — the package ships from disk via
+    #    hand-listed <file> entries, so a drop here would otherwise be silent).
+    foreach ($t in $expectedTemplates) {
+        $expectedEntry = "content/$($t.Dir)/.template.config/template.json"
+        if ($zip.Entries.FullName -contains $expectedEntry) {
+            Write-Pass "Template '$($t.ShortName)' present at $expectedEntry"
         }
         else {
-            Write-Fail "Template '$sn' missing — expected $expected"
+            Write-Fail "Template '$($t.ShortName)' missing — expected $expectedEntry (nuspec did not pack templates/$($t.Dir)/)"
         }
     }
 
@@ -205,7 +231,8 @@ $verifyRoot = Join-Path $tempRoot "ancplua-verify-$([Guid]::NewGuid().ToString('
 New-Item -ItemType Directory -Path $verifyRoot | Out-Null
 
 try {
-    foreach ($shortName in @('ancplua-app', 'ancplua-lib', 'ancplua-web')) {
+    foreach ($t in $expectedTemplates) {
+        $shortName = $t.ShortName
         Write-Host ""
         Write-Host "  -- $shortName --" -ForegroundColor Yellow
         $hive = Join-Path $verifyRoot "$shortName-hive"
