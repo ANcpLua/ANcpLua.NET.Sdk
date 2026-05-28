@@ -27,7 +27,6 @@
     <MeziantouFullPathVersion>2.0.1</MeziantouFullPathVersion>
     <MeziantouProcessWrapperVersion>1.0.14</MeziantouProcessWrapperVersion>
     <MeziantouTemporaryDirectoryVersion>2.0.1</MeziantouTemporaryDirectoryVersion>
-    <MeziantouDependencyScanningVersion>2.0.16</MeziantouDependencyScanningVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Testing">
@@ -66,8 +65,6 @@
 
   <!-- OpenApi.Readers has no stable 2.0; still on preview. -->
   <PropertyGroup Label="OpenAPI">
-    <!-- Floored at >=17.1.0 by Meziantou.Framework.DependencyScanning 2.0.16 (transitive); lowering it is NU1109 under CPM. -->
-    <YamlDotNetVersion>18.0.0</YamlDotNetVersion>
   </PropertyGroup>
 
   <!--

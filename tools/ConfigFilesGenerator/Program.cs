@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Basic.Reference.Assemblies;
 using Meziantou.Framework;
-using Meziantou.Framework.DependencyScanning;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
@@ -27,7 +26,6 @@ var msbuildProperties = LoadMsBuildProperties(rootFolder);
 
 // Pin SDK-injected analyzers to the versions declared in Version.props so the
 // generator always refreshes the configs the SDK actually ships, regardless of
-// whether DependencyScanner sees the property-based PackageReference values.
 var injectedAnalyzerPackages = new (string PackageId, string PropertyName)[]
 {
     ("Microsoft.CodeAnalysis.NetAnalyzers", "NetAnalyzersVersion"),
@@ -55,8 +53,7 @@ Console.WriteLine($"{writtenFiles} configuration files written");
 if (writtenFiles > 0)
 {
     using var diffProcess = Process.Start("git", "--no-pager diff --color");
-    if (diffProcess is not null)
-        await diffProcess.WaitForExitAsync().ConfigureAwait(false);
+    await diffProcess.WaitForExitAsync().ConfigureAwait(false);
 }
 
 return 0;
@@ -182,7 +179,7 @@ static bool IsPathScopedEditorConfig(FullPath filePath)
         var trimmed = line.Trim();
 
         // Ignore section headers
-        if (trimmed.StartsWith("[", StringComparison.Ordinal))
+        if (trimmed.StartsWith('['))
             continue;
 
         var parts = trimmed.Split('=', 2, StringSplitOptions.TrimEntries);
@@ -551,7 +548,7 @@ static IReadOnlyDictionary<string, string> LoadMsBuildProperties(FullPath rootFo
     foreach (var propertyGroup in root.Elements("PropertyGroup"))
     foreach (var element in propertyGroup.Elements())
     {
-        var value = element.Value?.Trim();
+        var value = element.Value.Trim();
         if (string.IsNullOrEmpty(value))
             continue;
 
@@ -585,7 +582,7 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
     var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
     var resource = await repository.GetResourceAsync<PackageMetadataResource>().ConfigureAwait(false);
 
-    await foreach (var package in GetReferencedNuGetPackages())
+    foreach (var package in GetReferencedNuGetPackages())
     {
         var version = package.Version is null ? null : NuGetVersion.Parse(package.Version);
         if (version is null)
@@ -683,28 +680,13 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
     }
 }
 
-async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
+IEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages()
 {
-    // Dedupe on (id, resolved-version) tuples — NOT id alone — so that the
-    // same package showing up with two different versions (e.g.
-    // Microsoft.CodeAnalysis.CSharp without a version in src/*.csproj plus a
-    // VersionOverride in SourceGenerators.targets) both reach the downstream
-    // dedup pass, which already prefers pinned versions and falls back to
-    // the highest. Identical (id, version) pairs are still skipped to avoid
-    // redundant NuGet dependency walks.
     var emittedKeys = new HashSet<(string Id, string? Version)>(VersionedPackageKeyComparer.Instance);
     var emittedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-    var result = await DependencyScanner.ScanDirectoryAsync(rootFolder / "src", null).ConfigureAwait(false);
-    foreach (var item in result)
+    foreach (var (name, rawVersion) in ScanNuGetPackageReferences(rootFolder / "src"))
     {
-        if (item.Type is not DependencyType.NuGet || item.Name is null)
-            continue;
-
-        var version = item.Version;
-        // Centrally-managed PackageReferences carry property-based versions
-        // (e.g. "$(XunitV3Version)"). Resolve them via Version.props so their
-        // transitive analyzers (xunit.analyzers, etc.) still get scanned.
-        // Drop only when resolution still leaves an unresolved property.
+        var version = rawVersion;
         if (version is not null && version.Contains("$(", StringComparison.Ordinal))
         {
             version = ResolveMsBuildProperty(version, msbuildProperties);
@@ -712,19 +694,44 @@ async IAsyncEnumerable<(string Id, string? Version)> GetReferencedNuGetPackages(
                 continue;
         }
 
-        if (!emittedKeys.Add((item.Name, version)))
+        if (!emittedKeys.Add((name, version)))
             continue;
 
-        emittedIds.Add(item.Name);
-        yield return (item.Name, version);
+        emittedIds.Add(name);
+        yield return (name, version);
     }
 
-    // Pin analyzer package versions to repo-declared versions so config
-    // generation reproducibly refreshes the analyzer set the SDK injects,
-    // even when DependencyScanner doesn't surface them at all.
     foreach (var (packageId, version) in injectedAnalyzerVersions)
         if (emittedIds.Add(packageId))
             yield return (packageId, version);
+}
+
+static IEnumerable<(string Name, string? Version)> ScanNuGetPackageReferences(FullPath sourceDirectory)
+{
+    string[] ignoredSegments = ["bin", "obj", ".git", ".vs"];
+    var files = Directory.EnumerateFiles(sourceDirectory, "*", SearchOption.AllDirectories)
+        .Where(static file => Path.GetExtension(file) is ".csproj" or ".props" or ".targets");
+
+    foreach (var file in files)
+    {
+        if (Path.GetRelativePath(sourceDirectory, file)
+            .Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)
+            .Any(segment => ignoredSegments.Contains(segment, StringComparer.OrdinalIgnoreCase)))
+            continue;
+
+        foreach (var element in XDocument.Load(file).Descendants())
+        {
+            if (element.Name.LocalName is not ("PackageReference" or "GlobalPackageReference"))
+                continue;
+            if (element.Attribute("Include")?.Value is not { Length: > 0 } name)
+                continue;
+
+            yield return (name,
+                element.Attribute("Version")?.Value
+                ?? element.Attribute("VersionOverride")?.Value
+                ?? element.Element(element.Name.Namespace + "Version")?.Value);
+        }
+    }
 }
 
 static bool ContainsUnresolvedProperty(string? value) =>
@@ -901,7 +908,7 @@ static (AnalyzerConfiguration[] Rules, string[] Unknowns) GetConfiguration(FullP
             }
             else
             {
-                foreach (var comment in currentComment) unknowns.Add(comment);
+                unknowns.AddRange(currentComment);
 
                 if (rules.Count is 0 || !string.IsNullOrEmpty(line)) unknowns.Add(line);
             }
