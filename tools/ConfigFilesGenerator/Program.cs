@@ -179,7 +179,7 @@ static bool IsPathScopedEditorConfig(FullPath filePath)
         var trimmed = line.Trim();
 
         // Ignore section headers
-        if (trimmed.StartsWith("[", StringComparison.Ordinal))
+        if (trimmed.StartsWith('['))
             continue;
 
         var parts = trimmed.Split('=', 2, StringSplitOptions.TrimEntries);
@@ -908,7 +908,7 @@ static (AnalyzerConfiguration[] Rules, string[] Unknowns) GetConfiguration(FullP
             }
             else
             {
-                foreach (var comment in currentComment) unknowns.Add(comment);
+                unknowns.AddRange(currentComment);
 
                 if (rules.Count is 0 || !string.IsNullOrEmpty(line)) unknowns.Add(line);
             }

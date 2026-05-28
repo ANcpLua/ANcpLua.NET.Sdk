@@ -566,5 +566,7 @@ internal static class XmlSanitizer
     }
 
     private static bool IsValidXmlChar(char ch) =>
-        ch == 0x09 || ch == 0x0A || ch == 0x0D || (ch >= 0x20 && ch <= 0xD7FF) || (ch >= 0xE000 && ch <= 0xFFFD);
+        ch == 0x09 || ch == 0x0A || ch == 0x0D ||
+        (ch >= 0x20 && ch <= 0xD7FF) || (ch >= 0xE000 && ch <= 0xFFFD) ||
+        char.IsSurrogate(ch);
 }
