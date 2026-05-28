@@ -35,7 +35,6 @@
   <!-- Meziantou -->
   <ItemGroup Label="Meziantou">
     <PackageVersion Include="Meziantou.Framework" Version="$(MeziantouFrameworkVersion)"/>
-    <PackageVersion Include="Meziantou.Framework.DependencyScanning" Version="$(MeziantouDependencyScanningVersion)"/>
     <PackageVersion Include="Meziantou.Framework.FullPath" Version="$(MeziantouFullPathVersion)"/>
     <PackageVersion Include="Meziantou.Framework.ProcessWrapper" Version="$(MeziantouProcessWrapperVersion)"/>
     <PackageVersion Include="Meziantou.Framework.TemporaryDirectory" Version="$(MeziantouTemporaryDirectoryVersion)"/>
@@ -57,6 +56,5 @@
     <PackageVersion Include="MSBuild.StructuredLogger" Version="$(MSBuildStructuredLoggerVersion)"/>
     <PackageVersion Include="NuGet.Protocol" Version="$(NuGetVersion)"/>
     <PackageVersion Include="NuGet.Packaging" Version="$(NuGetVersion)"/>
-    <PackageVersion Include="YamlDotNet" Version="$(YamlDotNetVersion)"/>
   </ItemGroup>
 </Project>

@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <PackageReference Include="Basic.Reference.Assemblies.Net100"/>
-    <PackageReference Include="Meziantou.Framework.DependencyScanning"/>
     <PackageReference Include="Meziantou.Framework.FullPath"/>
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces"/>
     <PackageReference Include="Microsoft.CodeAnalysis.Analyzers">
