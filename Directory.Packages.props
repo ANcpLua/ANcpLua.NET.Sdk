@@ -48,7 +48,7 @@
     <PackageVersion Include="GitHubActionsTestLogger" Version="$(GitHubActionsLoggerMTPVersion)"/>
     <PackageVersion Include="Microsoft.Testing.Platform" Version="$(MTPExtensionsVersion)"/>
     <!-- Test-only SDK download helper; pinned here (not Version.props) so it never reaches consumers. -->
-    <PackageVersion Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.1"/>
+    <PackageVersion Include="Microsoft.Deployment.DotNet.Releases" Version="1.0.2"/>
   </ItemGroup>
 
   <!-- Build/Tools -->
