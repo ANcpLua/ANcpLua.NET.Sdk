@@ -23,7 +23,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Reference Assemblies">
-    <BasicReferenceAssembliesVersion>1.8.5</BasicReferenceAssembliesVersion>
+    <BasicReferenceAssembliesVersion>1.8.8</BasicReferenceAssembliesVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Meziantou">
@@ -44,11 +44,11 @@
   </PropertyGroup>
 
   <PropertyGroup Label="MTP Extensions">
-    <MTPExtensionsVersion>2.1.0</MTPExtensionsVersion>
-    <CodeCoverageVersion>18.4.1</CodeCoverageVersion>
+    <MTPExtensionsVersion>2.2.3</MTPExtensionsVersion>
+    <CodeCoverageVersion>18.7.0</CodeCoverageVersion>
     <TestSdkVersion>18.3.0</TestSdkVersion>
     <DiagnosticsTestingVersion>10.4.0</DiagnosticsTestingVersion>
-    <GitHubActionsLoggerMTPVersion>3.0.3</GitHubActionsLoggerMTPVersion>
+    <GitHubActionsLoggerMTPVersion>3.0.4</GitHubActionsLoggerMTPVersion>
     <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
   </PropertyGroup>
 
@@ -64,11 +64,11 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Microsoft.Extensions">
-    <MicrosoftExtensionsVersion>10.5.0</MicrosoftExtensionsVersion>
+    <MicrosoftExtensionsVersion>10.6.0</MicrosoftExtensionsVersion>
     <MicrosoftExtensionsAIAbstractionsVersion>10.5.0</MicrosoftExtensionsAIAbstractionsVersion>
     <MicrosoftExtensionsAIOpenAIVersion>10.5.0</MicrosoftExtensionsAIOpenAIVersion>
-    <AspNetCoreVersion>10.0.7</AspNetCoreVersion>
-    <MicrosoftBclAsyncInterfacesVersion>10.0.7</MicrosoftBclAsyncInterfacesVersion>
+    <AspNetCoreVersion>10.0.8</AspNetCoreVersion>
+    <MicrosoftBclAsyncInterfacesVersion>10.0.8</MicrosoftBclAsyncInterfacesVersion>
     <BclAsyncInterfacesVersion>10.0.7</BclAsyncInterfacesVersion>
     <BclHashCodeVersion>6.0.0</BclHashCodeVersion>
     <SystemThreadingChannelsVersion>10.0.7</SystemThreadingChannelsVersion>
@@ -79,8 +79,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Build Tools">
-    <NuGetVersion>7.3.1</NuGetVersion>
-    <MSBuildStructuredLoggerVersion>2.3.154</MSBuildStructuredLoggerVersion>
+    <NuGetVersion>7.6.0</NuGetVersion>
+    <MSBuildStructuredLoggerVersion>2.3.204</MSBuildStructuredLoggerVersion>
     <MicrosoftSourceLinkVersion>10.0.201</MicrosoftSourceLinkVersion>
     <MicrosoftDeploymentDotNetReleasesVersion>1.0.1</MicrosoftDeploymentDotNetReleasesVersion>
   </PropertyGroup>
@@ -90,7 +90,7 @@
     <MicrosoftOpenApiVersion>3.3.1</MicrosoftOpenApiVersion>
     <MicrosoftOpenApiReadersVersion>2.0.0-preview.13</MicrosoftOpenApiReadersVersion>
     <!-- Floored at >=17.1.0 by Meziantou.Framework.DependencyScanning 2.0.16 (transitive); lowering it is NU1109 under CPM. -->
-    <YamlDotNetVersion>17.1.0</YamlDotNetVersion>
+    <YamlDotNetVersion>18.0.0</YamlDotNetVersion>
   </PropertyGroup>
 
   <!--
