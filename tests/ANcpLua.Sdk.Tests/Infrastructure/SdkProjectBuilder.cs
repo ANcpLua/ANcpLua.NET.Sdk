@@ -406,10 +406,12 @@ public sealed class SdkProjectBuilder : IAsyncDisposable
 
         return variables =>
         {
-            variables.Remove("CI");
-            variables.Remove("DOTNET_ENVIRONMENT");
+            // Blank (override to empty), not Remove: ProcessWrapper's Remove only drops overrides,
+            // so an inherited CI/GITHUB_ACTIONS would still flow to the child and flip it into CI mode.
+            variables.Set("CI", "");
+            variables.Set("DOTNET_ENVIRONMENT", "");
             foreach (var key in blankedKeys)
-                variables.Remove(key);
+                variables.Set(key, "");
 
             variables.Set("MSBUILDLOGALLENVIRONMENTVARIABLES", "true");
             variables.Set("VSTestDiag", vstestDiagPath);
