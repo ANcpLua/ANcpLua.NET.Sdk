@@ -18,10 +18,6 @@
     <RoslynAnalyzersVersion>5.3.0</RoslynAnalyzersVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="Analyzer Testing">
-    <AnalyzerTestingVersion>1.1.3</AnalyzerTestingVersion>
-  </PropertyGroup>
-
   <PropertyGroup Label="Reference Assemblies">
     <BasicReferenceAssembliesVersion>1.8.8</BasicReferenceAssembliesVersion>
   </PropertyGroup>
@@ -36,9 +32,6 @@
 
   <PropertyGroup Label="Testing">
     <XunitV3Version>3.2.2</XunitV3Version>
-    <NUnitVersion>4.5.1</NUnitVersion>
-    <TUnitCoreVersion>1.37.36</TUnitCoreVersion>
-    <BunitVersion>2.7.2</BunitVersion>
     <AwesomeAssertionsVersion>9.4.0</AwesomeAssertionsVersion>
     <AwesomeAssertionsAnalyzersVersion>9.0.8</AwesomeAssertionsAnalyzersVersion>
   </PropertyGroup>
@@ -46,10 +39,7 @@
   <PropertyGroup Label="MTP Extensions">
     <MTPExtensionsVersion>2.2.3</MTPExtensionsVersion>
     <CodeCoverageVersion>18.7.0</CodeCoverageVersion>
-    <TestSdkVersion>18.3.0</TestSdkVersion>
-    <DiagnosticsTestingVersion>10.4.0</DiagnosticsTestingVersion>
     <GitHubActionsLoggerMTPVersion>3.0.4</GitHubActionsLoggerMTPVersion>
-    <GitHubActionsLoggerVSTestVersion>2.4.1</GitHubActionsLoggerVSTestVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
@@ -65,30 +55,17 @@
 
   <PropertyGroup Label="Microsoft.Extensions">
     <MicrosoftExtensionsVersion>10.6.0</MicrosoftExtensionsVersion>
-    <MicrosoftExtensionsAIAbstractionsVersion>10.5.0</MicrosoftExtensionsAIAbstractionsVersion>
-    <MicrosoftExtensionsAIOpenAIVersion>10.5.0</MicrosoftExtensionsAIOpenAIVersion>
     <AspNetCoreVersion>10.0.8</AspNetCoreVersion>
     <MicrosoftBclAsyncInterfacesVersion>10.0.8</MicrosoftBclAsyncInterfacesVersion>
-    <BclAsyncInterfacesVersion>10.0.7</BclAsyncInterfacesVersion>
-    <BclHashCodeVersion>6.0.0</BclHashCodeVersion>
-    <SystemThreadingChannelsVersion>10.0.7</SystemThreadingChannelsVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Label="OpenTelemetry">
-    <OpenTelemetryVersion>1.15.0</OpenTelemetryVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Build Tools">
     <NuGetVersion>7.6.0</NuGetVersion>
     <MSBuildStructuredLoggerVersion>2.3.204</MSBuildStructuredLoggerVersion>
-    <MicrosoftSourceLinkVersion>10.0.201</MicrosoftSourceLinkVersion>
-    <MicrosoftDeploymentDotNetReleasesVersion>1.0.1</MicrosoftDeploymentDotNetReleasesVersion>
   </PropertyGroup>
 
   <!-- OpenApi.Readers has no stable 2.0; still on preview. -->
   <PropertyGroup Label="OpenAPI">
-    <MicrosoftOpenApiVersion>3.3.1</MicrosoftOpenApiVersion>
-    <MicrosoftOpenApiReadersVersion>2.0.0-preview.13</MicrosoftOpenApiReadersVersion>
     <!-- Floored at >=17.1.0 by Meziantou.Framework.DependencyScanning 2.0.16 (transitive); lowering it is NU1109 under CPM. -->
     <YamlDotNetVersion>18.0.0</YamlDotNetVersion>
   </PropertyGroup>
@@ -115,24 +92,7 @@
     <MicrosoftAgentsAIWorkflowsDeclarativeVersion Condition="'$(MicrosoftAgentsAIWorkflowsDeclarativeVersion)' == ''">1.4.0-rc1</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
   </PropertyGroup>
 
-  <PropertyGroup Label="LLM Providers">
-    <OpenAIVersion>2.10.0</OpenAIVersion>
-    <AzureAIOpenAIVersion>2.1.0</AzureAIOpenAIVersion>
-    <AzureIdentityVersion>1.21.0</AzureIdentityVersion>
-    <AnthropicSDKVersion>5.10.0</AnthropicSDKVersion>
-    <OllamaSharpVersion>5.4.25</OllamaSharpVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Workflow Testing">
-    <MoqVersion>4.20.72</MoqVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Misc">
-    <JetBrainsAnnotationsVersion>2025.2.4</JetBrainsAnnotationsVersion>
-  </PropertyGroup>
-
   <PropertyGroup Label="Aliases">
     <XunitMtpVersion>$(XunitV3Version)</XunitMtpVersion>
-    <MvcTestingVersion>$(AspNetCoreVersion)</MvcTestingVersion>
   </PropertyGroup>
 </Project>
