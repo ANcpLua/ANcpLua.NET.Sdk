@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -7,18 +7,15 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
-    <!-- Enable MTP v2 with dotnet test -->
     <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ANcpLua.Roslyn.Utilities.Testing"/>
     <PackageReference Include="AwesomeAssertions"/>
-    <PackageReference Include="Meziantou.Framework"/>
-    <PackageReference Include="Meziantou.Framework.ProcessWrapper" Aliases="ProcessWrapper"/>
+    <PackageReference Include="Meziantou.Framework.FullPath"/>
+    <PackageReference Include="Meziantou.Framework.ProcessWrapper"/>
     <PackageReference Include="Meziantou.Framework.TemporaryDirectory"/>
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.Testing"/>
-    <PackageReference Include="Microsoft.Extensions.Logging"/>
+    <PackageReference Include="Microsoft.Deployment.DotNet.Releases"/>
     <PackageReference Include="MSBuild.StructuredLogger"/>
     <PackageReference Include="NuGet.Packaging"/>
     <PackageReference Include="xunit.v3.mtp-v2"/>
@@ -30,10 +27,8 @@
     <Using Include="Xunit"/>
   </ItemGroup>
 
-  <!-- xUnit configuration for parallelization and long-running test detection -->
   <ItemGroup>
     <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
-
 
 </Project>

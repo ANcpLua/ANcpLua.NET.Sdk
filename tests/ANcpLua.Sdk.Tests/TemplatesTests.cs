@@ -1,31 +1,17 @@
-extern alias ProcessWrapper;
-
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Meziantou.Framework;
 using NuGet.Packaging;
-using ProcessWrapperApi = ProcessWrapper::Meziantou.Framework.ProcessWrapper;
-using ProcessWrapperValidationMode = ProcessWrapper::Meziantou.Framework.ProcessValidationMode;
 
 namespace ANcpLua.Sdk.Tests;
 
-/// <summary>
-///     Tests for the ANcpLua.NET.Sdk.Templates package — verifies the pack pipeline
-///     (Template package type, file layout, pack-time version stamping) and the
-///     scaffolding pipeline (dotnet new install + scaffold + build of all 3 templates
-///     against the local fixture feed).
-/// </summary>
 public sealed partial class TemplatesTests(PackageFixture fixture)
 {
     private const string TemplatesPackageId = "ANcpLua.NET.Sdk.Templates";
 
-    // Concurrent dotnet-build invocations against scaffolded projects step on each other
-    // via the shared MSBuild build server (node reuse) and the shared NuGet global packages
-    // folder — manifests as flaky "file is being used by another process" errors in
-    // MvcApplicationPartsDiscovery for the Web template. Serialize the slow scaffold+build
-    // path only; the fast pack-inspection tests stay parallel.
-    private static readonly SemaphoreSlim s_scaffoldBuildGate = new(initialCount: 1, maxCount: 1);
+    // The scaffold+build path shares the MSBuild build server and NuGet cache; run it serially to avoid flaky file races.
+    private static readonly SemaphoreSlim s_scaffoldBuildGate = new(1, 1);
 
     private string TemplatesNupkgPath
     {
@@ -44,25 +30,23 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     }
 
     [Fact]
-    public async Task Pack_PackageType_IsTemplate()
+    public async Task Pack_WhenPackageType_IsTemplate()
     {
         using var reader = new PackageArchiveReader(TemplatesNupkgPath);
         var nuspec = await reader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
-        var packageTypes = nuspec.GetPackageTypes();
 
-        Assert.Contains(packageTypes, static pt => pt.Name == "Template");
+        Assert.Contains(nuspec.GetPackageTypes(), static pt => pt.Name == "Template");
     }
 
     [Theory]
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
     [InlineData("ancplua-web")]
-    public void Pack_ContainsExpectedTemplateFiles(string shortName)
+    public void Pack_WhenShortNameProvided_ContainsExpectedTemplateFiles(string shortName)
     {
         using var reader = new PackageArchiveReader(TemplatesNupkgPath);
         var files = reader.GetFiles().ToList();
 
-        // Every template ships these four scaffolding files
         foreach (var expected in new[]
                  {
                      $"content/{shortName}/.template.config/template.json",
@@ -77,7 +61,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
     [InlineData("ancplua-web")]
-    public async Task Pack_TemplateJson_HasNoUnsubstitutedPlaceholders(string shortName)
+    public async Task Pack_WhenTemplateJsonLoaded_HasNoUnsubstitutedPlaceholders(string shortName)
     {
         var content = await ReadEntryAsync($"content/{shortName}/.template.config/template.json");
 
@@ -89,9 +73,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
     [InlineData("ancplua-web")]
-    public async Task Pack_TemplateJson_StampsSdkVersionToPackVersion(string shortName)
+    public async Task Pack_WhenTemplateJsonLoaded_StampsSdkVersionToPackVersion(string shortName)
     {
-        // Pack-time substitution: __PACK_TIME_SDK_VERSION__ ← $(Version)
         var content = await ReadEntryAsync($"content/{shortName}/.template.config/template.json");
         using var doc = JsonDocument.Parse(content);
 
@@ -108,14 +91,9 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
     [InlineData("ancplua-web")]
-    public async Task Pack_TemplateJson_StampsDotNetSdkVersionFromVersionProps(string shortName)
+    public async Task Pack_WhenTemplateJsonLoaded_StampsDotNetSdkVersionFromVersionProps(string shortName)
     {
-        // Pack-time substitution: __PACK_TIME_DOTNET_SDK_VERSION__ ← $(DotNetSdkVersion) from Version.props
-        var versionPropsPath = RepositoryRoot.Locate()["src"] / "Build" / "Common" / "Version.props";
-        var versionPropsContent = await File.ReadAllTextAsync(versionPropsPath, TestContext.Current.CancellationToken);
-        var match = DotNetSdkVersionRegex().Match(versionPropsContent);
-        Assert.True(match.Success, $"<DotNetSdkVersion> not found in {versionPropsPath}.");
-        var expectedDotNetSdkVersion = match.Groups[1].Value.Trim();
+        var expectedDotNetSdkVersion = await ReadDotNetSdkVersionFromVersionPropsAsync();
 
         var content = await ReadEntryAsync($"content/{shortName}/.template.config/template.json");
         using var doc = JsonDocument.Parse(content);
@@ -133,12 +111,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
     [InlineData("ancplua-web")]
-    public async Task Pack_GlobalJson_HasPlaceholders_ForScaffoldTimeSubstitution(string shortName)
+    public async Task Pack_WhenGlobalJsonLoaded_HasPlaceholdersForScaffoldTimeSubstitution(string shortName)
     {
-        // Unlike template.json (substituted at pack time), global.json keeps the
-        // ANCPLUA_*_PLACEHOLDER tokens — those are substituted by the dotnet-new
-        // template engine at scaffold time using the SdkVersion / DotNetSdkVersion
-        // symbol values (which template.json's defaults provide).
         var content = await ReadEntryAsync($"content/{shortName}/global.json");
 
         Assert.Contains("ANCPLUA_SDK_VERSION_PLACEHOLDER", content, StringComparison.Ordinal);
@@ -146,11 +120,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     }
 
     [Fact]
-    public async Task Pack_WebTemplate_GlobalJsonPinsAllThreeMsbuildSdks()
+    public async Task Pack_WhenWebTemplateGlobalJsonLoaded_PinsAllThreeMsbuildSdks()
     {
-        // ancplua-web consumers need ANcpLua.NET.Sdk.Web *and* the regular SDK pinned
-        // (the Web SDK depends on Build/Common/* shared with the regular SDK), plus
-        // ANcpLua.NET.Sdk.Test for the tests project.
         var content = await ReadEntryAsync("content/ancplua-web/global.json");
 
         Assert.Contains("\"ANcpLua.NET.Sdk\":", content, StringComparison.Ordinal);
@@ -162,10 +133,8 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [InlineData("ancplua-app", "MyApp")]
     [InlineData("ancplua-lib", "MyLib")]
     [InlineData("ancplua-web", "MyWeb")]
-    public async Task Scaffold_ProducesNamedTreeWithVersionPins(string shortName, string sourceName)
+    public async Task Scaffold_WhenTemplateScaffolded_ProducesNamedTreeWithVersionPins(string shortName, string sourceName)
     {
-        // Hermetic install via --debug:custom-hive to avoid polluting the user's
-        // global dotnet-new state on the test runner.
         await using var hive = TemporaryDirectory.Create();
         await using var output = TemporaryDirectory.Create();
         var projectName = "T" + Guid.NewGuid().ToString("N")[..8];
@@ -173,41 +142,22 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         await DotnetNewInstallAsync(hive.FullPath);
         await DotnetNewScaffoldAsync(shortName, projectName, output.FullPath, hive.FullPath);
 
-        // sourceName=MyApp/MyLib/MyWeb is replaced with $projectName everywhere by
-        // the template engine (filenames, directory names, namespaces, references).
         Assert.True(File.Exists(output.FullPath / $"{projectName}.slnx"),
             $"Expected slnx at {projectName}.slnx (sourceName={sourceName}, output={output.FullPath})");
         Assert.True(File.Exists(output.FullPath / "src" / projectName / $"{projectName}.csproj"));
         Assert.True(File.Exists(output.FullPath / "tests" / $"{projectName}.Tests" / $"{projectName}.Tests.csproj"));
 
-        // Scaffolded global.json should pin SDKs to fixture.Version (the template engine
-        // substituted ANCPLUA_SDK_VERSION_PLACEHOLDER with the SdkVersion default we
-        // stamped at pack time).
         var globalJsonPath = output.FullPath / "global.json";
         var globalJson = await File.ReadAllTextAsync(globalJsonPath, TestContext.Current.CancellationToken);
         Assert.DoesNotContain("ANCPLUA_SDK_VERSION_PLACEHOLDER", globalJson, StringComparison.Ordinal);
         Assert.DoesNotContain("ANCPLUA_DOTNET_SDK_VERSION_PLACEHOLDER", globalJson, StringComparison.Ordinal);
         Assert.Contains($"\"ANcpLua.NET.Sdk\": \"{fixture.Version}\"", globalJson, StringComparison.Ordinal);
 
-        // Verify the scaffolded sdk.version pins to the .NET SDK we stamped at pack time
-        // (read from Build/Common/Version.props, propagated through DotNetSdkVersion symbol).
-        // Asserting on the textual pin alone is not enough because the placeholder substitution
-        // and the JSON shape are independently breakable.
-        var versionPropsPath = RepositoryRoot.Locate()["src"] / "Build" / "Common" / "Version.props";
-        var versionPropsContent = await File.ReadAllTextAsync(versionPropsPath, TestContext.Current.CancellationToken);
-        var match = DotNetSdkVersionRegex().Match(versionPropsContent);
-        Assert.True(match.Success, $"<DotNetSdkVersion> not found in {versionPropsPath}.");
-        var expectedDotNetSdkVersion = match.Groups[1].Value.Trim();
-
+        var expectedDotNetSdkVersion = await ReadDotNetSdkVersionFromVersionPropsAsync();
         using var globalJsonDoc = JsonDocument.Parse(globalJson);
-        var sdkVersion = globalJsonDoc.RootElement
-            .GetProperty("sdk")
-            .GetProperty("version")
-            .GetString();
+        var sdkVersion = globalJsonDoc.RootElement.GetProperty("sdk").GetProperty("version").GetString();
         Assert.Equal(expectedDotNetSdkVersion, sdkVersion);
 
-        // Scaffolded Directory.Packages.props is required by the SDK contract — verify
-        // it's present and CPM-enabled.
         var dirPackagesPath = output.FullPath / "Directory.Packages.props";
         Assert.True(File.Exists(dirPackagesPath));
         var dirPackages = await File.ReadAllTextAsync(dirPackagesPath, TestContext.Current.CancellationToken);
@@ -217,24 +167,15 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [Theory]
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
-    public async Task Scaffold_HonorsTargetFrameworkChoice_Net9(string shortName)
+    public async Task Scaffold_WhenTargetFrameworkNet9Specified_HonorsChoice(string shortName)
     {
-        // ancplua-app and ancplua-lib expose a TargetFramework choice symbol with
-        // {net10.0, net9.0}; ancplua-web is currently net10.0-only and is excluded.
-        // The default-only assertions in Scaffold_ProducesNamedTreeWithVersionPins
-        // do not exercise the alternate choice, so a regression in the symbol's
-        // 'replaces' wiring would silently slip through.
         await using var hive = TemporaryDirectory.Create();
         await using var output = TemporaryDirectory.Create();
         var projectName = "T" + Guid.NewGuid().ToString("N")[..8];
 
         await DotnetNewInstallAsync(hive.FullPath);
         await DotnetNewScaffoldAsync(
-            shortName,
-            projectName,
-            output.FullPath,
-            hive.FullPath,
-            extraArgs: ["--TargetFramework", "net9.0"]);
+            shortName, projectName, output.FullPath, hive.FullPath, extraArgs: ["--TargetFramework", "net9.0"]);
 
         var srcCsproj = output.FullPath / "src" / projectName / $"{projectName}.csproj";
         var testsCsproj = output.FullPath / "tests" / $"{projectName}.Tests" / $"{projectName}.Tests.csproj";
@@ -254,7 +195,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
     [InlineData("ancplua-web")]
-    public async Task Scaffold_BuildsCleanAgainstFixtureFeed(string shortName)
+    public async Task Scaffold_WhenScaffoldedProjectBuilt_BuildsCleanAgainstFixtureFeed(string shortName)
     {
         await s_scaffoldBuildGate.WaitAsync(TestContext.Current.CancellationToken);
         try
@@ -273,28 +214,14 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         await using var output = TemporaryDirectory.Create();
         var projectName = "T" + Guid.NewGuid().ToString("N")[..8];
 
-        // macOS: TemporaryDirectory.Create() returns paths under /var/folders/... which
-        // is a symlink to /private/var/folders/... NuGet, MSBuild, and other dotnet
-        // tooling sometimes resolve through the symlink and sometimes don't, producing
-        // "obj/X.csproj.nuget.g.props already exists" during slnx restore (the same
-        // physical file is referenced via both prefixes within one restore pass).
-        // Canonicalize once up front so every subsequent path is the resolved form.
         var hivePath = Canonicalize(hive.FullPath);
         var outputPath = Canonicalize(output.FullPath);
 
-        // Shut down any inherited MSBuild / Razor / VBCSCompiler build servers from the
-        // surrounding test process so this scaffold's restore+build doesn't reuse state.
         await RunDotnetAsync(["build-server", "shutdown"], outputPath);
 
         await DotnetNewInstallAsync(hivePath);
         await DotnetNewScaffoldAsync(shortName, projectName, outputPath, hivePath);
 
-        // The scaffolded nuget.config restricts to nuget.org — but the SDK packages at
-        // fixture.Version (e.g. 999.9.9) only exist in the local fixture feed. Replace
-        // it with a dual-source config so SDK packages resolve from local and analyzer
-        // / test packages resolve from nuget.org. Use a per-test globalPackagesFolder
-        // (under output, deleted with the temp dir) so concurrent SDK tests against the
-        // shared fixture's packages/ folder don't race on obj/*.nuget.g.props.
         var perTestGlobalPackages = outputPath / "nuget-cache";
         var fixturePackages = Canonicalize(fixture.PackageDirectory);
         await File.WriteAllTextAsync(
@@ -316,40 +243,23 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
 
         var slnxPath = outputPath / $"{projectName}.slnx";
 
-        // Split restore + build. Two macOS-specific contributors to flakiness:
-        //
-        //   1. Parallel slnx-level restore: NuGet restores src/ + tests/ concurrently
-        //      and writes obj/<proj>.csproj.nuget.g.props for each. On macOS the
-        //      /var ⟷ /private/var symlink ambiguity occasionally trips NuGet's
-        //      "file already exists" guard within a single restore pass.
-        //   2. Razor SDK's MvcApplicationPartsDiscovery target races with the
-        //      implicit build-time restore — a deterministic --no-restore build
-        //      after explicit restore avoids that.
-        //
-        // --disable-parallel serializes project restore inside the slnx; nodeReuse:false
-        // prevents reusing an MSBuild server from a parallel sibling test.
+        // Split restore + build, serialised, to dodge macOS slnx-restore and Razor MvcApplicationPartsDiscovery races.
         var restore = await RunDotnetAsync(
-            ["restore", slnxPath, "--disable-parallel", "-nodeReuse:false"],
-            outputPath);
-        Assert.True(
-            restore.ExitCode == 0,
+            ["restore", slnxPath, "--disable-parallel", "-nodeReuse:false"], outputPath);
+        Assert.True(restore.ExitCode == 0,
             $"Scaffolded {shortName} solution failed to restore (exit {restore.ExitCode}):{Environment.NewLine}{restore.Output}");
 
         var build = await RunDotnetAsync(
-            ["build", slnxPath, "--no-restore", "--nologo", "-nodeReuse:false", "-maxcpucount:1"],
-            outputPath);
-        Assert.True(
-            build.ExitCode == 0,
+            ["build", slnxPath, "--no-restore", "--nologo", "-nodeReuse:false", "-maxcpucount:1"], outputPath);
+        Assert.True(build.ExitCode == 0,
             $"Scaffolded {shortName} solution failed to build (exit {build.ExitCode}):{Environment.NewLine}{build.Output}");
     }
 
     private async Task DotnetNewInstallAsync(FullPath hive)
     {
         var result = await RunDotnetAsync(
-            ["new", "install", TemplatesNupkgPath, "--debug:custom-hive", hive],
-            workingDirectory: null);
-        Assert.True(
-            result.ExitCode == 0,
+            ["new", "install", TemplatesNupkgPath, "--debug:custom-hive", hive], workingDirectory: null);
+        Assert.True(result.ExitCode == 0,
             $"dotnet new install failed (exit {result.ExitCode}):{Environment.NewLine}{result.Output}");
     }
 
@@ -369,13 +279,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
             "--skipRestore"
         };
         if (extraArgs is not null)
-        {
             args.AddRange(extraArgs);
-        }
 
         var result = await RunDotnetAsync(args, workingDirectory: null);
-        Assert.True(
-            result.ExitCode == 0,
+        Assert.True(result.ExitCode == 0,
             $"dotnet new {shortName} failed (exit {result.ExitCode}):{Environment.NewLine}{result.Output}");
     }
 
@@ -387,28 +294,30 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         return await sr.ReadToEndAsync(TestContext.Current.CancellationToken);
     }
 
+    private static async Task<string> ReadDotNetSdkVersionFromVersionPropsAsync()
+    {
+        var versionPropsPath = RepositoryRoot.Locate()["src"] / "Build" / "Common" / "Version.props";
+        var content = await File.ReadAllTextAsync(versionPropsPath, TestContext.Current.CancellationToken);
+        var match = DotNetSdkVersionRegex().Match(content);
+        Assert.True(match.Success, $"<DotNetSdkVersion> not found in {versionPropsPath}.");
+        return match.Groups[1].Value.Trim();
+    }
+
     private static async Task<(int ExitCode, string Output)> RunDotnetAsync(
         IEnumerable<object> args,
         FullPath? workingDirectory)
     {
-        var result = await ProcessWrapperApi.Create("dotnet")
+        var result = await ProcessWrapper.Create("dotnet")
             .WithWorkingDirectory(workingDirectory?.Value ?? Environment.CurrentDirectory)
             .WithArguments(args.Select(static arg => arg.ToString() ?? ""))
-            .WithValidation(ProcessWrapperValidationMode.None)
+            .WithValidation(ProcessValidationMode.None)
             .ExecuteBufferedAsync(TestContext.Current.CancellationToken);
 
-        return (result.ExitCode, result.Output.ToString());
+        return (result.ExitCode.Value, result.Output.ToString());
     }
 
-    /// <summary>
-    ///     Resolves macOS symlink prefixes (/var → /private/var, /tmp → /private/tmp) so the
-    ///     same physical directory has exactly one canonical string representation. Without
-    ///     this, NuGet's slnx-level restore on macOS sometimes writes obj/X.csproj.nuget.g.props
-    ///     under one prefix and re-checks under the other, producing a spurious "file already
-    ///     exists" error on the second project in the solution. No-op on Linux (real temp
-    ///     paths, no shadow /private/ layer) and Windows (no symlink in the temp hierarchy,
-    ///     and DirectoryInfo("C:\\").ResolveLinkTarget() throws DirectoryNotFoundException).
-    /// </summary>
+    // macOS temp dirs live under /var → /private/var; resolve once so NuGet's slnx restore doesn't see one
+    // physical file under two prefixes and fail with "file already exists". No-op on Linux/Windows.
     private static FullPath Canonicalize(FullPath path)
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -416,28 +325,18 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
 
         try
         {
-            var resolved = new DirectoryInfo(path.Value).ResolveLinkTarget(returnFinalTarget: true)?.FullName;
-            if (!string.IsNullOrEmpty(resolved))
-            {
+            if (new DirectoryInfo(path.Value).ResolveLinkTarget(returnFinalTarget: true)?.FullName is { Length: > 0 } resolved)
                 return FullPath.FromPath(resolved);
-            }
 
-            // No direct symlink on the leaf; walk up to find an ancestor that is one
-            // (e.g. /var → /private/var) and rebuild the path through the resolved ancestor.
-            // Stop at drive/volume root (Parent == null) — calling ResolveLinkTarget on the
-            // root throws on some platforms, and the root itself is never a symlink.
             var current = new DirectoryInfo(path.Value);
             var suffix = new Stack<string>();
             while (current?.Parent is not null)
             {
-                var link = current.ResolveLinkTarget(returnFinalTarget: true);
-                if (link is not null)
+                if (current.ResolveLinkTarget(returnFinalTarget: true) is { } link)
                 {
                     var rebuilt = link.FullName;
                     while (suffix.Count > 0)
-                    {
                         rebuilt = Path.Combine(rebuilt, suffix.Pop());
-                    }
                     return FullPath.FromPath(rebuilt);
                 }
 
@@ -445,13 +344,9 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
                 current = current.Parent;
             }
         }
-        catch (DirectoryNotFoundException)
+        catch (Exception e) when (e is DirectoryNotFoundException or UnauthorizedAccessException)
         {
-            // Fall through: any unexpected IO error during symlink walking should
-            // result in "use original path" rather than fail the test setup.
-        }
-        catch (UnauthorizedAccessException)
-        {
+            return path;
         }
 
         return path;

@@ -1,38 +1,18 @@
-using System.Diagnostics.CodeAnalysis;
-using static ANcpLua.Sdk.Tests.Helpers.PackageFixture;
+using static ANcpLua.Sdk.Tests.Infrastructure.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
 
-/// <summary>
-///     Comprehensive test matrix for MTP (Microsoft Testing Platform) detection.
-///     All test projects use MTP - VSTest is deprecated on .NET 10+.
-///     SDK supports:
-///     - TUnit (always MTP)
-///     - xunit.v3.mtp-v1 / xunit.v3.mtp-v2 (explicit MTP)
-///     - NUnit with EnableNUnitRunner=true (explicit opt-in)
-///     - MSTest with EnableMSTestRunner=true (explicit opt-in)
-/// </summary>
 public sealed class MtpDetectionNet100Tests(PackageFixture fixture)
     : MtpDetectionTests(fixture, NetSdkVersion.Net100);
 
-public abstract class MtpDetectionTests(
-    PackageFixture fixture,
-    NetSdkVersion dotnetSdkVersion)
+public abstract class MtpDetectionTests(PackageFixture fixture, NetSdkVersion dotnetSdkVersion)
+    : SdkTestBase(fixture)
 {
-    private static readonly NuGetReference[] s_xUnit3MtpV1Packages =
-        [new("xunit.v3.mtp-v1", "3.2.1")];
-
-    private static readonly NuGetReference[] s_xUnit3MtpV2Packages =
-        [new("xunit.v3.mtp-v2", "3.2.1")];
-
-    private static readonly NuGetReference[] s_nUnitMtpPackages =
-        [new("NUnit", "4.3.2"), new("NUnit3TestAdapter", "5.0.0")];
-
-    private static readonly NuGetReference[] s_msTestMtpPackages =
-        [new("MSTest.TestFramework", "3.8.3"), new("MSTest.TestAdapter", "3.8.3")];
-
-    private static readonly NuGetReference[] s_tUnitPackages =
-        [new("TUnit", "0.18.0")];
+    private static readonly NuGetReference[] s_xUnit3MtpV1Packages = [new("xunit.v3.mtp-v1", "3.2.1")];
+    private static readonly NuGetReference[] s_xUnit3MtpV2Packages = [new("xunit.v3.mtp-v2", "3.2.1")];
+    private static readonly NuGetReference[] s_nUnitMtpPackages = [new("NUnit", "4.3.2"), new("NUnit3TestAdapter", "5.0.0")];
+    private static readonly NuGetReference[] s_msTestMtpPackages = [new("MSTest.TestFramework", "3.8.3"), new("MSTest.TestAdapter", "3.8.3")];
+    private static readonly NuGetReference[] s_tUnitPackages = [new("TUnit", "0.18.0")];
 
     private static readonly string[] s_recordedProperties =
     [
@@ -46,20 +26,28 @@ public abstract class MtpDetectionTests(
     private SdkProjectBuilder CreateProject(string? sdkName = null) =>
         CreateProject(SdkImportStyle.ProjectElement, sdkName);
 
-    [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-        Justification = "Factory method returns the SdkProjectBuilder unowned; every call site wraps the result in `await using` and is responsible for disposal. The chained fluent calls return `this`, so no transient IDisposables leak.")]
     private SdkProjectBuilder CreateProject(SdkImportStyle style, string? sdkName = null) =>
-        SdkProjectBuilder.Create(fixture, style, sdkName ?? SdkTestName)
-            .WithDotnetSdkVersion(dotnetSdkVersion)
-            .RecordProperties(s_recordedProperties);
+        CreateProject(style, sdkName ?? SdkTestName, dotnetSdkVersion, s_recordedProperties);
+
+    private static void AddPackages(SdkProjectBuilder project, NuGetReference[] packages)
+    {
+        foreach (var package in packages)
+            project.WithPackage(package.Name, package.Version);
+    }
+
+    private static void AssertProducesExecutable(SdkProjectBuilder project)
+    {
+        var runtimeConfigs = Directory
+            .EnumerateFiles(project.RootFolder, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+            .ToArray();
+        Assert.NotEmpty(runtimeConfigs);
+    }
 
     [Fact]
-    public async Task XUnit3MtpV2_IsMTP()
+    public async Task Detect_WhenXUnit3MtpV2PackagePresent_RecognizesAsMtp()
     {
         await using var project = CreateProject(SdkName);
-
-        foreach (var pkg in s_xUnit3MtpV2Packages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_xUnit3MtpV2Packages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -80,12 +68,10 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task XUnit3MtpV2_DoesNotInjectMTPExtensions()
+    public async Task Build_WhenXUnit3MtpV2_DoesNotInjectMtpExtensions()
     {
         await using var project = CreateProject();
-
-        foreach (var pkg in s_xUnit3MtpV2Packages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_xUnit3MtpV2Packages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -99,21 +85,16 @@ public abstract class MtpDetectionTests(
             .BuildAsync();
 
         var items = result.GetMsBuildItems("PackageReference");
-        Assert.DoesNotContain(items,
-            static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
-        Assert.DoesNotContain(items,
-            static i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
-        Assert.DoesNotContain(items,
-            static i => i.Contains("Microsoft.Testing.Extensions.HangDump", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items, static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items, static i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
+        Assert.DoesNotContain(items, static i => i.Contains("Microsoft.Testing.Extensions.HangDump", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public async Task XUnit3MtpV2_UsesNativeTrxOption()
+    public async Task Build_WhenXUnit3MtpV2_UsesNativeTrxCliArguments()
     {
         await using var project = CreateProject();
-
-        foreach (var pkg in s_xUnit3MtpV2Packages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_xUnit3MtpV2Packages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -134,12 +115,10 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task XUnit3MtpV1_IsMTP()
+    public async Task Detect_WhenXUnit3MtpV1PackagePresent_RecognizesAsMtp()
     {
         await using var project = CreateProject();
-
-        foreach (var pkg in s_xUnit3MtpV1Packages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_xUnit3MtpV1Packages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -157,16 +136,14 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task NUnit_WithEnableNUnitRunner_IsMTP()
+    public async Task Detect_WhenNUnitWithEnableNUnitRunner_RecognizesAsMtp()
     {
         await using var project = CreateProject(SdkName);
-
-        foreach (var pkg in s_nUnitMtpPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_nUnitMtpPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework("net10.0")
+            .WithTargetFramework(Tfm.Net100)
             .WithProperty("IsTestProject", "true")
             .WithProperty("EnableNUnitRunner", "true")
             .AddSource("Tests.cs", """
@@ -186,16 +163,14 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task MSTest_WithEnableMSTestRunner_IsMTP()
+    public async Task Detect_WhenMSTestWithEnableMSTestRunner_RecognizesAsMtp()
     {
         await using var project = CreateProject(SdkName);
-
-        foreach (var pkg in s_msTestMtpPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_msTestMtpPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework("net10.0")
+            .WithTargetFramework(Tfm.Net100)
             .WithProperty("IsTestProject", "true")
             .WithProperty("EnableMSTestRunner", "true")
             .AddSource("Tests.cs", """
@@ -215,16 +190,14 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task TUnit_IsMTP()
+    public async Task Detect_WhenTUnitPackagePresent_RecognizesAsMtp()
     {
         await using var project = CreateProject(SdkName);
-
-        foreach (var pkg in s_tUnitPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_tUnitPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework("net10.0")
+            .WithTargetFramework(Tfm.Net100)
             .WithProperty("IsTestProject", "true")
             .WithProperty("SkipXunitInjection", "true")
             .AddSource("Tests.cs", """
@@ -244,16 +217,14 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task MTP_DoesNotInjectMicrosoftNETTestSdk()
+    public async Task Build_WhenMtpEnabled_DoesNotInjectMicrosoftNetTestSdk()
     {
         await using var project = CreateProject(SdkName);
-
-        foreach (var pkg in s_tUnitPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_tUnitPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework("net10.0")
+            .WithTargetFramework(Tfm.Net100)
             .WithProperty("IsTestProject", "true")
             .WithProperty("SkipXunitInjection", "true")
             .AddSource("Tests.cs", """
@@ -266,22 +237,19 @@ public abstract class MtpDetectionTests(
                 """)
             .BuildAsync();
 
-        var items = result.GetMsBuildItems("PackageReference");
-        Assert.DoesNotContain(items,
+        Assert.DoesNotContain(result.GetMsBuildItems("PackageReference"),
             static i => i.Contains("Microsoft.NET.Test.Sdk", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public async Task MTP_InjectsMTPExtensions()
+    public async Task Build_WhenMtpEnabled_InjectsMtpExtensions()
     {
         await using var project = CreateProject(SdkName);
-
-        foreach (var pkg in s_tUnitPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_tUnitPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework("net10.0")
+            .WithTargetFramework(Tfm.Net100)
             .WithProperty("IsTestProject", "true")
             .WithProperty("SkipXunitInjection", "true")
             .AddSource("Tests.cs", """
@@ -295,19 +263,15 @@ public abstract class MtpDetectionTests(
             .BuildAsync();
 
         var items = result.GetMsBuildItems("PackageReference");
-        Assert.Contains(items,
-            static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
-        Assert.Contains(items,
-            static i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(items, static i => i.Contains("Microsoft.Testing.Extensions.CrashDump", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(items, static i => i.Contains("Microsoft.Testing.Extensions.TrxReport", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
-    public async Task SafetyGuard_WarnsWhenMTPWithLibraryOutputType()
+    public async Task Validate_WhenMtpEnabledWithLibraryOutput_WarnsOrErrors()
     {
         await using var project = CreateProject();
-
-        foreach (var pkg in s_xUnit3MtpV2Packages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_xUnit3MtpV2Packages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -330,12 +294,10 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task ExplicitProperty_UseMicrosoftTestingPlatform_EnablesMTP()
+    public async Task Enable_WhenUseMicrosoftTestingPlatformPropertyTrue_EnablesMtp()
     {
         await using var project = CreateProject();
-
-        foreach (var pkg in s_xUnit3MtpV2Packages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_xUnit3MtpV2Packages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -354,16 +316,10 @@ public abstract class MtpDetectionTests(
     }
 
     [Fact]
-    public async Task TestSdk_WithTUnit_ProducesExecutable()
+    public async Task Build_WhenTUnitWithoutOutputType_ProducesExecutable()
     {
-        // Verify .Test SDK's props-phase OutputType=Exe doesn't collide with
-        // TUnit detection in Tests.targets (which would also set OutputType=Exe
-        // inside _DetectTestFrameworksAndMTP). The first set wins; the second
-        // is a no-op via the empty-condition guard.
         await using var project = CreateProject();
-
-        foreach (var pkg in s_tUnitPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_tUnitPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -381,20 +337,14 @@ public abstract class MtpDetectionTests(
 
         result.ShouldHaveRecordedProperty("OutputType", "exe");
         result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
-
-        var runtimeConfigs = System.IO.Directory
-            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
-            .ToArray();
-        Assert.NotEmpty(runtimeConfigs);
+        AssertProducesExecutable(project);
     }
 
     [Fact]
-    public async Task TestSdk_WithNUnit_ProducesExecutable()
+    public async Task Build_WhenNUnitWithoutOutputType_ProducesExecutable()
     {
         await using var project = CreateProject();
-
-        foreach (var pkg in s_nUnitMtpPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_nUnitMtpPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -414,30 +364,17 @@ public abstract class MtpDetectionTests(
 
         result.ShouldHaveRecordedProperty("OutputType", "exe");
         result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
-
-        var runtimeConfigs = System.IO.Directory
-            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
-            .ToArray();
-        Assert.NotEmpty(runtimeConfigs);
+        AssertProducesExecutable(project);
     }
 
     [Theory]
     [InlineData(SdkImportStyle.ProjectElement)]
     [InlineData(SdkImportStyle.SdkElement)]
     [InlineData(SdkImportStyle.SdkElementDirectoryBuildProps)]
-    public async Task TestSdk_PropsPhaseExe_ProducesExecutable_AcrossImportStyles(SdkImportStyle style)
+    public async Task Build_WhenMtpWithoutOutputTypeAcrossImportStyles_ProducesExecutable(SdkImportStyle style)
     {
-        // The fix must work for all three SdkImportStyles. ProjectElement loads
-        // our .Test Sdk.props before Microsoft.NET.Sdk's inner Sdk.props (so
-        // OutputType is empty when our props-phase set runs). SdkElement and
-        // SdkElementDirectoryBuildProps load Microsoft.NET.Sdk *first* (which
-        // applies its OutputType=Library default), so our set must also override
-        // Library — otherwise the fix silently no-ops for those styles, exactly
-        // the accidental-happy-path failure mode.
         await using var project = CreateProject(style);
-
-        foreach (var pkg in s_xUnit3MtpV2Packages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_xUnit3MtpV2Packages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -452,28 +389,15 @@ public abstract class MtpDetectionTests(
             .BuildAsync();
 
         result.ShouldHaveRecordedProperty("OutputType", "exe");
-
-        var runtimeConfigs = System.IO.Directory
-            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
-            .ToArray();
-        Assert.NotEmpty(runtimeConfigs);
+        AssertProducesExecutable(project);
     }
 
     [Theory]
     [InlineData(SdkImportStyle.ProjectElement)]
     [InlineData(SdkImportStyle.SdkElement)]
     [InlineData(SdkImportStyle.SdkElementDirectoryBuildProps)]
-    public async Task TestSdk_ConsumerExplicitLibrary_WinsOverSdkDefault_AcrossImportStyles(SdkImportStyle style)
+    public async Task Build_WhenExplicitLibraryOutputAcrossImportStyles_ConsumerSettingWinsSdkDefault(SdkImportStyle style)
     {
-        // Consumer's csproj <OutputType>Library</OutputType> must override the
-        // .Test SDK's props-phase Exe set — that's the documented escape hatch
-        // for the rare VSTest-on-.Test-SDK scenario. The csproj PropertyGroup
-        // body evaluates after our Sdk.props, so the consumer's value wins.
-        // SafetyGuard_WarnsWhenMTPWithLibraryOutputType also covers this
-        // implicitly (its warning only fires if Library actually persists), but
-        // assert the value directly here and across all import styles since the
-        // SdkElement case is where the .Test SDK has to override Microsoft.NET.Sdk's
-        // Library default — easy to break without noticing.
         await using var project = CreateProject(style);
 
         var result = await project
@@ -486,19 +410,17 @@ public abstract class MtpDetectionTests(
 
         result.ShouldHaveRecordedProperty("OutputType", "library");
 
-        var runtimeConfigs = System.IO.Directory
-            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
+        var runtimeConfigs = Directory
+            .EnumerateFiles(project.RootFolder, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
             .ToArray();
         Assert.Empty(runtimeConfigs);
     }
 
     [Fact]
-    public async Task TestSdk_WithMSTest_ProducesExecutable()
+    public async Task Build_WhenMSTestWithoutOutputType_ProducesExecutable()
     {
         await using var project = CreateProject();
-
-        foreach (var pkg in s_msTestMtpPackages)
-            project.WithPackage(pkg.Name, pkg.Version);
+        AddPackages(project, s_msTestMtpPackages);
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
@@ -518,10 +440,6 @@ public abstract class MtpDetectionTests(
 
         result.ShouldHaveRecordedProperty("OutputType", "exe");
         result.ShouldHaveRecordedProperty("UseMicrosoftTestingPlatform", "true");
-
-        var runtimeConfigs = System.IO.Directory
-            .EnumerateFiles(project.ProjectDirectoryPath, "Sample.Tests.runtimeconfig.json", SearchOption.AllDirectories)
-            .ToArray();
-        Assert.NotEmpty(runtimeConfigs);
+        AssertProducesExecutable(project);
     }
 }
