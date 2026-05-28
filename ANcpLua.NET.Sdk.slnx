@@ -9,7 +9,6 @@
         <File Path="NuGet.config" />
         <File Path="LICENSE.txt" />
         <File Path="README.md" />
-        <File Path="CLAUDE.md" />
     </Folder>
 
     <!-- SDK Packages -->

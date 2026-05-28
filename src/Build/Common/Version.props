@@ -28,10 +28,9 @@
 
   <PropertyGroup Label="Meziantou">
     <MeziantouFrameworkVersion>5.0.15</MeziantouFrameworkVersion>
-    <MeziantouFullPathVersion>1.1.19</MeziantouFullPathVersion>
-    <MeziantouTemporaryDirectoryVersion>1.0.38</MeziantouTemporaryDirectoryVersion>
-    <MeziantouThreadingVersion>2.0.4</MeziantouThreadingVersion>
-    <MeziantouDependencyScanningVersion>2.0.11</MeziantouDependencyScanningVersion>
+    <MeziantouFullPathVersion>2.0.1</MeziantouFullPathVersion>
+    <MeziantouTemporaryDirectoryVersion>2.0.1</MeziantouTemporaryDirectoryVersion>
+    <MeziantouDependencyScanningVersion>2.0.16</MeziantouDependencyScanningVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Testing">
@@ -89,7 +88,8 @@
   <PropertyGroup Label="OpenAPI">
     <MicrosoftOpenApiVersion>3.3.1</MicrosoftOpenApiVersion>
     <MicrosoftOpenApiReadersVersion>2.0.0-preview.13</MicrosoftOpenApiReadersVersion>
-    <YamlDotNetVersion>17.0.1</YamlDotNetVersion>
+    <!-- Floored at >=17.1.0 by Meziantou.Framework.DependencyScanning 2.0.16 (transitive); lowering it is NU1109 under CPM. -->
+    <YamlDotNetVersion>17.1.0</YamlDotNetVersion>
   </PropertyGroup>
 
   <!--

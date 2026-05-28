@@ -173,8 +173,8 @@ NuGet package (use `…Roslyn.Utilities.Sources` for `netstandard2.0` generators
 
 **SDK-internal exception (not part of the SDK contract):** this repo's *own* test project is
 an ordinary consumer of `ANcpLua.Roslyn.Utilities.Testing`, so its version is pinned in
-**`Directory.Packages.props`** — `ANcpLuaRoslynUtilitiesTestingVersion` (currently `2.2.22`),
-in the `PropertyGroup Label="SDK-internal first-party pins"`. It lives there, **not** in
+**`Directory.Packages.props`** — `ANcpLuaRoslynUtilitiesTestingVersion`, in the
+`PropertyGroup Label="SDK-internal first-party pins"`. It lives there, **not** in
 `Version.props`, on purpose: `Version.props` ships inside the packages and flows to every
 consumer, so a self-test-only dependency must stay out of it. The pin exists so the AL analyzer
 lint and CPM (which require a version for every `PackageReference`) stay happy.
