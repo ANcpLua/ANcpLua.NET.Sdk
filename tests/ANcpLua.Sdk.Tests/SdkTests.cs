@@ -879,9 +879,10 @@ public abstract class SdkTests(
         var nuspecReader = await packageReader.GetNuspecReaderAsync(TestContext.Current.CancellationToken);
         Assert.Equal(SdkBrandingConstants.Author, nuspecReader.GetAuthors());
         Assert.Null(nuspecReader.GetIcon());
-        Assert.Equal(LicenseType.Expression, nuspecReader.GetLicenseMetadata().Type);
-        Assert.Equal(LicenseExpressionType.License, nuspecReader.GetLicenseMetadata().LicenseExpression.Type);
-        Assert.Equal("MIT", ((NuGetLicense)nuspecReader.GetLicenseMetadata().LicenseExpression).Identifier);
+        var license = nuspecReader.GetLicenseMetadata()!;
+        Assert.Equal(LicenseType.Expression, license.Type);
+        Assert.Equal(LicenseExpressionType.License, license.LicenseExpression!.Type);
+        Assert.Equal("MIT", ((NuGetLicense)license.LicenseExpression!).Identifier);
         Assert.Equal("git", nuspecReader.GetRepositoryMetadata().Type);
         Assert.Equal("https://github.com/ancplua/sample.git", nuspecReader.GetRepositoryMetadata().Url);
         Assert.Equal("refs/heads/main", nuspecReader.GetRepositoryMetadata().Branch);
