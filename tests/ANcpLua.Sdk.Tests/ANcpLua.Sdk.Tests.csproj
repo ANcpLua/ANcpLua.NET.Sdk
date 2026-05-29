@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="AwesomeAssertions"/>
-    <PackageReference Include="Meziantou.Framework.FullPath"/>
     <PackageReference Include="Meziantou.Framework.ProcessWrapper"/>
     <PackageReference Include="Meziantou.Framework.TemporaryDirectory"/>
     <PackageReference Include="Microsoft.Deployment.DotNet.Releases"/>
