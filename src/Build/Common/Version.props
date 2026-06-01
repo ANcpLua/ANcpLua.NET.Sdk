@@ -42,11 +42,14 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
-    <!-- 2.0.1: DocsGenerator + per-rule HelpLinkUri anchors + GitHub README replaces dead mintlify URL.
-         AL repo HEAD is 90e6431; package indexed on nuget.org 2026-05-26.
+    <!-- 2.0.2: gate the AL1200-band "use ANcpLua.Roslyn.Utilities helper" rules (AL1204-AL1220) to
+         projects that actually reference the package, so they no longer flag plain consumer code nor
+         offer a code fix that rewrites to a symbol the consumer cannot resolve. AL repo HEAD is df94843.
+         NOTE: this bump is effective only once 2.0.2 is indexed on nuget.org — restoring an
+         unpublished version fails with NU1102, so do not ship this SDK until then.
          Bundled per-rule editorconfig in src/Config/Analyzer.ANcpLua.Analyzers.editorconfig
          is regenerated from the published DLL's HelpLinkUri by ConfigFilesGenerator. -->
-    <ANcpLuaAnalyzersVersion>2.0.1</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>2.0.2</ANcpLuaAnalyzersVersion>
     <NetAnalyzersVersion Condition="'$(NetAnalyzersVersion)' == ''">$(DotNetSdkVersion)</NetAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
