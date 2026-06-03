@@ -220,7 +220,7 @@ jobs:
         id: nuget-login
         uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 # v1
         with:
-          user: ANcpLua
+          user: ${{ secrets.NUGET_USER }}
 
       - name: Publish NuGet packages
         if: steps.has_changes.outputs.has_changes == 'true'
