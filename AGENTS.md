@@ -13,7 +13,7 @@ policy enforcement, and analyzer injection that consuming `.csproj`s opt into wi
 
 Branch protection, auto-merge, release flow, and the cross-repo bootstrap rules for
 the four ANcpLua framework repos are documented once at
-[ANcpLua/github-settings-automation](https://github.com/ANcpLua/github-settings-automation).
+[ANcpLua/renovate-config](https://github.com/ANcpLua/renovate-config#ancplua-framework-conventions--renovate-config).
 This file documents conventions specific to *this* repo only.
 
 ## Packages produced
@@ -48,7 +48,7 @@ dotnet test tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 #     --filter-method "*BannedApi*"     --filter-class "*MtpDetectionTests"
 
 # Pack all 4 NuGet packages to artifacts/ (stamps the version into Version.props first)
-pwsh ./build.ps1 -Version 3.4.37
+pwsh ./build.ps1 -Version <x.y.z>   # local pack only; CI computes the real version from the latest tag
 #   or a single package: dotnet pack src/ANcpLua.NET.Sdk.csproj -c Release -o artifacts
 
 # Regenerate GENERATED files after changing their inputs (do not hand-edit the outputs):
@@ -135,7 +135,7 @@ Analyzers are injected as `GlobalPackageReference` (immutable under CPM) by
 
 | Injected analyzer | Scope |
 |-------------------|-------|
-| `ANcpLua.Analyzers` | all projects (89 AL00xx/AL18xx rules) |
+| `ANcpLua.Analyzers` | all projects (the AL-rule set; counts drift — see that repo's `AnalyzerReleases.*.md`) |
 | `Microsoft.CodeAnalysis.BannedApiAnalyzers` | all projects (`src/Config/BannedSymbols*.txt`) |
 | `AwesomeAssertions.Analyzers` | test projects only |
 
@@ -209,8 +209,10 @@ Bevor du eine Variable bumpst:
   ein Bump nicht greift, steht der Grund in der Restore-Fehlermeldung — lesen.
 - **Lokales Override gleich/unter Truth ist Müll** (Doppelpflege bzw. stille Regression) —
   prunen, sobald die SDK mit matching Werten publisht.
-- **Publish triggert auf Tag-Push `v*`, gegated durch Tests.** Ein Tag auf einen build-broken
-  Commit publisht nicht. Statt remote zu re-assignen (≈ Force-Push), nächste Patch-Version nehmen.
+- **Publish-Trigger ist repo-abhängig.** Roslyn.Utilities, NET.Sdk und Agents publishen auf
+  **Push nach `main`** (CI auto-bumpt den Patch vom letzten `v*`-Tag und legt den Tag danach an);
+  Analyzers publisht auf **`v*`-Tag-Push**. So oder so: ein build-broken Commit publisht nicht —
+  nächste Patch-Version nehmen statt einen Remote-Tag umzuhängen.
 - **Verifiziere Versionen vor dem Bump** via
   `https://api.nuget.org/v3-flatcontainer/<lowercased-id>/index.json`.
 
