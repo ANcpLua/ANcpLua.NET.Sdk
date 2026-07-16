@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label=".NET SDK">
-    <DotNetSdkVersion>10.0.300</DotNetSdkVersion>
+    <DotNetSdkVersion>10.0.301</DotNetSdkVersion>
     <DotNetSdkRollForward>latestMinor</DotNetSdkRollForward>
   </PropertyGroup>
 
@@ -19,14 +19,14 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Reference Assemblies">
-    <BasicReferenceAssembliesVersion>1.8.8</BasicReferenceAssembliesVersion>
+    <BasicReferenceAssembliesVersion>1.8.9</BasicReferenceAssembliesVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Meziantou">
-    <MeziantouFrameworkVersion>5.0.19</MeziantouFrameworkVersion>
-    <MeziantouFullPathVersion>2.0.1</MeziantouFullPathVersion>
-    <MeziantouProcessWrapperVersion>1.0.14</MeziantouProcessWrapperVersion>
-    <MeziantouTemporaryDirectoryVersion>2.0.1</MeziantouTemporaryDirectoryVersion>
+    <MeziantouFrameworkVersion>6.0.1</MeziantouFrameworkVersion>
+    <MeziantouFullPathVersion>3.0.1</MeziantouFullPathVersion>
+    <MeziantouProcessWrapperVersion>2.0.1</MeziantouProcessWrapperVersion>
+    <MeziantouTemporaryDirectoryVersion>3.0.1</MeziantouTemporaryDirectoryVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Testing">
@@ -36,8 +36,8 @@
   </PropertyGroup>
 
   <PropertyGroup Label="MTP Extensions">
-    <MTPExtensionsVersion>2.2.3</MTPExtensionsVersion>
-    <CodeCoverageVersion>18.7.0</CodeCoverageVersion>
+    <MTPExtensionsVersion>2.3.2</MTPExtensionsVersion>
+    <CodeCoverageVersion>18.9.0</CodeCoverageVersion>
     <GitHubActionsLoggerMTPVersion>3.0.4</GitHubActionsLoggerMTPVersion>
   </PropertyGroup>
 
@@ -48,47 +48,42 @@
          pointing SDK truth at an unpublished version fails restore with NU1102.
          Bundled per-rule editorconfig in src/Config/Analyzer.ANcpLua.Analyzers.editorconfig
          is regenerated from the published DLL's HelpLinkUri by ConfigFilesGenerator. -->
-    <ANcpLuaAnalyzersVersion>2.1.0</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>2.1.1</ANcpLuaAnalyzersVersion>
     <NetAnalyzersVersion Condition="'$(NetAnalyzersVersion)' == ''">$(DotNetSdkVersion)</NetAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
-    <BannedApiAnalyzersVersion>4.14.0</BannedApiAnalyzersVersion>
+    <BannedApiAnalyzersVersion>5.6.0</BannedApiAnalyzersVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Microsoft.Extensions">
-    <MicrosoftExtensionsVersion>10.6.0</MicrosoftExtensionsVersion>
-    <AspNetCoreVersion>10.0.8</AspNetCoreVersion>
-    <MicrosoftBclAsyncInterfacesVersion>10.0.8</MicrosoftBclAsyncInterfacesVersion>
+    <MicrosoftExtensionsVersion>10.8.0</MicrosoftExtensionsVersion>
+    <AspNetCoreVersion>10.0.10</AspNetCoreVersion>
+    <MicrosoftBclAsyncInterfacesVersion>10.0.10</MicrosoftBclAsyncInterfacesVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Build Tools">
     <NuGetVersion>7.6.0</NuGetVersion>
-    <MSBuildStructuredLoggerVersion>2.3.204</MSBuildStructuredLoggerVersion>
-  </PropertyGroup>
-
-  <!-- OpenApi.Readers has no stable 2.0; still on preview. -->
-  <PropertyGroup Label="OpenAPI">
+    <MSBuildStructuredLoggerVersion>2.3.213</MSBuildStructuredLoggerVersion>
   </PropertyGroup>
 
   <!--
-    Microsoft.Agents.AI (MAF 1.4.0). Numeric base ships in lockstep from upstream;
+    Microsoft.Agents.AI (MAF 1.13.0). Numeric base ships in lockstep from upstream;
     family spans mixed release tracks — highest experimental track per package:
-      stable     : core, Abstractions, Workflows, OpenAI
+      stable     : core, Abstractions, Workflows, OpenAI, Workflows.Declarative
       -preview.* : Hosting, Hosting.AGUI.AspNetCore, Anthropic, DevUI
-      -rc1       : Workflows.Declarative
     Mismatched numeric bases break assembly binding. Mismatched tracks within
     the same numeric base are what upstream actually ships — keep aligned, accept
     the suffix variance.
   -->
   <PropertyGroup Label="Microsoft.Agents">
-    <MicrosoftAgentsAIVersion Condition="'$(MicrosoftAgentsAIVersion)' == ''">1.4.0</MicrosoftAgentsAIVersion>
-    <MicrosoftAgentsAIAbstractionsVersion Condition="'$(MicrosoftAgentsAIAbstractionsVersion)' == ''">1.4.0</MicrosoftAgentsAIAbstractionsVersion>
-    <MicrosoftAgentsAIWorkflowsVersion Condition="'$(MicrosoftAgentsAIWorkflowsVersion)' == ''">1.4.0</MicrosoftAgentsAIWorkflowsVersion>
-    <MicrosoftAgentsAIOpenAIVersion Condition="'$(MicrosoftAgentsAIOpenAIVersion)' == ''">1.4.0</MicrosoftAgentsAIOpenAIVersion>
-    <MicrosoftAgentsAIHostingVersion Condition="'$(MicrosoftAgentsAIHostingVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIHostingVersion>
-    <MicrosoftAgentsAIHostingAGUIAspNetCoreVersion Condition="'$(MicrosoftAgentsAIHostingAGUIAspNetCoreVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>
-    <MicrosoftAgentsAIAnthropicVersion Condition="'$(MicrosoftAgentsAIAnthropicVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIAnthropicVersion>
-    <MicrosoftAgentsAIDevUIVersion Condition="'$(MicrosoftAgentsAIDevUIVersion)' == ''">1.4.0-preview.260505.1</MicrosoftAgentsAIDevUIVersion>
-    <MicrosoftAgentsAIWorkflowsDeclarativeVersion Condition="'$(MicrosoftAgentsAIWorkflowsDeclarativeVersion)' == ''">1.4.0-rc1</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
+    <MicrosoftAgentsAIVersion Condition="'$(MicrosoftAgentsAIVersion)' == ''">1.13.0</MicrosoftAgentsAIVersion>
+    <MicrosoftAgentsAIAbstractionsVersion Condition="'$(MicrosoftAgentsAIAbstractionsVersion)' == ''">1.13.0</MicrosoftAgentsAIAbstractionsVersion>
+    <MicrosoftAgentsAIWorkflowsVersion Condition="'$(MicrosoftAgentsAIWorkflowsVersion)' == ''">1.13.0</MicrosoftAgentsAIWorkflowsVersion>
+    <MicrosoftAgentsAIOpenAIVersion Condition="'$(MicrosoftAgentsAIOpenAIVersion)' == ''">1.13.0</MicrosoftAgentsAIOpenAIVersion>
+    <MicrosoftAgentsAIHostingVersion Condition="'$(MicrosoftAgentsAIHostingVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIHostingVersion>
+    <MicrosoftAgentsAIHostingAGUIAspNetCoreVersion Condition="'$(MicrosoftAgentsAIHostingAGUIAspNetCoreVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>
+    <MicrosoftAgentsAIAnthropicVersion Condition="'$(MicrosoftAgentsAIAnthropicVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIAnthropicVersion>
+    <MicrosoftAgentsAIDevUIVersion Condition="'$(MicrosoftAgentsAIDevUIVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIDevUIVersion>
+    <MicrosoftAgentsAIWorkflowsDeclarativeVersion Condition="'$(MicrosoftAgentsAIWorkflowsDeclarativeVersion)' == ''">1.13.0</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Aliases">
