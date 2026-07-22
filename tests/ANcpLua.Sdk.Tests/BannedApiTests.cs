@@ -5,11 +5,11 @@ public sealed class BannedApiTests(PackageFixture fixture) : SdkTestBase(fixture
     private const string Rs0030 = "RS0030";
 
     [Fact]
-    public async Task Detect_WhenArgumentNullExceptionThrowIfNullUsed_ReportsRs0030()
+    public async Task Detect_WhenArgumentNullExceptionThrowIfNullUsed_DoesNotReportRs0030()
     {
         var result = await BuildLibraryAsync("""
             namespace Consumer;
-            internal class BannedUsage
+            internal class AllowedUsage
             {
                 public void Validate(object? value)
                 {
@@ -18,15 +18,15 @@ public sealed class BannedApiTests(PackageFixture fixture) : SdkTestBase(fixture
             }
             """);
 
-        result.ShouldSucceed().ShouldHaveWarning(Rs0030);
+        result.ShouldSucceed().ShouldNotHaveWarning(Rs0030);
     }
 
     [Fact]
-    public async Task Detect_WhenArgumentExceptionThrowIfNullOrWhiteSpaceUsed_ReportsRs0030()
+    public async Task Detect_WhenArgumentExceptionThrowIfNullOrWhiteSpaceUsed_DoesNotReportRs0030()
     {
         var result = await BuildLibraryAsync("""
             namespace Consumer;
-            internal class BannedUsage
+            internal class AllowedUsage
             {
                 public void Validate(string? value)
                 {
@@ -35,7 +35,24 @@ public sealed class BannedApiTests(PackageFixture fixture) : SdkTestBase(fixture
             }
             """);
 
-        result.ShouldSucceed().ShouldHaveWarning(Rs0030);
+        result.ShouldSucceed().ShouldNotHaveWarning(Rs0030);
+    }
+
+    [Fact]
+    public async Task Detect_WhenArgumentOutOfRangeExceptionThrowIfNegativeUsed_DoesNotReportRs0030()
+    {
+        var result = await BuildLibraryAsync("""
+            namespace Consumer;
+            internal class AllowedUsage
+            {
+                public void Validate(int value)
+                {
+                    ArgumentOutOfRangeException.ThrowIfNegative(value);
+                }
+            }
+            """);
+
+        result.ShouldSucceed().ShouldNotHaveWarning(Rs0030);
     }
 
     [Fact]

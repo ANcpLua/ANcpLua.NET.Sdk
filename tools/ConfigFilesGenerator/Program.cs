@@ -21,6 +21,67 @@ using NuGet.Versioning;
 
 const int CompilerAnalyzerConfigGlobalLevel = 40;
 
+const string DefaultBannedSymbols = """
+    # DateTime - use TimeProvider.System.GetUtcNow()
+    P:System.DateTime.Now;Use TimeProvider.System.GetUtcNow() instead
+    P:System.DateTime.UtcNow;Use TimeProvider.System.GetUtcNow() instead
+    P:System.DateTimeOffset.Now;Use TimeProvider.System.GetUtcNow() instead
+    P:System.DateTimeOffset.UtcNow;Use TimeProvider.System.GetUtcNow() instead
+
+    # NOT banned: SemaphoreSlim (valid for async), lock keyword (can't ban)
+    P:System.IO.FileSystemInfo.CreationTime;Use CreationTimeUtc instead
+    P:System.IO.FileSystemInfo.LastAccessTime;Use LastAccessTimeUtc instead
+    P:System.IO.FileSystemInfo.LastWriteTime;Use LastWriteTimeUtc instead
+
+    M:System.IO.File.GetCreationTime(System.String);Use GetCreationTimeUtc instead
+    M:System.IO.File.GetCreationTime(Microsoft.Win32.SafeHandles.SafeFileHandle);Use GetCreationTimeUtc instead
+    M:System.IO.File.GetLastAccessTime(System.String);Use GetLastAccessTimeUtc instead
+    M:System.IO.File.GetLastAccessTime(Microsoft.Win32.SafeHandles.SafeFileHandle);Use GetLastAccessTimeUtc instead
+    M:System.IO.File.GetLastWriteTime(System.String);Use GetLastWriteTimeUtc instead
+    M:System.IO.File.GetLastWriteTime(Microsoft.Win32.SafeHandles.SafeFileHandle);Use GetLastWriteTimeUtc instead
+    M:System.IO.File.SetCreationTime(System.String,System.DateTime);Use SetCreationTimeUtc instead
+    M:System.IO.File.SetCreationTime(Microsoft.Win32.SafeHandles.SafeFileHandle,System.DateTime);Use SetCreationTimeUtc instead
+    M:System.IO.File.SetLastAccessTime(System.String,System.DateTime);Use SetLastAccessTimeUtc instead
+    M:System.IO.File.SetLastAccessTime(Microsoft.Win32.SafeHandles.SafeFileHandle,System.DateTime);Use SetLastAccessTimeUtc instead
+    M:System.IO.File.SetLastWriteTime(System.String,System.DateTime);Use SetLastWriteTimeUtc instead
+    M:System.IO.File.SetLastWriteTime(Microsoft.Win32.SafeHandles.SafeFileHandle,System.DateTime);Use SetLastWriteTimeUtc instead
+
+    M:System.IO.Directory.GetCreationTime(System.String);Use GetCreationTimeUtc instead
+    M:System.IO.Directory.GetLastWriteTime(System.String);Use GetLastWriteTimeUtc instead
+    M:System.IO.Directory.GetLastAccessTime(System.String);Use GetLastAccessTimeUtc instead
+    M:System.IO.Directory.SetCreationTime(System.String,System.DateTime);Use SetCreationTimeUtc instead
+    M:System.IO.Directory.SetLastAccessTime(System.String,System.DateTime);Use SetLastAccessTimeUtc instead
+    M:System.IO.Directory.SetLastWriteTime(System.String,System.DateTime);Use SetLastWriteTimeUtc instead
+
+    F:System.StringComparison.InvariantCulture;Do you mean Ordinal?
+    F:System.StringComparison.InvariantCultureIgnoreCase;Do you mean OrdinalIgnoreCase?
+    P:System.StringComparer.InvariantCulture;Do you mean Ordinal?
+    P:System.StringComparer.InvariantCultureIgnoreCase;Do you mean OrdinalIgnoreCase?
+
+    M:System.Enum.TryParse(System.Type,System.String,System.Object);Use an overload with a ignoreCase argument
+    M:System.Enum.TryParse(System.Type,System.ReadOnlySpan{System.Char},System.Object);Use an overload with a ignoreCase argument
+    M:System.Enum.TryParse``1(System.String,``0@);Use an overload with a ignoreCase argument
+    M:System.Enum.TryParse``1(System.ReadOnlySpan{System.Char},``0@);Use an overload with a ignoreCase argument
+
+    M:System.Math.Round(System.Decimal);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+    M:System.Math.Round(System.Decimal,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+    M:System.Math.Round(System.Double);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+    M:System.Math.Round(System.Double,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+    M:System.MathF.Round(System.Single);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+    M:System.MathF.Round(System.Single,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+
+    M:System.Globalization.CultureInfo.#ctor(System.String);Use CultureInfo.GetCultureInfo
+
+    T:System.Tuple`1;Use System.ValueTuple`1
+    T:System.Tuple`2;Use System.ValueTuple`2
+    T:System.Tuple`3;Use System.ValueTuple`3
+    T:System.Tuple`4;Use System.ValueTuple`4
+    T:System.Tuple`5;Use System.ValueTuple`5
+    T:System.Tuple`6;Use System.ValueTuple`6
+    T:System.Tuple`7;Use System.ValueTuple`7
+    T:System.Tuple`8;Use System.ValueTuple`8
+    """;
+
 var rootFolder = GetRootFolderPath();
 var msbuildProperties = LoadMsBuildProperties(rootFolder);
 
@@ -47,6 +108,7 @@ foreach (var (packageId, propertyName) in injectedAnalyzerPackages)
 var writtenFiles = 0;
 await GenerateEditorConfigForCompilerAnalyzers().ConfigureAwait(false);
 await GenerateEditorConfigForAnalyzers().ConfigureAwait(false);
+await GenerateDefaultBannedSymbols().ConfigureAwait(false);
 await GenerateBanSymbolsForNewtonsoftJson().ConfigureAwait(false);
 
 Console.WriteLine($"{writtenFiles} configuration files written");
@@ -433,6 +495,21 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
     if (File.Exists(bannedSymbolsFilePath))
         if (File.ReadAllText(bannedSymbolsFilePath).ReplaceLineEndings("\n") == text)
             return;
+
+    bannedSymbolsFilePath.CreateParentDirectory();
+    await File.WriteAllTextAsync(bannedSymbolsFilePath, text).ConfigureAwait(false);
+    Interlocked.Increment(ref writtenFiles);
+}
+
+async Task GenerateDefaultBannedSymbols()
+{
+    var bannedSymbolsFilePath = rootFolder / "src" / "Config" / "BannedSymbols.txt";
+    var text = DefaultBannedSymbols.ReplaceLineEndings("\n").TrimEnd('\n') + "\n";
+    if (File.Exists(bannedSymbolsFilePath) &&
+        File.ReadAllText(bannedSymbolsFilePath).ReplaceLineEndings("\n") == text)
+    {
+        return;
+    }
 
     bannedSymbolsFilePath.CreateParentDirectory();
     await File.WriteAllTextAsync(bannedSymbolsFilePath, text).ConfigureAwait(false);
