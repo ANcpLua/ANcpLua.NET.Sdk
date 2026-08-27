@@ -271,6 +271,11 @@ dotnet_diagnostic.IDE0390.severity = silent
 # Enabled: True, Severity: silent
 dotnet_diagnostic.IDE0391.severity = silent
 
+# IDE0410: Use labeled jump statement
+# Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0410
+# Enabled: True, Severity: silent
+dotnet_diagnostic.IDE0410.severity = silent
+
 # IDE2000: Avoid multiple blank lines
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide2000
 # Enabled: True, Severity: silent
