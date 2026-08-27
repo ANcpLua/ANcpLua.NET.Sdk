@@ -39,20 +39,53 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          git diff --exit-code
-          if ($LASTEXITCODE -eq 0) {
-            echo "has_changes=false" >> $env:GITHUB_OUTPUT
+          # Deliberately NOT `git diff --exit-code`. GitHub wraps every pwsh step as
+          # `. 'script.ps1'` and appends `exit $LASTEXITCODE`, so a git command that exits 1
+          # to signal "there is a diff" fails the whole step *after* the output is set —
+          # which is why this gate could never reach the commit step below and had to be
+          # healed by hand (Roslyn 5.9 adding IDE0410, 2026-08-27).
+          # `git status --porcelain` reports the same drift while always exiting 0, and it
+          # also lists untracked files, which `git diff` misses but `git add -A` would commit.
+          $changes = git status --porcelain
+          if ([string]::IsNullOrWhiteSpace($changes)) {
+            Write-Host "Generated config files are up to date."
+            "has_changes=false" >> $env:GITHUB_OUTPUT
           } else {
-            echo "has_changes=true" >> $env:GITHUB_OUTPUT
+            Write-Host "Generated config files drifted:"
+            Write-Host $changes
+            "has_changes=true" >> $env:GITHUB_OUTPUT
           }
       - name: Commit and push changes
         if: steps.check_changes.outputs.has_changes == 'true' && github.repository == 'ANcpLua/ANcpLua.NET.Sdk'
+        env:
+          # Via env, never interpolated into the script body: head_ref is the PR author's
+          # branch name and a fork can name a branch almost anything, so `${{ }}` inline
+          # would be a script-injection sink.
+          BRANCH: ${{ github.head_ref || github.ref_name }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -m "Update configuration files"
-          git push
+          if ($LASTEXITCODE -ne 0) { throw "git commit failed" }
+
+          # Push by explicit refspec: `ref:` above checks out a branch name, but a bare
+          # `git push` still needs the branch to have an upstream. Retry on rejection so a
+          # concurrent merge into the branch doesn't turn a self-heal into a red build.
+          $branch = $env:BRANCH
+          foreach ($attempt in 1..3) {
+            git push origin "HEAD:refs/heads/$branch"
+            if ($LASTEXITCODE -eq 0) {
+              Write-Host "Pushed regenerated config files to $branch."
+              exit 0
+            }
+            Write-Host "Push rejected (attempt $attempt of 3) - rebasing onto origin/$branch"
+            git fetch origin $branch
+            if ($LASTEXITCODE -ne 0) { throw "git fetch failed" }
+            git rebase "origin/$branch"
+            if ($LASTEXITCODE -ne 0) { throw "git rebase failed - resolve the config drift by hand" }
+          }
+          throw "Could not push regenerated config files after 3 attempts"
 
   compute_version:
     runs-on: ubuntu-latest
@@ -103,10 +136,23 @@ jobs:
             "package_version=$NewVersion" >> $env:GITHUB_OUTPUT
 
   create_nuget:
-    needs: [compute_version]
+    # lint_config must land BEFORE packing. It used to run in parallel, so on a drift run
+    # it would commit the regenerated src/Config/*.editorconfig while this job packed the
+    # stale ones — and deploy would publish that stale package. The self-heal commit is
+    # pushed with GITHUB_TOKEN, which by design triggers no new workflow run, so nothing
+    # would have re-packed it either: the fix would sit on main unreleased.
+    needs: [compute_version, lint_config]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          # Take the branch tip so a self-heal commit from lint_config is packed. This must
+          # cover workflow_dispatch as well as push: deploy's gate is `github.ref ==
+          # 'refs/heads/main'`, which a manual dispatch against main also satisfies, so
+          # restricting this to push would still let a dispatch publish stale config.
+          # Empty on pull_request to keep the default merge-ref checkout, which fork PRs
+          # depend on (their head branch does not exist in this repo).
+          ref: ${{ github.event_name != 'pull_request' && github.ref_name || '' }}
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6
         with:
           global-json-file: global.json
@@ -169,6 +215,10 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
         with:
           fetch-depth: 0
+          # Match create_nuget: "Must Publish Packages" below diffs HEAD against the previous
+          # tag over src/**, so it must see any self-heal commit too. At the run SHA, a release
+          # whose only change was a regenerated config would be judged "no changes" and skipped.
+          ref: ${{ github.event_name != 'pull_request' && github.ref_name || '' }}
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           name: nuget
