@@ -273,6 +273,86 @@ dotnet_diagnostic.xUnit1052.severity = warning
 # Enabled: True, Severity: warning
 dotnet_diagnostic.xUnit1053.severity = warning
 
+# xUnit1054: Properties used for conditional skipping must be public, static, and return bool
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1054
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1054.severity = error
+
+# xUnit1055: Conditional skipping cannot set both SkipUnless and SkipWhen
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1055
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1055.severity = error
+
+# xUnit1056: Type must have a single public non-static constructor
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1056
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1056.severity = error
+
+# xUnit1057: Type must be public or internal
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1057
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1057.severity = error
+
+# xUnit1058: Generic collection definitions are not supported in Native AOT
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1058
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1058.severity = error
+
+# xUnit1059: Test classes may not be decorated with ICollectionFixture<>
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1059
+# Enabled: True, Severity: warning
+dotnet_diagnostic.xUnit1059.severity = warning
+
+# xUnit1060: Cultured test methods must have at least one culture
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1060
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1060.severity = error
+
+# xUnit1061: Fact methods cannot be generic
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1061
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1061.severity = error
+
+# xUnit1062: Theory methods cannot be generic in Native AOT
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1062
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1062.severity = error
+
+# xUnit1063: Test classes cannot be an open generic type
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1063
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1063.severity = error
+
+# xUnit1064: Theory parameter cannot use params modifier in Native AOT
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1064
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1064.severity = error
+
+# xUnit1065: MemberData method is ambiguous
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1065
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1065.severity = error
+
+# xUnit1066: MemberData parameter cannot use params modifier in Native AOT
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1066
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1066.severity = error
+
+# xUnit1067: There is no matching MemberData method argument
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1067
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1067.severity = error
+
+# xUnit1068: MemberData cannot point to an open generic type
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1068
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit1068.severity = error
+
+# xUnit1069: Test methods with a Timeout should reference TestContext.Current.CancellationToken
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit1069
+# Enabled: True, Severity: warning
+dotnet_diagnostic.xUnit1069.severity = warning
+
 # xUnit2000: Constants and literals should be the expected argument
 # Help link: https://xunit.net/xunit.analyzers/rules/xUnit2000
 # Enabled: True, Severity: warning
@@ -433,6 +513,11 @@ dotnet_diagnostic.xUnit2031.severity = warning
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.xUnit2032.severity = suggestion
 
+# xUnit2033: Use the assertion return value instead of re-deriving it
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit2033
+# Enabled: True, Severity: suggestion
+dotnet_diagnostic.xUnit2033.severity = suggestion
+
 # xUnit3000: Classes which cross AppDomain boundaries must derive directly or indirectly from LongLivedMarshalByRefObject
 # Help link: https://xunit.net/xunit.analyzers/rules/xUnit3000
 # Enabled: True, Severity: error
@@ -452,3 +537,23 @@ dotnet_diagnostic.xUnit3002.severity = warning
 # Help link: https://xunit.net/xunit.analyzers/rules/xUnit3003
 # Enabled: True, Severity: warning
 dotnet_diagnostic.xUnit3003.severity = warning
+
+# xUnit3004: The given type is missing a required interface implementation
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit3004
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit3004.severity = error
+
+# xUnit3005: Type must have an appropriate non-obsolete public constructor
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit3005
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit3005.severity = error
+
+# xUnit3006: Test case implementation must be serializable
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit3006
+# Enabled: True, Severity: error
+dotnet_diagnostic.xUnit3006.severity = error
+
+# xUnit3007: Test case implementation might not be serializable
+# Help link: https://xunit.net/xunit.analyzers/rules/xUnit3007
+# Enabled: True, Severity: warning
+dotnet_diagnostic.xUnit3007.severity = warning

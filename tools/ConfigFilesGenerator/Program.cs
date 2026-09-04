@@ -458,7 +458,9 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
 
     var package = await DownloadNuGetPackage("Newtonsoft.Json", null, NullLogger.Instance, CancellationToken.None)
         .ConfigureAwait(false);
-    var libItems = await package.PackageReader.GetLibItemsAsync(CancellationToken.None).ConfigureAwait(false);
+    var packageReader = package.PackageReader
+                        ?? throw new InvalidOperationException("Downloaded package 'Newtonsoft.Json' has no reader.");
+    var libItems = await packageReader.GetLibItemsAsync(CancellationToken.None).ConfigureAwait(false);
 
     var compatibleFrameworks = libItems.Where(item =>
         DefaultCompatibilityProvider.Instance.IsCompatible(NuGetFramework.Parse("net10.0"), item.TargetFramework));
@@ -468,7 +470,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
         if (!string.Equals(Path.GetExtension(item), ".dll", StringComparison.OrdinalIgnoreCase))
             continue;
 
-        await using var stream = package.PackageReader.GetStream(item);
+        await using var stream = packageReader.GetStream(item);
         var metadataRef = MetadataReference.CreateFromStream(stream);
         var allRefs = Net100.References.All.Add(metadataRef);
 
@@ -657,7 +659,8 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
 
     using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3("https://api.nuget.org/v3/index.json");
-    var resource = await repository.GetResourceAsync<PackageMetadataResource>().ConfigureAwait(false);
+    var resource = await repository.GetResourceAsync<PackageMetadataResource>().ConfigureAwait(false)
+                   ?? throw new InvalidOperationException("nuget.org does not expose a PackageMetadataResource.");
 
     foreach (var package in GetReferencedNuGetPackages())
     {
@@ -735,7 +738,9 @@ async Task<(string Id, NuGetVersion Version)[]> GetAllReferencedNuGetPackages()
         foreach (var repository in sourceRepositories)
         {
             var dependencyInfoResource =
-                await repository.GetResourceAsync<DependencyInfoResource>().ConfigureAwait(false);
+                await repository.GetResourceAsync<DependencyInfoResource>().ConfigureAwait(false)
+                ?? throw new InvalidOperationException(
+                    $"Source '{repository.PackageSource.Source}' does not expose a DependencyInfoResource.");
             var dependencyInfo =
                 await dependencyInfoResource.ResolvePackage(package, framework, cache, logger, cancellationToken)
                     .ConfigureAwait(false);
@@ -862,8 +867,10 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
     var cancellationToken = CancellationToken.None;
 
     var package = await DownloadNuGetPackage(packageId, version, logger, cancellationToken).ConfigureAwait(false);
+    var packageReader = package.PackageReader
+                        ?? throw new InvalidOperationException($"Downloaded package '{packageId}' has no reader.");
     var result = new List<Assembly>();
-    var files = package.PackageReader.GetFiles("analyzers");
+    var files = packageReader.GetFiles("analyzers");
     var filesGroupedByFolder = files.GroupBy(Path.GetDirectoryName).ToArray();
     foreach (var group in filesGroupedByFolder)
     {
@@ -884,7 +891,7 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
                     string.Equals(Path.GetFileName(f), assemblyFileName, StringComparison.OrdinalIgnoreCase));
                 if (assemblyPath != null)
                 {
-                    using var stream = package.PackageReader.GetStream(assemblyPath);
+                    using var stream = packageReader.GetStream(assemblyPath);
                     return context.LoadFromStream(stream);
                 }
             }
@@ -910,7 +917,7 @@ static async Task<Assembly[]> GetAnalyzerReferences(string packageId, NuGetVersi
 
             try
             {
-                await using var stream = package.PackageReader.GetStream(file);
+                await using var stream = packageReader.GetStream(file);
                 result.Add(context.LoadFromStream(stream));
             }
             catch (Exception ex)
@@ -1007,11 +1014,14 @@ static async Task<DownloadResourceResult> DownloadNuGetPackage(string packageId,
 
     using var cache = new SourceCacheContext();
     var repository = Repository.Factory.GetCoreV3(Source);
-    var resource = await repository.GetResourceAsync<FindPackageByIdResource>().ConfigureAwait(false);
+    var resource = await repository.GetResourceAsync<FindPackageByIdResource>().ConfigureAwait(false)
+                   ?? throw new InvalidOperationException($"Source '{Source}' does not expose a FindPackageByIdResource.");
 
     if (version is null)
     {
-        var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>().ConfigureAwait(false);
+        var metadataResource = await repository.GetResourceAsync<PackageMetadataResource>().ConfigureAwait(false)
+                               ?? throw new InvalidOperationException(
+                                   $"Source '{Source}' does not expose a PackageMetadataResource.");
         var metadata = await metadataResource.GetMetadataAsync(packageId, true, false, cache, NullLogger.Instance,
             CancellationToken.None).ConfigureAwait(false);
         var latestPackage = metadata.MaxBy(static m => m.Identity.Version)

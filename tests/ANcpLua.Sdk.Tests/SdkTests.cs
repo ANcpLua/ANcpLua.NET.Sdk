@@ -258,7 +258,14 @@ public abstract class SdkTests(
 
         var files = result.GetBinLogFiles();
         Assert.Contains(files, static f => f.EndsWith(".editorconfig", StringComparison.Ordinal));
-        Assert.Contains(files, f => f == localFile || f == "/private" + localFile);
+
+        // macOS resolves the /var symlink behind the temp folder, so the binlog records the
+        // /private-prefixed realpath. Compare as FullPath so the platform's path comparer
+        // decides, not an ordinal string compare (MFFP0015).
+        FullPath[] expected = OperatingSystem.IsMacOS()
+            ? [localFile, FullPath.FromPath("/private" + localFile)]
+            : [localFile];
+        Assert.Contains(files, f => expected.Contains(FullPath.FromPath(f)));
     }
 
     [Fact]

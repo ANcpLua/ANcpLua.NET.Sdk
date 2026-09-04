@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label=".NET SDK">
-    <DotNetSdkVersion>10.0.301</DotNetSdkVersion>
+    <DotNetSdkVersion>10.0.400</DotNetSdkVersion>
     <DotNetSdkRollForward>latestMinor</DotNetSdkRollForward>
   </PropertyGroup>
 
@@ -19,54 +19,55 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Reference Assemblies">
-    <BasicReferenceAssembliesVersion>1.8.9</BasicReferenceAssembliesVersion>
+    <BasicReferenceAssembliesVersion>1.8.11</BasicReferenceAssembliesVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Meziantou">
-    <MeziantouFrameworkVersion>6.0.1</MeziantouFrameworkVersion>
-    <MeziantouFullPathVersion>3.0.1</MeziantouFullPathVersion>
-    <MeziantouProcessWrapperVersion>2.0.1</MeziantouProcessWrapperVersion>
-    <MeziantouTemporaryDirectoryVersion>3.0.1</MeziantouTemporaryDirectoryVersion>
+    <MeziantouFrameworkVersion>6.0.4</MeziantouFrameworkVersion>
+    <MeziantouFullPathVersion>3.0.4</MeziantouFullPathVersion>
+    <MeziantouProcessWrapperVersion>2.0.4</MeziantouProcessWrapperVersion>
+    <MeziantouTemporaryDirectoryVersion>3.0.4</MeziantouTemporaryDirectoryVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Testing">
-    <XunitV3Version>3.2.2</XunitV3Version>
-    <AwesomeAssertionsVersion>9.4.0</AwesomeAssertionsVersion>
+    <XunitV3Version>4.0.0</XunitV3Version>
+    <AwesomeAssertionsVersion>9.6.0</AwesomeAssertionsVersion>
     <AwesomeAssertionsAnalyzersVersion>9.0.8</AwesomeAssertionsAnalyzersVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="MTP Extensions">
-    <MTPExtensionsVersion>2.3.2</MTPExtensionsVersion>
-    <CodeCoverageVersion>18.9.0</CodeCoverageVersion>
-    <GitHubActionsLoggerMTPVersion>3.0.4</GitHubActionsLoggerMTPVersion>
+    <MTPExtensionsVersion>2.4.0</MTPExtensionsVersion>
+    <CodeCoverageVersion>18.11.0</CodeCoverageVersion>
+    <GitHubActionsLoggerMTPVersion>3.0.5</GitHubActionsLoggerMTPVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
-    <!-- 2.1.0: adds AL1506 (ExcludeFromCodeCoverage on branching code without a Justification),
-         on top of 2.0.2's gating of the AL1200-band "use ANcpLua.Roslyn.Utilities helper" rules
-         (AL1204-AL1220) to projects that reference the package. 2.1.0 is indexed on nuget.org —
-         pointing SDK truth at an unpublished version fails restore with NU1102.
+    <!-- 2.1.2: makes <AlAnalysisMode> actually work — the three profiles shipped as sectioned
+         analyzer configs, whose globs Roslyn resolves relative to the package folder, so they
+         matched nothing; they are now emitted with is_global = true. Carries the 90th
+         diagnostic on top of 2.1.1's 89. 2.1.2 is indexed on nuget.org — pointing SDK truth
+         at an unpublished version fails restore with NU1102.
          Bundled per-rule editorconfig in src/Config/Analyzer.ANcpLua.Analyzers.editorconfig
          is regenerated from the published DLL's HelpLinkUri by ConfigFilesGenerator. -->
-    <ANcpLuaAnalyzersVersion>2.1.1</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>2.1.2</ANcpLuaAnalyzersVersion>
     <NetAnalyzersVersion Condition="'$(NetAnalyzersVersion)' == ''">$(DotNetSdkVersion)</NetAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>5.6.0</BannedApiAnalyzersVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Microsoft.Extensions">
-    <MicrosoftExtensionsVersion>10.8.0</MicrosoftExtensionsVersion>
-    <AspNetCoreVersion>10.0.10</AspNetCoreVersion>
-    <MicrosoftBclAsyncInterfacesVersion>10.0.10</MicrosoftBclAsyncInterfacesVersion>
+    <MicrosoftExtensionsVersion>10.9.0</MicrosoftExtensionsVersion>
+    <AspNetCoreVersion>10.0.11</AspNetCoreVersion>
+    <MicrosoftBclAsyncInterfacesVersion>10.0.11</MicrosoftBclAsyncInterfacesVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Build Tools">
-    <NuGetVersion>7.6.0</NuGetVersion>
-    <MSBuildStructuredLoggerVersion>2.3.213</MSBuildStructuredLoggerVersion>
+    <NuGetVersion>7.9.0</NuGetVersion>
+    <MSBuildStructuredLoggerVersion>2.3.246</MSBuildStructuredLoggerVersion>
   </PropertyGroup>
 
   <!--
-    Microsoft.Agents.AI (MAF 1.13.0). Numeric base ships in lockstep from upstream;
+    Microsoft.Agents.AI (MAF 1.20.0). Numeric base ships in lockstep from upstream;
     family spans mixed release tracks — highest experimental track per package:
       stable     : core, Abstractions, Workflows, OpenAI, Workflows.Declarative
       -preview.* : Hosting, Hosting.AGUI.AspNetCore, Anthropic, DevUI
@@ -75,15 +76,15 @@
     the suffix variance.
   -->
   <PropertyGroup Label="Microsoft.Agents">
-    <MicrosoftAgentsAIVersion Condition="'$(MicrosoftAgentsAIVersion)' == ''">1.13.0</MicrosoftAgentsAIVersion>
-    <MicrosoftAgentsAIAbstractionsVersion Condition="'$(MicrosoftAgentsAIAbstractionsVersion)' == ''">1.13.0</MicrosoftAgentsAIAbstractionsVersion>
-    <MicrosoftAgentsAIWorkflowsVersion Condition="'$(MicrosoftAgentsAIWorkflowsVersion)' == ''">1.13.0</MicrosoftAgentsAIWorkflowsVersion>
-    <MicrosoftAgentsAIOpenAIVersion Condition="'$(MicrosoftAgentsAIOpenAIVersion)' == ''">1.13.0</MicrosoftAgentsAIOpenAIVersion>
-    <MicrosoftAgentsAIHostingVersion Condition="'$(MicrosoftAgentsAIHostingVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIHostingVersion>
-    <MicrosoftAgentsAIHostingAGUIAspNetCoreVersion Condition="'$(MicrosoftAgentsAIHostingAGUIAspNetCoreVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>
-    <MicrosoftAgentsAIAnthropicVersion Condition="'$(MicrosoftAgentsAIAnthropicVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIAnthropicVersion>
-    <MicrosoftAgentsAIDevUIVersion Condition="'$(MicrosoftAgentsAIDevUIVersion)' == ''">1.13.0-preview.260703.1</MicrosoftAgentsAIDevUIVersion>
-    <MicrosoftAgentsAIWorkflowsDeclarativeVersion Condition="'$(MicrosoftAgentsAIWorkflowsDeclarativeVersion)' == ''">1.13.0</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
+    <MicrosoftAgentsAIVersion Condition="'$(MicrosoftAgentsAIVersion)' == ''">1.20.0</MicrosoftAgentsAIVersion>
+    <MicrosoftAgentsAIAbstractionsVersion Condition="'$(MicrosoftAgentsAIAbstractionsVersion)' == ''">1.20.0</MicrosoftAgentsAIAbstractionsVersion>
+    <MicrosoftAgentsAIWorkflowsVersion Condition="'$(MicrosoftAgentsAIWorkflowsVersion)' == ''">1.20.0</MicrosoftAgentsAIWorkflowsVersion>
+    <MicrosoftAgentsAIOpenAIVersion Condition="'$(MicrosoftAgentsAIOpenAIVersion)' == ''">1.20.0</MicrosoftAgentsAIOpenAIVersion>
+    <MicrosoftAgentsAIHostingVersion Condition="'$(MicrosoftAgentsAIHostingVersion)' == ''">1.20.0-preview.260831.1</MicrosoftAgentsAIHostingVersion>
+    <MicrosoftAgentsAIHostingAGUIAspNetCoreVersion Condition="'$(MicrosoftAgentsAIHostingAGUIAspNetCoreVersion)' == ''">1.20.0-preview.260831.1</MicrosoftAgentsAIHostingAGUIAspNetCoreVersion>
+    <MicrosoftAgentsAIAnthropicVersion Condition="'$(MicrosoftAgentsAIAnthropicVersion)' == ''">1.20.0-preview.260831.1</MicrosoftAgentsAIAnthropicVersion>
+    <MicrosoftAgentsAIDevUIVersion Condition="'$(MicrosoftAgentsAIDevUIVersion)' == ''">1.20.0-preview.260831.1</MicrosoftAgentsAIDevUIVersion>
+    <MicrosoftAgentsAIWorkflowsDeclarativeVersion Condition="'$(MicrosoftAgentsAIWorkflowsDeclarativeVersion)' == ''">1.20.0</MicrosoftAgentsAIWorkflowsDeclarativeVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Aliases">
