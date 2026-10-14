@@ -42,14 +42,12 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Analyzers">
-    <!-- 2.1.2: makes <AlAnalysisMode> actually work — the three profiles shipped as sectioned
-         analyzer configs, whose globs Roslyn resolves relative to the package folder, so they
-         matched nothing; they are now emitted with is_global = true. Carries the 90th
-         diagnostic on top of 2.1.1's 89. 2.1.2 is indexed on nuget.org — pointing SDK truth
-         at an unpublished version fails restore with NU1102.
+    <!-- 2.1.4: AL1012 no longer fires on using / await using declarations (its code fix
+         dropped the dispose). Point truth only at an indexed version: an unpublished one
+         fails every restore with NU1102.
          Bundled per-rule editorconfig in src/Config/Analyzer.ANcpLua.Analyzers.editorconfig
          is regenerated from the published DLL's HelpLinkUri by ConfigFilesGenerator. -->
-    <ANcpLuaAnalyzersVersion>2.1.2</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>2.1.4</ANcpLuaAnalyzersVersion>
     <NetAnalyzersVersion Condition="'$(NetAnalyzersVersion)' == ''">$(DotNetSdkVersion)</NetAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>5.6.0</BannedApiAnalyzersVersion>
@@ -57,8 +55,13 @@
 
   <PropertyGroup Label="Microsoft.Extensions">
     <MicrosoftExtensionsVersion>10.9.0</MicrosoftExtensionsVersion>
-    <AspNetCoreVersion>10.0.11</AspNetCoreVersion>
-    <MicrosoftBclAsyncInterfacesVersion>10.0.11</MicrosoftBclAsyncInterfacesVersion>
+    <!-- The .NET runtime servicing line: one value for every package that ships with it. -->
+    <DotNetRuntimeVersion>10.0.13</DotNetRuntimeVersion>
+    <AspNetCoreVersion>$(DotNetRuntimeVersion)</AspNetCoreVersion>
+    <MicrosoftBclAsyncInterfacesVersion>$(DotNetRuntimeVersion)</MicrosoftBclAsyncInterfacesVersion>
+    <!-- Transitive security pin on the runtime line: NuGet.Packaging (via Microsoft.CodeAnalysis.Analyzer.Testing)
+         pulls 8.0.1 / 9.0.6, hit by GHSA-2fmv-rv2c-59x7 and GHSA-846f-f764-76mx; the servicing build carries the fixes. -->
+    <SystemSecurityCryptographyPkcsVersion>$(DotNetRuntimeVersion)</SystemSecurityCryptographyPkcsVersion>
   </PropertyGroup>
 
   <PropertyGroup Label="Build Tools">

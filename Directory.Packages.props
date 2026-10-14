@@ -30,6 +30,7 @@
   <!-- Microsoft.Extensions -->
   <ItemGroup Label="Microsoft.Extensions">
     <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="$(MicrosoftBclAsyncInterfacesVersion)"/>
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="$(SystemSecurityCryptographyPkcsVersion)"/>
   </ItemGroup>
 
   <!-- Meziantou -->
