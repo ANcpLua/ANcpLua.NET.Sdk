@@ -1,6 +1,10 @@
 <Project>
-  <!-- Expose Directory.Packages.props / Directory.Build.props / Version.props to ANcpLua.Analyzers (AL1600-AL1602) -->
+  <!-- Expose Directory.Packages.props / Directory.Build.props / Version.props to ANcpLua.Analyzers (AL1600-AL1602).
+       The SDK's own Version.props goes too, so AL1602 sees the variables the SDK defines. -->
   <ItemGroup Condition="'$(DisableVersionAnalyzer)' != 'true'">
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)..\Common\Version.props"
+                     Condition="Exists('$(MSBuildThisFileDirectory)..\Common\Version.props')"
+                     Visible="false" />
     <AdditionalFiles Include="$(MSBuildProjectDirectory)\Directory.Packages.props"
                      Condition="Exists('$(MSBuildProjectDirectory)\Directory.Packages.props')"
                      Visible="false" />
