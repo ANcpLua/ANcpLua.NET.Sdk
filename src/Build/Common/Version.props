@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label=".NET SDK">
-    <DotNetSdkVersion>10.0.400</DotNetSdkVersion>
+    <DotNetSdkVersion>10.0.402</DotNetSdkVersion>
     <DotNetSdkRollForward>latestMinor</DotNetSdkRollForward>
   </PropertyGroup>
 
@@ -44,11 +44,11 @@
   <PropertyGroup Label="Analyzers">
     <!-- 2.1.5: AL1602 reads every Version.props passed to it (this SDK passes its own, see
          VersionEnforcement.targets), so SDK-defined variables are no longer "undefined".
-         2.1.4: AL1012 skips using declarations. Point truth only at an indexed version:
+         2.1.4: AL1012 skips using declarations. 2.1.6: bundles ANcpLua.Roslyn.Utilities 3.0.0. Point truth only at an indexed version:
          an unpublished one fails every restore with NU1102.
          Bundled per-rule editorconfig in src/Config/Analyzer.ANcpLua.Analyzers.editorconfig
          is regenerated from the published DLL's HelpLinkUri by ConfigFilesGenerator. -->
-    <ANcpLuaAnalyzersVersion>2.1.5</ANcpLuaAnalyzersVersion>
+    <ANcpLuaAnalyzersVersion>2.1.6</ANcpLuaAnalyzersVersion>
     <NetAnalyzersVersion Condition="'$(NetAnalyzersVersion)' == ''">$(DotNetSdkVersion)</NetAnalyzersVersion>
     <SbomTargetsVersion>4.1.5</SbomTargetsVersion>
     <BannedApiAnalyzersVersion>5.6.0</BannedApiAnalyzersVersion>
