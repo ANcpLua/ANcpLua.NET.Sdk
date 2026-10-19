@@ -81,7 +81,7 @@ Build/Common/Common.targets → imports, in order:
       SourceGenerators.targets
       Tests.targets               (only when IsTestProject == true)
       Npm.targets
-      ../Enforcement/VersionEnforcement.targets   # AL0018: verifies Version.props was imported
+      ../Enforcement/VersionEnforcement.targets   # ANCPSDK002: verifies Version.props was imported
 ```
 
 The `Common.props`/`Common.targets` files run *because* the base Microsoft SDK honors the

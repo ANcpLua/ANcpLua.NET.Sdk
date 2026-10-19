@@ -282,7 +282,7 @@ dotnet_diagnostic.CA1305.severity = none
 # Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/quality-rules/ca1307
 # Enabled: False, Severity: warning
 # Demoted: clarity hint only — the correctness rule is CA1310 (kept at warning).
-# CA1307 is also covered by AL0039 (StringComparison ext) at suggestion.
+# CA1307 is also covered by AL1210 (StringComparison ext) at suggestion.
 dotnet_diagnostic.CA1307.severity = suggestion
 
 # CA1308: Normalize strings to uppercase

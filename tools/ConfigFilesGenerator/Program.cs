@@ -63,12 +63,12 @@ const string DefaultBannedSymbols = """
     M:System.Enum.TryParse``1(System.String,``0@);Use an overload with a ignoreCase argument
     M:System.Enum.TryParse``1(System.ReadOnlySpan{System.Char},``0@);Use an overload with a ignoreCase argument
 
-    M:System.Math.Round(System.Decimal);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
-    M:System.Math.Round(System.Decimal,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
-    M:System.Math.Round(System.Double);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
-    M:System.Math.Round(System.Double,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
-    M:System.MathF.Round(System.Single);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
-    M:System.MathF.Round(System.Single,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL0138)
+    M:System.Math.Round(System.Decimal);Use an overload with a MidpointRounding argument (auto-fix: AL1314)
+    M:System.Math.Round(System.Decimal,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL1314)
+    M:System.Math.Round(System.Double);Use an overload with a MidpointRounding argument (auto-fix: AL1314)
+    M:System.Math.Round(System.Double,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL1314)
+    M:System.MathF.Round(System.Single);Use an overload with a MidpointRounding argument (auto-fix: AL1314)
+    M:System.MathF.Round(System.Single,System.Int32);Use an overload with a MidpointRounding argument (auto-fix: AL1314)
 
     M:System.Globalization.CultureInfo.#ctor(System.String);Use CultureInfo.GetCultureInfo
 
@@ -530,7 +530,7 @@ static string NormalizeGeneratedText(StringBuilder sb)
 
 static string? NormalizeHelpLink(string? helpLinkUri, string ruleId)
 {
-    // Some analyzers (e.g. ANcpLua.Analyzers AL0019) return the rules-index URL
+    // Some analyzers (e.g. ANcpLua.Analyzers AL1602) return the rules-index URL
     // without the rule slug. Append the rule ID so the generated link points at
     // the rule-specific page rather than the index.
     if (string.IsNullOrEmpty(helpLinkUri))

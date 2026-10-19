@@ -31,7 +31,7 @@
           BeforeTargets="Build"
           Condition="'$(DisableVersionEnforcement)' != 'true' AND '$(DesignTimeBuild)' != 'true'">
     <Error
-      Code="AL1601"
+      Code="ANCPSDK002"
       Text="Version.props not imported. Expected ANcpLua.NET.Sdk's Version.props to provide $(RoslynVersion). Import Sdk='ANcpLua.NET.Sdk' or Version.props explicitly."
       Condition="'$(RoslynVersion)' == ''" />
   </Target>

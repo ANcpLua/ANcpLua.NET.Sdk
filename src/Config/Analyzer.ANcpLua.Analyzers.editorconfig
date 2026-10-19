@@ -354,15 +354,12 @@ dotnet_diagnostic.AL1405.severity = warning
 # AL1406: Avoid 'dynamic' keyword in AOT-published code
 # Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/rules/AL1406_AvoidDynamicKeyword.md
 # Enabled: True, Severity: warning
-# Demoted: AOT advisory. Non-AOT projects use `dynamic` legitimately (DLR scripting,
-# interop). AOT projects should re-promote to warning/error in their editorconfig.
-dotnet_diagnostic.AL1406.severity = suggestion
+dotnet_diagnostic.AL1406.severity = warning
 
 # AL1407: Avoid Expression.Compile() in AOT context
 # Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/rules/AL1407_AvoidExpressionCompile.md
 # Enabled: True, Severity: warning
-# Demoted: AOT advisory — see AL1406/AL1408 rationale.
-dotnet_diagnostic.AL1407.severity = suggestion
+dotnet_diagnostic.AL1407.severity = warning
 
 # AL1408: Activator.CreateInstance is not AOT-safe
 # Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/rules/AL1408_AvoidActivatorCreateInstance.md
@@ -376,7 +373,7 @@ dotnet_diagnostic.AL1408.severity = suggestion
 # AL1409: Type.GetType with dynamic name is not AOT-safe
 # Help link: https://github.com/ANcpLua/ANcpLua.Analyzers/blob/main/docs/rules/AL1409_AvoidTypeGetType.md
 # Enabled: True, Severity: warning
-# Demoted: AOT advisory — see AL1406/AL1408 rationale.
+# Demoted: AOT advisory — see AL1408 rationale.
 dotnet_diagnostic.AL1409.severity = suggestion
 
 # AL1500: Closed hierarchy match is not exhaustive

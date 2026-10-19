@@ -45,7 +45,6 @@
     <file src="Config/BannedSymbols.NewtonsoftJson.txt" target="Config/"/>
     <file src="Config/CodingStyle.editorconfig" target="Config/"/>
     <file src="Config/Compiler.editorconfig" target="Config/"/>
-    <file src="Config/GeneratedFiles.editorconfig" target="Config/"/>
     <file src="Config/Global.editorconfig" target="Config/"/>
     <file src="Config/NamingConvention.editorconfig" target="Config/"/>
     <file src="Config/default.runsettings" target="Config/"/>

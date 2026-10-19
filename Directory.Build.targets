@@ -2,7 +2,6 @@
   <!--
     Capability-Based Project Detection
     Replaces brittle filename matching with explicit ProjectCapability items.
-    Run Migrate-Capabilities.ps1 to inject capabilities into existing projects.
   -->
 
   <!-- Fallback: filename-based detection for unmigrated projects (evaluated at property time) -->
