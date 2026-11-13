@@ -179,7 +179,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: nuget
           path: ${{ env.NUGET_DIRECTORY }}
@@ -219,7 +219,7 @@ jobs:
           # tag over src/**, so it must see any self-heal commit too. At the run SHA, a release
           # whose only change was a regenerated config would be judged "no changes" and skipped.
           ref: ${{ github.event_name != 'pull_request' && github.ref_name || '' }}
-      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: nuget
           path: ${{ env.NUGET_DIRECTORY }}
