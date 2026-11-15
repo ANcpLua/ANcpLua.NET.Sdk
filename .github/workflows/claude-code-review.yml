@@ -3,63 +3,43 @@ name: Claude Code Review
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
-    paths-ignore:
-      - 'CHANGELOG.md'
-      - '**/*.lock'
-
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
-  id-token: write
-  actions: read
+    # Optional: Only run on specific file changes
+    # paths:
+    #   - "src/**/*.ts"
+    #   - "src/**/*.tsx"
+    #   - "src/**/*.js"
+    #   - "src/**/*.jsx"
 
 jobs:
   claude-review:
-    if: |
-      github.actor != 'github-actions[bot]' &&
-      !contains(github.event.pull_request.title, '[skip review]') &&
-      !contains(github.event.pull_request.labels.*.name, 'skip-review')
-    concurrency:
-      group: claude-review-${{ github.event.pull_request.number }}
-      cancel-in-progress: true
-    runs-on: ubuntu-latest
-    env:
-      CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-    steps:
-      - name: Checkout PR head
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-          fetch-depth: 100
+    # Optional: Filter by PR author
+    # if: |
+    #   github.event.pull_request.user.login == 'external-contributor' ||
+    #   github.event.pull_request.user.login == 'new-developer' ||
+    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
 
-      - name: Run Claude Code Review (agentic)
-        id: claude-review
-        uses: anthropics/claude-code-action@6a5ea47b830d07cbc07c0e5ab22e20e16ae1961b  # v1
-        continue-on-error: true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          claude_code_oauth_token: ${{ env.CLAUDE_CODE_OAUTH_TOKEN }}
-          allowed_bots: 'dependabot[bot],renovate[bot]'
-          track_progress: true
-          show_full_output: true
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
-          claude_args: '--model claude-opus-5-5 --effort high --max-turns 25'
-          prompt: |
-            /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
+          prompt: '/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
+          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
+          # or https://code.claude.com/docs/en/cli-reference for available options
 
-            Operating mode: **agentic**. You have write access to this PR branch.
-
-            Decision tree:
-            1. **Mechanically fixable** (formatting, naming, missing CancellationToken,
-               IDisposable not disposed, .Result/.Wait blocking-async, DateTime.Now,
-               null-forgiving `!`, suppression that can be rewritten, ISourceGenerator
-               that should be IIncrementalGenerator, MSBuild property without condition
-               guard) → fix in a commit pushed to this branch. Don't ask permission.
-            2. **Structural concern needing human judgment** (architectural trade-off,
-               novel pattern, transitive-dependency conflict, breaking SDK contract,
-               analyzer-injection mechanism change, ghost-tag scenario) → flag in a
-               comment and stop.
-            3. **Clean** → post a single approval-style comment and stop.
-
-            Read AGENTS.md / CLAUDE.md for repo invariants.
