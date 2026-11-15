@@ -41,6 +41,7 @@ jobs:
           claude_code_oauth_token: ${{ env.CLAUDE_CODE_OAUTH_TOKEN }}
           allowed_bots: 'dependabot[bot],renovate[bot]'
           track_progress: true
+          show_full_output: true
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           claude_args: '--model claude-opus-5-5 --effort high --max-turns 25'
