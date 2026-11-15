@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Claude Code Review (agentic)
         id: claude-review
-        uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b  # v1
+        uses: anthropics/claude-code-action@6a5ea47b830d07cbc07c0e5ab22e20e16ae1961b  # v1
         continue-on-error: true
         with:
           claude_code_oauth_token: ${{ env.CLAUDE_CODE_OAUTH_TOKEN }}
@@ -43,7 +43,7 @@ jobs:
           track_progress: true
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
-          claude_args: '--model claude-opus-4-7 --max-turns 25'
+          claude_args: '--model claude-opus-5-5 --effort high --max-turns 25'
           prompt: |
             /code-review:code-review ${{ github.repository }}/pull/${{ github.event.pull_request.number }}
 
