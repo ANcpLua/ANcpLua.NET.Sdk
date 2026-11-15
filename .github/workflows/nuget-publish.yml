@@ -165,7 +165,7 @@ jobs:
         with:
           name: nuget
           if-no-files-found: error
-          retention-days: 3
+          retention-days: 1
           path: "${{ env.NUGET_DIRECTORY }}/*.nupkg"
 
   test:
@@ -202,7 +202,7 @@ jobs:
         if: always()
         with:
           name: test_results_${{ matrix.runs-on }}
-          retention-days: 3
+          retention-days: 1
           path: test_results
 
   deploy:
