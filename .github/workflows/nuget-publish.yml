@@ -202,6 +202,7 @@ jobs:
         if: always()
         with:
           name: test_results_${{ matrix.runs-on }}
+          retention-days: 3
           path: test_results
 
   deploy:
