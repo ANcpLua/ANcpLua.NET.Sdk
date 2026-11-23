@@ -414,6 +414,10 @@ public sealed class SdkProjectBuilder : IAsyncDisposable
                 variables.Set(key, "");
 
             variables.Set("MSBUILDLOGALLENVIRONMENTVARIABLES", "true");
+            // SDK 11 builds through the MSBuild server by default. Each throwaway project would start
+            // its own, and a server that misses its connect window falls back mid-build, which left
+            // binlog item lists empty on CI. Build in-process instead.
+            variables.Set("DOTNET_CLI_USE_MSBUILD_SERVER", "0");
             variables.Set("VSTestDiag", vstestDiagPath);
             variables.Set("DOTNET_ROOT", dotnetRoot);
             if (architectureRootKey is not null)

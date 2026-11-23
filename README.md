@@ -17,9 +17,9 @@ Opinionated MSBuild SDK for .NET projects.
     "rollForward": "latestFeature"
   },
   "msbuild-sdks": {
-    "ANcpLua.NET.Sdk": "4.0.0",
-    "ANcpLua.NET.Sdk.Web": "4.0.0",
-    "ANcpLua.NET.Sdk.Test": "4.0.0"
+    "ANcpLua.NET.Sdk": "4.0.1",
+    "ANcpLua.NET.Sdk.Web": "4.0.1",
+    "ANcpLua.NET.Sdk.Test": "4.0.1"
   }
 }
 ```

@@ -38,8 +38,10 @@ public static class DotNetSdk
                             ?? throw new InvalidOperationException($"No SDK found for .NET {versionString}");
 
             var runtimeIdentifier = RuntimeInformation.RuntimeIdentifier;
+            // Windows gets both a .zip and a .tar.gz from .NET 11 on; take the native archive per OS.
+            var archiveExtension = OperatingSystem.IsWindows() ? ".zip" : ".gz";
             var file = latestSdk.Files.Single(f =>
-                f.Rid == runtimeIdentifier && Path.GetExtension(f.Name) is ".zip" or ".gz");
+                f.Rid == runtimeIdentifier && Path.GetExtension(f.Name) == archiveExtension);
             var finalFolderPath = FullPath.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) /
                                   "ANcpLua" / "dotnet" / latestSdk.Version.ToString();
             var finalDotnetPath = finalFolderPath / (OperatingSystem.IsWindows() ? "dotnet.exe" : "dotnet");
