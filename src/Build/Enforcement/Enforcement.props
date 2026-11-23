@@ -39,11 +39,11 @@
            Text="POLICY: CentralPackageTransitivePinningEnabled=true required in Directory.Packages.props"/>
   </Target>
 
-  <Target Name="_EnforceNet10Sdk" BeforeTargets="BeforeBuild">
-    <Error Condition="$([MSBuild]::VersionLessThan('$(NETCoreSdkVersion)', '10.0.0'))"
-           Text="POLICY: .NET SDK 10.0.0+ required. Current: $(NETCoreSdkVersion)"/>
+  <Target Name="_EnforceNet11Sdk" BeforeTargets="BeforeBuild">
+    <Error Condition="$([MSBuild]::VersionLessThan('$(NETCoreSdkVersion)', '11.0.100'))"
+           Text="POLICY: .NET SDK 11.0.100+ required (ANcpLua.Analyzers needs the Roslyn 5.12 compiler). Current: $(NETCoreSdkVersion)"/>
   </Target>
 
   <Target Name="CheckEnforcement"
-          DependsOnTargets="_EnforceNoPolySharp;_EnforceNoDisableTransitive;_EnforceNoVSTestSdk;_EnforceNoFluentAssertions;_EnforceCPM;_EnforceNet10Sdk"/>
+          DependsOnTargets="_EnforceNoPolySharp;_EnforceNoDisableTransitive;_EnforceNoVSTestSdk;_EnforceNoFluentAssertions;_EnforceCPM;_EnforceNet11Sdk"/>
 </Project>

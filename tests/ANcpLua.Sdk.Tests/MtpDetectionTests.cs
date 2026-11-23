@@ -2,8 +2,8 @@ using static ANcpLua.Sdk.Tests.Infrastructure.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
 
-public sealed class MtpDetectionNet100Tests(PackageFixture fixture)
-    : MtpDetectionTests(fixture, NetSdkVersion.Net100);
+public sealed class MtpDetectionNet110Tests(PackageFixture fixture)
+    : MtpDetectionTests(fixture, NetSdkVersion.Net110);
 
 public abstract class MtpDetectionTests(PackageFixture fixture, NetSdkVersion dotnetSdkVersion)
     : SdkTestBase(fixture)
@@ -143,7 +143,7 @@ public abstract class MtpDetectionTests(PackageFixture fixture, NetSdkVersion do
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework(Tfm.Net100)
+            .WithTargetFramework(Tfm.Net110)
             .WithProperty("IsTestProject", "true")
             .WithProperty("EnableNUnitRunner", "true")
             .AddSource("Tests.cs", """
@@ -170,7 +170,7 @@ public abstract class MtpDetectionTests(PackageFixture fixture, NetSdkVersion do
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework(Tfm.Net100)
+            .WithTargetFramework(Tfm.Net110)
             .WithProperty("IsTestProject", "true")
             .WithProperty("EnableMSTestRunner", "true")
             .AddSource("Tests.cs", """
@@ -197,7 +197,7 @@ public abstract class MtpDetectionTests(PackageFixture fixture, NetSdkVersion do
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework(Tfm.Net100)
+            .WithTargetFramework(Tfm.Net110)
             .WithProperty("IsTestProject", "true")
             .WithProperty("SkipXunitInjection", "true")
             .AddSource("Tests.cs", """
@@ -224,7 +224,7 @@ public abstract class MtpDetectionTests(PackageFixture fixture, NetSdkVersion do
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework(Tfm.Net100)
+            .WithTargetFramework(Tfm.Net110)
             .WithProperty("IsTestProject", "true")
             .WithProperty("SkipXunitInjection", "true")
             .AddSource("Tests.cs", """
@@ -249,7 +249,7 @@ public abstract class MtpDetectionTests(PackageFixture fixture, NetSdkVersion do
 
         var result = await project
             .WithFilename("Sample.Tests.csproj")
-            .WithTargetFramework(Tfm.Net100)
+            .WithTargetFramework(Tfm.Net110)
             .WithProperty("IsTestProject", "true")
             .WithProperty("SkipXunitInjection", "true")
             .AddSource("Tests.cs", """

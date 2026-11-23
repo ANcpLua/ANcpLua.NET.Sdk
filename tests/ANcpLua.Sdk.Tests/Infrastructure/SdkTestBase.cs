@@ -19,7 +19,7 @@ public abstract class SdkTestBase(PackageFixture fixture)
 
     protected async Task<BuildResult> BuildLibraryAsync(
         string code,
-        string tfm = Tfm.Net100,
+        string tfm = Tfm.Net110,
         params (string Key, string Value)[] properties)
     {
         await using var project = SdkProjectBuilder.Create(Fixture);

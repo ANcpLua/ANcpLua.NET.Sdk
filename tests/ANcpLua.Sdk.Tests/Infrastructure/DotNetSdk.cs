@@ -26,7 +26,7 @@ public static class DotNetSdk
 
             var versionString = version switch
             {
-                NetSdkVersion.Net100 => "10.0",
+                NetSdkVersion.Net110 => "11.0",
                 _ => throw new NotSupportedException($"SDK version {version} is not supported")
             };
 
@@ -49,7 +49,6 @@ public static class DotNetSdk
             var tempFolder = FullPath.GetTempPath() / "dotnet" / Guid.NewGuid().ToString("N");
             var bytes = await s_httpClient.GetByteArrayAsync(file.Address).ConfigureAwait(false);
             await ExtractAsync(file.Name, bytes, tempFolder).ConfigureAwait(false);
-            MakeUnixExecutables(tempFolder);
 
             finalFolderPath.CreateParentDirectory();
             Directory.Move(tempFolder, finalFolderPath);
@@ -75,38 +74,11 @@ public static class DotNetSdk
             return;
         }
 
+        // TarFile keeps symbolic links, hard links and Unix file modes. The .NET 11 SDK archives
+        // deduplicate Roslyn's assemblies with symlinks (Roslyn/bincore -> sdk root), so an
+        // extractor that writes regular files only leaves csc unable to load Microsoft.CodeAnalysis.
         await using var gz = new GZipStream(ms, CompressionMode.Decompress);
-        await using var tar = new TarReader(gz);
-        while (await tar.GetNextEntryAsync().ConfigureAwait(false) is { } entry)
-        {
-            var destinationPath = destination / entry.Name;
-            switch (entry.EntryType)
-            {
-                case TarEntryType.Directory:
-                    Directory.CreateDirectory(destinationPath);
-                    break;
-                case TarEntryType.RegularFile:
-                    if (Path.GetDirectoryName(destinationPath) is { } parentDir)
-                        Directory.CreateDirectory(parentDir);
-                    await using (var outputStream = File.Create(destinationPath))
-                        if (entry.DataStream is { } entryStream)
-                            await entryStream.CopyToAsync(outputStream).ConfigureAwait(false);
-                    break;
-            }
-        }
-    }
-
-    private static void MakeUnixExecutables(FullPath folder)
-    {
-        if (OperatingSystem.IsWindows())
-            return;
-
-        const UnixFileMode Executable =
-            UnixFileMode.UserRead | UnixFileMode.UserExecute | UnixFileMode.GroupRead |
-            UnixFileMode.GroupExecute | UnixFileMode.OtherRead | UnixFileMode.OtherExecute;
-
-        File.SetUnixFileMode(folder / "dotnet", Executable);
-        foreach (var cscPath in Directory.GetFiles(folder, "csc", SearchOption.AllDirectories))
-            File.SetUnixFileMode(cscPath, Executable);
+        Directory.CreateDirectory(destination);
+        await TarFile.ExtractToDirectoryAsync(gz, destination, overwriteFiles: true).ConfigureAwait(false);
     }
 }

@@ -56,7 +56,7 @@ dotnet run --project tools/SdkGenerator          # -> src/Sdk/<variant>/Sdk.prop
 dotnet run --project tools/ConfigFilesGenerator  # -> src/Config/Analyzer.*.editorconfig, BannedSymbols.*.txt
 ```
 
-`global.json` pins .NET SDK `10.0.402` (rollForward `latestFeature`, prerelease allowed) and
+`global.json` pins .NET SDK `11.0.100` (rollForward `latestFeature`, prerelease allowed) and
 sets the test runner to `Microsoft.Testing.Platform`.
 
 ## SDK import chain
@@ -221,7 +221,7 @@ src/
                    #   BannedSymbols*.txt, default.runsettings   (GENERATED — see tools/)
   Sdk/<variant>/   # GENERATED Sdk.props/Sdk.targets entry points (see tools/SdkGenerator)
 tests/ANcpLua.Sdk.Tests/   # SDK behavior tests (pack SDK → build sample projects → assert)
-tools/             # SdkGenerator, ConfigFilesGenerator (standalone exes, net10.0, not packed)
+tools/             # SdkGenerator, ConfigFilesGenerator (standalone exes, net11.0, not packed)
 templates/         # ancplua-app / ancplua-lib / ancplua-web (dotnet new sources)
 ```
 

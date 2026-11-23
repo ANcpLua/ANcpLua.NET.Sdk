@@ -167,7 +167,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
     [Theory]
     [InlineData("ancplua-app")]
     [InlineData("ancplua-lib")]
-    public async Task Scaffold_WhenTargetFrameworkNet9Specified_HonorsChoice(string shortName)
+    public async Task Scaffold_WhenTargetFrameworkNet10Specified_HonorsChoice(string shortName)
     {
         await using var hive = TemporaryDirectory.Create();
         await using var output = TemporaryDirectory.Create();
@@ -175,7 +175,7 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
 
         await DotnetNewInstallAsync(hive.FullPath);
         await DotnetNewScaffoldAsync(
-            shortName, projectName, output.FullPath, hive.FullPath, extraArgs: ["--TargetFramework", "net9.0"]);
+            shortName, projectName, output.FullPath, hive.FullPath, extraArgs: ["--TargetFramework", "net10.0"]);
 
         var srcCsproj = output.FullPath / "src" / projectName / $"{projectName}.csproj";
         var testsCsproj = output.FullPath / "tests" / $"{projectName}.Tests" / $"{projectName}.Tests.csproj";
@@ -185,10 +185,10 @@ public sealed partial class TemplatesTests(PackageFixture fixture)
         var srcContent = await File.ReadAllTextAsync(srcCsproj, TestContext.Current.CancellationToken);
         var testsContent = await File.ReadAllTextAsync(testsCsproj, TestContext.Current.CancellationToken);
 
-        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", srcContent, StringComparison.Ordinal);
-        Assert.Contains("<TargetFramework>net9.0</TargetFramework>", testsContent, StringComparison.Ordinal);
-        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", srcContent, StringComparison.Ordinal);
-        Assert.DoesNotContain("<TargetFramework>net10.0</TargetFramework>", testsContent, StringComparison.Ordinal);
+        Assert.Contains("<TargetFramework>net10.0</TargetFramework>", srcContent, StringComparison.Ordinal);
+        Assert.Contains("<TargetFramework>net10.0</TargetFramework>", testsContent, StringComparison.Ordinal);
+        Assert.DoesNotContain("<TargetFramework>net11.0</TargetFramework>", srcContent, StringComparison.Ordinal);
+        Assert.DoesNotContain("<TargetFramework>net11.0</TargetFramework>", testsContent, StringComparison.Ordinal);
     }
 
     [Theory]

@@ -7,14 +7,14 @@ using static ANcpLua.Sdk.Tests.Infrastructure.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
 
-public sealed class Sdk100RootTests(PackageFixture fixture)
-    : SdkTests(fixture, NetSdkVersion.Net100, SdkImportStyle.ProjectElement);
+public sealed class Sdk110RootTests(PackageFixture fixture)
+    : SdkTests(fixture, NetSdkVersion.Net110, SdkImportStyle.ProjectElement);
 
-public sealed class Sdk100InnerTests(PackageFixture fixture)
-    : SdkTests(fixture, NetSdkVersion.Net100, SdkImportStyle.SdkElement);
+public sealed class Sdk110InnerTests(PackageFixture fixture)
+    : SdkTests(fixture, NetSdkVersion.Net110, SdkImportStyle.SdkElement);
 
-public sealed class Sdk100DirectoryBuildPropsTests(PackageFixture fixture)
-    : SdkTests(fixture, NetSdkVersion.Net100, SdkImportStyle.SdkElementDirectoryBuildProps);
+public sealed class Sdk110DirectoryBuildPropsTests(PackageFixture fixture)
+    : SdkTests(fixture, NetSdkVersion.Net110, SdkImportStyle.SdkElementDirectoryBuildProps);
 
 public abstract class SdkTests(
     PackageFixture fixture,
@@ -964,7 +964,7 @@ public abstract class SdkTests(
         var expectedVersion = string.IsNullOrEmpty(version)
             ? dotnetSdkVersion switch
             {
-                NetSdkVersion.Net100 => "net10.0",
+                NetSdkVersion.Net110 => "net11.0",
                 _ => throw new NotSupportedException()
             }
             : version;

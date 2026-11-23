@@ -463,7 +463,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
     var libItems = await packageReader.GetLibItemsAsync(CancellationToken.None).ConfigureAwait(false);
 
     var compatibleFrameworks = libItems.Where(item =>
-        DefaultCompatibilityProvider.Instance.IsCompatible(NuGetFramework.Parse("net10.0"), item.TargetFramework));
+        DefaultCompatibilityProvider.Instance.IsCompatible(NuGetFramework.Parse("net11.0"), item.TargetFramework));
     var items = compatibleFrameworks.SelectMany(static item => item.Items).ToArray();
     foreach (var item in items)
     {
@@ -472,7 +472,7 @@ async Task GenerateBanSymbolsForNewtonsoftJson()
 
         await using var stream = packageReader.GetStream(item);
         var metadataRef = MetadataReference.CreateFromStream(stream);
-        var allRefs = Net100.References.All.Add(metadataRef);
+        var allRefs = Net110.References.All.Add(metadataRef);
 
         var compilation = CSharpCompilation.Create("temp", [], allRefs);
         var jsonConvertType = compilation.GetTypeByMetadataName("Newtonsoft.Json.JsonConvert");

@@ -2,8 +2,8 @@ using static ANcpLua.Sdk.Tests.Infrastructure.PackageFixture;
 
 namespace ANcpLua.Sdk.Tests;
 
-public sealed class SourceGeneratorDefaultsNet100Tests(PackageFixture fixture)
-    : SourceGeneratorDefaultsTests(fixture, NetSdkVersion.Net100);
+public sealed class SourceGeneratorDefaultsNet110Tests(PackageFixture fixture)
+    : SourceGeneratorDefaultsTests(fixture, NetSdkVersion.Net110);
 
 public abstract class SourceGeneratorDefaultsTests(PackageFixture fixture, NetSdkVersion dotnetSdkVersion)
     : SdkTestBase(fixture)

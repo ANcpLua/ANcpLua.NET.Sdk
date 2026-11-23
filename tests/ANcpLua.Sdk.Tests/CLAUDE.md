@@ -12,7 +12,7 @@ dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj
 dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-method "*BannedApi*"
 
 # Run specific test class
-dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-class "*Sdk100RootTests"
+dotnet test --project tests/ANcpLua.Sdk.Tests/ANcpLua.Sdk.Tests.csproj --filter-class "*Sdk110RootTests"
 ```
 
 ## Test Architecture
@@ -32,7 +32,7 @@ result.ShouldSucceed();
 
 | Class                            | Purpose                                                           |
 |----------------------------------|-------------------------------------------------------------------|
-| `Sdk100RootTests` / `Sdk100InnerTests` / `Sdk100DirectoryBuildPropsTests` | Core SDK features per import style |
+| `Sdk110RootTests` / `Sdk110InnerTests` / `Sdk110DirectoryBuildPropsTests` | Core SDK features per import style |
 | `BannedApiTests`                 | BannedApiAnalyzers enforcement                                    |
 | `MtpDetectionTests`              | Microsoft Testing Platform auto-detection                         |
 | `SourceGeneratorDefaultsTests`   | Auto-pin Microsoft.CodeAnalysis.CSharp for generators             |

@@ -23,7 +23,7 @@ public sealed class SdkProjectBuilder : IAsyncDisposable
 
     private string _sdkName;
     private string _projectFilename = DefaultProjectFilename;
-    private NetSdkVersion _sdkVersion = NetSdkVersion.Net100;
+    private NetSdkVersion _sdkVersion = NetSdkVersion.Net110;
     private string? _targetFramework;
     private string? _outputType;
     private bool _omitOutputType;
@@ -40,7 +40,7 @@ public sealed class SdkProjectBuilder : IAsyncDisposable
             {
               "sdk": {
                 "rollForward": "latestMinor",
-                "version": "10.0.100"
+                "version": "11.0.100"
               }
             }
             """);
@@ -82,7 +82,7 @@ public sealed class SdkProjectBuilder : IAsyncDisposable
         SdkImportStyle style = SdkImportStyle.SdkElement,
         string? sdkName = null) =>
         new SdkProjectBuilder(fixture, style, sdkName ?? PackageFixture.SdkName)
-            .WithTargetFramework(Tfm.Net100)
+            .WithTargetFramework(Tfm.Net110)
             .WithProperty("ANcpLuaSdkSkipCPMEnforcement", "true");
 
     public SdkProjectBuilder WithTargetFramework(string tfm)

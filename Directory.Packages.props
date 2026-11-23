@@ -53,7 +53,7 @@
 
   <!-- Build/Tools -->
   <ItemGroup Label="Build">
-    <PackageVersion Include="Basic.Reference.Assemblies.Net100" Version="$(BasicReferenceAssembliesVersion)"/>
+    <PackageVersion Include="Basic.Reference.Assemblies.Net110" Version="$(BasicReferenceAssembliesVersion)"/>
     <PackageVersion Include="MSBuild.StructuredLogger" Version="$(MSBuildStructuredLoggerVersion)"/>
     <PackageVersion Include="NuGet.Protocol" Version="$(NuGetVersion)"/>
     <PackageVersion Include="NuGet.Packaging" Version="$(NuGetVersion)"/>

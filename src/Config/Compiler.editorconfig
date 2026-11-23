@@ -38,6 +38,7 @@ dotnet_diagnostic.IDE0036.severity = silent
 dotnet_diagnostic.IDE0041.severity = silent
 
 # IDE0043: Invalid format string
+# Help link: https://learn.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/ide0043
 # Enabled: True, Severity: suggestion
 dotnet_diagnostic.IDE0043.severity = suggestion
 

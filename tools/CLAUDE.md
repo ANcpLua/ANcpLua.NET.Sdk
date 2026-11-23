@@ -44,7 +44,7 @@ dotnet run --project tools/ConfigFilesGenerator
 All tools:
 - Auto-detect repo root via `.git` folder traversal
 - Use `Meziantou.Framework.FullPath` for path handling
-- Target net10.0
+- Target net11.0
 - Are excluded from SDK package (standalone executables)
 
 ## Adding a New Tool

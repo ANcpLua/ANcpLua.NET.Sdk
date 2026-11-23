@@ -2,7 +2,7 @@ namespace ANcpLua.Sdk.Tests.Infrastructure;
 
 public enum NetSdkVersion
 {
-    Net100
+    Net110
 }
 
 public enum SdkImportStyle
@@ -18,7 +18,7 @@ public static class Tfm
 {
     public const string NetStandard20 = "netstandard2.0";
     public const string Net80 = "net8.0";
-    public const string Net100 = "net10.0";
+    public const string Net110 = "net11.0";
 }
 
 public static class Prop
